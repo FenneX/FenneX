@@ -1,0 +1,73 @@
+Legend
+MANUAL for changes that were performed manually after cocos2dx-2.2 update
+NEW for manual changes that were performed due to cocos2dx-2.2 update
+AUTO for changes that were part of cocos2dx-2.2 update
+AUTO (removed) for fixes that didn't require to be performed on 2.2 (but were necessary before)
+DROPPED for changes that were dropped because not needed anymore anyway
+=> not done yet
+>TA to test on Android, works on iOS
+
+
+List of changes for cocos2dx
+
+MANUAL JniHelper => add function getEnv() to get the jni environment
+MANUAL CCDirector.cpp/EAGLView.mm => opacity of background (for video/other platform element in background)
+DROPPED CCDrawingPrimitives.cpp => comment in ccDrawCircle to have a solid circle (no real modification)
+MANUAL CCActionInstant.h/.cpp => add getSelectorTarget to CCCallFuncO (to be able to cancel selector)
+MANUAL CCActionInterval.h/.cpp => add getCurrentAction and getNextAction to CCSequence (to be able to cancel selector)
+MANUAL CCActionManager.h/.cpp => add getAllActionsForTarget (to be able to cancel selector)
+MANUAL CCInteger.h => add copyWithZone (to add in a CCArray) and isEqual
+MANUAL quaternion.c => add #include <string.h> /* resolve memset warning in eclipse */
+MANUAL vec4.c => add #include <string.h> /* resolve memset warning in eclipse */
+MANUAL CCLabelBMFont.h/.cpp => add containsChar (probably unused now, since it is required by Label, which is not in use anymore)
+MANUAL CCLabelBMFont.cpp => add code to replace unknown character by '?' (to avoid crash, probably unused now, since it is required by Label, which is not in use anymore)
+AUTO (removed) CCLayer.cpp => commented a call to CCDirector which was causing a warning
+MANUAL CCCommon.mm => changed CCLog behavior for iOS
+DROPPED CCFileUtils.mm => no modification (change in formating was commited)
+AUTO CCImage.mm => iOS 7 fixs, commit pulled from bleeding edge version, should be fixed in higher versions
+MANUAL project.pbxproj => added extensions, update to C++11, switch to libc++, target 5.0, universal
+MANUAL CCNotificationCenter.cpp => fix removeObserver to go through all the observers and allow to remove an observer when name == NULL
+MANUAL CCNotificationCenter.h => default parameter name = NULL
+MANUAL CCNotificaitonCenter.cpp => add a commented line to log all events
+MANUAL CCTextureCache.h/.cpp => add keyForTexture
+MANUAL CCTouch.h/.cpp => add copyWithZone (to add in a CCArray)
+NEW ccUTF8.h/.cpp => add cc_utf8_get_char as a public method for CCLabelBMFont modification
+NEW CCGeometry.h => make CCPoint and CCSize inherit from CCObject again (needed to add it to array/dictionary)
+NEW CCBAnimationManager.cpp => remove reference to SimpleAudioEngine.h and add an assert in CCBSoundEffect::update
+NEW CCBool.h/CCFloat.h => add copyWithZone (to add in a CCArray) and isEqual
+NEW CCPoint.h/cpp => add copyWithZone again (to add in a CCArray)
+MANUAL CCImage.mm => change "dim.height += tmp.height;" to "dim.height += ceil(tmp.height);" line 188 to resolve a bug(last line of a multiline label disappear).
+MANUAL CCEditBoxImplAndroid.cpp/BackAwareEditText.java/Cocos2dxEditBoxDialog.java => add BackAwareEditText to be able to intercept back button when editing text to cancel edit properly
+MANUAL CCLabelTTF.cpp/CCTextureCache.cpp => add logs to profile texture creation time
+MANUAL CCLabelTTF.h/.cpp => add methods to control update calls, disabled (no update) by default
+MANUAL Cocos2dxBitmap.java => move variables to static methods to avoid creating new objects each time
+MANUAL CCNodeLoader.cpp => load CCScale9Sprite preferredSize at the end to avoid bug of ignored preferredSize
+MANUAL CCEditBox.cpp/CCEditBoxImplAndoid.cpp => allow to set font size even if using default font
+MANUAL : CCNodeLoader.cpp => if ccb files fail loading, try to load from ccbi/ (default directory for FenneX projects)
+
+Suppressed several warnings :
+Add spaces in libpng for Android
+Add a cast to GLuint in CCTexture2D
+Convert LOGD to CCLOG in AnalytixCStringUtilAndroid
+Removed several import and add SuppressWarning unused in android src/org/cocos2dx/lib
+Several explicits casts for iOS (CCProfiling.cpp, ioapi.cpp, CCBReader.cpp)
+Removed or commented several unused methods (CCImage.cpp, decode.h, ccUTF8.cpp, LocalStorage.cpp)
+
+
+List of changes for extensions
+
+MANUAL all files => changes ExtensionMacros.h path
+NEW cocos2dx-ext => removed a lot of files which are not in use
+AUTO CCBAnimationManager.cpp => handle "visible" parameter
+NEW CCBAnimationManager.cpp => remove the node->stopAllActions() when launching an animation
+MANUAL CCBAnimationManager.h => change getSequenceId to a public method
+AUTO CCBReader.cpp => fix a bug on release, should be fixed in higher versions
+AUTO CCBReader.h/.cpp => add the possibility to set the ResolutionScale
+>TA CCLabelTTFLoader.cpp/CCNodeLoader.cpp => load correct ttf path according platform
+AUTO CCEditBox (all) => add setFontSize
+MANUAL CCEditBox.cpp => change setContentSize/setFontSize according world
+MANUAL CCEditBox (all) => add setEnabled (not implemented on Android)
+AUTO CCEditBoxImplIOS.h.cpp => lots of dirty pull commit from bleeding edge, try to use higher version without modification first ...
+NEW CCNodeLoader.cpp => fix bug with customProperties carrying on the next CCNode
+
+
