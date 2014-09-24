@@ -1,0 +1,77 @@
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+*.o.d
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.rar
+*.tar
+*.zip
+
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
+
+*.swp
+*~.nib
+
+
+# Personal files in the iOS project #
+######################-
+*.mode1v3
+*.mode2v3
+
+xcuserdata
+
+*.mode*
+*.pbxuser
+*.perspective*
+
+!project.pbxproj
+
+#.LSOverride#
+
+# Generated files in the Android project #
+proj.android/libs/armeabi/*
+proj.android/libs/armeabi-v7a/*
+proj.android/libs/x86/*
+proj.android/obj/*
+
+proj.android/build/
+proj.android/gen/*
+proj.android/bin/*
+proj.android/assets/*
+
+proj.android/.gradle/*
+proj.android/.idea/*
+proj.android/*.iml
+proj.android/local.properties
+
+# Generated documentation, it can be regenerated using doxygen #
+######################
+docs/html/*
