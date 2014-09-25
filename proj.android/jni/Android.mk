@@ -6,9 +6,9 @@ $(call import-add-path,$(LOCAL_PATH)/../../cocos2d)
 $(call import-add-path,$(LOCAL_PATH)/../../cocos2d/external)
 $(call import-add-path,$(LOCAL_PATH)/../../cocos2d/cocos)
 
-LOCAL_MODULE := puzzle_shared
+LOCAL_MODULE := yourlibrary_shared
 
-LOCAL_MODULE_FILENAME := libpuzzle
+LOCAL_MODULE_FILENAME := libyourlibrary
 
 #use a find command to have all cpp files in Classes and in jni (current folder)
 CPP_FILES := $(shell find $(LOCAL_PATH)/../../Classes -name "*.cpp")
@@ -22,6 +22,7 @@ LOCAL_C_INCLUDES := $(HEADER_FILES:$(LOCAL_PATH)/%=%)
 
 LOCAL_WHOLE_STATIC_LIBRARIES := cocos2dx_static
 LOCAL_WHOLE_STATIC_LIBRARIES += cocosdenshion_static
+LOCAL_WHOLE_STATIC_LIBRARIES += cocos2dxandroid_static
 
 # LOCAL_WHOLE_STATIC_LIBRARIES += box2d_static
 LOCAL_WHOLE_STATIC_LIBRARIES += cocosbuilder_static
