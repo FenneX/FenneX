@@ -55,6 +55,7 @@ public:
     ~AudioPlayerRecorder();
     
     static float getSoundDuration(CCString* file);
+    static const char* getSoundsSavePath();
     
     //By default, recording is disabled (to avoid prompting for microphone on iOS)
     //You should enable it when the user goes to somewhere he is going to need recording soon, then disable it once he leaves the area

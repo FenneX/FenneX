@@ -219,6 +219,17 @@ float AudioPlayerRecorder::getSoundDuration(CCString* file)
 	return TOFLOAT(result);
 }
 
+const char* AudioPlayerRecorder::getSoundsSavePath()
+{
+	JniMethodInfo minfo;
+	CCAssert(JniHelper::getStaticMethodInfo(minfo, "com/fennex/modules/NativeUtility", "getLocalPath", "()Ljava/lang/String;"), "Function doesn't exist");
+
+	jstring directory = (jstring)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID);
+
+	const char *nativeString = minfo.env->GetStringUTFChars(directory, 0);
+    return nativeString;
+}
+
 void AudioPlayerRecorder::setRecordEnabled(bool enabled)
 {
 	JniMethodInfo minfo;
