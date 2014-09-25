@@ -92,6 +92,7 @@ void randomWithoutRetake(CCArray* array, int count, int max)
     {
         max = array->count();
     }
+    CCAssert(max >= actualCount, "Can't do a random without a valid max (>= count)");
 	for(int i = 0; i < actualCount; i++)
 	{
 		int r = arc4random() % max;
