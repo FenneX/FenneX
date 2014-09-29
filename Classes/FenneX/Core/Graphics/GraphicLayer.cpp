@@ -1165,10 +1165,7 @@ RawObject* GraphicLayer::duplicateObject(RawObject* otherObject)
     obj->setName(otherObject->getName());
     obj->setEventName(otherObject->getEventName());
     obj->getNode()->setVisible(otherObject->getNode()->isVisible());
-    if(otherObject->getNode()->getAnchorPoint().x != 0.5 || otherObject->getNode()->getAnchorPoint().y != 0.5)
-    {
-        obj->getNode()->setAnchorPoint(otherObject->getNode()->getAnchorPoint());
-    }
+    obj->getNode()->setAnchorPoint(otherObject->getNode()->getAnchorPoint());
     obj->addEventInfos(otherObject->getEventInfos());
     obj->setScaleX(otherObject->getScaleX());
     obj->setScaleY(otherObject->getScaleY());
