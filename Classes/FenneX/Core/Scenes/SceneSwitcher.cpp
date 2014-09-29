@@ -165,6 +165,8 @@ void SceneSwitcher::planSceneSwitch(CCObject *obj)
     CCDictionary* infos = (CCDictionary*)obj;
     if(!processingSwitch && nextScene == None)
     {
+        //Unbind all async texture load: since the scene will be replaced, the image won't need their new texture
+        Director::getInstance()->getTextureCache()->unbindAllImageAsync();
         nextScene = (SceneName) ((CCInteger*) infos->objectForKey("Scene"))->getValue();
 #if VERBOSE_GENERAL_INFO
         CCLOG("Planning Scene Switch to %s", formatSceneToString(nextScene));
