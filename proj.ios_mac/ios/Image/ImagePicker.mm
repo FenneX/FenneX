@@ -207,8 +207,8 @@ static ImagePicker* _sharedPicker = nil;
         NSLog(@"Write result for file %@ : %@, fullPath : %@", fileName, (result ? @"OK" : @"Problem"), pngPath);
         if(result)
         {
-            CCString* fullPath = ScreateF("%s/Documents/%s.png", getenv("HOME"), [saveName UTF8String]);
-            CCTextureCache::sharedTextureCache()->removeTextureForKey(fullPath->getCString());
+            std::string fullPath = std::string(getenv("HOME")) + "/Documents/" + [saveName UTF8String] + ".png" ;
+            CCTextureCache::sharedTextureCache()->removeTextureForKey(fullPath.c_str());
             if(thumbnailScale > 0)
             {
                 targetSize.width *= thumbnailScale;
@@ -221,8 +221,8 @@ static ImagePicker* _sharedPicker = nil;
                 NSLog(@"Write result for thumbnail %@ : %@, fullPath : %@", thumbnailName, (result ? @"OK" : @"Problem"), thumbnailPath);
                 if(result)
                 {
-                    CCString* fullPath = ScreateF("%s/Documents/%s-thumbnail.png", getenv("HOME"), [saveName UTF8String]);
-                    CCTextureCache::sharedTextureCache()->removeTextureForKey(fullPath->getCString());
+                    std::string fullPathThumbnail = std::string(getenv("HOME")) + "/Documents/" + [saveName UTF8String] + "-thumbnail.png";
+                    CCTextureCache::sharedTextureCache()->removeTextureForKey(fullPathThumbnail.c_str());
                 }
                 else
                 {

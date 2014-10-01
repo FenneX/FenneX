@@ -54,7 +54,7 @@ public:
     static AudioPlayerRecorder* sharedRecorder(void);
     ~AudioPlayerRecorder();
     
-    static float getSoundDuration(CCString* file);
+    static float getSoundDuration(std::string file);
     static const char* getSoundsSavePath();
     
     //By default, recording is disabled (to avoid prompting for microphone on iOS)
@@ -66,8 +66,8 @@ public:
     bool isRecordEnabled();
     
     CCObject* getLink();
-    CCString* getPath();
-    CCString* getPathWithoutExtension();
+    std::string getPath();
+    std::string getPathWithoutExtension();
     void stopAll();
     
     //Those methods first try Object before Sender because it can be a subcall (for example if the selection is via a pop-up
@@ -78,9 +78,9 @@ public:
     bool isRecording();
     bool isPlaying();
     
-    void record(CCString* file, CCObject* linkTo);
+    void record(const std::string&  file, CCObject* linkTo);
     void stopRecording();
-    float play(CCString* file, CCObject* linkTo, bool independent = false); //return the duration of the file
+    float play(const std::string&  file, CCObject* linkTo, bool independent = false); //return the duration of the file
     void stopPlaying(CCObject* obj = NULL);
     void fadeVolumeOut();
     
@@ -89,7 +89,7 @@ public:
     void restart();
     
     //deleteFile requires the full path including the extension
-    void deleteFile(CCString* file);
+    void deleteFile(const std::string& file);
     
     void setNumberOfLoops(int loops);
     
@@ -99,13 +99,13 @@ public:
         - Duration (CCInteger, as seconds)
      Anything can be NULL, including the returned Dictionary if something went wrong or not implemented
      */
-    static CCDictionary* getFileMetadata(CCString* path);
+    static CCDictionary* getFileMetadata(const std::string& path);
 protected:
     AudioPlayerRecorder();
     void init();
     CCObject* link; //the object that required the record/play
-    CCString* path; //the current path being recorded/played
-    void setPath(CCString* value);
+    std::string path; //the current path being recorded/played
+    void setPath(std::string value);
     void setLink(CCObject* value);
     bool recordEnabled;
     

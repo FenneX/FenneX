@@ -16,7 +16,7 @@
 NS_FENNEX_BEGIN
 
 bool isPhone();
-CCString* getLocalPath(const char* name);
+std::string getLocalPath(const char* name);
 
 //Use AppName if you need to actually show it. Use package identifier if you need to save files for example, as it does not contain special characters
 const char* getAppName();

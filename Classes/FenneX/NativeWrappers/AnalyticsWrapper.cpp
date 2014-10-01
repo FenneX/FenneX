@@ -41,13 +41,13 @@ AnalyticsWrapper* AnalyticsWrapper::sharedInstance(void)
 void AnalyticsWrapper::init()
 {
     sharedInstance()->lastPageName = "";
-    sharedInstance()->appVersion = NULL;
+    sharedInstance()->appVersion = "";
 }
 
 void AnalyticsWrapper::setAppVersion(const char * version)
 {
     flurrySetAppVersion(version);
-    sharedInstance()->appVersion = new cocos2d::CCString(version);
+    sharedInstance()->appVersion = std::string(version);
 }
 
 void AnalyticsWrapper::setDebugLogEnabled(bool value)

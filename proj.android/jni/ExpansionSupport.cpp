@@ -40,7 +40,7 @@ bool checkExpansionFiles()
     return result;
 }
 
-CCString* getExpansionFileFullPath(bool main)
+std::string getExpansionFileFullPath(bool main)
 {
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"getExpansionFileFullPath", "(Z)Ljava/lang/String;"), "Function doesn't exist");
@@ -48,7 +48,7 @@ CCString* getExpansionFileFullPath(bool main)
 	minfo.env->DeleteLocalRef(minfo.classID);
 
 	const char *nativeResult = minfo.env->GetStringUTFChars(result, 0);
-	CCString* absolutePath = ScreateF("%s", nativeResult);
+	std::string absolutePath = std::string(nativeResult);
 	minfo.env->ReleaseStringUTFChars(result, nativeResult);
 	return absolutePath;
 }

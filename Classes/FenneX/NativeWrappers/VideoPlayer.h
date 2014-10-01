@@ -36,7 +36,7 @@ USING_NS_FENNEX;
 class VideoPlayer : public CCObject
 {
 public:
-    VideoPlayer(CCString* file, CCPoint position, CCSize size, bool front = true, bool loop = true);
+    VideoPlayer(std::string file, CCPoint position, CCSize size, bool front = true, bool loop = true);
     ~VideoPlayer();
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
     //On Android, the default implementation use a VideoView
@@ -61,11 +61,11 @@ public:
     
     //Return the path of the thumbnail (use getLocalPath to get the absolute path)
     //May return NULL if there was a problem generating the thumbnail
-    static CCString* getThumbnail(CCString* path);
+    static std::string getThumbnail(const std::string& path);
     
     //On iOS, always returns true for external videos and will notify VideoExists/VideoRemoved with a CCDictionary containing Path key with a CCString
     //For trimmed video (picked from library) on iOS and all video on Android, directly return the right value
-    static bool videoExists(CCString* file);
+    static bool videoExists(const std::string& file);
 private:
 //TODO : refactor to have a cross-platform way to do that (use EditBox as an example)
     void* delegate;

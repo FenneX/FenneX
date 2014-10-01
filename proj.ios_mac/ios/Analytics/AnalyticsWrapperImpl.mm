@@ -35,11 +35,10 @@
 void AnalyticsWrapper::GAStartSession(const char * apiKey)
 {
     [[GAI sharedInstance] trackerWithTrackingId:[NSString stringWithFormat:@"%s", apiKey]];
-    if(sharedInstance()->appVersion != NULL)
+    if(!sharedInstance()->appVersion.empty())
     {
-        GASetAppVersion(sharedInstance()->appVersion->getCString());
-        sharedInstance()->appVersion->release();
-        sharedInstance()->appVersion = NULL;
+        GASetAppVersion(sharedInstance()->appVersion.c_str());
+        sharedInstance()->appVersion = "";
     }
 }
 

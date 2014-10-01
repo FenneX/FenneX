@@ -28,10 +28,10 @@
 
 #define TYPED_DELEGATE ((VideoPlayerImplIOS*)delegate)
 
-VideoPlayer::VideoPlayer(CCString* file, CCPoint position, CCSize size, bool front, bool loop)
+VideoPlayer::VideoPlayer(std::string file, CCPoint position, CCSize size, bool front, bool loop)
 {
     float scaleFactor = [[CCEAGLView sharedEGLView] contentScaleFactor];
-    delegate = [[VideoPlayerImplIOS alloc] initWithPlayFile:[NSString stringWithUTF8String:file->getCString()]
+    delegate = [[VideoPlayerImplIOS alloc] initWithPlayFile:[NSString stringWithUTF8String:file.c_str()]
                                                    position:CGPointMake(position.x / scaleFactor,
                                                                         position.y / scaleFactor)
                                                        size:CGSizeMake(size.width/ scaleFactor,
@@ -101,13 +101,13 @@ void VideoPlayer::setPosition(float position)
     [TYPED_DELEGATE setPosition:position];
 }
 
-CCString* VideoPlayer::getThumbnail(CCString* path)
+std::string VideoPlayer::getThumbnail(const std::string& path)
 {
-    NSString* thumbnailPath = [VideoPlayerImplIOS getThumbnail:[NSString stringWithUTF8String:path->getCString()]];
-    return thumbnailPath != nil ? Screate([thumbnailPath UTF8String]) : NULL;
+    NSString* thumbnailPath = [VideoPlayerImplIOS getThumbnail:[NSString stringWithUTF8String:path.c_str()]];
+    return thumbnailPath != nil ? [thumbnailPath UTF8String] : NULL;
 }
 
-bool VideoPlayer::videoExists(CCString* file)
+bool VideoPlayer::videoExists(const std::string& file)
 {
-    return [VideoPlayerImplIOS videoExists:[NSString stringWithUTF8String:file->getCString()]];
+    return [VideoPlayerImplIOS videoExists:[NSString stringWithUTF8String:file.c_str()]];
 }

@@ -131,9 +131,9 @@ void saveObjectToFile(CCObject* obj, const char* name)
     
 #if VERBOSE_SAVE_PLIST
     CCLOG("Saving document %s :\n%s", name, node_to_string(doc).c_str());
-    CCLOG("Local path %s", getLocalPath(name)->getCString());
+    CCLOG("Local path %s", getLocalPath(name).c_str());
 #endif
-    doc.save_file(getLocalPath(name)->getCString());
+    doc.save_file(getLocalPath(name).c_str());
 #if VERBOSE_SAVE_PLIST
     CCLOG("Document saved!");
 #endif
@@ -210,7 +210,7 @@ CCObject* loadObjectFromFile(const char* name, bool resource)
 {
     xml_document doc;
 #if VERBOSE_LOAD_PLIST
-    CCLOG("local path : %s", getLocalPath(name)->getCString());
+    CCLOG("local path : %s", getLocalPath(name).c_str());
 #endif
     unsigned char * charbuffer = NULL;
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
@@ -220,9 +220,9 @@ CCObject* loadObjectFromFile(const char* name, bool resource)
         //Load file from apk
         charbuffer = CCFileUtils::sharedFileUtils()->getFileData(name,"r", &bufferSize);
     }
-    const char* path = resource ? NULL : getLocalPath(name)->getCString();
+    const char* path = resource ? NULL : getLocalPath(name).c_str();
 #else
-    const char* path = resource ? getResourcesPath(name)->getCString() : getLocalPath(name)->getCString();
+    const char* path = resource ? getResourcesPath(name)->getCString() : getLocalPath(name).c_str();
 #endif
 #if VERBOSE_LOAD_PLIST
     CCLOG("Loading from path :\n%s", path);
@@ -271,7 +271,7 @@ CCObject* loadObjectFromFile(const char* name, bool resource)
 
 void deleteFile(const char* name)
 {
-    const char* path = getLocalPath(name)->getCString();
+    const char* path = getLocalPath(name).c_str();
 #if VERBOSE_SAVE_PLIST
     int result = unlink(path);
     if(result == 0)
