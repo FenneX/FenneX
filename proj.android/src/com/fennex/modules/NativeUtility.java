@@ -267,7 +267,7 @@ public class NativeUtility
     public static void setDeviceLuminosity(float luminosity) 
     {
     	//1 is a reserved value, don't use it
-    	final float lumi = luminosity >= 1 ? 0.999999f : luminosity <= 0 ? 0.000001f : luminosity;
+    	final float lumi = luminosity >= 1 ? 0.999999f : luminosity <= 0.01 ? 0.01f : luminosity;
     	getMainActivity().runOnUiThread(new Runnable() 
     	{
     	     @Override
