@@ -25,6 +25,13 @@ THE SOFTWARE.
 #ifndef FenneX_SynthesizeString_h
 #define FenneX_SynthesizeString_h
 
+#define CC_SYNTHESIZE_STD_STRING(varName, funName)\
+protected: std::string varName;\
+public: virtual const std::string get##funName(void) const { return varName; }\
+public: virtual void set##funName(const std::string var){ \
+if (varName.compare(var))\
+varName = var;}
+
 #define CC_SYNTHESIZE_STRING(varName, funName)\
 protected: std::string varName;\
 public: virtual const char* get##funName(void) const { return varName.c_str(); }\
