@@ -30,7 +30,7 @@ CCString* getResourcesPath(const char* file)
 #if CC_TARGET_PLATFORM == CC_PLATFORM_IOS
     return Screate(CCFileUtils::sharedFileUtils()->fullPathForFilename(file));
 #elif CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
-    return ScreateF("/assets/%s", file);
+    return ScreateF("assets/%s", file);
 #endif
 }
 
