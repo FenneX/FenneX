@@ -220,17 +220,17 @@ CCObject* loadObjectFromFile(const char* name, bool resource)
         //Load file from apk
         charbuffer = CCFileUtils::sharedFileUtils()->getFileData(name,"r", &bufferSize);
     }
-    const char* path = resource ? NULL : getLocalPath(name).c_str();
+    std::string path = resource ? "" : getLocalPath(name);
 #else
-    const char* path = resource ? getResourcesPath(name)->getCString() : getLocalPath(name).c_str();
+    std::string path = resource ? getResourcesPath(name)->getCString() : getLocalPath(name);
 #endif
 #if VERBOSE_LOAD_PLIST
-    CCLOG("Loading from path :\n%s", path);
+    CCLOG("Loading from path :\n%s", path.c_str());
 #endif
     xml_parse_result parse_result;
     //If the file inside the apk doesn't exist, we load the local file.
     if(charbuffer == NULL)
-        parse_result = doc.load_file(path);
+        parse_result = doc.load_file(path.c_str());
     else
         parse_result = doc.load((char*)charbuffer);
 #if VERBOSE_LOAD_PLIST
@@ -244,7 +244,7 @@ CCObject* loadObjectFromFile(const char* name, bool resource)
             CCLOG("Copying resource file to local ...");
             copyResourceFileToLocal(name);
         }
-        parse_result = doc.load_file(path);
+        parse_result = doc.load_file(path.c_str());
 #if VERBOSE_LOAD_PLIST
         CCLOG("parse result after copy : %d", parse_result.status);
 #endif
