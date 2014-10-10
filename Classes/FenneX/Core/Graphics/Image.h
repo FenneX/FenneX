@@ -66,7 +66,7 @@ public:
     void replaceTexture(const char* filename, bool keepExactSize = false, bool async = false, bool keepRatio = false);
     void textureLoaded(Texture2D* tex);
     bool isAnimation();
-    
+    bool collision(CCPoint point); //Overload for spritesheet, which behaves differently
 protected:
     //the actual CCSprite which will perform cocos2d actions
     CCSprite* delegate;

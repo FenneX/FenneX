@@ -232,6 +232,7 @@ void Image::loadAnimation(const char* filename, int capacity)
     parent->addChild(spriteSheet);
     parent->removeChild(delegate, false);
     spriteSheet->addChild(delegate);
+    spriteSheet->setContentSize(firstFrame->getOriginalSize());
     runningAnimation = NULL;
 }
 
@@ -249,7 +250,7 @@ void Image::replaceTexture(const char* filename, bool keepExactSize, bool async,
     {
         std::string originalImageFile = imageFile;
         imageFile = filename;
-        CCSprite* sprite = (CCSprite*)this->getNode();
+        CCSprite* sprite = (CCSprite*)delegate;
         CCSize initialSize = CCSizeMake(sprite->getContentSize().width * sprite->getScaleX(), sprite->getContentSize().height * sprite->getScaleY());
         CCTexture2D* newTexture = CCTextureCache::sharedTextureCache()->addImage(imageFile.append(".png").c_str());
         imageFile.erase(imageFile.length() - 4, 4);
@@ -265,6 +266,17 @@ void Image::replaceTexture(const char* filename, bool keepExactSize, bool async,
 #endif
             imageFile = originalImageFile;
             return;
+        }
+        
+        //If there is a spriteSheet, switch back normal delegate
+        if(spriteSheet != NULL)
+        {
+            CCNode* parent = spriteSheet->getParent();
+            spriteSheet->removeChild(delegate, true);
+            parent->removeChild(spriteSheet, true);
+            parent->addChild(delegate);
+            spriteSheet->release();
+            spriteSheet = NULL;
         }
         sprite->setTexture(newTexture);
         CCRect textureRect = CCRectMake(0, 0, newTexture->getContentSize().width, newTexture->getContentSize().height);
@@ -314,5 +326,15 @@ void Image::textureLoaded(Texture2D* tex)
 bool Image::isAnimation()
 {
     return spriteSheet != NULL;
+}
+
+bool Image::collision(CCPoint point)
+{
+    if(spriteSheet != NULL)
+    {
+        point.x = (point.x - delegate->getPosition().x + delegate->getAnchorPoint().x * delegate->getContentSize().width) / delegate->getScale();
+        point.y = (point.y - delegate->getPosition().y + delegate->getAnchorPoint().y * delegate->getContentSize().height) / delegate->getScale();
+    }
+    return RawObject::collision(point);
 }
 NS_FENNEX_END
