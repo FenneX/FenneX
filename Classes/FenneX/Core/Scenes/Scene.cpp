@@ -37,7 +37,7 @@ void Scene::initScene()
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     startSceneInitialisation();
 #endif
-    time = 0;
+    currentTime = 0;
     frameNumber = 0;
     delegate = CCScene::create();
     delegate->retain();
@@ -118,7 +118,7 @@ void Scene::update(float deltaTime)
     if(frameNumber <= 3)
         gettimeofday(&startTime, NULL);
 #endif
-    time += deltaTime;
+    currentTime += deltaTime;
     CCObject* obj = NULL;
 #if VERBOSE_GENERAL_INFO
     CCLOG("Begin scene update");

@@ -45,7 +45,7 @@ class Scene : public Pausable, public CCLayer
     CC_SYNTHESIZE_READONLY(CCArray*, updateList, UpdateList);
     CC_SYNTHESIZE_READONLY(CCArray*, touchReceiversList, TouchReceiversList);
     //TODO : add touchlinker
-    CC_SYNTHESIZE_READONLY(float, time, CurrentTime);
+    CC_SYNTHESIZE_READONLY(float, currentTime, CurrentTime);
     CC_SYNTHESIZE_READONLY(CCDictionary*, parameters, Parameters);
 public:
     Scene(SceneName identifier, CCDictionary* parameters);
