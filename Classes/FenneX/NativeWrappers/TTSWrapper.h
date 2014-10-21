@@ -36,7 +36,7 @@ void initTTS();
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 jobject getInstance();
 #endif
-bool speakText(const char* text[], int arraySize, int speechID = -1);
+bool speakText(std::vector<std::string> text, int speechID = -1);
 void stopSpeakText();
 bool isSpeaking();
 
