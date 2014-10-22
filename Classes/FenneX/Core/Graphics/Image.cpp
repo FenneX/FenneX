@@ -71,6 +71,11 @@ isLoadingTexture(false)
     }
     if(delegate == NULL)
     {
+        delegate = CCSprite::create(imageFile.append(".jpeg").c_str());
+        imageFile.erase(imageFile.length() - 5, 5);
+    }
+    if(delegate == NULL)
+    {
         CCLog("Problem with asset : %s, the application will crash", filename);
     }
     delegate->retain();
@@ -119,6 +124,11 @@ isLoadingTexture(false)
         imageFile = imageFile.substr(0, extensionPos);
     }
     extensionPos = imageFile.rfind(".jpg");
+    if(extensionPos != std::string::npos)
+    {
+        imageFile = imageFile.substr(0, extensionPos);
+    }
+    extensionPos = imageFile.rfind(".jpeg");
     if(extensionPos != std::string::npos)
     {
         imageFile = imageFile.substr(0, extensionPos);
@@ -206,6 +216,8 @@ void Image::update(float deltaTime)
                                                                   //this, callfuncO_selector(Image::textureLoaded));
         std::string withEtensionJpg = loadingImageFile.c_str();//ensure a deep copy
         Director::getInstance()->getTextureCache()->addImageAsync(withEtensionJpg.append(".jpg").c_str(), CC_CALLBACK_1(Image::textureLoaded, this));
+        std::string withEtensionJpeg = loadingImageFile.c_str();//ensure a deep copy
+        Director::getInstance()->getTextureCache()->addImageAsync(withEtensionJpeg.append(".jpeg").c_str(), CC_CALLBACK_1(Image::textureLoaded, this));
     }
 }
 
@@ -258,6 +270,11 @@ void Image::replaceTexture(const char* filename, bool keepExactSize, bool async,
         {
             newTexture = CCTextureCache::sharedTextureCache()->addImage(imageFile.append(".jpg").c_str());
             imageFile.erase(imageFile.length() - 4, 4);
+        }
+        if(newTexture == NULL)
+        {
+            newTexture = CCTextureCache::sharedTextureCache()->addImage(imageFile.append(".jpeg").c_str());
+            imageFile.erase(imageFile.length() - 5, 5);
         }
         if(newTexture == NULL)
         {
