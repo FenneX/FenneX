@@ -71,7 +71,7 @@ bool speakText(std::vector<std::string> text, int speechID)
 
         for(int i = 0; i < text.size(); i++)
 		{
-			minfo.env->SetObjectArrayElement(ret, i, minfo.env->NewStringUTF(text.at(i).c_str()));
+			minfo.env->SetObjectArrayElement(ret, i, minfo.env->NewStringUTF(text[i].c_str()));
 		}
 
 		minfo.env->CallBooleanMethod(instance, minfo.methodID, ret);
