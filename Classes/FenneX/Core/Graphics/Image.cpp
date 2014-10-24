@@ -239,10 +239,19 @@ void Image::loadAnimation(const char* filename, int capacity)
         spritesName->addObject(ScreateF("%s_%02d.png", filename, i));//imageFile.append(num).append(".png")));
     }
     CCSpriteFrame* firstFrame = CCSpriteFrameCache::getInstance()->spriteFrameByName(((CCString*)spritesName->objectAtIndex(0))->getCString());
-    delegate->setDisplayFrame(firstFrame);
     CCNode* parent = delegate->getParent();
+    //If this is a previous animation, stop it first
+    if(isKindOfClass(parent, CCSpriteBatchNode))
+    {
+        CCNode* realParent = parent->getParent();
+        parent->removeChild(delegate);
+        realParent->removeChild(parent, true);
+        realParent->addChild(delegate);
+        parent = realParent;
+    }
     parent->addChild(spriteSheet);
     parent->removeChild(delegate, false);
+    delegate->setDisplayFrame(firstFrame);
     spriteSheet->addChild(delegate);
     spriteSheet->setContentSize(firstFrame->getOriginalSize());
     runningAnimation = NULL;
