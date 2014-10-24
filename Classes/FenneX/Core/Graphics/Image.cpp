@@ -221,7 +221,7 @@ void Image::update(float deltaTime)
     }
 }
 
-void Image::loadAnimation(const char* filename, int capacity)
+void Image::loadAnimation(const char* filename, int capacity, bool useLastFrame)
 {
     imageFile = filename;
     spriteSheet = CCSpriteBatchNode::create(imageFile.append(".png").c_str(), capacity);
@@ -238,7 +238,7 @@ void Image::loadAnimation(const char* filename, int capacity)
          sprintf(num, "%04d", i);*/
         spritesName->addObject(ScreateF("%s_%02d.png", filename, i));//imageFile.append(num).append(".png")));
     }
-    CCSpriteFrame* firstFrame = CCSpriteFrameCache::getInstance()->spriteFrameByName(((CCString*)spritesName->objectAtIndex(0))->getCString());
+    CCSpriteFrame* firstFrame = CCSpriteFrameCache::getInstance()->spriteFrameByName(((CCString*)spritesName->objectAtIndex(!useLastFrame ? 0 : spritesName->count() - 1))->getCString());
     CCNode* parent = delegate->getParent();
     //If this is a previous animation, stop it first
     if(isKindOfClass(parent, CCSpriteBatchNode))

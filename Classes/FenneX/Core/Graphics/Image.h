@@ -55,7 +55,8 @@ public:
     
     virtual void update(float deltaTime);
     
-    void loadAnimation(const char* filename, int capacity);
+    //LoadAnimation will also change current frame, either with first frame or last frame
+    void loadAnimation(const char* filename, int capacity, bool useLastFrame = false);
     
     /*replace the Image texture using a new file
      filename : the new image to be loaded (without extension)
