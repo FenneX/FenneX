@@ -64,6 +64,7 @@ public:
         POST,
         PUT,
         DELETE,
+        POSTFILE,
         UNKNOWN,
     };
     
@@ -243,6 +244,16 @@ public:
    		return _headers;
    	}
     
+    inline std::string getFilePath()
+    {
+        return _pFilePath;
+    }
+    
+    void setFilePath(std::string filepath)
+    {
+        _pFilePath = filepath;
+    }
+    
 protected:
     // properties
     Type                        _requestType;    /// kHttpRequestGet, kHttpRequestPost or other enums
@@ -254,6 +265,8 @@ protected:
     ccHttpRequestCallback       _pCallback;      /// C++11 style callbacks
     void*                       _pUserData;      /// You can add your customed data here 
     std::vector<std::string>    _headers;		      /// custom http headers
+    
+    std::string                 _pFilePath;
 };
 
 }

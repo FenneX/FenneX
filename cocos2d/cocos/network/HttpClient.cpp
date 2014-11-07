@@ -99,6 +99,7 @@ static int processGetTask(HttpRequest *request, write_callback callback, void *s
 static int processPostTask(HttpRequest *request, write_callback callback, void *stream, long *errorCode, write_callback headerCallback, void *headerStream, char *errorBuffer);
 static int processPutTask(HttpRequest *request, write_callback callback, void *stream, long *errorCode, write_callback headerCallback, void *headerStream, char *errorBuffer);
 static int processDeleteTask(HttpRequest *request, write_callback callback, void *stream, long *errorCode, write_callback headerCallback, void *headerStream, char *errorBuffer);
+static int processPostFileTask(HttpRequest *request, write_callback callback, void *stream, long *errorCode, write_callback headerCallback, void *headerStream, char *errorBuffer);
 // int processDownloadTask(HttpRequest *task, write_callback callback, void *stream, int32_t *errorCode);
 static void processResponse(HttpResponse* response, char* errorBuffer);
 
@@ -359,6 +360,29 @@ static int processDeleteTask(HttpRequest *request, write_callback callback, void
             && curl.perform(responseCode);
     return ok ? 0 : 1;
 }
+    
+//Process PostFile Request
+static int processPostFileTask(HttpRequest *request, write_callback callback, void *stream, long *responseCode, write_callback headerCallback, void *headerStream, char *errorBuffer)
+{
+    struct curl_httppost *post1;
+    struct curl_httppost *postend;
+    
+    post1 = NULL;
+    postend = NULL;
+    curl_formadd(&post1, &postend,
+                 CURLFORM_COPYNAME, "files[]",
+                 CURLFORM_FILE, request->getFilePath().c_str(),
+                 CURLFORM_CONTENTTYPE, "application/octet-stream",
+                 CURLFORM_END);
+    CURLRaii curl;
+    bool ok = curl.init(request, callback, stream, headerCallback, headerStream, errorBuffer)
+    && curl.setOption(CURLOPT_NOPROGRESS, 1L)
+    && curl.setOption(CURLOPT_MAXREDIRS, 50L)
+    && curl.setOption(CURLOPT_TCP_KEEPALIVE, 1L)
+    && curl.setOption(CURLOPT_HTTPPOST, post1)
+    && curl.perform(responseCode);
+    return ok ? 0 : 1;
+}
 
 
 // Process Response
@@ -403,6 +427,16 @@ static void processResponse(HttpResponse* response, char* errorBuffer)
 
     case HttpRequest::Type::DELETE:
         retValue = processDeleteTask(request,
+            writeData,
+            response->getResponseData(),
+            &responseCode,
+            writeHeaderData,
+            response->getResponseHeader(),
+            errorBuffer);
+        break;
+            
+    case HttpRequest::Type::POSTFILE: // HTTP POST
+        retValue = processPostFileTask(request,
             writeData,
             response->getResponseData(),
             &responseCode,
