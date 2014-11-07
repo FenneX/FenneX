@@ -728,7 +728,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
     CGSize viewSize = self.frame.size;
     CGFloat tmp;
     
-    switch ([[UIApplication sharedApplication] statusBarOrientation])
+    switch (getFixedOrientation([[UIApplication sharedApplication] statusBarOrientation]))
     {
         case UIInterfaceOrientationPortrait:
             begin.origin.y = viewSize.height - begin.origin.y - begin.size.height;
@@ -741,15 +741,9 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
             break;
             
         case UIInterfaceOrientationLandscapeLeft:
-            tmp = begin.size.width;
-            begin.size.width = begin.size.height;
-            begin.size.height = tmp;
-            tmp = end.size.width;
-            end.size.width = end.size.height;
-            end.size.height = tmp;
-            tmp = viewSize.width;
-            viewSize.width = viewSize.height;
-            viewSize.height = tmp;
+            std::swap(begin.size.width, begin.size.height);
+            std::swap(end.size.width, end.size.height);
+            std::swap(viewSize.width, viewSize.height);
             
             tmp = begin.origin.x;
             begin.origin.x = begin.origin.y;
@@ -760,15 +754,9 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
             break;
             
         case UIInterfaceOrientationLandscapeRight:
-            tmp = begin.size.width;
-            begin.size.width = begin.size.height;
-            begin.size.height = tmp;
-            tmp = end.size.width;
-            end.size.width = end.size.height;
-            end.size.height = tmp;
-            tmp = viewSize.width;
-            viewSize.width = viewSize.height;
-            viewSize.height = tmp;
+            std::swap(begin.size.width, begin.size.height);
+            std::swap(end.size.width, end.size.height);
+            std::swap(viewSize.width, viewSize.height);
             
             tmp = begin.origin.x;
             begin.origin.x = begin.origin.y;
@@ -847,6 +835,15 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
     }
 }
 
+UIInterfaceOrientation getFixedOrientation(UIInterfaceOrientation statusBarOrientation)
+{
+    if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0)
+    {
+        statusBarOrientation = UIInterfaceOrientationPortrait;
+    }
+    return statusBarOrientation;
+}
+
 -(void) doAnimationWhenKeyboardMoveWithDuration:(float)duration distance:(float)dis
 {
     [UIView beginAnimations:nil context:nullptr];
@@ -866,7 +863,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
         dis /= 2.0f;
     }
     
-    switch ([[UIApplication sharedApplication] statusBarOrientation])
+    switch (getFixedOrientation([[UIApplication sharedApplication] statusBarOrientation]))
     {
         case UIInterfaceOrientationPortrait:
             self.frame = CGRectMake(originalRect_.origin.x, originalRect_.origin.y - dis, originalRect_.size.width, originalRect_.size.height);

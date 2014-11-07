@@ -54,7 +54,7 @@ bool isSpeaking()
 
 #warning TODO: pass this ID with speakText to get it back when that particular speech ends
 static int speechIDStatic = -1;
-bool speakText(const char* text[], int arraySize, int speechID)
+bool speakText(std::vector<std::string> text, int speechID)
 {
 	if(!isSpeaking())
 	{
@@ -63,15 +63,15 @@ bool speakText(const char* text[], int arraySize, int speechID)
 		jobject instance = getInstance();
 		CCAssert(JniHelper::getMethodInfo(minfo,CLASS_NAME,"speakText", "([Ljava/lang/String;)Z"), "Function doesn't exist");
 
-		jobjectArray ret= (jobjectArray)minfo.env->NewObjectArray(arraySize,
+		jobjectArray ret= (jobjectArray)minfo.env->NewObjectArray(text.size(),
 				minfo.env->FindClass("java/lang/String"),
 				minfo.env->NewStringUTF("")
 		);
 	    minfo.env->DeleteLocalRef(minfo.classID);
 
-		for(int i=0;i<arraySize;i++)
+        for(int i = 0; i < text.size(); i++)
 		{
-			minfo.env->SetObjectArrayElement(ret,i,minfo.env->NewStringUTF(text[i]));
+			minfo.env->SetObjectArrayElement(ret, i, minfo.env->NewStringUTF(text[i].c_str()));
 		}
 
 		minfo.env->CallBooleanMethod(instance, minfo.methodID, ret);

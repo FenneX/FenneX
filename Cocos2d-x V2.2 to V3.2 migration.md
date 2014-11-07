@@ -19,6 +19,13 @@ CCTime:
 * replace CCTime::gettimeofdayCocos2d  by  gettimeofday    (C++ function)
 * replace CCTime::timersubCocos2d  by  getTimeDifferenceMS   (FenneX function)
 
+CCString:
+---
+
+* replace CCString* when calling wrappers to std::string
+* replace CCString* to std::string when getting string from wrappers
+* pay attention not to send NULL but empty string instead in wrappers function
+
 Labels:
 ----
 

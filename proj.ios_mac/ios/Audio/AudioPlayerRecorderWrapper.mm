@@ -26,14 +26,14 @@
 #import "AudioPlayerRecorderImplIOS.h"
 #import "NSFileManager+ApplicationSupport.h"
 
-NSString* getNSString(CCString* path)
+NSString* getNSString(std::string path)
 {
-    return [NSString stringWithFormat:@"%s", path->getCString()];
+    return [NSString stringWithFormat:@"%s", path.c_str()];
 }
 
-float AudioPlayerRecorder::getSoundDuration(CCString* file)
+float AudioPlayerRecorder::getSoundDuration(std::string file)
 {
-    return [AudioPlayerRecorderImpl getSoundDuration:[NSString stringWithUTF8String:file->getCString()]];
+    return [AudioPlayerRecorderImpl getSoundDuration:[NSString stringWithUTF8String:file.c_str()]];
 }
 
 void AudioPlayerRecorder::setRecordEnabled(bool enabled)
@@ -66,10 +66,10 @@ const char* AudioPlayerRecorder::getSoundsSavePath()
     return [iosString UTF8String];
 }
 
-void AudioPlayerRecorder::record(CCString* file, CCObject* linkTo)
+void AudioPlayerRecorder::record(const std::string&  file, CCObject* linkTo)
 {
     CCAssert(recordEnabled, "Record is disabled, enable it before starting to record");
-	CCString* withExtension = ScreateF("%s.caf", file->getCString());
+	std::string withExtension = file + ".caf";
     if(linkTo == link && this->isRecording())
     {
         this->stopRecording();
@@ -91,14 +91,14 @@ void AudioPlayerRecorder::stopRecording()
     CCAssert(recordEnabled, "Record is disabled, enable it before calling stopRecording");
     [[AudioPlayerRecorderImpl sharedAudio] stopRecording:getNSString(path)];
     link = NULL; //don't call setLink to avoid infinite recursion
-    this->setPath(NULL);
+    this->setPath("");
 }
 
-float AudioPlayerRecorder::play(CCString* file, CCObject* linkTo, bool independent)
+float AudioPlayerRecorder::play(const std::string& file, CCObject* linkTo, bool independent)
 {
     if(independent)
     {
-        return [[AudioPlayerRecorderImpl sharedAudio] playIndependentFile:[NSString stringWithUTF8String:file->getCString()]];
+        return [[AudioPlayerRecorderImpl sharedAudio] playIndependentFile:[NSString stringWithUTF8String:file.c_str()]];
     }
     else
     {
@@ -118,7 +118,7 @@ float AudioPlayerRecorder::play(CCString* file, CCObject* linkTo, bool independe
             }
             this->setLink(linkTo);
             this->setPath(file);
-            [[AudioPlayerRecorderImpl sharedAudio] setPlayFile:[NSString stringWithUTF8String:file->getCString()]];
+            [[AudioPlayerRecorderImpl sharedAudio] setPlayFile:[NSString stringWithUTF8String:file.c_str()]];
             return [[AudioPlayerRecorderImpl sharedAudio] play:0];
         }
     }
@@ -129,14 +129,14 @@ void AudioPlayerRecorder::stopPlaying(CCObject* obj)
 {
     [[AudioPlayerRecorderImpl sharedAudio] stopPlaying];
     link = NULL; //don't call setLink to avoid infinite recursion
-    this->setPath(NULL);
+    this->setPath("");
 }
 
 void AudioPlayerRecorder::fadeVolumeOut()
 {
     [[AudioPlayerRecorderImpl sharedAudio] fadeVolumeOut];
     link = NULL; //don't call setLink to avoid infinite recursion
-    this->setPath(NULL);
+    this->setPath("");
 }
 
 void AudioPlayerRecorder::play()
@@ -154,7 +154,7 @@ void AudioPlayerRecorder::restart()
     [[AudioPlayerRecorderImpl sharedAudio] restart];    
 }
 
-void AudioPlayerRecorder::deleteFile(CCString* file)
+void AudioPlayerRecorder::deleteFile(const std::string& file)
 {
     [[AudioPlayerRecorderImpl sharedAudio] deleteFile:getNSString(file)];
 }
@@ -164,9 +164,9 @@ void AudioPlayerRecorder::setNumberOfLoops(int loops)
     [[AudioPlayerRecorderImpl sharedAudio] setNumberOfLoops:loops];
 }
 
-CCDictionary* AudioPlayerRecorder::getFileMetadata(CCString* path)
+CCDictionary* AudioPlayerRecorder::getFileMetadata(const std::string& path)
 {
-    NSString* file = [NSString stringWithUTF8String:path->getCString()];
+    NSString* file = [NSString stringWithUTF8String:path.c_str()];
     //try sound in bundle first
     NSURL* url = [[NSBundle mainBundle] URLForResource:[file stringByDeletingPathExtension] withExtension:@"mp3"];
     if(url == nil)

@@ -119,7 +119,7 @@ CCDictionary* getProductsInfos()
 	for(int i = 0; i < productsId->count(); i++)
 	{
 		CCString* productId = (CCString*)productsId->objectAtIndex(i);
-		if(!isKindOfClass(productId, CCString))
+		if(!isKindOfClass(productsId->objectAtIndex(i), CCString))
 		{
 			CCLOG("Warning : wrong type of product Id at index %d, will crash", i);
 		}

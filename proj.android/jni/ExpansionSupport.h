@@ -45,7 +45,7 @@ bool checkExpansionFiles();
  * return the absolute path of the file if everything went correctly
  * return NULL if there was a problem, "NOTDOWNLOADED" if the expansion is not properly downloaded (in that case, retry checkExpansionFiles)
  */
-CCString* getExpansionFileFullPath(bool main);
+std::string getExpansionFileFullPath(bool main);
 
 static inline void notifyServiceConnected()
 {

@@ -345,8 +345,8 @@ USING_NS_FENNEX;
             NSLog(@"Write result for thumbnail %@ : %@, fullPath : %@", thumbnailName, (result ? @"OK" : @"Problem"), thumbnailPath);
             if(result)
             {
-                CCString* fullPath = ScreateF("%s/Documents/%s.png", getenv("HOME"), [thumbnailName UTF8String]);
-                CCTextureCache::sharedTextureCache()->removeTextureForKey(fullPath->getCString());
+                std::string fullPath =  std::string(getenv("HOME")) + "/Documents/"+[thumbnailName UTF8String]+".png";
+                CCTextureCache::sharedTextureCache()->removeTextureForKey(fullPath.c_str());
             }
             else
             {

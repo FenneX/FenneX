@@ -94,7 +94,7 @@ protected:
     //For Flurry, you must set AppVersion  BEFORE starting the session
     //For GA, you must set it AFTER starting the version
     //To go around that, AnalyticsWrapper requires to set them before starting the session, and will call GA methods after the start session
-    cocos2d::CCString* appVersion;
+    std::string appVersion;
     std::string lastPageName;
 };
 

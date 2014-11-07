@@ -55,7 +55,8 @@ public:
     
     virtual void update(float deltaTime);
     
-    void loadAnimation(const char* filename, int capacity);
+    //LoadAnimation will also change current frame, either with first frame or last frame
+    void loadAnimation(const char* filename, int capacity, bool useLastFrame = false);
     
     /*replace the Image texture using a new file
      filename : the new image to be loaded (without extension)
@@ -66,7 +67,7 @@ public:
     void replaceTexture(const char* filename, bool keepExactSize = false, bool async = false, bool keepRatio = false);
     void textureLoaded(Texture2D* tex);
     bool isAnimation();
-    
+    bool collision(CCPoint point); //Overload for spritesheet, which behaves differently
 protected:
     //the actual CCSprite which will perform cocos2d actions
     CCSprite* delegate;

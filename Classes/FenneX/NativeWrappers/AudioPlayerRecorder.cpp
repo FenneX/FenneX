@@ -44,7 +44,7 @@ AudioPlayerRecorder* AudioPlayerRecorder::sharedRecorder(void)
 AudioPlayerRecorder::AudioPlayerRecorder()
 {
     link = NULL;
-    path = NULL;
+    path = "";
     noLinkObject = Node::create(); //the exact type isn't important, it just needs to be a Ref*
     noLinkObject->retain();
     recordEnabled = false;
@@ -62,10 +62,9 @@ bool AudioPlayerRecorder::isRecordEnabled()
 AudioPlayerRecorder::~AudioPlayerRecorder()
 {
     CCNotificationCenter::sharedNotificationCenter()->removeAllObservers(this);
-    if(path != NULL)
+    if(!path.empty())
     {
-        path->release();
-        path = NULL;
+        path = "";
     }
     s_SharedRecorder = NULL;
 }
@@ -97,7 +96,7 @@ void AudioPlayerRecorder::playObject(CCObject* obj)
     }
     if(file != NULL)
     {
-        this->play(file, linkTo);
+        this->play(file->_string, linkTo);
     }
 }
 
@@ -123,9 +122,17 @@ void AudioPlayerRecorder::recordObject(CCObject* obj)
     time_t rawtime;
     time(&rawtime);
     struct tm* timeinfo = localtime (&rawtime);
-    CCString* file = ScreateF("%s_%d-%02d-%02d_%02d.%02d.%02d", getPackageIdentifier(), timeinfo->tm_year+1900, timeinfo->tm_mon+1, timeinfo->tm_mday, timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec);
 
-    if(file != NULL)
+    // format : "%s_%d-%02d-%02d_%02d.%02d.%02d"
+    std::string file = std::string(getPackageIdentifier()) + "_"
+                        + std::to_string(timeinfo->tm_year+1900) + "-"
+                        + std::to_string(timeinfo->tm_mon+1).substr(0,2) + "-"
+                        + std::to_string(timeinfo->tm_mday).substr(0,2) + "_"
+                        + std::to_string(timeinfo->tm_hour).substr(0,2) + "."
+                        + std::to_string(timeinfo->tm_min).substr(0,2) + "."
+                        + std::to_string(timeinfo->tm_sec).substr(0,2);
+    
+    if(!file.empty())
     {
         this->record(file, linkTo);
         CCNotificationCenter::sharedNotificationCenter()->postNotification("RecordingStarted", DcreateP(linkTo, Screate("Object"), oldFile, Screate("OldFile"), NULL));
@@ -137,44 +144,36 @@ CCObject* AudioPlayerRecorder::getLink()
     return link;
 }
 
-CCString* AudioPlayerRecorder::getPath()
+std::string AudioPlayerRecorder::getPath()
 {
     return path;
 }
 
-CCString* AudioPlayerRecorder::getPathWithoutExtension()
+std::string AudioPlayerRecorder::getPathWithoutExtension()
 {
-    std::string pathStd = path->getCString();
+    std::string pathStd = path;
     if(hasEnding(pathStd, SOUND_EXTENSION))
     {
-        return Screate(pathStd.substr(0, pathStd.length() - std::string(SOUND_EXTENSION).length()).c_str());
+        return pathStd.substr(0, pathStd.length() - std::string(SOUND_EXTENSION).length());
     }
     return path;
 }
 
-void AudioPlayerRecorder::setPath(CCString* value)
+void AudioPlayerRecorder::setPath(std::string value)
 {
-    if(path != value)
+    if(path.compare(value) != 0)
     {
 #if VERBOSE_AUDIO
         if(value != NULL)
         {
-            CCLOG("Changing audio path to : %s", value->getCString());
+            CCLOG("Changing audio path to : %s", value.c_str());
         }
         else
         {
             CCLOG("Chaning audio path to NULL");
         }
 #endif
-        if(path != NULL)
-        {
-            path->release();
-        }
         path = value;
-        if(path != NULL)
-        {
-            path->retain();
-        }
     }
 }
 

@@ -29,7 +29,7 @@ void initTTS()
     
 }
 
-bool speakText(const char* text[], int arraySize, int speechID)
+bool speakText(std::vector<std::string> text, int speechID)
 {
     notifyTTSDone(speechID);
     return false;

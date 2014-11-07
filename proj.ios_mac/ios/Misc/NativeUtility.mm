@@ -40,9 +40,9 @@ bool isPhone()
     return [[UIDevice currentDevice] userInterfaceIdiom] != UIUserInterfaceIdiomPad;
 }
 
-CCString* getLocalPath(const char* name)
+std::string getLocalPath(const char* name)
 {
-    return ScreateF("%s/Documents/%s", getenv("HOME"), name);
+    return std::string(getenv("HOME"))+"/Documents/"+name;
 }
 
 const char* getAppName()

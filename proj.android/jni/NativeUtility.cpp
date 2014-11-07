@@ -44,7 +44,7 @@ bool isPhone()
     return result;
 }
 
-CCString* getLocalPath(const char* name)
+std::string getLocalPath(const char* name)
 {
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "getLocalPath", "()Ljava/lang/String;"), "Function doesn't exist");
@@ -54,7 +54,7 @@ CCString* getLocalPath(const char* name)
 
 	const char *nativeString = minfo.env->GetStringUTFChars(directory, 0);
     CCLOG("Getting local path : %s, name : %s", nativeString, name);
-	CCString* path = ScreateF("%s/%s", nativeString, name);
+	std::string path = std::string(nativeString) + "/" + name;
 	minfo.env->ReleaseStringUTFChars(directory, nativeString);
 	return path;
 }
@@ -69,9 +69,9 @@ const char* getAppName()
        
     const char *nativeString = minfo.env->GetStringUTFChars(name, 0);
     CCLOG("Getting app name : %s", nativeString);
-    CCString* path = ScreateF("%s", nativeString);
+    std::string path = std::string(nativeString);
     minfo.env->ReleaseStringUTFChars(name, nativeString);
-    return path->getCString();
+    return path.c_str();
 }
 
 const char* getPackageIdentifier()
@@ -84,9 +84,9 @@ const char* getPackageIdentifier()
 
 	const char *nativeString = minfo.env->GetStringUTFChars(name, 0);
     CCLOG("Getting app package identifier : %s", nativeString);
-	CCString* path = ScreateF("%s", nativeString);
-	minfo.env->ReleaseStringUTFChars(name, nativeString);
-	return path->getCString();
+    std::string path = std::string(nativeString);
+    minfo.env->ReleaseStringUTFChars(name, nativeString);
+    return path.c_str();
 }
 
 void copyResourceFileToLocal(const char* path)
@@ -104,11 +104,10 @@ const char* getLocalLanguage()
 
     jstring str = (jstring)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID);
     minfo.env->DeleteLocalRef(minfo.classID);
-    CCString *ret = new CCString(JniHelper::jstring2string(str).c_str());
-    ret->autorelease();
+    std::string ret = std::string(JniHelper::jstring2string(str).c_str());
     minfo.env->DeleteLocalRef(str);
 
-    return ret->getCString();
+    return ret.c_str();
 }
 
 bool isConnected()

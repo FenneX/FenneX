@@ -29,14 +29,14 @@ THE SOFTWARE.
 
 #define CLASS_NAME "com/fennex/modules/VideoPlayer"
 
-VideoPlayer::VideoPlayer(CCString* file, CCPoint position, CCSize size, bool front, bool loop)
+VideoPlayer::VideoPlayer(std::string file, CCPoint position, CCSize size, bool front, bool loop)
 {
 	JniMethodInfo minfo;
 
     CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"initVideoPlayer", "(Ljava/lang/String;FFFFZZ)V"), "Function doesn't exist");
 
-	CCLOG("VideoPlayer: file = %s, position.x = %f, position.y = %f, size.height = %f, position.width = %f, front = %i", file->getCString(), position.x, position.y, size.height, size.width, front);
-	jstring jFile = minfo.env->NewStringUTF(file->getCString());
+	CCLOG("VideoPlayer: file = %s, position.x = %f, position.y = %f, size.height = %f, position.width = %f, front = %i", file.c_str(), position.x, position.y, size.height, size.width, front);
+	jstring jFile = minfo.env->NewStringUTF(file.c_str());
 
 	minfo.env->CallStaticVoidMethod(minfo.classID,
 									minfo.methodID,
@@ -153,12 +153,12 @@ void VideoPlayer::setPosition(float position)
     minfo.env->DeleteLocalRef(minfo.classID);
 }
 
-CCString* VideoPlayer::getThumbnail(CCString* path)
+std::string VideoPlayer::getThumbnail(const std::string& path)
 {
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"getThumbnail", "(Ljava/lang/String;)Ljava/lang/String;"), "Function doesn't exist");
 
-	jstring stringArg = minfo.env->NewStringUTF(path->getCString());
+	jstring stringArg = minfo.env->NewStringUTF(path.c_str());
 	jstring result = (jstring)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID, stringArg);
 	minfo.env->DeleteLocalRef(stringArg);
     minfo.env->DeleteLocalRef(minfo.classID);
@@ -166,19 +166,19 @@ CCString* VideoPlayer::getThumbnail(CCString* path)
 	if(result == NULL) return NULL;
 
 	const char *nativeResult = minfo.env->GetStringUTFChars(result, 0);
-	CCString* thumbnailPath = Screate(nativeResult);
+	std::string thumbnailPath = std::string(nativeResult);
 	minfo.env->ReleaseStringUTFChars(result, nativeResult);
 
 	return thumbnailPath;
 }
 
-bool VideoPlayer::videoExists(CCString* file)
+bool VideoPlayer::videoExists(const std::string& file)
 {
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"videoExists", "(Ljava/lang/String;)Z"), "Function doesn't exist");
     minfo.env->DeleteLocalRef(minfo.classID);
 
-	jstring stringArg = minfo.env->NewStringUTF(file->getCString());
+	jstring stringArg = minfo.env->NewStringUTF(file.c_str());
 	bool result = minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID, stringArg);
 	minfo.env->DeleteLocalRef(stringArg);
 
