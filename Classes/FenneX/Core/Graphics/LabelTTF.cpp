@@ -46,6 +46,7 @@ CCNode* LabelTTF::getNode()
 
 void LabelTTF::setDimensions(CCSize dimensions)
 {
+    adjustLabel();
     realDimensions = dimensions;
 }
 
