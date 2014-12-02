@@ -56,6 +56,8 @@ std::string getLocalPath(const char* name)
     CCLOG("Getting local path : %s, name : %s", nativeString, name);
 	std::string path = std::string(nativeString) + "/" + name;
 	minfo.env->ReleaseStringUTFChars(directory, nativeString);
+	minfo.env->DeleteLocalRef(directory);
+	minfo.env->DeleteLocalRef(minfo.classID);
 	return path;
 }
 
