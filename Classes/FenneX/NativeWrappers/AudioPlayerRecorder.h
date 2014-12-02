@@ -55,7 +55,7 @@ public:
     ~AudioPlayerRecorder();
     
     static float getSoundDuration(std::string file);
-    static const char* getSoundsSavePath();
+    static std::string getSoundsSavePath();
     
     //By default, recording is disabled (to avoid prompting for microphone on iOS)
     //You should enable it when the user goes to somewhere he is going to need recording soon, then disable it once he leaves the area

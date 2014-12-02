@@ -61,7 +61,7 @@ std::string getLocalPath(const char* name)
 	return path;
 }
 
-const char* getAppName()
+std::string getAppName()
 {
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "getAppName", "()Ljava/lang/String;"), "Function doesn't exist");
@@ -73,10 +73,10 @@ const char* getAppName()
     CCLOG("Getting app name : %s", nativeString);
     std::string path = std::string(nativeString);
     minfo.env->ReleaseStringUTFChars(name, nativeString);
-    return path.c_str();
+    return path;
 }
 
-const char* getPackageIdentifier()
+std::string getPackageIdentifier()
 {
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "getPackageIdentifier", "()Ljava/lang/String;"), "Function doesn't exist");
@@ -88,7 +88,7 @@ const char* getPackageIdentifier()
     CCLOG("Getting app package identifier : %s", nativeString);
     std::string path = std::string(nativeString);
     minfo.env->ReleaseStringUTFChars(name, nativeString);
-    return path.c_str();
+    return path;
 }
 
 void copyResourceFileToLocal(const char* path)
@@ -99,7 +99,7 @@ void copyResourceFileToLocal(const char* path)
     minfo.env->DeleteLocalRef(minfo.classID);
 }
 
-const char* getLocalLanguage()
+std::string getLocalLanguage()
 {
     JniMethodInfo minfo;
     CCAssert(JniHelper::getStaticMethodInfo(minfo, "org/cocos2dx/lib/Cocos2dxHelper", "getCurrentLanguage", "()Ljava/lang/String;"), "Function doesn't exist");
@@ -109,7 +109,7 @@ const char* getLocalLanguage()
     std::string ret = std::string(JniHelper::jstring2string(str).c_str());
     minfo.env->DeleteLocalRef(str);
 
-    return ret.c_str();
+    return ret;
 }
 
 bool isConnected()

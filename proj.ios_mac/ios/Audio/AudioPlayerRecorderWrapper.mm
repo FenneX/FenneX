@@ -60,7 +60,7 @@ bool AudioPlayerRecorder::isPlaying()
     return link != NULL && [AudioPlayerRecorderImpl sharedAudio].isPlaying;
 }
 
-const char* AudioPlayerRecorder::getSoundsSavePath()
+std::string AudioPlayerRecorder::getSoundsSavePath()
 {
     NSString *iosString = [[NSFileManager defaultManager] applicationSupportDirectory];
     return [iosString UTF8String];

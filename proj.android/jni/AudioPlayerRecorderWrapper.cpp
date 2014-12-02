@@ -220,14 +220,14 @@ float AudioPlayerRecorder::getSoundDuration(std::string file)
 	return TOFLOAT(result);
 }
 
-const char* AudioPlayerRecorder::getSoundsSavePath()
+std::string AudioPlayerRecorder::getSoundsSavePath()
 {
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo, "com/fennex/modules/NativeUtility", "getLocalPath", "()Ljava/lang/String;"), "Function doesn't exist");
 
 	jstring directory = (jstring)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID);
 
-	const char *nativeString = minfo.env->GetStringUTFChars(directory, 0);
+	std::string nativeString = minfo.env->GetStringUTFChars(directory, 0);
     return nativeString;
 }
 
@@ -268,7 +268,7 @@ CCDictionary* AudioPlayerRecorder::getFileMetadata(const std::string& path)
 	if(result != NULL)
 	{
 		const char* nativeString = minfo.env->GetStringUTFChars(result, 0);
-		metadata->setObject(Screate(nativeString), "Author");
+		metadata->setObject(Screate(std::string(nativeString)), "Author");
 		minfo.env->ReleaseStringUTFChars(result, nativeString);
 	}
 	
@@ -279,7 +279,7 @@ CCDictionary* AudioPlayerRecorder::getFileMetadata(const std::string& path)
 	if(result != NULL)
 	{
 		const char* nativeString = minfo.env->GetStringUTFChars(result, 0);
-		metadata->setObject(Screate(nativeString), "Title");
+		metadata->setObject(Screate(std::string(nativeString)), "Title");
 		minfo.env->ReleaseStringUTFChars(result, nativeString);
 	}
 	

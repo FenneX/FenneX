@@ -19,8 +19,8 @@ bool isPhone();
 std::string getLocalPath(const char* name);
 
 //Use AppName if you need to actually show it. Use package identifier if you need to save files for example, as it does not contain special characters
-const char* getAppName();
-const char* getPackageIdentifier();
+std::string getAppName();
+std::string getPackageIdentifier();
 
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
@@ -31,7 +31,7 @@ void copyResourceFileToLocal(const char* path);
 //implemented by platform because cocos2d version doesn't return the string identifier
 //Android version is a copy of getCurrentLanguageJNI defined in main.cpp
 //iOS version is defined in AppController
-const char* getLocalLanguage();
+std::string getLocalLanguage();
 
 bool isConnected();
 

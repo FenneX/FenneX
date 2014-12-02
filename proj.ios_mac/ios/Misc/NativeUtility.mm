@@ -45,17 +45,17 @@ std::string getLocalPath(const char* name)
     return std::string(getenv("HOME"))+"/Documents/"+name;
 }
 
-const char* getAppName()
+std::string getAppName()
 {
     return [[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"] UTF8String];
 }
 
-const char* getPackageIdentifier()
+std::string getPackageIdentifier()
 {
     return [[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"] UTF8String];
 }
 
-const char* getLocalLanguage()
+std::string getLocalLanguage()
 {
     // get the current language and country config
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
