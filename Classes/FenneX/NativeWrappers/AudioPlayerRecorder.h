@@ -55,7 +55,7 @@ public:
     ~AudioPlayerRecorder();
     
     static float getSoundDuration(std::string file);
-    static std::string getSoundsSavePath();
+    static const char* getSoundsSavePath();
     
     //By default, recording is disabled (to avoid prompting for microphone on iOS)
     //You should enable it when the user goes to somewhere he is going to need recording soon, then disable it once he leaves the area
@@ -70,7 +70,7 @@ public:
     std::string getPathWithoutExtension();
     void stopAll();
     
-    //Those methods first try Object before Sender because it can be a subcall (for example if the selection is via a pop-up
+    //Those methods first try Object before Sender because it can be a subcall (for example if the selection is via a pop-up. If the Sender is a CCInteger, it will try to get a valid RawObject from GraphicLayer
     void playObject(CCObject* obj); //infos may contains the Object/Sender (CCObject*) and the File (CCString)
     void recordObject(CCObject* obj); //infos may contains the Object/Sender (CCObject*), the File (CCString) will be generated if absent
     

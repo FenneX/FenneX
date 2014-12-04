@@ -89,6 +89,11 @@ void AudioPlayerRecorder::playObject(CCObject* obj)
     if(linkTo == NULL)
     {
         linkTo = infos->objectForKey("Sender");
+        if(isKindOfClass(linkTo, CCInteger))
+        {
+            RawObject* target = GraphicLayer::sharedLayer()->getById(TOINT(linkTo));
+            if(target != NULL) linkTo = target;
+        }
     }
     if(linkTo == NULL)
     {
@@ -124,7 +129,7 @@ void AudioPlayerRecorder::recordObject(CCObject* obj)
     struct tm* timeinfo = localtime (&rawtime);
 
     // format : "%s_%d-%02d-%02d_%02d.%02d.%02d"
-    std::string file = getPackageIdentifier() + "_"
+    std::string file = std::string(getPackageIdentifier()) + "_"
                         + std::to_string(timeinfo->tm_year+1900) + "-"
                         + std::to_string(timeinfo->tm_mon+1).substr(0,2) + "-"
                         + std::to_string(timeinfo->tm_mday).substr(0,2) + "_"
