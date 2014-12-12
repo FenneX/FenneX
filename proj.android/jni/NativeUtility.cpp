@@ -91,6 +91,21 @@ std::string getPackageIdentifier()
     return path;
 }
 
+std::string getUniqueIdentifier()
+{
+	JniMethodInfo minfo;
+	CCAssert(JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "getUniqueIdentifier", "()Ljava/lang/String;"), "Function doesn't exist");
+
+	jstring name = (jstring) minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID);
+    minfo.env->DeleteLocalRef(minfo.classID);
+
+	const char *nativeString = minfo.env->GetStringUTFChars(name, 0);
+    CCLOG("Getting Unique identifier : %s", nativeString);
+    std::string identifier = std::string(nativeString);
+    minfo.env->ReleaseStringUTFChars(name, nativeString);
+    return identifier;
+}
+
 void copyResourceFileToLocal(const char* path)
 {
 	JniMethodInfo minfo;

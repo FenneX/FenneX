@@ -55,6 +55,11 @@ std::string getPackageIdentifier()
     return [[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"] UTF8String];
 }
 
+std::string getUniqueIdentifier()
+{
+    return [[[[UIDevice currentDevice] identifierForVendor] UUIDString] UTF8String];
+}
+
 std::string getLocalLanguage()
 {
     // get the current language and country config

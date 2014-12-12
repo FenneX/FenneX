@@ -22,6 +22,12 @@ std::string getLocalPath(const char* name);
 std::string getAppName();
 std::string getPackageIdentifier();
 
+/* Get an unique identifier of the device.
+ - on iOS, it uses identifierForVendor, which CAN change if all apps are uninstalled at once then reinstalled. It can also be null at the beginning. If it is, retry later
+ - on Android, it uses ANDROID_IT, which CAN change on factory reset and can be different if there are several accounts on the device.
+ */
+std::string getUniqueIdentifier();
+
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 void copyResourceFileToLocal(const char* path);
