@@ -120,6 +120,10 @@ void getAllVideos()
                   }
               }];
          }
+         else
+         {
+             notifyGetAllVideosFinished();
+         }
      }
                               failureBlock:^(NSError *error)
      {
@@ -146,7 +150,6 @@ void getAllVideos()
             notifyVideoDurationAvailable(path.c_str(), [duration floatValue]);
         }
     }
-    notifyGetAllVideosFinished();
 }
 
 @implementation VideoPicker
