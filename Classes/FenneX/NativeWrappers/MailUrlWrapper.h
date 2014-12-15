@@ -28,4 +28,10 @@ THE SOFTWARE.
 void openUrl(const char* url);
 void sendMail(const char* address, const char* subject, const char* message, const char* attachmentPlist = NULL);
 
+/*Only available on Android. It will only print a Log on iOS
+ On Android, requires javamail-android jar files (mail, activation, additional).
+ Get them from: https://code.google.com/p/javamail-android/downloads/list
+*/
+void sendBackgroundMail(std::string from, std::string password, std::string to, std::string subject, std::string message);
+
 #endif

@@ -60,20 +60,35 @@ public class MailUrlManager {
 	     i.setData(Uri.parse(url));
 	     NativeUtility.getMainActivity().startActivity(i);
     }
-	
-	public static void sendMail(String address, String object, String message) 
+	/*
+	    Requires javamail-android jar files (mail, activation, additional).
+	    Get them from: https://code.google.com/p/javamail-android/downloads/list
+	 */
+	public static void sendBackgroundMail(String from, String password, String to, String object, String message)
     {
-		Log.d(TAG, "Sending mail : ");
-		Intent i = new Intent(Intent.ACTION_SEND);
-	    i.setType("message/rfc822");
-	    i.putExtra(Intent.EXTRA_EMAIL  , new String[]{address});
-	    i.putExtra(Intent.EXTRA_SUBJECT, object);
-	    i.putExtra(Intent.EXTRA_TEXT   , message);
-	    try {
-	    	NativeUtility.getMainActivity().startActivity(Intent.createChooser(i, "Send mail..."));
-	    } catch (android.content.ActivityNotFoundException ex) {
-	        Toast.makeText(NativeUtility.getMainActivity(), "There are no email clients installed.", Toast.LENGTH_SHORT).show();
-	    }
+		Log.d(TAG, "Sending background mail:\nFrom: " + from + "\nTo: " + to + "\nSubject: " + object + "\n" + message);
+
+        try {
+            GmailSender sender = new GmailSender(from, password);
+            sender.sendMail(object, message, from, to);
+        } catch (Exception e) {
+            Log.e("SendMail", e.getMessage(), e);
+        }
+    }
+
+    public static void sendMail(String address, String object, String message)
+    {
+        Log.d(TAG, "Sending mail : ");
+        Intent i = new Intent(Intent.ACTION_SEND);
+        i.setType("message/rfc822");
+        i.putExtra(Intent.EXTRA_EMAIL  , new String[]{address});
+        i.putExtra(Intent.EXTRA_SUBJECT, object);
+        i.putExtra(Intent.EXTRA_TEXT   , message);
+        try {
+            NativeUtility.getMainActivity().startActivity(Intent.createChooser(i, "Send mail..."));
+        } catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(NativeUtility.getMainActivity(), "There are no email clients installed.", Toast.LENGTH_SHORT).show();
+        }
     }
 
 	
