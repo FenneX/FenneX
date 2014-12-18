@@ -40,6 +40,9 @@ USING_NS_CC;
 #include "FenneXMacros.h"
 
 NS_FENNEX_BEGIN
+
+class ButtonTapObserver;
+
 class GraphicLayer : public CCObject, public Pausable
 {
 public:
@@ -52,6 +55,10 @@ public:
     float getClock() { return clock; }
     CCArray* getChildren() { return storedObjects; }
     
+    void setTapObserver(ButtonTapObserver* observer);
+    ButtonTapObserver* getTapObserver();
+protected:
+    ButtonTapObserver* tapObserver;
 public:
     ~GraphicLayer();
     
@@ -283,6 +290,14 @@ private:
     CCDictionary* childParent; //keys are objects ID, values are Panel
     int nextAvailableId;
 };
+
+//Allow to observe ALL buttons tap, to do some sort of global action
+class ButtonTapObserver
+{
+public:
+    virtual void onButtonTapped(RawObject* button, std::string event, CCDictionary* infos) = 0;
+};
+
 NS_FENNEX_END
 
 #endif /* defined(__FenneX__GraphicLayer__) */

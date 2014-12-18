@@ -61,6 +61,7 @@ void GraphicLayer::init()
     objectsToAdd = new CCArray();
     objectsToRemove = new CCArray();
     childParent = new CCDictionary();
+    tapObserver = NULL;
 }
 
 GraphicLayer::~GraphicLayer()
@@ -77,6 +78,16 @@ GraphicLayer::~GraphicLayer()
     objectsToAdd->release();
     objectsToRemove->release();
     childParent->release();
+}
+
+void GraphicLayer::setTapObserver(ButtonTapObserver* observer)
+{
+    tapObserver = observer;
+}
+
+ButtonTapObserver* GraphicLayer::getTapObserver()
+{
+    return tapObserver;
 }
 
 void GraphicLayer::useBaseLayer(CCLayer* otherLayer)
@@ -1857,6 +1868,7 @@ bool GraphicLayer::touchObject(RawObject* obj, bool event, CCPoint position)
         {
             CCDictionary* infos = obj->getEventInfos();
             infos->setObject(Pcreate(position), "TouchPosition");
+            IFEXIST(tapObserver)->onButtonTapped(obj, obj->getEventName(), infos);
             CCNotificationCenter::sharedNotificationCenter()->postNotification(obj->getEventName(), infos);
             CCString* trackingName = (CCString*)obj->getEventInfos()->objectForKey("TrackingName");
             SceneName currentScene = SceneSwitcher::sharedSwitcher()->getCurrentSceneName();
