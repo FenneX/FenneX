@@ -24,7 +24,7 @@
 
 #include "VideoPlayer.h"
 #include "VideoPlayerImplIOS.h"
-#import "CCEAGLView.h"
+#import "platform/ios/CCEAGLView-ios.h"
 
 #define TYPED_DELEGATE ((VideoPlayerImplIOS*)delegate)
 

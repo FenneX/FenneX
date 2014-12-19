@@ -27,7 +27,7 @@
 #import "RootViewController.h"
 #import <AssetsLibrary/AssetsLibrary.h>
 #include "VideoPickerWrapper.h"
-#import "CCEAGLView.h"
+#import "platform/ios/CCEAGLView-ios.h"
 
 #define CAPTURE_FRAMES_PER_SECOND		60
 
