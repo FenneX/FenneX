@@ -28,16 +28,15 @@ THE SOFTWARE.
 #ifndef __CCDIRECTOR_H__
 #define __CCDIRECTOR_H__
 
-#include "base/CCPlatformMacros.h"
-
-#include "base/CCRef.h"
-#include "base/ccTypes.h"
-#include "math/CCGeometry.h"
-#include "base/CCVector.h"
-#include "CCGL.h"
-#include "2d/CCLabelAtlas.h"
 #include <stack>
+
+#include "platform/CCPlatformMacros.h"
+#include "base/CCRef.h"
+#include "base/CCVector.h"
+#include "2d/CCScene.h"
 #include "math/CCMath.h"
+#include "platform/CCGL.h"
+#include "platform/CCGLView.h"
 
 NS_CC_BEGIN
 
@@ -48,8 +47,7 @@ NS_CC_BEGIN
 
 /* Forward declarations. */
 class LabelAtlas;
-class Scene;
-class GLView;
+//class GLView;
 class DirectorDelegate;
 class Node;
 class Scheduler;
@@ -59,10 +57,9 @@ class EventCustom;
 class EventListenerCustom;
 class TextureCache;
 class Renderer;
+class Camera;
 
-#if  (CC_TARGET_PLATFORM != CC_PLATFORM_WINRT)
 class Console;
-#endif
 
 /**
 @brief Class that creates and handles the main Window and manages how
@@ -93,26 +90,11 @@ enum class MATRIX_STACK_TYPE
 
 class CC_DLL Director : public Ref
 {
-private:
-    std::stack<Mat4> _modelViewMatrixStack;
-    std::stack<Mat4> _projectionMatrixStack;
-    std::stack<Mat4> _textureMatrixStack;
-protected:
-    void initMatrixStack();
-public:
-    void pushMatrix(MATRIX_STACK_TYPE type);
-    void popMatrix(MATRIX_STACK_TYPE type);
-    void loadIdentityMatrix(MATRIX_STACK_TYPE type);
-    void loadMatrix(MATRIX_STACK_TYPE type, const Mat4& mat);
-    void multiplyMatrix(MATRIX_STACK_TYPE type, const Mat4& mat);
-    Mat4 getMatrix(MATRIX_STACK_TYPE type);
-    void resetMatrixStack();
 public:
     static const char *EVENT_PROJECTION_CHANGED;
     static const char* EVENT_AFTER_UPDATE;
     static const char* EVENT_AFTER_VISIT;
     static const char* EVENT_AFTER_DRAW;
-
 
     /** @typedef ccDirectorProjection
      Possible OpenGL projections used by director
@@ -244,7 +226,7 @@ public:
      */
     Vec2 convertToUI(const Vec2& point);
 
-    /// XXX: missing description 
+    /// FIXME: missing description 
     float getZEye() const;
 
     // Scene Management
@@ -393,9 +375,7 @@ public:
     /** Returns the Console 
      @since v3.0
      */
-#if  (CC_TARGET_PLATFORM != CC_PLATFORM_WINRT)
     Console* getConsole() const { return _console; }
-#endif
 
     /* Gets delta time since last tick to main loop */
 	float getDeltaTime() const;
@@ -404,6 +384,14 @@ public:
      *  get Frame Rate
      */
     float getFrameRate() const { return _frameRate; }
+
+    void pushMatrix(MATRIX_STACK_TYPE type);
+    void popMatrix(MATRIX_STACK_TYPE type);
+    void loadIdentityMatrix(MATRIX_STACK_TYPE type);
+    void loadMatrix(MATRIX_STACK_TYPE type, const Mat4& mat);
+    void multiplyMatrix(MATRIX_STACK_TYPE type, const Mat4& mat);
+    const Mat4& getMatrix(MATRIX_STACK_TYPE type);
+    void resetMatrixStack();
 
 protected:
     void purgeDirector();
@@ -422,6 +410,12 @@ protected:
     //textureCache creation or release
     void initTextureCache();
     void destroyTextureCache();
+
+    void initMatrixStack();
+
+    std::stack<Mat4> _modelViewMatrixStack;
+    std::stack<Mat4> _projectionMatrixStack;
+    std::stack<Mat4> _textureMatrixStack;
 
     /** Scheduler associated with this director
      @since v2.0
@@ -442,7 +436,8 @@ protected:
     /* delta time since last tick to main loop */
 	float _deltaTime;
     
-    /* The GLView, where everything is rendered */
+    /* The _openGLView, where everything is rendered, GLView is a abstract class,cocos2d-x provide GLViewImpl
+     which inherit from it as default renderer context,you can have your own by inherit from it*/
     GLView *_openGLView;
 
     //texture cache belongs to this director
@@ -469,7 +464,6 @@ protected:
 
     /* How many frames were called since the director started */
     unsigned int _totalFrames;
-    unsigned int _frames;
     float _secondsPerFrame;
     
     /* The running scene */
@@ -506,13 +500,11 @@ protected:
     /* Renderer for the Director */
     Renderer *_renderer;
 
-#if  (CC_TARGET_PLATFORM != CC_PLATFORM_WINRT)
     /* Console for the director */
     Console *_console;
-#endif
 
-    // GLViewProtocol will recreate stats labels to fit visible rect
-    friend class GLViewProtocol;
+    // GLView will recreate stats labels to fit visible rect
+    friend class GLView;
 };
 
 /** 

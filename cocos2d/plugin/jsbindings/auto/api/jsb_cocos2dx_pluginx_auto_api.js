@@ -147,7 +147,7 @@ long
 /**
  * @method logEvent
  * @param {char} arg0
- * @param {MapObject} arg1
+ * @param {map_object} arg1
  */
 logEvent : function (
 char, 
@@ -192,16 +192,6 @@ char
 plugin.ProtocolIAP = {
 
 /**
- * @method payForProduct
- * @param {MapObject} arg0
- */
-payForProduct : function (
-map 
-)
-{
-},
-
-/**
  * @method onPayResult
  * @param {cc.plugin::PayResultCode} arg0
  * @param {char} arg1
@@ -214,8 +204,18 @@ char
 },
 
 /**
+ * @method getCallback
+ * @return {function}
+ */
+getCallback : function (
+)
+{
+    return std::function<void (int, std::basic_string<char> &)>;
+},
+
+/**
  * @method configDeveloperInfo
- * @param {MapObject} arg0
+ * @param {map_object} arg0
  */
 configDeveloperInfo : function (
 map 
@@ -232,7 +232,7 @@ plugin.ProtocolAds = {
 
 /**
  * @method showAds
- * @param {MapObject} arg0
+ * @param {map_object} arg0
  * @param {cc.plugin::ProtocolAds::AdsPos} arg1
  */
 showAds : function (
@@ -244,7 +244,7 @@ adspos
 
 /**
  * @method hideAds
- * @param {MapObject} arg0
+ * @param {map_object} arg0
  */
 hideAds : function (
 map 
@@ -261,6 +261,16 @@ queryPoints : function (
 },
 
 /**
+ * @method getCallback
+ * @return {function}
+ */
+getCallback : function (
+)
+{
+    return std::function<void (int, std::basic_string<char> &)>;
+},
+
+/**
  * @method spendPoints
  * @param {int} arg0
  */
@@ -272,22 +282,12 @@ int
 
 /**
  * @method configDeveloperInfo
- * @param {MapObject} arg0
+ * @param {map_object} arg0
  */
 configDeveloperInfo : function (
 map 
 )
 {
-},
-
-/**
- * @method getAdsListener
- * @return {cc.plugin::AdsListener}
- */
-getAdsListener : function (
-)
-{
-    return cc.plugin::AdsListener;
 },
 
 };
@@ -310,18 +310,18 @@ char
 },
 
 /**
- * @method share
- * @param {MapObject} arg0
+ * @method getCallback
+ * @return {function}
  */
-share : function (
-map 
+getCallback : function (
 )
 {
+    return std::function<void (int, std::basic_string<char> &)>;
 },
 
 /**
  * @method configDeveloperInfo
- * @param {MapObject} arg0
+ * @param {map_object} arg0
  */
 configDeveloperInfo : function (
 map 
@@ -355,32 +355,20 @@ showAchievements : function (
 },
 
 /**
- * @method submitScore
- * @param {char} arg0
- * @param {long} arg1
+ * @method getCallback
+ * @return {function}
  */
-submitScore : function (
-char, 
-long 
+getCallback : function (
 )
 {
+    return std::function<void (int, std::basic_string<char> &)>;
 },
 
 /**
  * @method configDeveloperInfo
- * @param {MapObject} arg0
+ * @param {map_object} arg0
  */
 configDeveloperInfo : function (
-map 
-)
-{
-},
-
-/**
- * @method unlockAchievement
- * @param {MapObject} arg0
- */
-unlockAchievement : function (
 map 
 )
 {
@@ -394,13 +382,185 @@ map
 plugin.ProtocolUser = {
 
 /**
- * @method isLogined
+ * @method getCallback
+ * @return {function}
+ */
+getCallback : function (
+)
+{
+    return std::function<void (int, std::basic_string<char> &)>;
+},
+
+/**
+ * @method configDeveloperInfo
+ * @param {map_object} arg0
+ */
+configDeveloperInfo : function (
+map 
+)
+{
+},
+
+/**
+ * @method isLoggedIn
  * @return {bool}
  */
-isLogined : function (
+isLoggedIn : function (
 )
 {
     return false;
+},
+
+/**
+ * @method getSessionID
+ * @return {String}
+ */
+getSessionID : function (
+)
+{
+    return ;
+},
+
+/**
+ * @method getAccessToken
+ * @return {String}
+ */
+getAccessToken : function (
+)
+{
+    return ;
+},
+
+};
+
+/**
+ * @class AgentManager
+ */
+plugin.AgentManager = {
+
+/**
+ * @method getSocialPlugin
+ * @return {cc.plugin::ProtocolSocial}
+ */
+getSocialPlugin : function (
+)
+{
+    return cc.plugin::ProtocolSocial;
+},
+
+/**
+ * @method getAdsPlugin
+ * @return {cc.plugin::ProtocolAds}
+ */
+getAdsPlugin : function (
+)
+{
+    return cc.plugin::ProtocolAds;
+},
+
+/**
+ * @method purge
+ */
+purge : function (
+)
+{
+},
+
+/**
+ * @method getUserPlugin
+ * @return {cc.plugin::ProtocolUser}
+ */
+getUserPlugin : function (
+)
+{
+    return cc.plugin::ProtocolUser;
+},
+
+/**
+ * @method getIAPPlugin
+ * @return {cc.plugin::ProtocolIAP}
+ */
+getIAPPlugin : function (
+)
+{
+    return cc.plugin::ProtocolIAP;
+},
+
+/**
+ * @method getSharePlugin
+ * @return {cc.plugin::ProtocolShare}
+ */
+getSharePlugin : function (
+)
+{
+    return cc.plugin::ProtocolShare;
+},
+
+/**
+ * @method getAnalyticsPlugin
+ * @return {cc.plugin::ProtocolAnalytics}
+ */
+getAnalyticsPlugin : function (
+)
+{
+    return cc.plugin::ProtocolAnalytics;
+},
+
+/**
+ * @method destroyInstance
+ */
+destroyInstance : function (
+)
+{
+},
+
+/**
+ * @method getInstance
+ * @return {cc.plugin::AgentManager}
+ */
+getInstance : function (
+)
+{
+    return cc.plugin::AgentManager;
+},
+
+};
+
+/**
+ * @class FacebookAgent
+ */
+plugin.FacebookAgent = {
+
+/**
+ * @method activateApp
+ */
+activateApp : function (
+)
+{
+},
+
+/**
+ * @method getUserID
+ * @return {String}
+ */
+getUserID : function (
+)
+{
+    return ;
+},
+
+/**
+ * @method logEvent
+* @param {String|String|String|String} str
+* @param {float|map_object|float} float
+* @param {map_object} map
+*/
+logEvent : function(
+str,
+float,
+map 
+)
+{
 },
 
 /**
@@ -412,31 +572,77 @@ logout : function (
 },
 
 /**
- * @method configDeveloperInfo
- * @param {MapObject} arg0
+ * @method getSDKVersion
+ * @return {String}
  */
-configDeveloperInfo : function (
+getSDKVersion : function (
+)
+{
+    return ;
+},
+
+/**
+ * @method logPurchase
+* @param {float|float} float
+* @param {String|String} str
+* @param {map_object} map
+*/
+logPurchase : function(
+float,
+str,
 map 
 )
 {
 },
 
 /**
- * @method login
+ * @method isLoggedIn
+ * @return {bool}
  */
-login : function (
+isLoggedIn : function (
+)
+{
+    return false;
+},
+
+/**
+ * @method canPresentDialogWithParams
+ * @param {map_object} arg0
+ * @return {bool}
+ */
+canPresentDialogWithParams : function (
+map 
+)
+{
+    return false;
+},
+
+/**
+ * @method getAccessToken
+ * @return {String}
+ */
+getAccessToken : function (
+)
+{
+    return ;
+},
+
+/**
+ * @method destroyInstance
+ */
+destroyInstance : function (
 )
 {
 },
 
 /**
- * @method getSessionID
- * @return {String}
+ * @method getInstance
+ * @return {cc.plugin::FacebookAgent}
  */
-getSessionID : function (
+getInstance : function (
 )
 {
-    return ;
+    return cc.plugin::FacebookAgent;
 },
 
 };

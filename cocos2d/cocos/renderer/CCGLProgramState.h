@@ -47,7 +47,7 @@ class EventCustom;
 // UniformValue
 //
 //
-class UniformValue
+class CC_DLL UniformValue
 {
     friend class GLProgram;
     friend class GLProgramState;
@@ -99,7 +99,7 @@ protected:
 // VertexAttribValue
 //
 //
-class VertexAttribValue
+class CC_DLL VertexAttribValue
 {
     friend class GLProgram;
     friend class GLProgramState;
@@ -143,7 +143,7 @@ protected:
  A GLProgram can be used by thousands of Nodes, but if different uniform values 
  are going to be used, then each node will need its own GLProgramState
  */
-class GLProgramState : public Ref
+class CC_DLL GLProgramState : public Ref
 {
     friend class GLProgramStateCache;
 public:
@@ -217,8 +217,8 @@ protected:
     int _textureUnitIndex;
     uint32_t _vertexAttribsFlags;
     GLProgram *_glprogram;
-    
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || (CC_TARGET_PLATFORM == CC_PLATFORM_WP8) || CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
     EventListenerCustom* _backToForegroundlistener;
 #endif
 };

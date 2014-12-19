@@ -26,11 +26,12 @@ THE SOFTWARE.
 #define __CCTIMELINE_ACTION_H__
 
 #include "CCTimeLine.h"
-#include "renderer/CCRenderer.h"
+#include "cocostudio/CocosStudioExport.h"
+#include "2d/CCAction.h"
 
 NS_TIMELINE_BEGIN
 
-class  ActionTimelineData : public cocos2d::Ref
+class CC_STUDIO_DLL ActionTimelineData : public cocos2d::Ref
 {
 public:
     static ActionTimelineData* create(int actionTag);
@@ -45,7 +46,7 @@ protected:
 };
 
 
-class  ActionTimeline : public cocos2d::Action
+class CC_STUDIO_DLL ActionTimeline : public cocos2d::Action
 {
 public:
     friend class Frame;
@@ -128,6 +129,10 @@ public:
     void setFrameEventCallFunc(std::function<void(Frame *)> listener);
     void clearFrameEventCallFunc();
 
+    /** Last frame callback will call when arriving last frame */
+    void setLastFrameCallFunc(std::function<void()> listener);
+    void clearLastFrameCallFunc();
+
     /** Inherit from Action. */
 
     /** Returns a clone of ActionTimeline */
@@ -162,6 +167,7 @@ protected:
     bool    _loop;
 
     std::function<void(Frame*)> _frameEventListener;
+    std::function<void()> _lastFrameListener;
 };
 
 NS_TIMELINE_END

@@ -31,15 +31,14 @@
 
 #include "base/ccMacros.h"
 #include "base/CCRef.h"
-#include "base/ccTypes.h"
-#include "CCBundle3DData.h"
+#include "3d/CCBundle3DData.h"
 
 NS_CC_BEGIN
 
 /**
  * static animation data, shared
  */
-class Animation3D: public Ref
+class CC_DLL Animation3D: public Ref
 {
     friend class Bundle3D;
 public:
@@ -71,18 +70,15 @@ public:
     Curve* getBoneCurveByName(const std::string& name) const;
     
 CC_CONSTRUCTOR_ACCESS:
-    
     Animation3D();
     virtual ~Animation3D();  
     /**init Animation3D from bundle data*/
     bool init(const Animation3DData& data);
     
 protected:
-    
     std::unordered_map<std::string, Curve*> _boneCurves;//bone curves map, key bone name, value AnimationCurve
-    
-    
-    float             _duration; //animation duration
+
+    float _duration; //animation duration
 };
 
 /**

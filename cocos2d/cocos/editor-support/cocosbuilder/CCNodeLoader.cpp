@@ -634,7 +634,7 @@ Animation * NodeLoader::parsePropTypeAnimation(Node * pNode, Node * pParent, CCB
     // know what to do with them, since its pulling from bundle.
     // Eventually this should be handled by a client side asset manager
     // interface which figured out what resources to load.
-    // TODO Does this problem exist in C++?
+    // TODO: Does this problem exist in C++?
     animation = CCBReader::lastPathComponent(animation.c_str());
     animationFile = CCBReader::lastPathComponent(animationFile.c_str());
     
@@ -702,7 +702,7 @@ Color4F * NodeLoader::parsePropTypeColor4FVar(Node * pNode, Node * pParent, CCBR
     float blueVar = ccbReader->readFloat();
     float alphaVar = ccbReader->readFloat();
     
-    Color4F * colors = new Color4F[2];
+    Color4F * colors = new (std::nothrow) Color4F[2];
     colors[0].r = red;
     colors[0].g = green;
     colors[0].b = blue;
@@ -757,7 +757,7 @@ std::string NodeLoader::parsePropTypeFontTTF(Node * pNode, Node * pParent, CCBRe
 
     // String * ttfEnding = String::create(".ttf");
 
-    // TODO Fix me if it is wrong
+    // TODO: Fix me if it is wrong
     /* If the fontTTF comes with the ".ttf" extension, prepend the absolute path. 
      * System fonts come without the ".ttf" extension and do not need the path prepended. */
     /*
@@ -813,7 +813,7 @@ BlockData * NodeLoader::parsePropTypeBlock(Node * pNode, Node * pParent, CCBRead
                     if(selMenuHandler == 0) {
                         CCLOG("Skipping selector '%s' since no CCBSelectorResolver is present.", selectorName.c_str());
                     } else {
-                        BlockData * blockData = new BlockData();
+                        BlockData * blockData = new (std::nothrow) BlockData();
                         blockData->mSELMenuHandler = selMenuHandler;
                         
                         blockData->_target = target;
@@ -897,7 +897,7 @@ BlockControlData * NodeLoader::parsePropTypeBlockControl(Node * pNode, Node * pP
                     }
                     else
                     {
-                        BlockControlData * blockControlData = new BlockControlData();
+                        BlockControlData * blockControlData = new (std::nothrow) BlockControlData();
                         blockControlData->mSELControlHandler = selControlHandler;
                         
                         blockControlData->_target = target;
@@ -944,7 +944,7 @@ Node * NodeLoader::parsePropTypeCCBFile(Node * pNode, Node * pParent, CCBReader 
 
     auto dataPtr = std::make_shared<Data>(FileUtils::getInstance()->getDataFromFile(path));
     
-    CCBReader * reader = new CCBReader(pCCBReader);
+    CCBReader * reader = new (std::nothrow) CCBReader(pCCBReader);
     reader->autorelease();
     reader->getAnimationManager()->setRootContainerSize(pParent->getContentSize());
     
