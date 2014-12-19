@@ -27,10 +27,7 @@ THE SOFTWARE.
 
 #include "Logs.h"
 #include "cocos2d.h"
-#include "../extensions/ExtensionMacros.h"
-#include "extensions/GUI/CCEditBox/CCEditBox.h"
 USING_NS_CC;
-USING_NS_CC_EXT;
 #include "RawObject.h"
 #include "InputLabelProtocol.h"
 #include "LabelTTF.h"

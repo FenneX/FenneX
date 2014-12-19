@@ -109,7 +109,7 @@ InputLabel::InputLabel(Scale9Sprite* sprite)
     delegate->setDelegate(this);
     delegate->setOpacity(0);
     
-    //You HAVE to set the contentSize again, because CCControlButton do some weird thing on the CCEditbox content size which makes it work only on 1024x768
+    //You HAVE to set the contentSize again, because CCControlButton do some weird thing on the UIEditbox content size which makes it work only on 1024x768
     //delegate->setContentSize(sprite->getPreferredSize());
     this->setPosition(position);
     CCLOG("delegate position after : %f, %f", delegate->getPosition().x, delegate->getPosition().y);
@@ -250,7 +250,7 @@ void InputLabel::openKeyboard(CCObject* obj)
            && TOINT(infos->objectForKey("Target")) == identifier))
     {
         CCLOG("Open InputLabel keyboard");
-        delegate->sendActionsForControlEvents(cocos2d::extension::Control::EventType::TOUCH_UP_INSIDE);//open keyboard by simulating a touch inside
+        delegate->touchDownAction(this, cocos2d::ui::Widget::TouchEventType::ENDED);//open keyboard by simulating a touch inside
         isOpened = true;
     }
 }
