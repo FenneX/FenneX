@@ -87,7 +87,6 @@ sceneName(identifier)
     
     CCDirector::sharedDirector()->getEventDispatcher()->addEventListenerWithFixedPriority(listener, -1);
     listener->setEnabled(true);
-    this->scheduleUpdateWithPriority(-1);
 }
 Scene::~Scene()
 {
@@ -182,6 +181,7 @@ void Scene::update(float deltaTime)
 
 void Scene::pause()
 {
+    _running = false;
     CCObject* obj = NULL;
     CCARRAY_FOREACH(updateList, obj)
     {
@@ -192,6 +192,7 @@ void Scene::pause()
 
 void Scene::resume()
 {
+    _running = true; //Required for scheduleUpdate
     listener->setEnabled(true);
     this->scheduleUpdateWithPriority(-1);
     CCObject* obj = NULL;
