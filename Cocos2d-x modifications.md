@@ -47,4 +47,5 @@ Cocos2d-x V3.3 Modifications
 * cocos/base/ccConfig.h => disable physics, tiff, webp, script binding
 * build/cocos2d_libs.xcodeproj/project.pbxproj => add armv7s architecture
 * cocos/platform/android/* (modified Android.mk) => add cpu-feature.h/cpp from ndk-r10d because of compilation problem
+* cocos/Android.mk => disable tiff, webp, chipmunk and cocostudio
 * 
