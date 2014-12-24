@@ -45,3 +45,5 @@ Cocos2d-x V3.3 Modifications
 * cocos2d/network/* => add POSTFILE request type
 * cocos2d/ui/UIEditBox/UIEditBox.h => add getBackgroundSprite() method
 * cocos/base/ccConfig.h => disable physics, tiff, webp, script binding
+* build/cocos2d_libs.xcodeproj/project.pbxproj => add armv7s architecture
+* 
