@@ -7,6 +7,7 @@ LOCAL_MODULE := cocos2dxandroid_static
 LOCAL_MODULE_FILENAME := libcocos2dandroid
 
 LOCAL_SRC_FILES := \
+cpu-features.c \
 CCApplication-android.cpp \
 CCCommon-android.cpp \
 CCDevice-android.cpp \
