@@ -306,7 +306,7 @@ void InputLabel::editBoxEditingDidBegin(EditBox* editBox)
 void InputLabel::editBoxReturn(EditBox* editBox)
 {
     CCLOG("EditBoxReturn : Close InputLabel keyboard");
-    CCNotificationCenter::sharedNotificationCenter()->postNotification("InputLabelReturn", this->getEventInfos());
+    performNotificationAfterDelay("InputLabelReturn", this->getEventInfos(), 0.01);
 }
 
 

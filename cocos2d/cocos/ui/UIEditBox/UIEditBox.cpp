@@ -228,7 +228,10 @@ void EditBox::setFontSize(int fontSize)
     _fontSize = fontSize;
     if (_editBoxImpl != nullptr && _fontName.length() > 0)
     {
-        _editBoxImpl->setFont(_fontName.c_str(), _fontSize);
+        //_editBoxImpl->setFont(_fontName.c_str(), _fontSize);
+        //WARNING : this works for iOS, be sure to check on other platforms. Otherwise, the default is the previous line
+        AffineTransform transform = this->nodeToWorldTransform();
+        _editBoxImpl->setFont(_fontName.c_str(), _fontSize * transform.a); //use scaleX
     }
 }
 
@@ -268,7 +271,10 @@ void EditBox::setPlaceholderFontSize(int fontSize)
     _placeholderFontSize = fontSize;
     if (_editBoxImpl != nullptr && _placeholderFontName.length() > 0)
     {
-        _editBoxImpl->setPlaceholderFont(_placeholderFontName.c_str(), fontSize);
+        //_editBoxImpl->setPlaceholderFont(_placeholderFontName.c_str(), _fontSize);
+        //WARNING : this works for iOS, be sure to check on other platforms. Otherwise, the default is the previous line
+        AffineTransform transform = this->nodeToWorldTransform();
+        _editBoxImpl->setPlaceholderFont(_placeholderFontName.c_str(), _fontSize * transform.a); //use scaleX
     }
 }
 
@@ -363,7 +369,12 @@ void EditBox::setContentSize(const Size& size)
     Widget::setContentSize(size);
     if (_editBoxImpl != nullptr)
     {
-        _editBoxImpl->setContentSize(size);
+        //_editBoxImpl->setContentSize(size);
+        //WARNING : this works for iOS, be sure to check on other platforms. Otherwise, the default is the previous line
+        AffineTransform transform = this->nodeToWorldTransform();
+        float scaleX = transform.a;
+        float scaleY = transform.d;
+        _editBoxImpl->setContentSize(Size(size.width * scaleX, size.height * scaleY));
     }
 }
     
