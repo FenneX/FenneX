@@ -60,7 +60,7 @@ void resizeChildren(CCNode* parentNode, CCNode* resizeNode, float usedScale, int
             label->setTTFConfig(newConfig);*/
             label->setDimensions(label->getDimensions().width * usedScale, label->getDimensions().height * usedScale);
 #if VERBOSE_LOAD_CCB
-            CCLOG("label font : %s, size : %f, scale : %f, parent node scale : %f, dimensions : %f, %f, depth : %d", label->getFontName(), label->getFontSize(), label->getScale(), parentNode->getScale(), label->getDimensions().width, label->getDimensions().height, depth);
+            CCLOG("label font : %s, size : %f, scale : %f, parent node scale : %f, dimensions : %f, %f, depth : %d", label->getSystemFontName().c_str(), label->getSystemFontSize(), label->getScale(), parentNode->getScale(), label->getDimensions().width, label->getDimensions().height, depth);
 #endif
         }
         else if(isKindOfClass(node, CustomInput))
@@ -119,10 +119,12 @@ Panel* loadCCBFromFileToFenneX(const char* file, const char* inPanel, int zIndex
     gettimeofday(&startTime, NULL);
 #endif
     std::string filePath = ScreateF("%s%s.ccbi", file, isPhone ? "-phone" : "")->getCString();
+    CCLOG("Filepath : %s", filePath.c_str());
     CCFileUtils::sharedFileUtils()->setPopupNotify(shouldNotify);
     CCNode* myNode = NULL;
     if(FileUtils::sharedFileUtils()->isFileExist(filePath))
     {
+        CCLOG("File exist");
         myNode = ccbReader->readNodeGraphFromFile(filePath.c_str());
     }
     else if(isPhone)
@@ -160,7 +162,7 @@ Panel* loadCCBFromFileToFenneX(const char* file, const char* inPanel, int zIndex
         {
             Label* label = (Label*)node;
 #if VERBOSE_LOAD_CCB
-            CCLOG("label font : %s", label->getFontName());
+            CCLOG("label font : %s", label->getSystemFontName().c_str());
 #endif
             label->setSystemFontSize(label->getSystemFontSize() * usedScale);
             /*TTFConfig newConfig = label->getTTFConfig();
@@ -193,7 +195,7 @@ Panel* loadCCBFromFileToFenneX(const char* file, const char* inPanel, int zIndex
                     newConfig.fontSize *= parentNode->getScale();
                     label->setTTFConfig(newConfig);*/
 #if VERBOSE_LOAD_CCB
-                    CCLOG("label font : %s, size : %f, scale : %f, parent node scale : %f, dimensions : %f, %f, depth 1", label->getFontName(), label->getFontSize(), label->getScale(), parentNode->getScale(), label->getDimensions().width, label->getDimensions().height);
+                    CCLOG("label font : %s, size : %f, scale : %f, parent node scale : %f, dimensions : %f, %f, depth 1", label->getSystemFontName().c_str(), label->getSystemFontSize(), label->getScale(), parentNode->getScale(), label->getDimensions().width, label->getDimensions().height);
 #endif
                 }
                 else if(isKindOfClass(node, CustomInput))
@@ -203,7 +205,7 @@ Panel* loadCCBFromFileToFenneX(const char* file, const char* inPanel, int zIndex
                     //input->setFontSize((float)input->getFontSize() * parentNode->getScale());
 #if VERBOSE_LOAD_CCB
                     CustomInput* input = (CustomInput*)node;
-                    CCLOG("input font size : %d, parent node scale : %f, dimensions : %f, %f, depth 1", input->getFontSize(), parentNode->getScale(), input->getPreferredSize().width, input->getPreferredSize().height);
+                    CCLOG("input font size : %d, parent node scale : %f, dimensions : %f, %f, depth 1", input->getFontSize() , parentNode->getScale(), input->getPreferredSize().width, input->getPreferredSize().height);
 #endif
                 }
                 else if(isKindOfClass(node, CCSprite))
@@ -275,7 +277,7 @@ void loadNodeToFenneX(CCNode* baseNode, Panel* parent)
         {
             Label* label = (Label*)node;
 #if VERBOSE_LOAD_CCB
-            CCLOG("label, font : %s", label->getFontName());
+            CCLOG("label, font : %s", label->getSystemFontName().c_str());
 #endif
             CCString* translationKey = isKindOfClass(label, CustomBaseNode) ? (CCString*)dynamic_cast<CustomBaseNode*>(label)->getParameters()->objectForKey("translationKey") : NULL;
             const std::string translated = Localization::getLocalizedString(translationKey != NULL ? translationKey->getCString() : label->getString());
