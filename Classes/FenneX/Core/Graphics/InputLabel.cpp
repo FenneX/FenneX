@@ -196,6 +196,7 @@ InputLabel::~InputLabel()
         initialText = NULL;
     }
     CCNotificationCenter::sharedNotificationCenter()->removeAllObservers(this);
+    delegate->setDelegate(NULL);
     delegate->release();
     if(originalInfos != NULL)
     {
