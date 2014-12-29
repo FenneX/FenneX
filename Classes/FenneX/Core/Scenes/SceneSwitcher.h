@@ -54,6 +54,8 @@ public:
     //You can only cancel one scene per frame
     void cancelSceneSwitch();
     ~SceneSwitcher();
+    
+    bool isSwitching();
 protected:
     void init();
     void replaceScene();
@@ -70,6 +72,8 @@ protected:
     bool processingSwitch;
     bool isEventFired;
     float delayReplace;
+    //The key for keyboard lock during scene switch
+    int keyboardLock;
 };
 NS_FENNEX_END
 

@@ -28,6 +28,7 @@ THE SOFTWARE.
 #include "AppMacros.h"
 #include "SynchronousReleaser.h"
 #include "FenneXCCBLoader.h"
+#include "InputLabel.h"
 
 NS_FENNEX_BEGIN
 // singleton stuff
@@ -57,6 +58,7 @@ void SceneSwitcher::init()
     currentSceneName = None;
     nextSceneParam = NULL;
     isEventFired = false;
+    keyboardLock = -1;
     delayReplace = 0;
     CCDirector::sharedDirector()->setNotificationNode(CCNode::create());
     CCNotificationCenter::sharedNotificationCenter()->addObserver(this, callfuncO_selector(SceneSwitcher::planSceneSwitch), "PlanSceneSwitch", NULL);
@@ -129,6 +131,11 @@ void SceneSwitcher::trySceneSwitch(float deltaTime)
         this->takeQueuedScene();
     }
     processingSwitch = false;
+    if(keyboardLock >= 0)
+    {
+        InputLabel::releaseAllKeyboardLocks();
+        keyboardLock = -1;
+    }
 }
 
 void SceneSwitcher::takeQueuedScene()
@@ -176,6 +183,7 @@ void SceneSwitcher::planSceneSwitch(CCObject *obj)
         nextSceneParam->retain();
         processingSwitch = true;
         isEventFired = false;
+        keyboardLock = InputLabel::preventKeyboardOpen();
     }
     else
     {
@@ -194,6 +202,11 @@ void SceneSwitcher::cancelSceneSwitch()
 #if VERBOSE_GENERAL_INFO
     CCLOG("Scene switch cancelled");
 #endif
+}
+
+bool SceneSwitcher::isSwitching()
+{
+    return processingSwitch || isEventFired;
 }
 
 void SceneSwitcher::replaceScene()
