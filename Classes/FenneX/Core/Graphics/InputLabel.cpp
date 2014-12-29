@@ -28,6 +28,9 @@ THE SOFTWARE.
 #include "AppMacros.h"
 
 NS_FENNEX_BEGIN
+
+static std::vector<int> locks;
+
 void InputLabel::setEventName(const char* var)
 {
     CCLOG("Warning : changing eventName for InputLabel, may not be able to open keyboard");
@@ -244,8 +247,9 @@ void InputLabel::update(float deltaTime)
 void InputLabel::openKeyboard(CCObject* obj)
 {
     CCDictionary* infos = (CCDictionary*)obj;
-    if((isKindOfClass(infos->objectForKey("Sender"), CCInteger)
-        && TOINT(infos->objectForKey("Sender")) == identifier)
+    if(locks.size() == 0
+       && (isKindOfClass(infos->objectForKey("Sender"), CCInteger)
+           && TOINT(infos->objectForKey("Sender")) == identifier)
        || (isKindOfClass(infos->objectForKey("Target"), CCInteger)
            && TOINT(infos->objectForKey("Target")) == identifier))
     {
@@ -282,6 +286,11 @@ void InputLabel::enableInputs(CCObject* obj)
 
 void InputLabel::editBoxEditingDidBegin(EditBox* editBox)
 {
+    if(locks.size() > 0)
+    {
+        closeKeyboard(DcreateP(Icreate(this->getID()), Screate("Sender"), NULL));
+        return;
+    }
     if(!isOpened && delegate->isEnabled())
     {
         isOpened = true;
@@ -391,5 +400,26 @@ void InputLabel::setIsPassword()
 {
     isPassword = true;
     delegate->setInputFlag(EditBox::InputFlag::PASSWORD);
+}
+
+int InputLabel::preventKeyboardOpen()
+{
+    int key = 0;
+    while(std::find(locks.begin(), locks.end(), key) != locks.end())
+    {
+        key++;
+    }
+    locks.push_back(key);
+    return key;
+}
+
+void InputLabel::releaseKeyboardLock(int key)
+{
+    locks.erase(std::remove(locks.begin(), locks.end(), key), locks.end());
+}
+
+void InputLabel::releaseAllKeyboardLocks()
+{
+    locks.clear();
 }
 NS_FENNEX_END

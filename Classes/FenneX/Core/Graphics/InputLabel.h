@@ -80,6 +80,13 @@ public:
     void setInitialText(CCString* text);
     
     void setIsPassword();
+    
+    //Prevent the keyboard from opening, return a key to unlock it. The key will always be positive
+    static int preventKeyboardOpen();
+    //Release a lock on keyboard opening.
+    static void releaseKeyboardLock(int key);
+    //Release all locks. It should only be used during a Scene Switch or very particular cases
+    static void releaseAllKeyboardLocks();
 protected:
     EditBox* delegate;
     bool isOpened;
