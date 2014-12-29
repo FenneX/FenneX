@@ -281,11 +281,6 @@ static void editBoxCallbackFunc(const char* pText, void* ctx)
 
 void EditBoxImplAndroid::openKeyboard()
 {
-    if (_delegate != NULL)
-    {
-        _delegate->editBoxEditingDidBegin(_editBox);
-    }
-    
 #if CC_ENABLE_SCRIPT_BINDING
     EditBox* pEditBox = this->getEditBox();
     if (NULL != pEditBox && 0 != pEditBox->getScriptEditBoxHandler())
@@ -304,12 +299,22 @@ void EditBoxImplAndroid::openKeyboard()
 						  _maxLength,
 						  editBoxCallbackFunc,
 						  (void*)this  );
-	
+
+    if (_delegate != NULL)
+    {
+        _delegate->editBoxEditingDidBegin(_editBox);
+    }
+
 }
 
 void EditBoxImplAndroid::closeKeyboard()
 {
+    if (_delegate != NULL)
+    {
+        _delegate->editBoxEditingDidEnd(_editBox);
+    }
 	
+    hideEditTextDialogJNI();
 }
 
 }

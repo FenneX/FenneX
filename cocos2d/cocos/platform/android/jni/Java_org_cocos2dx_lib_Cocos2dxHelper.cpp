@@ -132,6 +132,15 @@ void showEditTextDialogJNI(const char* title, const char* message, int inputMode
     }
 }
 
+void hideEditTextDialogJNI()
+{
+    JniMethodInfo t;
+    if (JniHelper::getStaticMethodInfo(t, CLASS_NAME, "hideEditTextDialog", "()V")) {
+        t.env->CallStaticVoidMethod(t.classID, t.methodID);
+        t.env->DeleteLocalRef(t.classID);
+    }
+}
+
 void terminateProcessJNI() {
     JniMethodInfo t;
 

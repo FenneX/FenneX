@@ -46,4 +46,6 @@ Cocos2d-x V3.3 Modifications
 * build/cocos2d_libs.xcodeproj/project.pbxproj => add armv7s architecture
 * cocos/platform/android/* (modified Android.mk) => add cpu-feature.h/cpp from ndk-r10d because of compilation problem
 * cocos/Android.mk => disable tiff, webp, chipmunk and cocostudio
+* cocos/ui/UIEditBox.cpp => change openKeyboard to throw editBoxEditingDidBegin after Java Dialog creation
+* cocos/ui/UIEditBox.cpp + cocos/platform/android/jni/Java_org_cocos2dx_lib_Cocos2dxHelper.h/.cpp + cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dx[Helper/Handler/Activity].java => implement closeKeyboard
 * 
