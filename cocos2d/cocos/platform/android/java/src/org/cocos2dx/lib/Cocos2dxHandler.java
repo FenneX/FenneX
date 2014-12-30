@@ -106,7 +106,12 @@ public class Cocos2dxHandler extends Handler {
                 editBoxMessage.inputFlag,
                 editBoxMessage.returnType,
                 editBoxMessage.maxLength);
+        mEditBoxDialog.setOnStopListener(this);
         mEditBoxDialog.show();
+    }
+
+    public void onEditBoxDialogStop() {
+        mEditBoxDialog = null;
     }
     
     private void hideEditBoxDialog() {

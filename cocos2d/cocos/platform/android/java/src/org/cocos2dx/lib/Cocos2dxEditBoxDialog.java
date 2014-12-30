@@ -133,6 +133,12 @@ public class Cocos2dxEditBoxDialog extends Dialog {
     private int mInputModeContraints;
     private boolean mIsMultiline;
 
+    private Cocos2dxHandler onStopListener;
+
+    public void setOnStopListener(Cocos2dxHandler listener) {
+        onStopListener = listener;
+    }
+
     // ===========================================================
     // Constructors
     // ===========================================================
@@ -147,6 +153,7 @@ public class Cocos2dxEditBoxDialog extends Dialog {
         this.mInputFlag = pInputFlag;
         this.mReturnType = pReturnType;
         this.mMaxLength = pMaxLength;
+        onStopListener = null;
     }
 
     @Override
@@ -289,6 +296,16 @@ public class Cocos2dxEditBoxDialog extends Dialog {
                 return false;
             }
         });
+    }
+
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+        if(onStopListener != null)
+        {
+            onStopListener.onEditBoxDialogStop();
+        }
     }
 
 
