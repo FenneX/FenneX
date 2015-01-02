@@ -251,11 +251,14 @@ void EditBoxImplAndroid::onEnter(void)
 static void editBoxCallbackFunc(const char* pText, void* ctx)
 {
     EditBoxImplAndroid* thiz = (EditBoxImplAndroid*)ctx;
-    thiz->setText(pText);
+    bool isBack = strlen(pText) == 1 && pText[0] == '\b';
+    if(!isBack)
+        thiz->setText(pText);
 	
     if (thiz->getDelegate() != NULL)
     {
-        thiz->getDelegate()->editBoxTextChanged(thiz->getEditBox(), thiz->getText());
+        if(!isBack)
+            thiz->getDelegate()->editBoxTextChanged(thiz->getEditBox(), thiz->getText());
         thiz->getDelegate()->editBoxEditingDidEnd(thiz->getEditBox());
         thiz->getDelegate()->editBoxReturn(thiz->getEditBox());
     }
