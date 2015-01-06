@@ -55,7 +55,6 @@ void Scene::initScene()
     receiversToRemove = new CCArray();
     //TODO : add touchlinker
     linker = new TouchLinker();
-    this->setKeypadEnabled(true);
 }
 
 Scene::Scene(SceneName identifier, CCDictionary* parameters) :
@@ -77,26 +76,37 @@ sceneName(identifier)
     LayoutHandler::sharedHandler()->linkToScene(this);
     
     //TODO : add selectionrecognizer here + suscribe to it
-    listener = EventListenerTouchOneByOne::create();
-    listener->setSwallowTouches(false);
-    listener->onTouchBegan = CC_CALLBACK_2(FenneX::Scene::onTouchBegan, this);
-    listener->onTouchMoved = CC_CALLBACK_2(FenneX::Scene::onTouchMoved, this);
-    listener->onTouchEnded = CC_CALLBACK_2(FenneX::Scene::onTouchEnded, this);
-    listener->onTouchCancelled = CC_CALLBACK_2(FenneX::Scene::onTouchCancelled, this);
-    listener->retain();
+    touchListener = EventListenerTouchOneByOne::create();
+    touchListener->setSwallowTouches(false);
+    touchListener->onTouchBegan = CC_CALLBACK_2(FenneX::Scene::onTouchBegan, this);
+    touchListener->onTouchMoved = CC_CALLBACK_2(FenneX::Scene::onTouchMoved, this);
+    touchListener->onTouchEnded = CC_CALLBACK_2(FenneX::Scene::onTouchEnded, this);
+    touchListener->onTouchCancelled = CC_CALLBACK_2(FenneX::Scene::onTouchCancelled, this);
+    touchListener->retain();
+    touchListener->setEnabled(true);
+    CCDirector::sharedDirector()->getEventDispatcher()->addEventListenerWithFixedPriority(touchListener, -1);
     
-    CCDirector::sharedDirector()->getEventDispatcher()->addEventListenerWithFixedPriority(listener, -1);
-    listener->setEnabled(true);
+    
+    keyboardListener = EventListenerKeyboard::create();
+    keyboardListener->onKeyReleased = CC_CALLBACK_2(FenneX::Scene::onKeyReleased, this);
+    keyboardListener->retain();
+    keyboardListener->setEnabled(true);
+    CCDirector::sharedDirector()->getEventDispatcher()->addEventListenerWithFixedPriority(keyboardListener, -1);
 }
 Scene::~Scene()
 {
-    if(listener != NULL)
+    if(touchListener != NULL)
     {
-        CCDirector::sharedDirector()->getEventDispatcher()->removeEventListener(listener);
-        listener->release();
-        listener = NULL;
+        CCDirector::sharedDirector()->getEventDispatcher()->removeEventListener(touchListener);
+        touchListener->release();
+        touchListener = NULL;
     }
-    this->setKeypadEnabled(false);
+    if(keyboardListener != NULL)
+    {
+        CCDirector::sharedDirector()->getEventDispatcher()->removeEventListener(keyboardListener);
+        keyboardListener->release();
+        keyboardListener = NULL;
+    }
     CCNotificationCenter::sharedNotificationCenter()->removeAllObservers(this);
     parameters->release();
     delegate->release();
@@ -193,7 +203,8 @@ void Scene::pause()
 void Scene::resume()
 {
     _running = true; //Required for scheduleUpdate
-    listener->setEnabled(true);
+    touchListener->setEnabled(true);
+    keyboardListener->setEnabled(true);
     this->scheduleUpdateWithPriority(-1);
     CCObject* obj = NULL;
     CCARRAY_FOREACH(updateList, obj)
@@ -205,7 +216,8 @@ void Scene::resume()
 
 void Scene::stop()
 {
-    listener->setEnabled(false);
+    touchListener->setEnabled(false);
+    keyboardListener->setEnabled(false);
     CCDirector::sharedDirector()->getNotificationNode()->stopAllActions();
     this->unscheduleUpdate();
     

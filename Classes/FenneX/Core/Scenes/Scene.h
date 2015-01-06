@@ -96,7 +96,8 @@ protected:
     CCArray* receiversToRemove;
     CCArray* receiversToAdd;
     int frameNumber;
-    EventListenerTouchOneByOne* listener;
+    EventListenerTouchOneByOne* touchListener;
+    EventListenerKeyboard* keyboardListener;
 };
 NS_FENNEX_END
 
