@@ -205,14 +205,20 @@ void LabelTTF::adjustLabel()
     if(realDimensions.width != 0 && realDimensions.height != 0 && fitType != NoResize)
     {
         bool wasChanged = false;
-        float scale = this->getScale();
-        CCSize size = delegate->getContentSize();
+        std::string original = delegate->getString();
+        delegate->setString("l");
+        float lineHeight = delegate->getContentSize().height;
+        delegate->setString(original);
+
+        float scaleX = this->getScaleX();
+        float scaleY = this->getScaleY();
+        Size size = delegate->getContentSize();
+        
         //Add a 5% margin for fitInside comparison since the algorithm underneath is not exact ....
-        bool fitInside = size.height * scale <= realDimensions.height * 1.05 && size.width * scale <= realDimensions.width * 1.05;
+        bool fitInside = (size.height * scaleY <= realDimensions.height * 1.05 || (fitType == CutEnd && lineHeight >= size.height)) && size.width * scaleX <= realDimensions.width;
         
         //Used by CutEnd to perform a binary search (optimization because Label::updateTexture is slow on Android)
         //If you run into performance issues, you should also cache the CutEnd results
-        std::string original = delegate->getString();
         int end = utf8_len(original);
         int start = fitInside || fitType != CutEnd ? end : 0; //If it already fit, bypass the while
         
@@ -222,11 +228,13 @@ void LabelTTF::adjustLabel()
             wasChanged = true;
             if(fitType == ResizeFont)
             {
-                scale *= 0.9;
-                this->setScale(scale);
-                delegate->setDimensions(realDimensions.width / scale, 0);
+                scaleX *= 0.9;
+                this->setScaleX(scaleX);
+                scaleY *= 0.9;
+                this->setScaleY(scaleY);
+                delegate->setDimensions(realDimensions.width / scaleX, 0);
                 size = delegate->getContentSize();
-                fitInside = size.height * scale <= realDimensions.height * 1.05 && size.width * scale <= realDimensions.width * 1.05;
+                fitInside = size.height * scaleY <= realDimensions.height * 1.05 && size.width * scaleX <= realDimensions.width * 1.05;
             }
             else if(fitType == CutEnd)
             {
@@ -236,7 +244,7 @@ void LabelTTF::adjustLabel()
                 CCAssert(value.length() != 0, "Invalid UTF8 string");
                 delegate->setString(value.c_str());
                 size = delegate->getContentSize();
-                fitInside = size.height * scale <= realDimensions.height * 1.05 && size.width * scale <= realDimensions.width * 1.05;
+                fitInside = (size.height * scaleY <= realDimensions.height * 1.05 || lineHeight >= size.height) && size.width * scaleX <= realDimensions.width;
                 if(fitInside)
                     start = middle;
                 else
