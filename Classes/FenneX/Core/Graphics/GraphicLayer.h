@@ -227,7 +227,8 @@ public:
     CCPoint getRealPosition(RawObject* obj);
     CCPoint getCenterRealPosition(RawObject* obj);
     float getRealScale(RawObject* obj);
-    
+    float getRealScaleX(RawObject* obj);
+    float getRealScaleY(RawObject* obj);
     //Call this method to transmit a touch to it's children
     //The touch will be transmitted to each child which have position in it's bounding box
     //Return true if at least one child claimed it

@@ -1817,6 +1817,30 @@ float GraphicLayer::getRealScale(RawObject* obj)
     return realScale;
 }
 
+float GraphicLayer::getRealScaleX(RawObject* obj)
+{
+    float realScale = obj->getScaleX();
+    RawObject* parent = this->getContainingPanel(obj);
+    while(parent != NULL)
+    {
+        realScale *= parent->getScaleX();
+        parent = this->getContainingPanel(parent);
+    }
+    return realScale;
+}
+
+float GraphicLayer::getRealScaleY(RawObject* obj)
+{
+    float realScale = obj->getScaleY();
+    RawObject* parent = this->getContainingPanel(obj);
+    while(parent != NULL)
+    {
+        realScale *= parent->getScaleY();
+        parent = this->getContainingPanel(parent);
+    }
+    return realScale;
+}
+
 bool GraphicLayer::touchAtPosition(CCPoint position, bool event)
 {
 #if VERBOSE_GENERAL_INFO
