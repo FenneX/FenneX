@@ -33,6 +33,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.widget.FrameLayout;
 
 /* Implements ActivityResult so that the MainActivity doesn't have to redo all this common code
  * Responders are used to respond to ActivityResult (when you get the response of an Intent)
@@ -215,4 +216,9 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 			observer.onStateChanged(ActivityObserver.DESTROY);
 		}
 	}
+
+    public FrameLayout getMainLayout()
+    {
+        return mFrameLayout;
+    }
 }

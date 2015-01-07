@@ -58,6 +58,7 @@ VideoPlayer::~VideoPlayer()
 
 void VideoPlayer::setUseVLC(bool useVLC)
 {
+    CCAssert(useVLC == true, "VLC is not integrated yet");
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"setUseVLC", "(Z)V"), "Function doesn't exist");
 	minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, (jboolean)useVLC);
