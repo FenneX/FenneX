@@ -54,11 +54,13 @@ bool pickImageFrom(const char* saveName, bool useCamera, int width, int height, 
         if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad && !useCamera)
         {
             UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:[ImagePicker sharedPicker].controller];
-            CGRect rect = [AppController sharedController].window.frame;
+            //Tested on iPad retina and not retina, will show the popover on the bottom right corner with an Arrow Up.
+            CGRect rect = CGRectMake(0, 0, 2048, 250);
             if(UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation]))
             {
                 rect.size.width /= 2;
             }
+            //Doesn't work well with Left since iOS8.
             [popover presentPopoverFromRect:rect inView:[AppController sharedController].viewController.view permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
             [ImagePicker sharedPicker].popOver = popover;
         }
