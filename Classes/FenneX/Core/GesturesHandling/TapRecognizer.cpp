@@ -87,6 +87,12 @@ void TapRecognizer::onTouchEnded(CCTouch *touch, CCEvent *pEvent)
     touchInitialPosition.erase(touch->getID());
 }
 
+void TapRecognizer::cleanTouches()
+{
+    touchStart->removeAllObjects();
+    touchInitialPosition.clear();
+}
+
 void TapRecognizer::cancelRecognitionForTouch(CCTouch* touch)
 {
     touchStart->removeObjectForKey(touch->getID());

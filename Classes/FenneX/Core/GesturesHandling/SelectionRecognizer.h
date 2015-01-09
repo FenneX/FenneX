@@ -48,6 +48,7 @@ public:
     virtual bool onTouchBegan(CCTouch *touch, CCEvent *pEvent);
     virtual void onTouchMoved(CCTouch *touch, CCEvent *pEvent);
     virtual void onTouchEnded(CCTouch *touch, CCEvent *pEvent);
+    virtual void cleanTouches();
     bool isTouchInSelection(CCTouch *touch);
     void cancelSelectionForTouch(CCTouch *touch);
 protected:

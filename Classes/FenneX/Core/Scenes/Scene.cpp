@@ -227,6 +227,13 @@ void Scene::stop()
         dynamic_cast<Pausable*>(obj)->stop();
     }
     updateList->removeAllObjects();
+    
+    CCARRAY_FOREACH(touchReceiversList, obj)
+    {
+        dynamic_cast<GenericRecognizer*>(obj)->cleanTouches();
+    }
+    touchReceiversList->removeAllObjects();
+    
     delegate->removeChild(this, false);
     delegate->removeChild(CCDirector::sharedDirector()->getNotificationNode(), false);
 }

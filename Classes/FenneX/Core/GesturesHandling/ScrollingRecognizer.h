@@ -50,6 +50,7 @@ public:
     virtual bool onTouchBegan(CCTouch *touch, CCEvent *pEvent);
     virtual void onTouchMoved(CCTouch *touch, CCEvent *pEvent);
     virtual void onTouchEnded(CCTouch *touch, CCEvent *pEvent);
+    virtual void cleanTouches();
     virtual void update(float delta);
     void cancelRecognitionForTouch(CCTouch* touch);
     void adjustTargetPosition(CCObject* obj);

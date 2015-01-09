@@ -98,6 +98,12 @@ void SwipeRecognizer::onTouchEnded(CCTouch *touch, CCEvent *pEvent)
     touchInitialPosition.erase(touch->getID());
 }
 
+void SwipeRecognizer::cleanTouches()
+{
+    touchStart->removeAllObjects();
+    touchInitialPosition.clear();
+}
+
 void SwipeRecognizer::cancelRecognitionForTouch(CCTouch* touch)
 {
     touchStart->removeObjectForKey(touch->getID());

@@ -48,6 +48,7 @@ public:
     virtual bool onTouchBegan(CCTouch *touch, CCEvent *pEvent);
     virtual void onTouchMoved(CCTouch *touch, CCEvent *pEvent);
     virtual void onTouchEnded(CCTouch *touch, CCEvent *pEvent);
+    virtual void cleanTouches();
     void cancelRecognitionForTouch(CCTouch *touch);
 protected:
     void init();

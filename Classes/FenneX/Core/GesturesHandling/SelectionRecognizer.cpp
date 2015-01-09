@@ -81,6 +81,11 @@ void SelectionRecognizer::onTouchEnded(CCTouch *touch, CCEvent *pEvent)
     cancelSelectionForTouch(touch);
 }
 
+void SelectionRecognizer::cleanTouches()
+{
+    storedTouches.clear();
+}
+
 bool SelectionRecognizer::isTouchInSelection(CCTouch *touch)
 {
     return storedTouches.find(touch->getID()) != storedTouches.end();

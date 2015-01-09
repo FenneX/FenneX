@@ -43,6 +43,9 @@ public:
     virtual void onTouchMoved(CCTouch *pTouch, CCEvent *pEvent) {CC_UNUSED_PARAM(pTouch); CC_UNUSED_PARAM(pEvent);}
     virtual void onTouchEnded(CCTouch *pTouch, CCEvent *pEvent) {CC_UNUSED_PARAM(pTouch); CC_UNUSED_PARAM(pEvent);}
     virtual void onTouchCancelled(CCTouch *pTouch, CCEvent *pEvent) {CC_UNUSED_PARAM(pTouch); CC_UNUSED_PARAM(pEvent);}
+    
+    //Clean all ongoing touches from the Recognizer. You should call it when stopping using it, so that next session doesn't have ghost touches.
+    virtual void cleanTouches() {};
 protected:
     bool isInLinker(CCTouch* touch);
     CCArray* unlinkedTouches();

@@ -89,6 +89,11 @@ void ScrollingRecognizer::onTouchEnded(CCTouch *touch, CCEvent *pEvent)
     }
 }
 
+void ScrollingRecognizer::cleanTouches()
+{
+    lastPositions.clear();
+}
+
 void ScrollingRecognizer::update(float delta)
 {
     if(TIME > lastScrollingNotificationTime + TIME_BETWEEN_NOTIFICATIONS && touchMoved)
