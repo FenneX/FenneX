@@ -205,10 +205,10 @@ bool stringEndsWith(const char *str, const char *suffix)
 }
 
 //comes from http://www.zedwood.com/article/cpp-utf-8-mb_substr-function
-std::string utf8_substr(const std::string& str, unsigned int start, unsigned int leng)
+std::string utf8_substr(const std::string& str, size_t start, size_t leng)
 {
     if (leng==0) { return ""; }
-    unsigned int c, i, ix, q, min=std::string::npos, max=std::string::npos;
+    size_t c, i, ix, q, min=std::string::npos, max=std::string::npos;
     for (q=0, i=0, ix=str.length(); i < ix; i++, q++)
     {
         if (q==start){ min=i; }
@@ -229,7 +229,7 @@ std::string utf8_substr(const std::string& str, unsigned int start, unsigned int
 }
 
 //comes from strutil 1.5 https://code.google.com/p/strutil/
-int utf8_chsize( const char* source )
+size_t utf8_chsize( const char* source )
 {
     const unsigned ch = (unsigned char)*source;
     if ( ch < 192 )
@@ -246,10 +246,10 @@ int utf8_chsize( const char* source )
         return 6;
 }
 
-int utf8_len( const std::string& s )
+size_t utf8_len( const std::string& s )
 {
     const char* it = s.c_str();
-    int n = 0;
+    size_t n = 0;
     
     while ( *it )
     {
