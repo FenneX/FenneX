@@ -215,9 +215,10 @@ Image* GraphicLayer::createImage(CCDictionary* values)
             pos.y =  ((CCInteger*)values->objectForKey("PositionY"))->getValue();
         }
         if(values->objectForKey("Position") != NULL
-           && isKindOfClass(values->objectForKey("Position"), CCPoint))
+           && isKindOfClass(values->objectForKey("Position"), TMPPoint))
         {
-            pos =  *((CCPoint*)values->objectForKey("Position"));
+            pos.x =  ((TMPPoint*)values->objectForKey("Position"))->x;
+            pos.y =  ((TMPPoint*)values->objectForKey("Position"))->y;
         }
         if(values->objectForKey("ImageFile") != NULL
            && isKindOfClass(values->objectForKey("ImageFile"), CCString))
@@ -421,9 +422,10 @@ CustomObject* GraphicLayer::createCustomObject(CCDictionary* values)
             pos.y =  ((CCInteger*)values->objectForKey("PositionY"))->getValue();
         }
         if(values->objectForKey("Position") != NULL
-           && isKindOfClass(values->objectForKey("Position"), CCPoint))
+           && isKindOfClass(values->objectForKey("Position"), TMPPoint))
         {
-            pos =  *((CCPoint*)values->objectForKey("Position"));
+            pos.x =  ((TMPPoint*)values->objectForKey("Position"))->x;
+            pos.y =  ((TMPPoint*)values->objectForKey("Position"))->y;
         }
         if(values->objectForKey("Delegate") != NULL
            && isKindOfClass(values->objectForKey("Delegate"), CCNode))
@@ -586,9 +588,10 @@ LabelTTF* GraphicLayer::createLabelTTF(CCDictionary* values)
             pos.y =  ((CCInteger*)values->objectForKey("PositionY"))->getValue();
         }
         if(values->objectForKey("Position") != NULL
-           && isKindOfClass(values->objectForKey("Position"), CCPoint))
+           && isKindOfClass(values->objectForKey("Position"), TMPPoint))
         {
-            pos =  *((CCPoint*)values->objectForKey("Position"));
+            pos.x =  ((TMPPoint*)values->objectForKey("Position"))->x;
+            pos.y =  ((TMPPoint*)values->objectForKey("Position"))->y;
         }
         if(values->objectForKey("Dimensions") != NULL
            && isKindOfClass(values->objectForKey("Dimensions"), CCSize)
@@ -788,9 +791,10 @@ InputLabel* GraphicLayer::createInputLabel(CCDictionary* values)
             pos.y =  ((CCInteger*)values->objectForKey("PositionY"))->getValue();
         }
         if(values->objectForKey("Position") != NULL
-           && isKindOfClass(values->objectForKey("Position"), CCPoint))
+           && isKindOfClass(values->objectForKey("Position"), TMPPoint))
         {
-            pos =  *((CCPoint*)values->objectForKey("Position"));
+            pos.x =  ((TMPPoint*)values->objectForKey("Position"))->x;
+            pos.y =  ((TMPPoint*)values->objectForKey("Position"))->y;
         }
         
         EditBox::InputMode inputMode = values->objectForKey("KeyboardType") != NULL && isKindOfClass(values->objectForKey("KeyboardType"), CCInteger) ? (EditBox::InputMode)TOINT(values->objectForKey("KeyboardType")) : EditBox::InputMode::ANY;
@@ -1008,9 +1012,10 @@ Panel* GraphicLayer::createPanel(CCDictionary* values)
             pos.y =  ((CCInteger*)values->objectForKey("PositionY"))->getValue();
         }
         if(values->objectForKey("Position") != NULL
-           && isKindOfClass(values->objectForKey("Position"), CCPoint))
+           && isKindOfClass(values->objectForKey("Position"), TMPPoint))
         {
-            pos =  *((CCPoint*)values->objectForKey("Position"));
+            pos.x =  ((TMPPoint*)values->objectForKey("Position"))->x;
+            pos.y =  ((TMPPoint*)values->objectForKey("Position"))->y;
         }
         panel = new Panel(((CCString*)values->objectForKey("Name"))->getCString(), pos);
         
