@@ -40,6 +40,7 @@ bool pickImageFrom(const char* saveName, bool useCamera, int width, int height, 
 
 bool pickImageFrom(const char* saveName, bool useCamera, int width, int height, const char* identifier, float thumbnailScale)
 {
+    CCDirector::sharedDirector()->stopAnimation();
     [[ImagePicker sharedPicker] initController];
     [ImagePicker sharedPicker].saveName = [NSString stringWithFormat:@"%s", saveName];
     [ImagePicker sharedPicker].identifier = [NSString stringWithFormat:@"%s", identifier];
@@ -253,6 +254,7 @@ static ImagePicker* _sharedPicker = nil;
 {
     // Dismiss the image selection and close the program
     [picker dismissModalViewControllerAnimated:YES];
+    CCDirector::sharedDirector()->startAnimation();
     if(popOver)
     {
         [popOver dismissPopoverAnimated:YES];
