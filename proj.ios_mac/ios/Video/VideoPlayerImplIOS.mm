@@ -40,7 +40,7 @@ USING_NS_FENNEX;
 	UIInterfaceOrientation orientation = ((UIViewController*)[AppController sharedController].viewController).interfaceOrientation;
 	if(UIInterfaceOrientationIsLandscape(orientation) && orientation != currentOrientation)
 	{
-        CGAffineTransform transform = CGAffineTransformMakeRotation(orientation == UIInterfaceOrientationLandscapeRight ? M_PI / 2 : -M_PI / 2);
+        CGAffineTransform transform = CGAffineTransformIdentity;
         if(isFullScreen)
         {
             CGRect bounds = [[UIScreen mainScreen] bounds];
@@ -73,8 +73,8 @@ USING_NS_FENNEX;
     }
     else
     {
-        [player.view setCenter:CGPointMake((currentOrientation == UIInterfaceOrientationLandscapeRight ? _position.y : bounds.size.width - _position.y),
-                                           (currentOrientation == UIInterfaceOrientationLandscapeLeft ? _position.x : bounds.size.height - _position.x))];
+        //Y-axis is inverted
+        [player.view setCenter:CGPointMake(_position.x, bounds.size.height - _position.y)];
     }
 }
 
