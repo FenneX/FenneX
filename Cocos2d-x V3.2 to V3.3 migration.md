@@ -6,6 +6,7 @@ General steps
 ----
 
 The update should be straightforward, pull directly FenneX cocosV3.3 branch after upgrading to cocos2d-x 3.2.
+Don't forget to reload Xcode so that changes on cocos2d-x project are taken into account.
 
 Advised steps
 ----
@@ -16,6 +17,8 @@ Advised steps
 
 Android.mk
 ----
+
+Android.mk update should be automatic, as it is part of FenneX. In case something goes wrong during the merge:
 
 You will need to add ```LOCAL_CXXFLAGS += -fexceptions``` to compile.
 
@@ -61,3 +64,8 @@ void AppDelegate::initGLContextAttrs()
     GLView::setGLContextAttrs(glContextAttrs);
 }
 ```
+
+Fixing SuperAnim compilation
+----
+
+GetFileData must have the size parameter be a ssize_t and calls to CCFileUtils::sharedFileUtils()->getFileData must use a ssize_t as last parameter
