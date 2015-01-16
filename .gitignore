@@ -71,6 +71,8 @@ proj.android/.idea/*
 proj.android/*.iml
 proj.android/local.properties
 
+*.apk
+
 # Generated documentation, it can be regenerated using doxygen #
 ######################
 docs/html/*
