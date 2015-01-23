@@ -36,7 +36,7 @@ USING_NS_CC_EXT;
 using namespace cocosbuilder;
 
 NS_FENNEX_BEGIN
-class CustomScaleSprite : public Scale9Sprite, public CustomBaseNode
+class CustomScaleSprite : public ui::Scale9Sprite, public CustomBaseNode
 {
 public:
     CCB_STATIC_NEW_AUTORELEASE_OBJECT_WITH_INIT_METHOD(CustomScaleSprite, create);
@@ -49,7 +49,7 @@ public:
     
 protected:
     CCB_VIRTUAL_NEW_AUTORELEASE_CREATECCNODE_METHOD(CustomScaleSprite);
-    virtual void onHandlePropTypeSpriteFrame(CCNode * pNode, CCNode * pParent, const char * pPropertyName, CCSpriteFrame * pCCSpriteFrame, CCBReader * pCCBReader);
+    virtual void onHandlePropTypeSpriteFrame(Node * pNode, Node * pParent, const char * pPropertyName, SpriteFrame * pSpriteFrame, CCBReader * pCCBReader);
 };
 NS_FENNEX_END
 

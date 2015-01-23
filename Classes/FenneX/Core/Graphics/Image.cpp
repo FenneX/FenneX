@@ -27,12 +27,12 @@ THE SOFTWARE.
 #include "AppMacros.h"
 
 NS_FENNEX_BEGIN
-CCRect Image::getBoundingBox()
+Rect Image::getBoundingBox()
 {
-    return CCRect(this->getNode()->getPositionX(), this->getNode()->getPositionY(), this->getNode()->getContentSize().width, this->getNode()->getContentSize().height);
+    return Rect(this->getNode()->getPositionX(), this->getNode()->getPositionY(), this->getNode()->getContentSize().width, this->getNode()->getContentSize().height);
 }
 
-CCNode* Image::getNode()
+Node* Image::getNode()
 {
     if(spriteSheet != NULL)
     {
@@ -53,7 +53,7 @@ isLoadingTexture(false)
 {
     
 }
-Image::Image(const char* filename, CCPoint location):
+Image::Image(const char* filename, Vec2 location):
 spritesName(NULL),
 spriteSheet(NULL),
 runningAnimation(NULL),
@@ -62,35 +62,35 @@ loadingImageFile(""),
 isLoadingTexture(false)
 {
     name = filename;
-    delegate = CCSprite::create(imageFile.append(".png").c_str());
+    delegate = Sprite::create(imageFile.append(".png").c_str());
     imageFile.erase(imageFile.length() - 4, 4);
     if(delegate == NULL)
     {
-        delegate = CCSprite::create(imageFile.append(".jpg").c_str());
+        delegate = Sprite::create(imageFile.append(".jpg").c_str());
         imageFile.erase(imageFile.length() - 4, 4);
     }
     if(delegate == NULL)
     {
-        delegate = CCSprite::create(imageFile.append(".jpeg").c_str());
+        delegate = Sprite::create(imageFile.append(".jpeg").c_str());
         imageFile.erase(imageFile.length() - 5, 5);
     }
     if(delegate == NULL)
     {
-        CCLog("Problem with asset : %s, the application will crash", filename);
+        CCLOG("Problem with asset : %s, the application will crash", filename);
     }
     delegate->retain();
     this->setPosition(location);
 }
-Image::Image(const char* filename, CCPoint location, int capacity):
+Image::Image(const char* filename, Vec2 location, int capacity):
 imageFile(filename),
 loadingImageFile(""),
 isLoadingTexture(false)
 {
     name = filename;
-    spriteSheet = CCSpriteBatchNode::create(imageFile.append(".png").c_str(), capacity);
+    spriteSheet = SpriteBatchNode::create(imageFile.append(".png").c_str(), capacity);
     imageFile.erase(imageFile.length() - 4, 4);
     spriteSheet->retain();
-    CCSpriteFrameCache::getInstance()->addSpriteFramesWithFile(imageFile.append(".plist").c_str());
+    SpriteFrameCache::getInstance()->addSpriteFramesWithFile(imageFile.append(".plist").c_str());
     imageFile.erase(imageFile.length() - 6, 6);
     
     spritesName = CCArray::createWithCapacity(capacity);
@@ -101,16 +101,16 @@ isLoadingTexture(false)
          sprintf(num, "%04d", i);*/
         spritesName->addObject(ScreateF("%s_%02d.png", filename, i));//imageFile.append(num).append(".png")));
     }
-    delegate = CCSprite::create();
+    delegate = Sprite::create();
     delegate->retain();
-    CCSpriteFrame* firstFrame = CCSpriteFrameCache::getInstance()->spriteFrameByName(((CCString*)spritesName->objectAtIndex(0))->getCString());
+    SpriteFrame* firstFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(((CCString*)spritesName->objectAtIndex(0))->getCString());
     delegate->setDisplayFrame(firstFrame);
     this->setPosition(location);
     spriteSheet->addChild(delegate);
     runningAnimation = NULL;
 }
 
-Image::Image(CCSprite* node):
+Image::Image(Sprite* node):
 spritesName(NULL),
 spriteSheet(NULL),
 runningAnimation(NULL),
@@ -152,7 +152,7 @@ Image::~Image()
     }
     delegate->release();
 #if VERBOSE_DEALLOC
-    CCLog("Dealloc image %s", name.c_str());
+    CCLOG("Dealloc image %s", name.c_str());
 #endif
 }
 
@@ -162,15 +162,15 @@ void Image::runFullAnimation(float delay, bool invert)
     Vector<AnimationFrame*> animationFrames;
     for(int i = 0; i < spritesName->count(); i++)
     {
-        CCSpriteFrame* spriteFrame = CCSpriteFrameCache::getInstance()->spriteFrameByName(((CCString*)spritesName->objectAtIndex(invert ? spritesName->count() - i - 1 : i))->getCString());
+        SpriteFrame* spriteFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(((CCString*)spritesName->objectAtIndex(invert ? spritesName->count() - i - 1 : i))->getCString());
         
         ValueMap infos;
         infos["Name"] = Value(getName());
         infos["Index"] = Value(i);
-        CCAnimationFrame* frame = CCAnimationFrame::create(spriteFrame, 1, infos);
+        AnimationFrame* frame = AnimationFrame::create(spriteFrame, 1, infos);
         animationFrames.pushBack(frame);
     }
-    CCAction* action = CCRepeatForever::create(CCAnimate::create(CCAnimation::create(animationFrames, delay)));
+    Action* action = RepeatForever::create(Animate::create(Animation::create(animationFrames, delay)));
     if(runningAnimation != action)
     {
         if(runningAnimation != NULL)
@@ -182,24 +182,24 @@ void Image::runFullAnimation(float delay, bool invert)
     }
 }
 
-CCAnimate* Image::getFullAnimation(float delay, bool invert)
+Animate* Image::getFullAnimation(float delay, bool invert)
 {
     CCAssert(spriteSheet != NULL, "Image getFullAnimation called on an object without spritesheet");
     Vector<AnimationFrame*> animationFrames;
     for(int i = 0; i < spritesName->count(); i++)
     {
-        CCSpriteFrame* spriteFrame = CCSpriteFrameCache::getInstance()->spriteFrameByName(((CCString*)spritesName->objectAtIndex(invert ? spritesName->count() - i - 1 : i))->getCString());
+        SpriteFrame* spriteFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(((CCString*)spritesName->objectAtIndex(invert ? spritesName->count() - i - 1 : i))->getCString());
         
         ValueMap infos;
         infos["Name"] = Value(getName());
         infos["Index"] = Value(i);
-        CCAnimationFrame* frame = CCAnimationFrame::create(spriteFrame, 1, infos);
+        AnimationFrame* frame = AnimationFrame::create(spriteFrame, 1, infos);
         animationFrames.pushBack(frame);
     }
-    return CCAnimate::create(CCAnimation::create(animationFrames, delay));
+    return Animate::create(Animation::create(animationFrames, delay));
 }
 
-CCNode* Image::getAnimationTarget()
+Node* Image::getAnimationTarget()
 {
     CCAssert(spriteSheet != NULL, "Image getAnimationTarget called on an object without spritesheet");
     return delegate;
@@ -224,10 +224,10 @@ void Image::update(float deltaTime)
 void Image::loadAnimation(const char* filename, int capacity, bool useLastFrame)
 {
     imageFile = filename;
-    spriteSheet = CCSpriteBatchNode::create(imageFile.append(".png").c_str(), capacity);
+    spriteSheet = SpriteBatchNode::create(imageFile.append(".png").c_str(), capacity);
     imageFile.erase(imageFile.length() - 4, 4);
     spriteSheet->retain();
-    CCSpriteFrameCache::getInstance()->addSpriteFramesWithFile(imageFile.append(".plist").c_str());
+    SpriteFrameCache::getInstance()->addSpriteFramesWithFile(imageFile.append(".plist").c_str());
     imageFile.erase(imageFile.length() - 6, 6);
     
     spritesName = CCArray::createWithCapacity(capacity);
@@ -238,12 +238,12 @@ void Image::loadAnimation(const char* filename, int capacity, bool useLastFrame)
          sprintf(num, "%04d", i);*/
         spritesName->addObject(ScreateF("%s_%02d.png", filename, i));//imageFile.append(num).append(".png")));
     }
-    CCSpriteFrame* firstFrame = CCSpriteFrameCache::getInstance()->spriteFrameByName(((CCString*)spritesName->objectAtIndex(!useLastFrame ? 0 : spritesName->count() - 1))->getCString());
-    CCNode* parent = delegate->getParent();
+    SpriteFrame* firstFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(((CCString*)spritesName->objectAtIndex(!useLastFrame ? 0 : spritesName->count() - 1))->getCString());
+    Node* parent = delegate->getParent();
     //If this is a previous animation, stop it first
-    if(isKindOfClass(parent, CCSpriteBatchNode))
+    if(isKindOfClass(parent, SpriteBatchNode))
     {
-        CCNode* realParent = parent->getParent();
+        Node* realParent = parent->getParent();
         parent->removeChild(delegate);
         realParent->removeChild(parent, true);
         realParent->addChild(delegate);
@@ -271,24 +271,24 @@ void Image::replaceTexture(const char* filename, bool keepExactSize, bool async,
     {
         std::string originalImageFile = imageFile;
         imageFile = filename;
-        CCSprite* sprite = (CCSprite*)delegate;
-        CCSize initialSize = CCSizeMake(sprite->getContentSize().width * sprite->getScaleX(), sprite->getContentSize().height * sprite->getScaleY());
-        CCTexture2D* newTexture = CCTextureCache::sharedTextureCache()->addImage(imageFile.append(".png").c_str());
+        Sprite* sprite = (Sprite*)delegate;
+        Size initialSize = Size(sprite->getContentSize().width * sprite->getScaleX(), sprite->getContentSize().height * sprite->getScaleY());
+        Texture2D* newTexture = Director::getInstance()->getTextureCache()->addImage(imageFile.append(".png").c_str());
         imageFile.erase(imageFile.length() - 4, 4);
         if(newTexture == NULL)
         {
-            newTexture = CCTextureCache::sharedTextureCache()->addImage(imageFile.append(".jpg").c_str());
+            newTexture = Director::getInstance()->getTextureCache()->addImage(imageFile.append(".jpg").c_str());
             imageFile.erase(imageFile.length() - 4, 4);
         }
         if(newTexture == NULL)
         {
-            newTexture = CCTextureCache::sharedTextureCache()->addImage(imageFile.append(".jpeg").c_str());
+            newTexture = Director::getInstance()->getTextureCache()->addImage(imageFile.append(".jpeg").c_str());
             imageFile.erase(imageFile.length() - 5, 5);
         }
         if(newTexture == NULL)
         {
 #if VERBOSE_WARNING
-            CCLog("Warning : Problem with asset : %s, texture not replaced", filename);
+            CCLOG("Warning : Problem with asset : %s, texture not replaced", filename);
 #endif
             imageFile = originalImageFile;
             return;
@@ -297,7 +297,7 @@ void Image::replaceTexture(const char* filename, bool keepExactSize, bool async,
         //If there is a spriteSheet, switch back normal delegate
         if(spriteSheet != NULL)
         {
-            CCNode* parent = spriteSheet->getParent();
+            Node* parent = spriteSheet->getParent();
             spriteSheet->removeChild(delegate, true);
             parent->removeChild(spriteSheet, true);
             parent->addChild(delegate);
@@ -305,7 +305,7 @@ void Image::replaceTexture(const char* filename, bool keepExactSize, bool async,
             spriteSheet = NULL;
         }
         sprite->setTexture(newTexture);
-        CCRect textureRect = CCRectMake(0, 0, newTexture->getContentSize().width, newTexture->getContentSize().height);
+        Rect textureRect = Rect(0, 0, newTexture->getContentSize().width, newTexture->getContentSize().height);
         //Change the textureRect to crop it if necessary
         if(keepRatio && initialSize.width / initialSize.height != textureRect.size.width / textureRect.size.height)
         {
@@ -344,7 +344,7 @@ void Image::textureLoaded(Texture2D* tex)
 #if VERBOSE_WARNING
     else
     {
-        CCLog("Warning : Problem with asset : %s loaded asynchronously, texture not replaced", loadingImageFile.c_str());
+        CCLOG("Warning : Problem with asset : %s loaded asynchronously, texture not replaced", loadingImageFile.c_str());
     }
 #endif
 }
@@ -354,7 +354,7 @@ bool Image::isAnimation()
     return spriteSheet != NULL;
 }
 
-bool Image::collision(CCPoint point)
+bool Image::collision(Vec2 point)
 {
     if(spriteSheet != NULL)
     {

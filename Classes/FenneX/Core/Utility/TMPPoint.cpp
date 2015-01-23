@@ -39,7 +39,7 @@ TMPPoint* TMPPoint::create(float x, float y)
     return p;
 }
 
-TMPPoint* TMPPoint::create(CCPoint pos)
+TMPPoint* TMPPoint::create(Vec2 pos)
 {
     TMPPoint* p = new TMPPoint(pos);
     p->autorelease();
@@ -57,7 +57,7 @@ TMPPoint::TMPPoint(float x, float y)
     this->y = y;
 }
 
-TMPPoint::TMPPoint(CCPoint pos)
+TMPPoint::TMPPoint(Vec2 pos)
 {
     this->x = pos.x;
     this->y = pos.y;

@@ -38,11 +38,11 @@ class TapRecognizer : public GenericRecognizer
 public:
     static TapRecognizer* sharedRecognizer(void);
     
-    virtual bool onTouchBegan(CCTouch *touch, CCEvent *pEvent);
-    virtual void onTouchMoved(CCTouch *touch, CCEvent *pEvent);
-    virtual void onTouchEnded(CCTouch *touch, CCEvent *pEvent);
+    virtual bool onTouchBegan(Touch *touch, Event *pEvent);
+    virtual void onTouchMoved(Touch *touch, Event *pEvent);
+    virtual void onTouchEnded(Touch *touch, Event *pEvent);
     virtual void cleanTouches();
-    void cancelRecognitionForTouch(CCTouch* touch);
+    void cancelRecognitionForTouch(Touch* touch);
 protected:
     void init();
     

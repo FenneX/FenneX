@@ -33,7 +33,7 @@ USING_NS_CC;
 #include "FenneXMacros.h"
 
 NS_FENNEX_BEGIN
-class RawObject : public CCObject
+class RawObject : public Ref
 {
     CC_SYNTHESIZE_STRING(name, Name);
     CC_SYNTHESIZE_STRING(eventName, EventName);
@@ -43,9 +43,9 @@ class RawObject : public CCObject
 public:
     
     //property-like methods that will actually call getNode
-    virtual const CCPoint& getPosition();
-    virtual void setPosition(const CCPoint& newPosition);
-    const CCSize& getSize();
+    virtual const Vec2& getPosition();
+    virtual void setPosition(const Vec2& newPosition);
+    const cocos2d::Size& getSize();
     const int getZOrder();
     const float getScale();
     void setScale(const float newScale);
@@ -57,7 +57,7 @@ public:
     CCDictionary* getEventInfos();//Warning : the returned CCDictionary is copied, changes will not affect RawObject
     //Will not copy Sender automatically. Do it manually if required
     void addEventInfos(CCDictionary* infos);
-    void setEventInfo(CCObject* obj, std::string key);
+    void setEventInfo(Ref* obj, std::string key);
     void removeEventInfo(std::string key);
     //TODO : add opacity, isMoving
     
@@ -65,20 +65,20 @@ public:
     virtual ~RawObject();
     
     //mandatory to do for sub-class
-    virtual CCNode* getNode() = 0;
-    //virtual void update(float deltaTime) = 0; //already in CCObject
+    virtual Node* getNode() = 0;
+    //virtual void update(float deltaTime) = 0; //already in Ref
     
     //collisions methods
-    virtual bool collision(CCPoint point);
-    virtual bool collision(CCRect rect);
-    virtual bool containsRect(CCRect rect);
+    virtual bool collision(Vec2 point);
+    virtual bool collision(cocos2d::Rect rect);
+    virtual bool containsRect(cocos2d::Rect rect);
     
     virtual void update(float deltatime) {};
     
     //TODO ? description, eventInfos handling, move methods, distance methods
     
     //Shitty code to go around the copy requirement
-    virtual CCObject* copyWithZone(CCZone* pZone)
+    virtual Ref* copyWithZone(void** pZone)
     {
         this->retain();
         return this;

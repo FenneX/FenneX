@@ -25,7 +25,7 @@ THE SOFTWARE.
 #include "Inertia.h"
 
 NS_FENNEX_BEGIN
-Inertia::Inertia(CCPoint offset, CCPoint position, bool vertical) :
+Inertia::Inertia(Vec2 offset, Vec2 position, bool vertical) :
 position(position),
 offset(offset),
 vertical(vertical)
@@ -33,7 +33,7 @@ vertical(vertical)
     
 }
 
-Inertia* Inertia::create(CCPoint offset, CCPoint position, bool vertical)
+Inertia* Inertia::create(Vec2 offset, Vec2 position, bool vertical)
 {
     Inertia * pRet = new Inertia(offset, position, vertical);
     pRet->autorelease();

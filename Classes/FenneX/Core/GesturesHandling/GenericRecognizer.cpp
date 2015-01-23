@@ -25,7 +25,7 @@ THE SOFTWARE.
 #include "GenericRecognizer.h"
 
 NS_FENNEX_BEGIN
-bool GenericRecognizer::isInLinker(CCTouch* touch)
+bool GenericRecognizer::isInLinker(Touch* touch)
 {
     if(mainLinker != NULL && mainLinker->linkedObjectOf(touch) != NULL)
     {
@@ -42,7 +42,7 @@ CCArray* GenericRecognizer::unlinkedTouches()
         CCArray* touches = mainLinker->allTouches();
         for (int i = 0; i < touches->count(); i++)
         {
-            CCTouch* touch = (CCTouch*) touches->objectAtIndex(i);
+            Touch* touch = (Touch*) touches->objectAtIndex(i);
             if(mainLinker->linkedObjectOf(touch) == NULL)
             {
                 linkedTouches->addObject(touch);

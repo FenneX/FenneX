@@ -32,7 +32,7 @@ THE SOFTWARE.
 NS_FENNEX_BEGIN
 bool arrayContainsString(CCArray* list, CCString* string)
 {
-    CCObject* obj;
+    Ref* obj;
     CCARRAY_FOREACH(list, obj)
     {
         if(string->isEqual(obj))
@@ -45,7 +45,7 @@ int arrayGetStringIndex(CCArray* list, CCString* string)
 {
     for(int i = 0; i < list->count(); i++)
     {
-        CCObject* obj = list->objectAtIndex(i);
+        Ref* obj = list->objectAtIndex(i);
         if(string->isEqual(obj))
             return i;
     }
@@ -55,7 +55,7 @@ int arrayGetStringIndex(CCArray* list, CCString* string)
 void arrayRemoveString(CCArray* list, CCString* string)
 {
     
-    CCObject* obj;
+    Ref* obj;
     CCARRAY_FOREACH(list, obj)
     {
         if(string->isEqual(obj))
@@ -69,7 +69,7 @@ void arrayRemoveString(CCArray* list, CCString* string)
 void arrayRemoveStringFromOther(CCArray* list, CCArray* other)
 {
     
-    CCObject* obj;
+    Ref* obj;
     CCArray* objectsToRemove = Acreate();
     CCARRAY_FOREACH(list, obj)
     {
@@ -129,7 +129,7 @@ std::vector<std::pair<std::string, std::string>> getConversions()
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     ssize_t bufferSize = 0;
     //Load file from apk
-    const char* charbuffer = reinterpret_cast<const char*>(CCFileUtils::sharedFileUtils()->getFileData("letters_conversion.txt", "r", &bufferSize));
+    const char* charbuffer = reinterpret_cast<const char*>(FileUtils::getInstance()->getFileData("letters_conversion.txt", "r", &bufferSize));
     if (charbuffer) {
         int index = 0;
         while (sscanf(&charbuffer[index], "%20s %20s %20s", upperCase, separator, lowerCase) !=EOF)

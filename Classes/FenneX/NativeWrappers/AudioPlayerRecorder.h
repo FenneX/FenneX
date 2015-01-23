@@ -47,7 +47,7 @@ USING_NS_FENNEX;
 	<uses-permission android:name="android.permission.RECORD_AUDIO" />
 	<uses-feature android:name="android.hardware.microphone"/>
  */
-class AudioPlayerRecorder : public CCObject
+class AudioPlayerRecorder : public Ref
 {
 public:
     //shared methods
@@ -65,23 +65,23 @@ public:
     void setRecordEnabled(bool enabled);
     bool isRecordEnabled();
     
-    CCObject* getLink();
+    Ref* getLink();
     std::string getPath();
     std::string getPathWithoutExtension();
     void stopAll();
     
     //Those methods first try Object before Sender because it can be a subcall (for example if the selection is via a pop-up. If the Sender is a CCInteger, it will try to get a valid RawObject from GraphicLayer
-    void playObject(CCObject* obj); //infos may contains the Object/Sender (CCObject*) and the File (CCString)
-    void recordObject(CCObject* obj); //infos may contains the Object/Sender (CCObject*), the File (CCString) will be generated if absent
+    void playObject(Ref* obj); //infos may contains the Object/Sender (Ref*) and the File (CCString)
+    void recordObject(Ref* obj); //infos may contains the Object/Sender (Ref*), the File (CCString) will be generated if absent
     
     //implementation specific methods
     bool isRecording();
     bool isPlaying();
     
-    void record(const std::string&  file, CCObject* linkTo);
+    void record(const std::string&  file, Ref* linkTo);
     void stopRecording();
-    float play(const std::string&  file, CCObject* linkTo, bool independent = false); //return the duration of the file
-    void stopPlaying(CCObject* obj = NULL);
+    float play(const std::string&  file, Ref* linkTo, bool independent = false); //return the duration of the file
+    void stopPlaying(Ref* obj = NULL);
     void fadeVolumeOut();
     
     void play();
@@ -103,13 +103,13 @@ public:
 protected:
     AudioPlayerRecorder();
     void init();
-    CCObject* link; //the object that required the record/play
+    Ref* link; //the object that required the record/play
     std::string path; //the current path being recorded/played
     void setPath(std::string value);
-    void setLink(CCObject* value);
+    void setLink(Ref* value);
     bool recordEnabled;
     
-    CCObject* noLinkObject; //If a sound have no link, it is linked to this object so that everything works well
+    Ref* noLinkObject; //If a sound have no link, it is linked to this object so that everything works well
 };
 #endif
 

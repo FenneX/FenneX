@@ -35,7 +35,7 @@ NS_FENNEX_BEGIN
 //use http://devblog.wm-innovations.com/2010/03/30/custom-swipe-uitableviewcell/ for the algorithm
 
 //instead of evaluating a swipe at each movement, swipe are evaluated only at touchEnded
-//throw event Swipe with Touch, Direction (CCString : Left or Right) and InitialPosition (CCPoint) as argument
+//throw event Swipe with Touch, Direction (CCString : Left or Right) and InitialPosition (Vec2) as argument
 //support multi-touch context, and will ignore any touch linked in the given mainLinker
 //currently only recognize horizontal swipes
 class SwipeRecognizer : public GenericRecognizer
@@ -45,11 +45,11 @@ class SwipeRecognizer : public GenericRecognizer
 public:
     static SwipeRecognizer* sharedRecognizer(void);
     
-    virtual bool onTouchBegan(CCTouch *touch, CCEvent *pEvent);
-    virtual void onTouchMoved(CCTouch *touch, CCEvent *pEvent);
-    virtual void onTouchEnded(CCTouch *touch, CCEvent *pEvent);
+    virtual bool onTouchBegan(Touch *touch, Event *pEvent);
+    virtual void onTouchMoved(Touch *touch, Event *pEvent);
+    virtual void onTouchEnded(Touch *touch, Event *pEvent);
     virtual void cleanTouches();
-    void cancelRecognitionForTouch(CCTouch *touch);
+    void cancelRecognitionForTouch(Touch *touch);
 protected:
     void init();
     

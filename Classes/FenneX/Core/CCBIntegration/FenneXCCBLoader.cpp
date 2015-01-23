@@ -45,12 +45,12 @@ static bool isPhone = false;
 //Don't retain the CCBAnimationManager, because it's troublesome to release them at the right time. Soft references is enough.
 static std::vector<CCBAnimationManager*> animManagers;
 
-void resizeChildren(CCNode* parentNode, CCNode* resizeNode, float usedScale, int depth)
+void resizeChildren(Node* parentNode, Node* resizeNode, float usedScale, int depth)
 {
     Vector<Node*> nodeChildren = resizeNode->getChildren();
     for(auto node : nodeChildren)
     {
-        node->setPosition(ccpMult(node->getPosition(), usedScale));
+        node->setPosition(node->getPosition() * usedScale);
         if(isKindOfClass(node, Label))
         {
             Label* label = (Label*)node;
@@ -67,19 +67,19 @@ void resizeChildren(CCNode* parentNode, CCNode* resizeNode, float usedScale, int
         {
             CustomInput* input = (CustomInput*)node;
             input->setFontSize((float)input->getFontSize() * usedScale);
-            input->setPreferredSize(CCSizeMake(input->getPreferredSize().width * usedScale, input->getPreferredSize().height * usedScale));
+            input->setPreferredSize(Size(input->getPreferredSize().width * usedScale, input->getPreferredSize().height * usedScale));
 #if VERBOSE_LOAD_CCB
             CCLOG("input font size : %d, parent node scale : %f, dimensions : %f, %f, depth : %d", input->getFontSize(), parentNode->getScale(), input->getPreferredSize().width, input->getPreferredSize().height, depth);
 #endif
         }
-        else if(isKindOfClass(node, CCSprite))
+        else if(isKindOfClass(node, Sprite))
         {
             
         }
-        else if(isKindOfClass(node, Scale9Sprite))
+        else if(isKindOfClass(node, ui::Scale9Sprite))
         {
-            Scale9Sprite* sprite = (Scale9Sprite*)node;
-            sprite->setContentSize(CCSizeMult(node->getContentSize(), usedScale));
+            ui::Scale9Sprite* sprite = (ui::Scale9Sprite*)node;
+            sprite->setContentSize(SizeMult(node->getContentSize(), usedScale));
             sprite->setInsetBottom(sprite->getInsetBottom() * usedScale);
             sprite->setInsetLeft(sprite->getInsetRight() * usedScale);
             sprite->setInsetRight(sprite->getInsetRight() * usedScale);
@@ -87,7 +87,7 @@ void resizeChildren(CCNode* parentNode, CCNode* resizeNode, float usedScale, int
         }
         else  //Panel
         {
-            node->setContentSize(CCSizeMult(node->getContentSize(), usedScale));
+            node->setContentSize(SizeMult(node->getContentSize(), usedScale));
             if(!node->getChildren().empty())
             {
                 resizeChildren(parentNode, node, usedScale, depth+1);
@@ -102,17 +102,17 @@ Panel* loadCCBFromFileToFenneX(const char* file, const char* inPanel, int zIndex
     {
         animManagers.clear();
     }
-    NodeLoaderLibrary * nodeLoaderLibrary = NodeLoaderLibrary::newDefaultCCNodeLoaderLibrary();
-    nodeLoaderLibrary->registerCCNodeLoader("CustomSprite", CustomSpriteLoader::loader());
-    nodeLoaderLibrary->registerCCNodeLoader("CustomScaleSprite", CustomScaleSpriteLoader::loader());
-    nodeLoaderLibrary->registerCCNodeLoader("CustomNode", CustomNodeLoader::loader());
-    nodeLoaderLibrary->registerCCNodeLoader("CustomInput", CustomInputLoader::loader());
-    nodeLoaderLibrary->registerCCNodeLoader("CustomLabel", CustomLabelLoader::loader());
+    NodeLoaderLibrary * nodeLoaderLibrary = NodeLoaderLibrary::newDefaultNodeLoaderLibrary();
+    nodeLoaderLibrary->registerNodeLoader("CustomSprite", CustomSpriteLoader::loader());
+    nodeLoaderLibrary->registerNodeLoader("CustomScaleSprite", CustomScaleSpriteLoader::loader());
+    nodeLoaderLibrary->registerNodeLoader("CustomNode", CustomNodeLoader::loader());
+    nodeLoaderLibrary->registerNodeLoader("CustomInput", CustomInputLoader::loader());
+    nodeLoaderLibrary->registerNodeLoader("CustomLabel", CustomLabelLoader::loader());
     CCBReader *ccbReader = new CCBReader(nodeLoaderLibrary);
     
     //IF this one fail, it needs to be silent
-    bool shouldNotify = CCFileUtils::sharedFileUtils()->isPopupNotify();
-    CCFileUtils::sharedFileUtils()->setPopupNotify(false);
+    bool shouldNotify = FileUtils::getInstance()->isPopupNotify();
+    FileUtils::getInstance()->setPopupNotify(false);
     
 #if VERBOSE_PERFORMANCE_TIME
     timeval startTime;
@@ -120,9 +120,9 @@ Panel* loadCCBFromFileToFenneX(const char* file, const char* inPanel, int zIndex
 #endif
     std::string filePath = ScreateF("%s%s.ccbi", file, isPhone ? "-phone" : "")->getCString();
     CCLOG("Filepath : %s", filePath.c_str());
-    CCFileUtils::sharedFileUtils()->setPopupNotify(shouldNotify);
-    CCNode* myNode = NULL;
-    if(FileUtils::sharedFileUtils()->isFileExist(filePath))
+    FileUtils::getInstance()->setPopupNotify(shouldNotify);
+    Node* myNode = NULL;
+    if(FileUtils::getInstance()->isFileExist(filePath))
     {
         CCLOG("File exist");
         myNode = ccbReader->readNodeGraphFromFile(filePath.c_str());
@@ -135,11 +135,11 @@ Panel* loadCCBFromFileToFenneX(const char* file, const char* inPanel, int zIndex
 #if VERBOSE_PERFORMANCE_TIME
     timeval middleTime;
     gettimeofday(&middleTime, NULL);
-    CCLog("CCBReader loaded file %s in %f ms", file, getTimeDifferenceMS(startTime, middleTime));
+    CCLOG("CCBReader loaded file %s in %f ms", file, getTimeDifferenceMS(startTime, middleTime));
 #endif
     
-    //Despite cocosbuilder saying so, Label and CCNode (for Panel) aren't resized properly, so there it is
-    /*CCSize frameSize = CCDirector::sharedDirector()->getWinSize();
+    //Despite cocosbuilder saying so, Label and Node (for Panel) aren't resized properly, so there it is
+    /*Size frameSize = Director::getInstance()->getWinSize();
      float scaleX = (float)frameSize.width / designResolutionSize.width;
      float scaleY = (float)frameSize.height / designResolutionSize.height;
      float scale = MAX(scaleX, scaleY);
@@ -154,7 +154,7 @@ Panel* loadCCBFromFileToFenneX(const char* file, const char* inPanel, int zIndex
     for(auto node : myNode->getChildren())
     {
         //Note : Panels are never tested against isKindOfClass because :
-        //against CCNode, all nodes return true
+        //against Node, all nodes return true
         //against CustomNode, a tagging is required on cocosBuilder
         
         //Depth 0 of nesting
@@ -173,7 +173,7 @@ Panel* loadCCBFromFileToFenneX(const char* file, const char* inPanel, int zIndex
         {
             
         }
-        else if(isKindOfClass(node, CCSprite) || isKindOfClass(node, Scale9Sprite))
+        else if(isKindOfClass(node, Sprite) || isKindOfClass(node, ui::Scale9Sprite))
         {
             
         }
@@ -181,7 +181,7 @@ Panel* loadCCBFromFileToFenneX(const char* file, const char* inPanel, int zIndex
         {
             node->setScaleX(node->getScaleX()*usedScale);
             node->setScaleY(node->getScaleY()*usedScale);
-            CCNode* parentNode = node;
+            Node* parentNode = node;
             
             for(auto node : node->getChildren())
             {
@@ -201,29 +201,29 @@ Panel* loadCCBFromFileToFenneX(const char* file, const char* inPanel, int zIndex
                 else if(isKindOfClass(node, CustomInput))
                 {
                     //input->setFontSize((float)input->getFontSize() / usedScale);
-                    //input->setPreferredSize(CCSizeMake(input->getPreferredSize().width / usedScale, input->getPreferredSize().height / usedScale));
+                    //input->setPreferredSize(Size(input->getPreferredSize().width / usedScale, input->getPreferredSize().height / usedScale));
                     //input->setFontSize((float)input->getFontSize() * parentNode->getScale());
 #if VERBOSE_LOAD_CCB
                     CustomInput* input = (CustomInput*)node;
                     CCLOG("input font size : %d, parent node scale : %f, dimensions : %f, %f, depth 1", input->getFontSize() , parentNode->getScale(), input->getPreferredSize().width, input->getPreferredSize().height);
 #endif
                 }
-                else if(isKindOfClass(node, CCSprite))
+                else if(isKindOfClass(node, Sprite))
                 {
                     node->setScaleX(node->getScaleX() / usedScale);
                     node->setScaleY(node->getScaleY() / usedScale);
                 }
-                else if(isKindOfClass(node, Scale9Sprite))
+                else if(isKindOfClass(node, ui::Scale9Sprite))
                 {
                     node->setScaleX(node->getScaleX() / usedScale);
                     node->setScaleY(node->getScaleY() / usedScale);
-                    node->setContentSize(CCSizeMult(node->getContentSize(), usedScale));
+                    node->setContentSize(SizeMult(node->getContentSize(), usedScale));
                 }
                 else if(!node->getChildren().empty())//Panel
                 {
                     node->setScaleX(node->getScaleX() / usedScale);
                     node->setScaleY(node->getScaleY() / usedScale);
-                    node->setContentSize(CCSizeMult(node->getContentSize(), usedScale));
+                    node->setContentSize(SizeMult(node->getContentSize(), usedScale));
                     //For depth 2 and more, the algorithm is the same
                     resizeChildren(parentNode, node, usedScale, 2);
                 }
@@ -234,7 +234,7 @@ Panel* loadCCBFromFileToFenneX(const char* file, const char* inPanel, int zIndex
     Panel* parent = NULL;
     if(inPanel != NULL)
     {
-        myNode->setContentSize(CCSizeMake(0, 0));
+        myNode->setContentSize(Size(0, 0));
         parent = GraphicLayer::sharedLayer()->createPanelWithNode(inPanel, myNode, zIndex);
     }
     
@@ -249,17 +249,17 @@ Panel* loadCCBFromFileToFenneX(const char* file, const char* inPanel, int zIndex
 #if VERBOSE_PERFORMANCE_TIME
     timeval endTime;
     gettimeofday(&endTime, NULL);
-    CCLog("Node %s loaded to FenneX in %f ms, total with load file : %f ms", file, getTimeDifferenceMS(middleTime, endTime), getTimeDifferenceMS(startTime, endTime));
+    CCLOG("Node %s loaded to FenneX in %f ms, total with load file : %f ms", file, getTimeDifferenceMS(middleTime, endTime), getTimeDifferenceMS(startTime, endTime));
 #endif
     return parent;
 }
 
-void loadNodeToFenneX(CCNode* baseNode, Panel* parent)
+void loadNodeToFenneX(Node* baseNode, Panel* parent)
 {
     GraphicLayer* layer = GraphicLayer::sharedLayer();
     if(parent == NULL)
     {
-        layer->useBaseLayer((CCLayer*)baseNode);
+        layer->useBaseLayer((Layer*)baseNode);
 #if VERBOSE_LOAD_CCB
         CCLOG("replaced base layer by CCB node : position : %f, %f, scale : %f", baseNode->getPosition().x, baseNode->getPosition().y, baseNode->getScale());
 #endif
@@ -287,37 +287,37 @@ void loadNodeToFenneX(CCNode* baseNode, Panel* parent)
             }
             result = layer->createLabelTTFromLabel(label, parent);
         }
-        else if(isKindOfClass(node, CCSprite))
+        else if(isKindOfClass(node, Sprite))
         {
 #if VERBOSE_LOAD_CCB
             CCLOG("image");
 #endif
-            CCSprite* sprite = (CCSprite*)node;
-            result = layer->createImageFromCCSprite(sprite, parent);
+            Sprite* sprite = (Sprite*)node;
+            result = layer->createImageFromSprite(sprite, parent);
         }
         else if(isKindOfClass(node, CustomInput))
         {
 #if VERBOSE_LOAD_CCB
             CCLOG("input label");
 #endif
-            Scale9Sprite* sprite = (Scale9Sprite*)node;
+            ui::Scale9Sprite* sprite = (ui::Scale9Sprite*)node;
             result = layer->createInputLabelFromScale9Sprite(sprite, parent);
             i--;
         }
-        else if(isKindOfClass(node, Scale9Sprite))
+        else if(isKindOfClass(node, ui::Scale9Sprite))
         {
 #if VERBOSE_LOAD_CCB
             CCLOG("scale sprite");
 #endif
-            Scale9Sprite* sprite = (Scale9Sprite*)node;
-            result = layer->createCustomObjectFromCCNode(sprite, parent);
+            ui::Scale9Sprite* sprite = (ui::Scale9Sprite*)node;
+            result = layer->createCustomObjectFromNode(sprite, parent);
         }
-        else if(!isKindOfClass(node, EditBox))
+        else if(!isKindOfClass(node, ui::EditBox))
         {
 #if VERBOSE_LOAD_CCB
             CCLOG("panel");
 #endif
-            result = layer->createPanelFromCCNode(node, parent);
+            result = layer->createPanelFromNode(node, parent);
         }
 #if VERBOSE_LOAD_CCB
         if(result != NULL)
@@ -365,7 +365,7 @@ void linkInputLabels()
                 child->getNode()->setContentSize(child->getNode()->getContentSize());
                 if(input->getOriginalInfos() != NULL)
                 {
-                    ((EditBox*)child->getNode())->setFontSize(input->getOriginalInfos()->getFontSize());
+                    ((ui::EditBox*)child->getNode())->setFontSize(input->getOriginalInfos()->getFontSize());
                 }
             }
             if(isKindOfClass(child, InputLabel) && child->getEventInfos()->objectForKey("LinkTo") != NULL && isKindOfClass(child->getEventInfos()->objectForKey("LinkTo"), CCString))

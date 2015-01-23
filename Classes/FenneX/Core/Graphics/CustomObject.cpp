@@ -27,18 +27,18 @@ THE SOFTWARE.
 #include "AppMacros.h"
 
 NS_FENNEX_BEGIN
-CCRect CustomObject::getBoundingBox()
+Rect CustomObject::getBoundingBox()
 {
-    return CCRect(this->getNode()->getPositionX(), this->getNode()->getPositionY(), this->getNode()->getContentSize().width, this->getNode()->getContentSize().height);
+    return Rect(this->getNode()->getPositionX(), this->getNode()->getPositionY(), this->getNode()->getContentSize().width, this->getNode()->getContentSize().height);
 }
 
-CCNode* CustomObject::getNode()
+Node* CustomObject::getNode()
 {
     CCAssert(delegate != NULL, "CustomObject getNode is called upon a non-initialized object (or perhaps image/sheet load failed)");
     return delegate;
 }
 
-void CustomObject::setNode(CCNode* node)
+void CustomObject::setNode(Node* node)
 {
     node->setPosition(delegate->getPosition());
     node->setScaleX(delegate->getScaleX());
@@ -60,7 +60,7 @@ delegate(NULL)
     
 }
 
-CustomObject::CustomObject(CCNode* child)
+CustomObject::CustomObject(Node* child)
 {
     delegate = child;
     if(delegate == NULL)
@@ -70,7 +70,7 @@ CustomObject::CustomObject(CCNode* child)
     delegate->retain();
 }
 
-CustomObject::CustomObject(CCNode* child, CCPoint location)
+CustomObject::CustomObject(Node* child, Vec2 location)
 {
     delegate = child;
     if(delegate == NULL)
@@ -87,11 +87,11 @@ CustomObject::~CustomObject()
 #if VERBOSE_DEALLOC
     if(this->getName() != NULL)
     {
-        CCLog("Dealloc CustomObject %s", this->getName());
+        CCLOG("Dealloc CustomObject %s", this->getName());
     }
     else
     {
-        CCLog("Dealloc unnamed CustomObject");
+        CCLOG("Dealloc unnamed CustomObject");
     }
 #endif
 }

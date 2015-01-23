@@ -39,13 +39,13 @@ void Scene::initScene()
 #endif
     currentTime = 0;
     frameNumber = 0;
-    delegate = CCScene::create();
+    delegate = cocos2d::Scene::create();
     delegate->retain();
-    if(CCDirector::sharedDirector()->getNotificationNode()->getParent() != NULL)
+    if(Director::getInstance()->getNotificationNode()->getParent() != NULL)
     {
-        CCDirector::sharedDirector()->getNotificationNode()->removeFromParentAndCleanup(true);
+        Director::getInstance()->getNotificationNode()->removeFromParentAndCleanup(true);
     }
-    delegate->addChild(CCDirector::sharedDirector()->getNotificationNode());
+    delegate->addChild(Director::getInstance()->getNotificationNode());
     delegate->addChild(this);
     updateList = new CCArray();
     touchReceiversList = new CCArray();
@@ -84,26 +84,26 @@ sceneName(identifier)
     touchListener->onTouchCancelled = CC_CALLBACK_2(FenneX::Scene::onTouchCancelled, this);
     touchListener->retain();
     touchListener->setEnabled(true);
-    CCDirector::sharedDirector()->getEventDispatcher()->addEventListenerWithFixedPriority(touchListener, -1);
+    Director::getInstance()->getEventDispatcher()->addEventListenerWithFixedPriority(touchListener, -1);
     
     
     keyboardListener = EventListenerKeyboard::create();
     keyboardListener->onKeyReleased = CC_CALLBACK_2(FenneX::Scene::onKeyReleased, this);
     keyboardListener->retain();
     keyboardListener->setEnabled(true);
-    CCDirector::sharedDirector()->getEventDispatcher()->addEventListenerWithFixedPriority(keyboardListener, -1);
+    Director::getInstance()->getEventDispatcher()->addEventListenerWithFixedPriority(keyboardListener, -1);
 }
 Scene::~Scene()
 {
     if(touchListener != NULL)
     {
-        CCDirector::sharedDirector()->getEventDispatcher()->removeEventListener(touchListener);
+        Director::getInstance()->getEventDispatcher()->removeEventListener(touchListener);
         touchListener->release();
         touchListener = NULL;
     }
     if(keyboardListener != NULL)
     {
-        CCDirector::sharedDirector()->getEventDispatcher()->removeEventListener(keyboardListener);
+        Director::getInstance()->getEventDispatcher()->removeEventListener(keyboardListener);
         keyboardListener->release();
         keyboardListener = NULL;
     }
@@ -128,7 +128,7 @@ void Scene::update(float deltaTime)
         gettimeofday(&startTime, NULL);
 #endif
     currentTime += deltaTime;
-    CCObject* obj = NULL;
+    Ref* obj = NULL;
 #if VERBOSE_GENERAL_INFO
     CCLOG("Begin scene update");
 #endif
@@ -184,7 +184,7 @@ void Scene::update(float deltaTime)
     if(frameNumber <= 3)
     {
         gettimeofday(&endTime, NULL);
-        CCLog("Frame %d of scene %s loaded in %f ms", frameNumber, formatSceneToString(sceneName), getTimeDifferenceMS(startTime, endTime));
+        CCLOG("Frame %d of scene %s loaded in %f ms", frameNumber, formatSceneToString(sceneName), getTimeDifferenceMS(startTime, endTime));
     }
 #endif
 }
@@ -192,7 +192,7 @@ void Scene::update(float deltaTime)
 void Scene::pause()
 {
     _running = false;
-    CCObject* obj = NULL;
+    Ref* obj = NULL;
     CCARRAY_FOREACH(updateList, obj)
     {
         dynamic_cast<Pausable*>(obj)->pause();
@@ -206,7 +206,7 @@ void Scene::resume()
     touchListener->setEnabled(true);
     keyboardListener->setEnabled(true);
     this->scheduleUpdateWithPriority(-1);
-    CCObject* obj = NULL;
+    Ref* obj = NULL;
     CCARRAY_FOREACH(updateList, obj)
     {
         dynamic_cast<Pausable*>(obj)->resume();
@@ -218,10 +218,10 @@ void Scene::stop()
 {
     touchListener->setEnabled(false);
     keyboardListener->setEnabled(false);
-    CCDirector::sharedDirector()->getNotificationNode()->stopAllActions();
+    Director::getInstance()->getNotificationNode()->stopAllActions();
     this->unscheduleUpdate();
     
-    CCObject* obj = NULL;
+    Ref* obj = NULL;
     CCARRAY_FOREACH(updateList, obj)
     {
         dynamic_cast<Pausable*>(obj)->stop();
@@ -235,11 +235,11 @@ void Scene::stop()
     touchReceiversList->removeAllObjects();
     
     delegate->removeChild(this, false);
-    delegate->removeChild(CCDirector::sharedDirector()->getNotificationNode(), false);
+    delegate->removeChild(Director::getInstance()->getNotificationNode(), false);
 }
 
 //TODO : requires GraphicLayer and TouchLinker
-bool Scene::onTouchBegan(CCTouch *touch, CCEvent *pEvent)
+bool Scene::onTouchBegan(Touch *touch, Event *pEvent)
 {
     //CCLOG("onTouchBegan started...");
     linker->recordTouch(touch);
@@ -250,7 +250,7 @@ bool Scene::onTouchBegan(CCTouch *touch, CCEvent *pEvent)
     this->switchButton(Scene::touchPosition(touch), true, touch);
     
     //CCLOG("sending to receivers ...");
-    CCObject* CCobj;
+    Ref* CCobj;
     CCARRAY_FOREACH(touchReceiversList, CCobj)
     {
         GenericRecognizer* receiver = (GenericRecognizer*)CCobj;
@@ -262,7 +262,7 @@ bool Scene::onTouchBegan(CCTouch *touch, CCEvent *pEvent)
     return true;
 }
 
-void Scene::onTouchMoved(CCTouch *touch, CCEvent *pEvent)
+void Scene::onTouchMoved(Touch *touch, Event *pEvent)
 {
     //CCLOG("onTouchMoved started...");
     if(linker->linkedObjectOf(touch) != NULL
@@ -276,7 +276,7 @@ void Scene::onTouchMoved(CCTouch *touch, CCEvent *pEvent)
             this->switchButton(toggle, false);
         }
     }
-    CCObject* CCobj;
+    Ref* CCobj;
     CCARRAY_FOREACH(touchReceiversList, CCobj)
     {
         GenericRecognizer* receiver = (GenericRecognizer*)CCobj;
@@ -285,7 +285,7 @@ void Scene::onTouchMoved(CCTouch *touch, CCEvent *pEvent)
     //CCLOG("onTouchMoved ended");
 }
 
-void Scene::onTouchEnded(CCTouch *touch, CCEvent *pEvent)
+void Scene::onTouchEnded(Touch *touch, Event *pEvent)
 {
     //CCLOG("onTouchEnded started...");
     if(linker->linkedObjectOf(touch) != NULL
@@ -300,7 +300,7 @@ void Scene::onTouchEnded(CCTouch *touch, CCEvent *pEvent)
             this->switchButton(toggle, false);
         }
     }
-    CCObject* CCobj;
+    Ref* CCobj;
     CCARRAY_FOREACH(touchReceiversList, CCobj)
     {
         GenericRecognizer* receiver = (GenericRecognizer*)CCobj;
@@ -313,7 +313,7 @@ void Scene::onTouchEnded(CCTouch *touch, CCEvent *pEvent)
 #endif
 }
 
-void Scene::onTouchCancelled(CCTouch *touch, CCEvent *pEvent)
+void Scene::onTouchCancelled(Touch *touch, Event *pEvent)
 {
     this->onTouchEnded(touch, pEvent);
     
@@ -322,7 +322,7 @@ void Scene::onTouchCancelled(CCTouch *touch, CCEvent *pEvent)
 #endif
 }
 
-void Scene::switchButton(CCPoint position, bool state, CCTouch* touch)
+void Scene::switchButton(Vec2 position, bool state, Touch* touch)
 {
     Image* target = getButtonAtPosition(position, state);
     //CCLOG("checked if toggle");
@@ -332,7 +332,7 @@ void Scene::switchButton(CCPoint position, bool state, CCTouch* touch)
     }
 }
 
-void Scene::switchButton(Image* obj, bool state, CCTouch* touch)
+void Scene::switchButton(Image* obj, bool state, Touch* touch)
 {
     if(state)
     {
@@ -359,11 +359,11 @@ void Scene::switchButton(Image* obj, bool state, CCTouch* touch)
     }
 }
 
-void Scene::tapRecognized(CCObject* obj)
+void Scene::tapRecognized(Ref* obj)
 {
-    CCTouch* touch = (CCTouch*)((CCDictionary*)obj)->objectForKey("Touch");
+    Touch* touch = (Touch*)((CCDictionary*)obj)->objectForKey("Touch");
     
-    CCPoint pos = Scene::touchPosition(touch);
+    Vec2 pos = Scene::touchPosition(touch);
 #if VERBOSE_TOUCH_RECOGNIZERS
     CCLOG("Tap recognized at pos %f, %f, forwarding to layer ...", pos.x, pos.y);
 #endif
@@ -393,11 +393,11 @@ void Scene::dropAllTouches(Ref* obj)
     CCArray* touches = linker->allTouches();
     for(int i = touches->count() - 1; i > 0; i--)
     {
-        this->onTouchEnded((CCTouch*)touches->objectAtIndex(i), NULL);
+        this->onTouchEnded((Touch*)touches->objectAtIndex(i), NULL);
     }
 }
 
-void Scene::addUpdatable(CCObject* obj)
+void Scene::addUpdatable(Ref* obj)
 {
     if(obj != NULL && !updateList->containsObject(obj) && !updatablesToAdd->containsObject(obj))
     {
@@ -405,7 +405,7 @@ void Scene::addUpdatable(CCObject* obj)
     }
 }
 
-void Scene::removeUpdatable(CCObject* obj)
+void Scene::removeUpdatable(Ref* obj)
 {
     if(obj != NULL && updateList->containsObject(obj) && !updatablesToRemove->containsObject(obj))
     {
@@ -429,30 +429,30 @@ void Scene::removeTouchreceiver(GenericRecognizer* obj)
     }
 }
 
-CCPoint Scene::touchPosition(CCTouch* touch)
+Vec2 Scene::touchPosition(Touch* touch)
 {
     //invert y because the given position is inverted ...
-    CCPoint pos = touch->getLocationInView();
-    int height = CCDirector::sharedDirector()->getWinSize().height;//cocos2d::CCDirector::sharedDirector()->getOpenGLView()->getDesignResolutionSize().height;
+    Vec2 pos = touch->getLocationInView();
+    int height = Director::getInstance()->getWinSize().height;//cocos2d::Director::getInstance()->getOpenGLView()->getDesignResolutionSize().height;
     pos.y = height - pos.y;
-    //pos = ccpMult(pos, 1/SceneSwitcher::sharedSwitcher()->getScale());
-    //pos = ccpSub(pos, SceneSwitcher::sharedSwitcher()->getOrigin());
+    //pos *= 1/SceneSwitcher::sharedSwitcher()->getScale();
+    //pos -= SceneSwitcher::sharedSwitcher()->getOrigin());
     return pos;
 }
 
-CCPoint Scene::previousTouchPosition(CCTouch* touch)
+Vec2 Scene::previousTouchPosition(Touch* touch)
 {
     //invert y because the given position is inverted ...
-    CCPoint pos = touch->getPreviousLocationInView();
-    int height = CCDirector::sharedDirector()->getWinSize().height;//cocos2d::CCDirector::sharedDirector()->getOpenGLView()->getDesignResolutionSize().height;
+    Vec2 pos = touch->getPreviousLocationInView();
+    int height = Director::getInstance()->getWinSize().height;//cocos2d::Director::getInstance()->getOpenGLView()->getDesignResolutionSize().height;
     pos.y = height - pos.y;
-    //pos = ccpSub(pos, SceneSwitcher::sharedSwitcher()->getOrigin());
+    //pos -= SceneSwitcher::sharedSwitcher()->getOrigin();
     return pos;
 }
 
-CCPoint Scene::touchOffset(CCTouch* touch)
+Vec2 Scene::touchOffset(Touch* touch)
 {
-    return CCPoint(Scene::touchPosition(touch).x - Scene::previousTouchPosition(touch).x, Scene::touchPosition(touch).y - Scene::previousTouchPosition(touch).y);
+    return Vec2(Scene::touchPosition(touch).x - Scene::previousTouchPosition(touch).x, Scene::touchPosition(touch).y - Scene::previousTouchPosition(touch).y);
 }
 
 void Scene::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event)
@@ -477,7 +477,7 @@ int Scene::getFrameNumber()
     return frameNumber;
 }
 
-Image* Scene::getButtonAtPosition(CCPoint position, bool state)
+Image* Scene::getButtonAtPosition(Vec2 position, bool state)
 {
     Image* target = NULL;
     CCArray* objects = GraphicLayer::sharedLayer()->allVisibleObjectsAtPosition(position);

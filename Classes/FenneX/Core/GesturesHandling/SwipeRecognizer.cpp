@@ -54,19 +54,19 @@ void SwipeRecognizer::init()
 
 
 
-bool SwipeRecognizer::onTouchBegan(CCTouch *touch, CCEvent *pEvent)
+bool SwipeRecognizer::onTouchBegan(Touch *touch, Event *pEvent)
 {
     touchStart->setObject(Fcreate(TIME), touch->getID());
     touchInitialPosition.insert(std::make_pair(touch->getID(), Scene::touchPosition(touch)));
     return true;
 }
 
-void SwipeRecognizer::onTouchMoved(CCTouch *touch, CCEvent *pEvent)
+void SwipeRecognizer::onTouchMoved(Touch *touch, Event *pEvent)
 {
     
 }
 
-void SwipeRecognizer::onTouchEnded(CCTouch *touch, CCEvent *pEvent)
+void SwipeRecognizer::onTouchEnded(Touch *touch, Event *pEvent)
 {
 #if VERBOSE_TOUCH_RECOGNIZERS
     CCLOG("linked ? %s", mainLinker->linkedObjectOf(touch) == NULL ? "yes" : "no");
@@ -78,8 +78,8 @@ void SwipeRecognizer::onTouchEnded(CCTouch *touch, CCEvent *pEvent)
        && mainLinker->linkedObjectOf(touch) == NULL
        && touchStart->objectForKey(touch->getID()) != NULL)
     {
-        CCPoint initialPosition = touchInitialPosition.at(touch->getID());
-        CCPoint currentPosition = Scene::touchPosition(touch);
+        Vec2 initialPosition = touchInitialPosition.at(touch->getID());
+        Vec2 currentPosition = Scene::touchPosition(touch);
         if(fabsf(initialPosition.x - currentPosition.x) >= minMovement * RESOLUTION_MULTIPLIER &&
            fabsf(initialPosition.y - currentPosition.y) <= fabsf(initialPosition.x - currentPosition.x) &&
            fabsf(initialPosition.x - currentPosition.x) > fabsf(initialPosition.y - currentPosition.y) &&
@@ -104,7 +104,7 @@ void SwipeRecognizer::cleanTouches()
     touchInitialPosition.clear();
 }
 
-void SwipeRecognizer::cancelRecognitionForTouch(CCTouch* touch)
+void SwipeRecognizer::cancelRecognitionForTouch(Touch* touch)
 {
     touchStart->removeObjectForKey(touch->getID());
     touchInitialPosition.erase(touch->getID());

@@ -31,26 +31,26 @@ THE SOFTWARE.
 USING_NS_CC;
 
 NS_FENNEX_BEGIN
-class TouchLinker : public CCObject
+class TouchLinker : public Ref
 {
 public:
     TouchLinker();
     ~TouchLinker();
     
     //call record on touchBegin if it should be used by recognizers. Any linkTouch will also record the touch if it's not already done.
-    void recordTouch(CCTouch* touch);
+    void recordTouch(Touch* touch);
     
     //call remove on touchEnded/Cancelled if it was recorded (any touch can safely be passsed)
-    void removeTouch(CCTouch* touch);
+    void removeTouch(Touch* touch);
     
-    void linkTouch(CCTouch* touch, CCObject* object);
-    bool isTouchLinkedTo(CCTouch* touch, CCObject* object);
-    CCObject* linkedObjectOf(CCTouch* touch);
-    CCArray* touchesLinkedTo(CCObject* object);
-    void unlinkTouch(CCTouch* touch);
+    void linkTouch(Touch* touch, Ref* object);
+    bool isTouchLinkedTo(Touch* touch, Ref* object);
+    Ref* linkedObjectOf(Touch* touch);
+    CCArray* touchesLinkedTo(Ref* object);
+    void unlinkTouch(Touch* touch);
     
     //return the touches which were unlinked
-    CCArray* unlinkObject(CCObject* object);
+    CCArray* unlinkObject(Ref* object);
     
     //return all touches, even unlinked ones
     CCArray* allTouches();

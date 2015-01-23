@@ -27,15 +27,15 @@ THE SOFTWARE.
 #include "Shorteners.h"
 
 NS_FENNEX_BEGIN
-const CCPoint& RawObject::getPosition()
+const Vec2& RawObject::getPosition()
 {
     return this->getNode()->getPosition();
 }
-void RawObject::setPosition(const CCPoint& newPosition)
+void RawObject::setPosition(const Vec2& newPosition)
 {
     this->getNode()->setPosition(newPosition);
 }
-const CCSize& RawObject::getSize()
+const Size& RawObject::getSize()
 {
     return this->getNode()->getContentSize();
 }
@@ -78,7 +78,7 @@ CCDictionary* RawObject::getEventInfos()
     return infos;
 }
 
-void RawObject::setEventInfo(CCObject* obj, std::string key)
+void RawObject::setEventInfo(Ref* obj, std::string key)
 {
     eventInfos->setObject(obj, key);
 }
@@ -86,7 +86,7 @@ void RawObject::setEventInfo(CCObject* obj, std::string key)
 void RawObject::addEventInfos(CCDictionary* infos)
 {
     CCArray* keys = infos->allKeys();
-    CCObject* keyObj;
+    Ref* keyObj;
     CCARRAY_FOREACH(keys, keyObj)
     {
         std::string key = ((CCString*)keyObj)->getCString();
@@ -119,7 +119,7 @@ RawObject::~RawObject()
     eventInfos->release();
 }
 
-bool RawObject::collision(CCPoint point)
+bool RawObject::collision(Vec2 point)
 {
     if(point.x >= this->getPosition().x - this->getSize().width * this->getNode()->getAnchorPoint().x  * this->getScaleX()
        && point.x <= this->getPosition().x + this->getSize().width * (1-this->getNode()->getAnchorPoint().x)  * this->getScaleX()
@@ -131,7 +131,7 @@ bool RawObject::collision(CCPoint point)
     return false;
 }
 
-bool RawObject::collision(CCRect rect)
+bool RawObject::collision(Rect rect)
 {
     if(rect.origin.x + rect.size.width / 2 * this->getScale() >= this->getPosition().x - this->getSize().width / 2 * this->getScaleX()
        && rect.origin.x - rect.size.width / 2 * this->getScale() < this->getPosition().x + this->getSize().width * (1-this->getNode()->getAnchorPoint().x) * this->getScaleX()
@@ -143,7 +143,7 @@ bool RawObject::collision(CCRect rect)
     return false;
 }
 
-bool RawObject::containsRect(CCRect rect)
+bool RawObject::containsRect(Rect rect)
 {
     if(rect.origin.x - rect.size.width / 2 >= this->getPosition().x - this->getSize().width * this->getNode()->getAnchorPoint().x * this->getScaleX()
        && rect.origin.x + rect.size.width /2 < this->getPosition().x + this->getSize().width * (1-this->getNode()->getAnchorPoint().x) * this->getScaleX()

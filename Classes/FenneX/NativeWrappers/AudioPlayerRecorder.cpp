@@ -81,10 +81,10 @@ void AudioPlayerRecorder::stopAll()
     }
 }
 
-void AudioPlayerRecorder::playObject(CCObject* obj)
+void AudioPlayerRecorder::playObject(Ref* obj)
 {
     CCDictionary* infos = (CCDictionary*)obj;
-    CCObject* linkTo = infos->objectForKey("Object");
+    Ref* linkTo = infos->objectForKey("Object");
     CCString* file = (CCString*) infos->objectForKey("File");
     if(linkTo == NULL)
     {
@@ -105,7 +105,7 @@ void AudioPlayerRecorder::playObject(CCObject* obj)
     }
 }
 
-void AudioPlayerRecorder::recordObject(CCObject* obj)
+void AudioPlayerRecorder::recordObject(Ref* obj)
 {
     CCAssert(recordEnabled, "Record is disabled, enable it before starting to record");
     if(this->isPlaying())
@@ -113,7 +113,7 @@ void AudioPlayerRecorder::recordObject(CCObject* obj)
         this->stopPlaying();
     }
     CCDictionary* infos = (CCDictionary*)obj;
-    CCObject* linkTo = infos->objectForKey("Object");
+    Ref* linkTo = infos->objectForKey("Object");
     CCString* oldFile = (CCString*) infos->objectForKey("File");
     if(linkTo == NULL)
     {
@@ -144,7 +144,7 @@ void AudioPlayerRecorder::recordObject(CCObject* obj)
     }
 }
 
-CCObject* AudioPlayerRecorder::getLink()
+Ref* AudioPlayerRecorder::getLink()
 {
     return link;
 }
@@ -182,7 +182,7 @@ void AudioPlayerRecorder::setPath(std::string value)
     }
 }
 
-void AudioPlayerRecorder::setLink(CCObject* value)
+void AudioPlayerRecorder::setLink(Ref* value)
 {
     if(value != link)
     {

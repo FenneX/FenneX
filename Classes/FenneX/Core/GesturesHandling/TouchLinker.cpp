@@ -39,15 +39,15 @@ TouchLinker::~TouchLinker()
     touches->release();
 }
 
-void TouchLinker::recordTouch(CCTouch* touch)
+void TouchLinker::recordTouch(Touch* touch)
 {
     if(!touches->containsObject(touch))
     {
-        CCObject* obj;
+        Ref* obj;
         bool shouldAdd = true;
         CCARRAY_FOREACH(touches, obj)
         {
-            CCTouch* otherTouch = (CCTouch*)obj;
+            Touch* otherTouch = (Touch*)obj;
             if(otherTouch->getID() == touch->getID())
             {
                 shouldAdd = false;
@@ -60,7 +60,7 @@ void TouchLinker::recordTouch(CCTouch* touch)
     }
 }
 
-void TouchLinker::removeTouch(CCTouch* touch)
+void TouchLinker::removeTouch(Touch* touch)
 {
     if(touches->containsObject(touch))
     {
@@ -72,7 +72,7 @@ void TouchLinker::removeTouch(CCTouch* touch)
     }
 }
 
-void TouchLinker::linkTouch(CCTouch* touch, CCObject* object)
+void TouchLinker::linkTouch(Touch* touch, Ref* object)
 {
     if(touch != NULL && object != NULL)
     {
@@ -81,7 +81,7 @@ void TouchLinker::linkTouch(CCTouch* touch, CCObject* object)
     }
 }
 
-bool TouchLinker::isTouchLinkedTo(CCTouch* touch, CCObject* object)
+bool TouchLinker::isTouchLinkedTo(Touch* touch, Ref* object)
 {
     if(touchLinker->objectForKey(touch->getID()) == object)
     {
@@ -90,18 +90,18 @@ bool TouchLinker::isTouchLinkedTo(CCTouch* touch, CCObject* object)
     return false;
 }
 
-CCObject* TouchLinker::linkedObjectOf(CCTouch* touch)
+Ref* TouchLinker::linkedObjectOf(Touch* touch)
 {
     return touchLinker->objectForKey(touch->getID());
 }
 
-CCArray* TouchLinker::touchesLinkedTo(CCObject* object)
+CCArray* TouchLinker::touchesLinkedTo(Ref* object)
 {
-    CCObject* obj;
+    Ref* obj;
     CCArray* linked = CCArray::create();
     CCARRAY_FOREACH(touches, obj)
     {
-        CCTouch* touch = (CCTouch*)obj;
+        Touch* touch = (Touch*)obj;
         if(touchLinker->objectForKey(touch->getID()) == object)
         {
             linked->addObject(touch);
@@ -110,18 +110,18 @@ CCArray* TouchLinker::touchesLinkedTo(CCObject* object)
     return linked;
 }
 
-void TouchLinker::unlinkTouch(CCTouch* touch)
+void TouchLinker::unlinkTouch(Touch* touch)
 {
     touchLinker->removeObjectForKey(touch->getID());
 }
 
-CCArray* TouchLinker::unlinkObject(CCObject* object)
+CCArray* TouchLinker::unlinkObject(Ref* object)
 {
-    CCObject* obj;
+    Ref* obj;
     CCArray* linked = CCArray::create();
     CCARRAY_FOREACH(touches, obj)
     {
-        CCTouch* touch = (CCTouch*)obj;
+        Touch* touch = (Touch*)obj;
         if(touchLinker->objectForKey(touch->getID()) == object)
         {
             touchLinker->removeObjectForKey(touch->getID());
@@ -138,12 +138,12 @@ CCArray* TouchLinker::allTouches()
 
 CCArray* TouchLinker::allObjects()
 {
-    CCObject* obj;
+    Ref* obj;
     CCArray* objects = CCArray::create();
     CCARRAY_FOREACH(touches, obj)
     {
-        CCTouch* touch = (CCTouch*)obj;
-        CCObject* linked = touchLinker->objectForKey(touch->getID());
+        Touch* touch = (Touch*)obj;
+        Ref* linked = touchLinker->objectForKey(touch->getID());
         if(linked != NULL && !objects->containsObject(linked))
         {
             objects->addObject(linked);

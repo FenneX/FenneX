@@ -37,21 +37,21 @@ class Image : public RawObject
     CC_SYNTHESIZE_STRING_READONLY(imageFile, ImageFile);
 public:
     
-    CCRect getBoundingBox();
-    virtual CCNode* getNode();
+    cocos2d::Rect getBoundingBox();
+    virtual Node* getNode();
     
     Image();
-    Image(const char* filename, CCPoint location);
-    Image(const char* filename, CCPoint location, int capacity);
-    Image(CCSprite* node);
+    Image(const char* filename, Vec2 location);
+    Image(const char* filename, Vec2 location, int capacity);
+    Image(Sprite* node);
     //TODO : add init from pixels data
     ~Image();
     
     //TODO : add more detailed animation methods
     //The first method is there to easily run a full animation. The 2 other to do custom things like delay/repeat/show/hide etc ...
     void runFullAnimation(float delay, bool invert = false); //delay is the delay between frames
-    CCAnimate* getFullAnimation(float delay, bool invert = false);
-    CCNode* getAnimationTarget();
+    Animate* getFullAnimation(float delay, bool invert = false);
+    Node* getAnimationTarget();
     
     virtual void update(float deltaTime);
     
@@ -61,22 +61,22 @@ public:
     /*replace the Image texture using a new file
      filename : the new image to be loaded (without extension)
      keepExactSize : will fit the new image inside the old one, by changing the Image scale
-     async : will defer the actual replace to next frame, and the texture will be loaded in async using CCTextureCache
+     async : will defer the actual replace to next frame, and the texture will be loaded in async using TextureCache
      keepRatio : will crop the new image to have the same ratio as the previous one. Use keepExactSize to also have the same exact size
      */
     void replaceTexture(const char* filename, bool keepExactSize = false, bool async = false, bool keepRatio = false);
     void textureLoaded(Texture2D* tex);
     bool isAnimation();
-    bool collision(CCPoint point); //Overload for spritesheet, which behaves differently
+    bool collision(Vec2 point); //Overload for spritesheet, which behaves differently
 protected:
-    //the actual CCSprite which will perform cocos2d actions
-    CCSprite* delegate;
+    //the actual Sprite which will perform cocos2d actions
+    Sprite* delegate;
     
     //the animation action
-    CCAction* runningAnimation;
+    Action* runningAnimation;
     
     //NULL if the object is not an animation
-    CCSpriteBatchNode* spriteSheet;
+    SpriteBatchNode* spriteSheet;
     
     //NULL if the object is not an animation, it is equal to animated sprites filenames in the plist
     CCArray* spritesName;

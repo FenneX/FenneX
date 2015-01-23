@@ -37,19 +37,19 @@ USING_NS_CC;
 #define SCENE_SWITCH_OFFSET 0.1f
 
 NS_FENNEX_BEGIN
-class SceneSwitcher : public CCObject
+class SceneSwitcher : public Ref
 {
     CC_SYNTHESIZE_READONLY(SceneName, currentSceneName, CurrentSceneName);
     CC_SYNTHESIZE_READONLY(Scene*, currentScene, CurrentScene);
     CC_SYNTHESIZE(float, scale, Scale);
     //CC_SYNTHESIZE(float, cocosScale, CocosScale);
-    CC_SYNTHESIZE(CCPoint, origin, Origin);
+    CC_SYNTHESIZE(Vec2, origin, Origin);
     
 public:
     static SceneSwitcher* sharedSwitcher();
     void initWithScene(SceneName nextScene, CCDictionary* param = NULL);
     void trySceneSwitch(float deltaTime = 0);
-    void planSceneSwitch(CCObject *obj);
+    void planSceneSwitch(Ref *obj);
     //A cancel will ignore next scene and directly jump to the queued scene
     //You can only cancel one scene per frame
     void cancelSceneSwitch();

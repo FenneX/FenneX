@@ -40,7 +40,7 @@ NS_FENNEX_BEGIN
  eventName as CCString
  scene as int (will auto-set eventName to PlanSceneSwitch)
  */
-class CustomNode : public CCNode, public CustomBaseNode
+class CustomNode : public Node, public CustomBaseNode
 {
 public:
     CCB_STATIC_NEW_AUTORELEASE_OBJECT_WITH_INIT_METHOD(CustomNode, create);

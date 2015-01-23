@@ -52,7 +52,7 @@ void SelectionRecognizer::init()
 }
 
 
-bool SelectionRecognizer::onTouchBegan(CCTouch *touch, CCEvent *pEvent)
+bool SelectionRecognizer::onTouchBegan(Touch *touch, Event *pEvent)
 {
     storedTouches.insert(std::make_pair(touch->getID(), Scene::touchPosition(touch)));
     performSelectorAfterDelay(this, callfuncO_selector(SelectionRecognizer::checkForSelection), duration, touch);
@@ -60,12 +60,12 @@ bool SelectionRecognizer::onTouchBegan(CCTouch *touch, CCEvent *pEvent)
     return true;
 }
 
-void SelectionRecognizer::onTouchMoved(CCTouch *touch, CCEvent *pEvent)
+void SelectionRecognizer::onTouchMoved(Touch *touch, Event *pEvent)
 {
     if(isTouchInSelection(touch))
     {
-        CCPoint touchOrigin = storedTouches.at(touch->getID());
-        if(ccpDistance(Scene::touchPosition(touch), touchOrigin) > maxMovement)
+        Vec2 touchOrigin = storedTouches.at(touch->getID());
+        if(Scene::touchPosition(touch).getDistance(touchOrigin) > maxMovement)
         {
             cancelSelectionForTouch(touch);
         }
@@ -76,7 +76,7 @@ void SelectionRecognizer::onTouchMoved(CCTouch *touch, CCEvent *pEvent)
     }
 }
 
-void SelectionRecognizer::onTouchEnded(CCTouch *touch, CCEvent *pEvent)
+void SelectionRecognizer::onTouchEnded(Touch *touch, Event *pEvent)
 {
     cancelSelectionForTouch(touch);
 }
@@ -86,12 +86,12 @@ void SelectionRecognizer::cleanTouches()
     storedTouches.clear();
 }
 
-bool SelectionRecognizer::isTouchInSelection(CCTouch *touch)
+bool SelectionRecognizer::isTouchInSelection(Touch *touch)
 {
     return storedTouches.find(touch->getID()) != storedTouches.end();
 }
 
-void SelectionRecognizer::cancelSelectionForTouch(CCTouch* touch)
+void SelectionRecognizer::cancelSelectionForTouch(Touch* touch)
 {
     if(isTouchInSelection(touch))
     {
@@ -100,16 +100,16 @@ void SelectionRecognizer::cancelSelectionForTouch(CCTouch* touch)
     }
 }
 
-void SelectionRecognizer::checkForSelection(CCObject* obj)
+void SelectionRecognizer::checkForSelection(Ref* obj)
 {
-    CCTouch* touch = (CCTouch*)obj;
+    Touch* touch = (Touch*)obj;
     //the touch could have been discarded in the meantime
     if(isTouchInSelection(touch))
     {
-        CCPoint currentLocation = Scene::touchPosition(touch);
-        CCPoint touchOrigin = storedTouches.at(touch->getID());
-        CCObject* target = mainLinker->linkedObjectOf(touch);
-        if(ccpDistance(Scene::touchPosition(touch), touchOrigin) <= maxMovement)
+        Vec2 currentLocation = Scene::touchPosition(touch);
+        Vec2 touchOrigin = storedTouches.at(touch->getID());
+        Ref* target = mainLinker->linkedObjectOf(touch);
+        if(Scene::touchPosition(touch).getDistance(touchOrigin) <= maxMovement)
         {
             CCNotificationCenter::sharedNotificationCenter()->postNotification("SelectionRecognized", DcreateP(touch, Screate("Touch"), target, Screate("Target"), NULL));
         }

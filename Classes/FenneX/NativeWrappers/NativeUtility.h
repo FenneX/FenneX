@@ -96,7 +96,7 @@ static inline void notifyVolumeChanged()
 }
 
 inline void notifyMemoryWarning(){
-	AppDelegate* delegate = (AppDelegate*)cocos2d::CCApplication::sharedApplication();
+	AppDelegate* delegate = (AppDelegate*)cocos2d::Application::getInstance();
 #warning : maybe this should be async to run on main thread ?
 	delegate->applicationDidReceiveMemoryWarning();
 }

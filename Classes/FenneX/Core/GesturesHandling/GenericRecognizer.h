@@ -33,21 +33,21 @@ USING_NS_CC;
 
 NS_FENNEX_BEGIN
 //Provides some basic features for superclass
-class GenericRecognizer : public CCObject
+class GenericRecognizer : public Ref
 {
     //the mainLinker used to ignore some touch (Selection) or group gestures by target (Pinch and Scrolling)
     CC_SYNTHESIZE(TouchLinker*, mainLinker, Linker);
     
 public:    
-    virtual bool onTouchBegan(CCTouch *pTouch, CCEvent *pEvent) { CC_UNUSED_PARAM(pTouch); CC_UNUSED_PARAM(pEvent);return false;};
-    virtual void onTouchMoved(CCTouch *pTouch, CCEvent *pEvent) {CC_UNUSED_PARAM(pTouch); CC_UNUSED_PARAM(pEvent);}
-    virtual void onTouchEnded(CCTouch *pTouch, CCEvent *pEvent) {CC_UNUSED_PARAM(pTouch); CC_UNUSED_PARAM(pEvent);}
-    virtual void onTouchCancelled(CCTouch *pTouch, CCEvent *pEvent) {CC_UNUSED_PARAM(pTouch); CC_UNUSED_PARAM(pEvent);}
+    virtual bool onTouchBegan(Touch *pTouch, Event *pEvent) { CC_UNUSED_PARAM(pTouch); CC_UNUSED_PARAM(pEvent);return false;};
+    virtual void onTouchMoved(Touch *pTouch, Event *pEvent) {CC_UNUSED_PARAM(pTouch); CC_UNUSED_PARAM(pEvent);}
+    virtual void onTouchEnded(Touch *pTouch, Event *pEvent) {CC_UNUSED_PARAM(pTouch); CC_UNUSED_PARAM(pEvent);}
+    virtual void onTouchCancelled(Touch *pTouch, Event *pEvent) {CC_UNUSED_PARAM(pTouch); CC_UNUSED_PARAM(pEvent);}
     
     //Clean all ongoing touches from the Recognizer. You should call it when stopping using it, so that next session doesn't have ghost touches.
     virtual void cleanTouches() {};
 protected:
-    bool isInLinker(CCTouch* touch);
+    bool isInLinker(Touch* touch);
     CCArray* unlinkedTouches();
 };
 NS_FENNEX_END

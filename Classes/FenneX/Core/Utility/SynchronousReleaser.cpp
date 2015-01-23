@@ -59,7 +59,7 @@ SynchronousReleaser::~SynchronousReleaser()
 void SynchronousReleaser::emptyReleasePool()
 {
 #if VERBOSE_DEALLOC
-    CCObject* obj;
+    Ref* obj;
     CCARRAY_FOREACH(releasePool, obj)
     {
         if(obj->getReferenceCount() != 1)
@@ -72,7 +72,7 @@ void SynchronousReleaser::emptyReleasePool()
     releasePool->removeAllObjects();
 }
 
-void SynchronousReleaser::addObjectToReleasePool(CCObject* obj)
+void SynchronousReleaser::addObjectToReleasePool(Ref* obj)
 {
     if(obj != NULL && !releasePool->containsObject(obj))
     {

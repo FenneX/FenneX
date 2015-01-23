@@ -26,13 +26,13 @@ THE SOFTWARE.
 #include "Shorteners.h"
 
 NS_FENNEX_BEGIN
-void CustomScaleSpriteLoader::onHandlePropTypeSpriteFrame(CCNode * pNode, CCNode * pParent, const char* pPropertyName, CCSpriteFrame * pCCSpriteFrame, CCBReader * pCCBReader)
+void CustomScaleSpriteLoader::onHandlePropTypeSpriteFrame(Node * pNode, Node * pParent, const char* pPropertyName, SpriteFrame * pSpriteFrame, CCBReader * pCCBReader)
 {
     if(strcmp(pPropertyName, "spriteFrame") == 0)
     {
-        ((CustomScaleSprite*)pNode)->getParameters()->setObject(Screate(CCTextureCache::sharedTextureCache()->getKeyForTexture(pCCSpriteFrame->getTexture())), "spriteFrame");
+        ((CustomScaleSprite*)pNode)->getParameters()->setObject(Screate(Director::getInstance()->getTextureCache()->getKeyForTexture(pSpriteFrame->getTexture())), "spriteFrame");
     }
     
-    Scale9SpriteLoader::onHandlePropTypeSpriteFrame(pNode, pParent, pPropertyName, pCCSpriteFrame, pCCBReader);
+    Scale9SpriteLoader::onHandlePropTypeSpriteFrame(pNode, pParent, pPropertyName, pSpriteFrame, pCCBReader);
 }
 NS_FENNEX_END

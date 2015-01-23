@@ -33,14 +33,14 @@ USING_NS_CC;
 #include "FenneXMacros.h"
 
 NS_FENNEX_BEGIN
-class Inertia : public CCObject
+class Inertia : public Ref
 {
-    CC_SYNTHESIZE(CCPoint, offset, Offset);
-    CC_SYNTHESIZE(CCPoint, position, Position);
+    CC_SYNTHESIZE(Vec2, offset, Offset);
+    CC_SYNTHESIZE(Vec2, position, Position);
     CC_SYNTHESIZE(bool, vertical, Vertical);
 public:
-    Inertia(CCPoint offset, CCPoint position, bool vertical);
-    static Inertia* create(CCPoint offset, CCPoint position, bool vertical);
+    Inertia(Vec2 offset, Vec2 position, bool vertical);
+    static Inertia* create(Vec2 offset, Vec2 position, bool vertical);
     
 protected:
 };

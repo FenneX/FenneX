@@ -37,14 +37,14 @@ NS_FENNEX_BEGIN
 class Panel : public RawObject
 {
 public:
-    virtual CCNode* getNode();
+    virtual Node* getNode();
     
     //WARNING : experimental method, used to replace the standard node by a ClippingNode
-    void setNode(CCNode* node);
+    void setNode(Node* node);
     void setClippingNode(); //Will replace itself by a ClippingNode with a DrawNode stencil using ContentSize
     
-    Panel(const char* panelName, CCPoint location);
-    Panel(CCNode* node, const char* panelName = NULL);
+    Panel(const char* panelName, Vec2 location);
+    Panel(Node* node, const char* panelName = NULL);
     ~Panel();
     
     void addChild(RawObject* child);
@@ -58,13 +58,13 @@ public:
     
     virtual void update(float deltaTime);
     
-    virtual bool collision(CCPoint point);
-    virtual bool collision(CCRect rect);
-    virtual bool containsRect(CCRect rect);
+    virtual bool collision(Vec2 point);
+    virtual bool collision(cocos2d::Rect rect);
+    virtual bool containsRect(cocos2d::Rect rect);
     
 protected:
     //the actual rendering layer for graphic objects stored
-    CCNode* delegate;
+    Node* delegate;
     
     //Array containing graphic objects
     CCArray* children;

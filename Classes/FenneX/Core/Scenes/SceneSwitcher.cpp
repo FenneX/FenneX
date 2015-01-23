@@ -60,7 +60,7 @@ void SceneSwitcher::init()
     isEventFired = false;
     keyboardLock = -1;
     delayReplace = 0;
-    CCDirector::sharedDirector()->setNotificationNode(CCNode::create());
+    Director::getInstance()->setNotificationNode(Node::create());
     CCNotificationCenter::sharedNotificationCenter()->addObserver(this, callfuncO_selector(SceneSwitcher::planSceneSwitch), "PlanSceneSwitch", NULL);
 }
 
@@ -167,7 +167,7 @@ void SceneSwitcher::takeQueuedScene()
     queuedParam = NULL;
 }
 
-void SceneSwitcher::planSceneSwitch(CCObject *obj)
+void SceneSwitcher::planSceneSwitch(Ref *obj)
 {
     CCDictionary* infos = (CCDictionary*)obj;
     if(!processingSwitch && nextScene == None)
@@ -242,13 +242,13 @@ void SceneSwitcher::replaceScene()
         }
         CCAssert(nextScene != None, "in replaceScene in SceneSwitcher cannot go to scene None");
         currentScene = Scene::createScene(nextScene, nextSceneParam);
-        if(CCDirector::sharedDirector()->getRunningScene() == NULL)
+        if(Director::getInstance()->getRunningScene() == NULL)
         {
-            CCDirector::sharedDirector()->runWithScene(currentScene->getCocosScene());
+            Director::getInstance()->runWithScene(currentScene->getCocosScene());
         }
         else
         {
-            CCDirector::sharedDirector()->replaceScene(currentScene->getCocosScene());
+            Director::getInstance()->replaceScene(currentScene->getCocosScene());
         }
         if(nextSceneParam != NULL)
         {

@@ -28,12 +28,12 @@ THE SOFTWARE.
 #include "AppMacros.h"
 
 NS_FENNEX_BEGIN
-CCNode* Panel::getNode()
+Node* Panel::getNode()
 {
     return delegate;
 }
 
-void Panel::setNode(CCNode* node)
+void Panel::setNode(Node* node)
 {
     node->setPosition(delegate->getPosition());
     node->setScaleX(delegate->getScaleX());
@@ -48,7 +48,7 @@ void Panel::setNode(CCNode* node)
     delegate->removeAllChildrenWithCleanup(false);
     for(int i = 0; i < childrenNode->count(); i++)
     {
-        node->addChild((CCNode*)childrenNode->objectAtIndex(i));
+        node->addChild((Node*)childrenNode->objectAtIndex(i));
     }
     delegate->getParent()->addChild(node);
     delegate->removeFromParentAndCleanup(true);
@@ -65,9 +65,9 @@ void Panel::setClippingNode()
     clipNode->setSquareStencil();
 }
 
-Panel::Panel(const char* panelName, CCPoint location)
+Panel::Panel(const char* panelName, Vec2 location)
 {
-    delegate = CCNode::create();
+    delegate = Node::create();
     delegate->retain();
     delegate->setPosition(location);
     children = CCArray::create();
@@ -75,7 +75,7 @@ Panel::Panel(const char* panelName, CCPoint location)
     name = panelName;
 }
 
-Panel::Panel(CCNode* node, const char* panelName)
+Panel::Panel(Node* node, const char* panelName)
 {
     name = panelName != NULL ? panelName : "Panel";
     delegate = node;
@@ -105,7 +105,7 @@ void Panel::addChild(RawObject* child)
     }
     else
     {
-        CCLOG("Warning : child %s doesn't have a CCNode, you shouldn't try to place it on a panel", child->getName());
+        CCLOG("Warning : child %s doesn't have a Node, you shouldn't try to place it on a panel", child->getName());
     }
 }
 
@@ -123,7 +123,7 @@ void Panel::removeChild(RawObject* child)
     }
     else
     {
-        CCLOG("Warning : child %s doesn't have a CCNode, you shouldn't try to remove it from panel", child->getName());
+        CCLOG("Warning : child %s doesn't have a Node, you shouldn't try to remove it from panel", child->getName());
     }
 }
 
@@ -145,7 +145,7 @@ void Panel::update(float deltaTime)
     
 }
 
-bool Panel::collision(CCPoint point)
+bool Panel::collision(Vec2 point)
 {
     if(this->getSize().width == 0 && this->getSize().height == 0)
     {
@@ -171,7 +171,7 @@ bool Panel::collision(CCPoint point)
     return RawObject::collision(point);
 }
 
-bool Panel::collision(CCRect rect)
+bool Panel::collision(Rect rect)
 {
     if(this->getSize().width == 0 && this->getSize().height == 0)
     {
@@ -180,7 +180,7 @@ bool Panel::collision(CCRect rect)
     return RawObject::collision(rect);
 }
 
-bool Panel::containsRect(CCRect rect)
+bool Panel::containsRect(Rect rect)
 {
     
     if(this->getSize().width == 0 && this->getSize().height == 0)

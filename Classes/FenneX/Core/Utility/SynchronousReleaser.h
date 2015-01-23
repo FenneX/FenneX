@@ -40,7 +40,7 @@ public:
     ~SynchronousReleaser();
     
     void emptyReleasePool();
-    void addObjectToReleasePool(CCObject* obj);
+    void addObjectToReleasePool(Ref* obj);
 protected:
     void init();
     CCArray* releasePool;

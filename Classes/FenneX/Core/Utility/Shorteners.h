@@ -35,18 +35,18 @@ NS_FENNEX_BEGIN
 #define isKindOfClass(obj,class) (dynamic_cast<class*>(obj) != NULL)
 
 //Compensate for scale factor for image picked by user
-#define AUTO_SCALE (Fcreate(CCDirector::sharedDirector()->getContentScaleFactor() ))
+#define AUTO_SCALE (Fcreate(Director::getInstance()->getContentScaleFactor() ))
 
 #define IFEXIST(obj) if(obj != NULL) (obj)
 
 #define REAL_SCALE(obj) (Fcreate(obj \
-* CCDirector::sharedDirector()->getContentScaleFactor() ))
+* Director::getInstance()->getContentScaleFactor() ))
 
 #define TOINT(obj) (((CCInteger*)obj)->getValue())
 #define TOFLOAT(obj) (((CCFloat*)obj)->getValue())
 #define TOBOOL(obj) (((CCBool*)obj)->getValue())
 #define TOCSTRING(obj) (((CCString*)obj)->getCString())
-#define TOPOINT(obj) ccp(((TMPPoint*)obj)->x, ((TMPPoint*)obj)->y)
+#define TOPOINT(obj) Vec2(((TMPPoint*)obj)->x, ((TMPPoint*)obj)->y)
 
 /* creation shorteners : since those are widly used, shortening the name makes sense (much like ccp), as well as uniformizing the format
  * format *create where * is the type
@@ -72,23 +72,23 @@ NS_FENNEX_BEGIN
 
 CCString* getResourcesPath(const char* file);
 
-CCSize* sizeCreate(float width = 0, float height = 0);
+cocos2d::Size* sizeCreate(float width = 0, float height = 0);
 //note : keys have to be passed as CCString, unfortunately. Must be NULL terminated
-CCDictionary* createDictionaryWithParameters(CCObject* firstObject, ... );
-CCArray* createArrayWithParameters(CCObject* firstObject, ... );
+CCDictionary* createDictionaryWithParameters(Ref* firstObject, ... );
+CCArray* createArrayWithParameters(Ref* firstObject, ... );
 
 //perform a selector after a delay. All pending selector will be cancelled during a scene switch (it's assumed most of them are tied to the current Scene)
-void performSelectorAfterDelay(CCObject* target, SEL_CallFuncO selector, float delay, CCObject* object = NULL);
-bool cancelSelector(CCObject* target, SEL_CallFuncO selector);
-void performNotificationAfterDelay(const char* name, CCObject* obj, float delay);
+void performSelectorAfterDelay(Ref* target, SEL_CallFuncO selector, float delay, Ref* object = NULL);
+bool cancelSelector(Ref* target, SEL_CallFuncO selector);
+void performNotificationAfterDelay(const char* name, Ref* obj, float delay);
 
-static inline CCSize
-CCSizeMult(const CCSize& v, const float s)
+static inline cocos2d::Size
+SizeMult(const cocos2d::Size& v, const float s)
 {
-    return CCSizeMake(v.width*s, v.height*s);
+    return cocos2d::Size(v.width*s, v.height*s);
 }
 
-static inline bool isColorEqual(const ccColor3B left, const ccColor3B right)
+static inline bool isColorEqual(const Color3B left, const Color3B right)
 {
     return left.r == right.r && left.g == right.g && left.b == right.b;
 }
@@ -108,11 +108,11 @@ static inline float getTimeDifferenceMS(timeval& start, timeval& end)
              +end.tv_usec) - start.tv_usec) / 1000.0f);
 }
 
-class Shorteners : public CCObject
+class Shorteners : public Ref
 {
 public:
     static Shorteners* sharedClass(void);
-    //Reserved for internal usage, need "_NotificationName" as a CCString and "_Infos" as a CCObject
+    //Reserved for internal usage, need "_NotificationName" as a CCString and "_Infos" as a Ref
     void delayedPostNotification(Ref* obj);
 private:
 };

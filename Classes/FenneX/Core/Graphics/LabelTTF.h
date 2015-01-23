@@ -43,7 +43,7 @@ class LabelTTF : public RawObject
 {
     CC_SYNTHESIZE(LabelFitType, fitType, FitType);
 public:
-    CCRect getBoundingBox();
+    cocos2d::Rect getBoundingBox();
     const char* getLabelValue();
     void setLabelValue(const char* value, bool async = false);
     
@@ -52,31 +52,31 @@ public:
     float getFontSize();
     void setFontSize(float size);
     
-    virtual CCNode* getNode();
+    virtual Node* getNode();
     
-    void setDimensions(CCSize dimensions);
-    CCSize getDimensions();
+    void setDimensions(cocos2d::Size dimensions);
+    cocos2d::Size getDimensions();
     
     LabelTTF();
     //will try to load filenameLight.fnt before filename.fnt in case there is a light font (which includes less symbols than the full one)
-    LabelTTF(const char* labelString, const char* filename, CCPoint location, CCSize dimensions = CCSizeZero, CCTextAlignment format = kCCTextAlignmentCenter);
+    LabelTTF(const char* labelString, const char* filename, Vec2 location, cocos2d::Size dimensions = cocos2d::Size(0,0), TextHAlignment format = TextHAlignment::CENTER);
     LabelTTF(Label* label);
     ~LabelTTF();
     
     virtual void update(float deltaTime);
     
     CCString* getFullFontFile();
-    CCTextAlignment getAlignment();
+    TextHAlignment getAlignment();
     
 protected:
     //the actual CCLabelBMFont which will perform cocos2d actions
     Label* delegate;
     
-    CCSize realDimensions;
+    cocos2d::Size realDimensions;
     void adjustLabel();
     CCString* fontFile;
     CCString* fullFontFile;
-    CCTextAlignment alignment;
+    TextHAlignment alignment;
     
     std::string loadingValue;
 };

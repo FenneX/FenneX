@@ -32,23 +32,23 @@ USING_NS_CC;
 #include "FenneXMacros.h"
 
 NS_FENNEX_BEGIN
-//use that object to provide a specific CCNode (for example Scale9Sprite)
+//use that object to provide a specific Node (for example ui::Scale9Sprite)
 class CustomObject : public RawObject
 {
 public:
-    CCRect getBoundingBox();
-    virtual CCNode* getNode();
-    virtual void setNode(CCNode* node);
+    cocos2d::Rect getBoundingBox();
+    virtual Node* getNode();
+    virtual void setNode(Node* node);
     
     CustomObject();
-    CustomObject(CCNode* child);
-    CustomObject(CCNode* child, CCPoint location);
+    CustomObject(Node* child);
+    CustomObject(Node* child, Vec2 location);
     ~CustomObject();
     
     
 protected:
-    //the actual CCNode which will perform cocos2d actions
-    CCNode* delegate;
+    //the actual Node which will perform cocos2d actions
+    Node* delegate;
 };
 NS_FENNEX_END
 

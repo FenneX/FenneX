@@ -53,15 +53,15 @@ public:
     CustomBaseNode();
     virtual CCDictionary* getParameters();
 public:
-    virtual SEL_MenuHandler onResolveCCBCCMenuItemSelector(CCObject * pTarget, const char* pSelectorName);
+    virtual SEL_MenuHandler onResolveCCBCCMenuItemSelector(Ref * pTarget, const char* pSelectorName);
     
-    virtual cocos2d::extension::Control::Handler onResolveCCBCCControlSelector(CCObject * pTarget, const char * pSelectorName);
+    virtual cocos2d::extension::Control::Handler onResolveCCBCCControlSelector(Ref * pTarget, const char * pSelectorName);
     
-    virtual bool onAssignCCBMemberVariable(CCObject* pTarget, const char* pMemberVariableName, CCNode* pNode);
+    virtual bool onAssignCCBMemberVariable(Ref* pTarget, const char* pMemberVariableName, Node* pNode);
     
-    virtual void onNodeLoaded(CCNode * pNode, NodeLoader * pNodeLoader);
+    virtual void onNodeLoaded(Node * pNode, NodeLoader * pNodeLoader);
     
-    virtual bool onAssignCCBCustomProperty(CCObject* pTarget, const char* pMemberVariableName, const cocos2d::Value& pCCBValue);
+    virtual bool onAssignCCBCustomProperty(Ref* pTarget, const char* pMemberVariableName, const cocos2d::Value& pCCBValue);
     
     ~CustomBaseNode();
 };

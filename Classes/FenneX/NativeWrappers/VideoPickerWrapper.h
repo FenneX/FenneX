@@ -40,7 +40,7 @@ USING_NS_FENNEX;
 //  <uses-permission android:name="android.permission.CAMERA" />
 
 //Before actually starting a video record, you should show a Preview.
-void startVideoRecordPreview(CCPoint position, CCSize size);
+void startVideoRecordPreview(Vec2 position, cocos2d::Size size);
 void stopVideoRecordPreview();
 //You can start a video recording directly after a Preview. When you stop it, a VideoPicked notify will be thrown
 void startVideoRecording();

@@ -52,32 +52,32 @@ void TapRecognizer::init()
 }
 
 
-bool TapRecognizer::onTouchBegan(CCTouch *touch, CCEvent *pEvent)
+bool TapRecognizer::onTouchBegan(Touch *touch, Event *pEvent)
 {
     touchStart->setObject(Fcreate(TIME), touch->getID());
     touchInitialPosition.insert(std::make_pair(touch->getID(), Scene::touchPosition(touch)));
     return true;
 }
 
-void TapRecognizer::onTouchMoved(CCTouch *touch, CCEvent *pEvent)
+void TapRecognizer::onTouchMoved(Touch *touch, Event *pEvent)
 {
     
 }
 
-void TapRecognizer::onTouchEnded(CCTouch *touch, CCEvent *pEvent)
+void TapRecognizer::onTouchEnded(Touch *touch, Event *pEvent)
 {
 #if VERBOSE_TOUCH_RECOGNIZERS
     CCLOG("linked ? %s", mainLinker->linkedObjectOf(touch) == NULL ? "yes" : "no");
     CCLOG("is in start ? %s", touchStart->objectForKey(touch->getID()) != NULL ? "yes" : "no");
     CCLOG("time ? %s", (TIME - ((CCFloat*)touchStart->objectForKey(touch->getID()))->getValue()) < 2.0 ? "yes" : "no");
-    CCLOG("distance ? %s : real : %f", ccpDistance(Scene::touchPosition(touch), touchInitialPosition->at(touch->getID())) < 20 ? "yes" : "no", ccpDistance(Scene::touchPosition(touch), touchInitialPosition->at(touch->getID())));
+    CCLOG("distance ? %s : real : %f", Scene::touchPosition(touch).getDistance(touchInitialPosition->at(touch->getID())) < 20 ? "yes" : "no", Scene::touchPosition(touch).getDistance(touchInitialPosition->at(touch->getID())));
     CCLOG("initial position : %f, %f, current : %f, %f", touchInitialPosition->at(touch->getID()).x, touchInitialPosition->at(touch->getID()).y, Scene::touchPosition(touch).x, Scene::touchPosition(touch).y);
 #endif
     if(mainLinker != NULL
        //&& mainLinker->linkedObjectOf(touch) == NULL //prevent drag + tap from working at the same time
        && touchStart->objectForKey(touch->getID()) != NULL
        && (TIME - ((CCFloat*)touchStart->objectForKey(touch->getID()))->getValue()) < 2.0
-       && ccpDistance(Scene::touchPosition(touch), touchInitialPosition.at(touch->getID())) < 50 * RESOLUTION_MULTIPLIER)
+       && Scene::touchPosition(touch).getDistance(touchInitialPosition.at(touch->getID())) < 50 * RESOLUTION_MULTIPLIER)
     {
         CCDictionary* infos = CCDictionary::create();
         infos->setObject(touch, "Touch");
@@ -93,7 +93,7 @@ void TapRecognizer::cleanTouches()
     touchInitialPosition.clear();
 }
 
-void TapRecognizer::cancelRecognitionForTouch(CCTouch* touch)
+void TapRecognizer::cancelRecognitionForTouch(Touch* touch)
 {
     touchStart->removeObjectForKey(touch->getID());
     touchInitialPosition.erase(touch->getID());

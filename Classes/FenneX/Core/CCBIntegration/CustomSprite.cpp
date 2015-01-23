@@ -30,11 +30,11 @@ void CustomSprite::updateTweenAction(float value, const std::string& key)
 {
     if(key.compare("textureWidth") == 0)
     {
-        setTextureRect(CCRectMake(getTextureRect().origin.x, getTextureRect().origin.y, value, getTextureRect().size.height));
+        setTextureRect(Rect(getTextureRect().origin.x, getTextureRect().origin.y, value, getTextureRect().size.height));
     }
     else if(key.compare("textureHeigth") == 0)
     {
-        setTextureRect(CCRectMake(getTextureRect().origin.x, getTextureRect().origin.y, getTextureRect().size.width, value));
+        setTextureRect(Rect(getTextureRect().origin.x, getTextureRect().origin.y, getTextureRect().size.width, value));
     }
 }
 NS_FENNEX_END

@@ -33,22 +33,22 @@ THE SOFTWARE.
 USING_NS_CC;
 
 NS_FENNEX_BEGIN
-class InertiaGenerator : public CCObject, public Pausable
+class InertiaGenerator : public Ref, public Pausable
 {
 public:
     static InertiaGenerator* sharedInertia(void);
     
     void planSceneSwitch(Ref* obj);
-    void scrolling(CCObject* obj);
-    void scrollingEnded(CCObject* obj);
-    void stopInertia(CCObject* obj);
+    void scrolling(Ref* obj);
+    void scrollingEnded(Ref* obj);
+    void stopInertia(Ref* obj);
     virtual void update(float delta);
     
     //If a tap is recognized, no inertia is generated
     void tapRecognized(Ref* obj);
-    void ignoreTouch(CCTouch* touch);
+    void ignoreTouch(Touch* touch);
     
-    void addPossibleTarget(CCObject* object);
+    void addPossibleTarget(Ref* object);
     void addPossibleTargets(CCArray* array);
     
 protected:

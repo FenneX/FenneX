@@ -35,7 +35,7 @@ USING_NS_CC_EXT;
 using namespace cocosbuilder;
 
 NS_FENNEX_BEGIN
-class CustomInput : public Scale9Sprite, public CustomBaseNode
+class CustomInput : public ui::Scale9Sprite, public CustomBaseNode
 {
 public:
     CCB_STATIC_NEW_AUTORELEASE_OBJECT_WITH_INIT_METHOD(CustomInput, create);
@@ -45,7 +45,7 @@ public:
     CC_SYNTHESIZE_RETAIN(CCString*, placeHolder, PlaceHolder);
     CC_SYNTHESIZE_RETAIN(CCString*, fontName, FontName);
     virtual bool init();
-    virtual bool onAssignCCBCustomProperty(CCObject* pTarget, const char* pMemberVariableName, const cocos2d::Value& pCCBValue);
+    virtual bool onAssignCCBCustomProperty(Ref* pTarget, const char* pMemberVariableName, const cocos2d::Value& pCCBValue);
 };
 
 class CustomInputLoader : public Scale9SpriteLoader

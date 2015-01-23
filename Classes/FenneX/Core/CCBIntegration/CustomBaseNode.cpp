@@ -37,28 +37,28 @@ CCDictionary* CustomBaseNode::getParameters()
     return parameters;
 }
 
-SEL_MenuHandler CustomBaseNode::onResolveCCBCCMenuItemSelector(CCObject * pTarget, const char* pSelectorName)
+SEL_MenuHandler CustomBaseNode::onResolveCCBCCMenuItemSelector(Ref * pTarget, const char* pSelectorName)
 {
     return NULL;
 }
 
-cocos2d::extension::Control::Handler CustomBaseNode::onResolveCCBCCControlSelector(CCObject * pTarget, const char* pSelectorName)
+cocos2d::extension::Control::Handler CustomBaseNode::onResolveCCBCCControlSelector(Ref * pTarget, const char* pSelectorName)
 {
     return NULL;
 }
 
-bool CustomBaseNode::onAssignCCBMemberVariable(CCObject * pTarget, const char* pMemberVariableName, CCNode * pNode)
+bool CustomBaseNode::onAssignCCBMemberVariable(Ref * pTarget, const char* pMemberVariableName, Node * pNode)
 {
     return false;
 }
 
 
-void CustomBaseNode::onNodeLoaded(CCNode * pNode, NodeLoader * pNodeLoader)
+void CustomBaseNode::onNodeLoaded(Node * pNode, NodeLoader * pNodeLoader)
 {
     
 }
 
-bool CustomBaseNode::onAssignCCBCustomProperty(CCObject* pTarget, const char* pMemberVariableName, const cocos2d::Value& pCCBValue)
+bool CustomBaseNode::onAssignCCBCustomProperty(Ref* pTarget, const char* pMemberVariableName, const cocos2d::Value& pCCBValue)
 {
 //#error this method is never called => seems that the super is called instead
     CustomBaseNode* target = dynamic_cast<CustomBaseNode*>(pTarget);

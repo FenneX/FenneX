@@ -39,18 +39,18 @@ void InputLabel::setEventName(const char* var)
         eventName = var;
 }
 
-CCRect InputLabel::getBoundingBox()
+Rect InputLabel::getBoundingBox()
 {
-    return CCRect(this->getNode()->getPositionX(), this->getNode()->getPositionY(), this->getNode()->getContentSize().width, this->getNode()->getContentSize().height);
+    return Rect(this->getNode()->getPositionX(), this->getNode()->getPositionY(), this->getNode()->getContentSize().width, this->getNode()->getContentSize().height);
 }
 
-CCNode* InputLabel::getNode()
+Node* InputLabel::getNode()
 {
     CCAssert(delegate != NULL, "InputLabel getNode is called upon a non-initialized object (or perhaps image/sheet load failed)");
     return delegate;
 }
 
-void InputLabel::setPlaceHolderColor(ccColor3B color)
+void InputLabel::setPlaceHolderColor(Color3B color)
 {
     delegate->setPlaceholderFontColor(color);
 }
@@ -85,7 +85,7 @@ InputLabel::InputLabel() : delegate(NULL)
     passwordText = NULL;
 }
 
-InputLabel::InputLabel(Scale9Sprite* sprite)
+InputLabel::InputLabel(ui::Scale9Sprite* sprite)
 {
     linkTo = NULL;
     isOpened = false;
@@ -97,18 +97,18 @@ InputLabel::InputLabel(Scale9Sprite* sprite)
     name = "CustomInputLabel";
     sprite->retain();
     sprite->removeFromParentAndCleanup(true);
-    CCPoint position = sprite->getPosition();
+    Vec2 position = sprite->getPosition();
     //CCLOG("prefered size : %f, %f, content size : %f, %f, insets : %f, %f, %f, %f, position : %f, %f", sprite->getPreferredSize().width, sprite->getPreferredSize().height, sprite->getContentSize().width, sprite->getContentSize().height, sprite->getInsetBottom(), sprite->getInsetTop(), sprite->getInsetLeft(), sprite->getInsetRight(), position.x, position.y);
     CCLOG("sprite position before : %f, %f", position.x, position.y);
     //The content size is fucked up (way higher than it's supposed to be, probably a problem with cocosBuilder), so always use the prefered size, which is the real sprite size
     sprite->setContentSize(sprite->getPreferredSize());
     
-    delegate = EditBox::create(CCSizeMake(sprite->getContentSize().width,
+    delegate = ui::EditBox::create(Size(sprite->getContentSize().width,
                                             sprite->getContentSize().height),
                                  sprite);
     delegate->retain();
     delegate->setFontColor(sprite->getColor());
-    delegate->setColor(ccWHITE);
+    delegate->setColor(Color3B::WHITE);
     delegate->setDelegate(this);
     delegate->setOpacity(0);
     
@@ -116,8 +116,8 @@ InputLabel::InputLabel(Scale9Sprite* sprite)
     //delegate->setContentSize(sprite->getPreferredSize());
     this->setPosition(position);
     CCLOG("delegate position after : %f, %f", delegate->getPosition().x, delegate->getPosition().y);
-    delegate->setInputMode(EditBox::InputMode::SINGLE_LINE);
-    delegate->setReturnType(EditBox::KeyboardReturnType::DONE);
+    delegate->setInputMode(ui::EditBox::InputMode::SINGLE_LINE);
+    delegate->setReturnType(ui::EditBox::KeyboardReturnType::DONE);
     CCNotificationCenter::sharedNotificationCenter()->addObserver(this, callfuncO_selector(InputLabel::openKeyboard), "OpenKeyboard", NULL);
     CCNotificationCenter::sharedNotificationCenter()->addObserver(this, callfuncO_selector(InputLabel::closeKeyboard), "CloseKeyboard", NULL);
     CCNotificationCenter::sharedNotificationCenter()->addObserver(this, callfuncO_selector(InputLabel::disableInputs), "DisableInputs", NULL);
@@ -145,7 +145,7 @@ InputLabel::InputLabel(Scale9Sprite* sprite)
     }
 }
 
-InputLabel::InputLabel(const char* placeHolder, const char* fontName, int fontSize, CCPoint location, EditBox::InputMode inputMode, int maxChar, CCSize dimensions, CCTextAlignment format)
+InputLabel::InputLabel(const char* placeHolder, const char* fontName, int fontSize, Vec2 location, ui::EditBox::InputMode inputMode, int maxChar, Size dimensions, TextHAlignment format)
 {
     linkTo = NULL;
     isOpened = false;
@@ -154,10 +154,10 @@ InputLabel::InputLabel(const char* placeHolder, const char* fontName, int fontSi
     isPassword = false;
     passwordText = NULL;
     name = placeHolder;
-    Scale9Sprite* sprite = Scale9Sprite::create("green_edit.png", CCRect(0, 0, 43, 38), CCRect(4, 3, 35, 32));
-    sprite->setPreferredSize(CCSize(43, 38));
+    ui::Scale9Sprite* sprite = ui::Scale9Sprite::create("green_edit.png", Rect(0, 0, 43, 38), Rect(4, 3, 35, 32));
+    sprite->setPreferredSize(Size(43, 38));
     sprite->setOpacity(0);
-    delegate = EditBox::create(dimensions, sprite);
+    delegate = ui::EditBox::create(dimensions, sprite);
     delegate->retain();
     if(strlen(placeHolder) > 0)
     {
@@ -165,13 +165,13 @@ InputLabel::InputLabel(const char* placeHolder, const char* fontName, int fontSi
         delegate->setPlaceHolder(placeholderWithBrackets->getCString());
         this->setInitialText(placeholderWithBrackets);
     }
-    delegate->setFontColor(ccBLACK);
+    delegate->setFontColor(Color3B::BLACK);
     delegate->setDelegate(this);
     
     this->setPosition(location);
     delegate->setInputMode(inputMode);
-    numbersOnly = inputMode ==  EditBox::InputMode::DECIMAL;
-    delegate->setReturnType(EditBox::KeyboardReturnType::DONE);
+    numbersOnly = inputMode ==  ui::EditBox::InputMode::DECIMAL;
+    delegate->setReturnType(ui::EditBox::KeyboardReturnType::DONE);
     if(maxChar != -1)
     {
         delegate->setMaxLength(maxChar);
@@ -204,7 +204,7 @@ InputLabel::~InputLabel()
     }
     if(passwordText != NULL) passwordText->release();
 #if VERBOSE_DEALLOC
-    CCLog("Dealloc InputLabel %s", name.c_str());
+    CCLOG("Dealloc InputLabel %s", name.c_str());
 #endif
 }
 
@@ -245,7 +245,7 @@ void InputLabel::update(float deltaTime)
     textDirty = false;
 }
 
-void InputLabel::openKeyboard(CCObject* obj)
+void InputLabel::openKeyboard(Ref* obj)
 {
     CCDictionary* infos = (CCDictionary*)obj;
     if(locks.size() == 0
@@ -260,7 +260,7 @@ void InputLabel::openKeyboard(CCObject* obj)
     }
 }
 
-void InputLabel::closeKeyboard(CCObject* obj)
+void InputLabel::closeKeyboard(Ref* obj)
 {
     CCDictionary* infos = (CCDictionary*)obj;
     if((isKindOfClass(infos->objectForKey("Sender"), CCInteger)
@@ -274,18 +274,18 @@ void InputLabel::closeKeyboard(CCObject* obj)
     }
 }
 
-void InputLabel::disableInputs(CCObject* obj)
+void InputLabel::disableInputs(Ref* obj)
 {
     delegate->setEnabled(false);
 }
 
-void InputLabel::enableInputs(CCObject* obj)
+void InputLabel::enableInputs(Ref* obj)
 {
     delegate->setEnabled(true);
 }
 
 
-void InputLabel::editBoxEditingDidBegin(EditBox* editBox)
+void InputLabel::editBoxEditingDidBegin(ui::EditBox* editBox)
 {
     if(locks.size() > 0)
     {
@@ -313,14 +313,14 @@ void InputLabel::editBoxEditingDidBegin(EditBox* editBox)
 }
 
 
-void InputLabel::editBoxReturn(EditBox* editBox)
+void InputLabel::editBoxReturn(ui::EditBox* editBox)
 {
-    CCLOG("EditBoxReturn : Close InputLabel keyboard");
+    CCLOG("ui::EditBoxReturn : Close InputLabel keyboard");
     performNotificationAfterDelay("InputLabelReturn", this->getEventInfos(), 0.01);
 }
 
 
-void InputLabel::editBoxEditingDidEnd(EditBox* editBox)
+void InputLabel::editBoxEditingDidEnd(ui::EditBox* editBox)
 {
     CCLOG("Edit Box editing did end");
     if(isOpened)
@@ -360,10 +360,10 @@ void InputLabel::editBoxEditingDidEnd(EditBox* editBox)
     delegate->detachWithIME();
 }
 
-void InputLabel::editBoxTextChanged(EditBox* editBox, const std::string& text)
+void InputLabel::editBoxTextChanged(ui::EditBox* editBox, const std::string& text)
 {
     const char* label = this->getLabelValue();
-    CCLOG("EditBoxTextChanged called, value : %s", text.c_str());
+    CCLOG("ui::EditBoxTextChanged called, value : %s", text.c_str());
     for (int i = 0; i < strlen(label); i++)
     {
         char ch = label[i];
@@ -400,7 +400,7 @@ void InputLabel::setInitialText(CCString* text)
 void InputLabel::setIsPassword()
 {
     isPassword = true;
-    delegate->setInputFlag(EditBox::InputFlag::PASSWORD);
+    delegate->setInputFlag(ui::EditBox::InputFlag::PASSWORD);
 }
 
 int InputLabel::preventKeyboardOpen()

@@ -28,33 +28,33 @@ NS_FENNEX_BEGIN
 CCString* getResourcesPath(const char* file)
 {
 #if CC_TARGET_PLATFORM == CC_PLATFORM_IOS
-    return Screate(CCFileUtils::sharedFileUtils()->fullPathForFilename(file));
+    return Screate(FileUtils::getInstance()->fullPathForFilename(file));
 #elif CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
     return ScreateF("assets/%s", file);
 #endif
 }
 
-CCSize* sizeCreate(float width, float height)
+Size* sizeCreate(float width, float height)
 {
-    CCSize* pRet = new CCSize(width, height);
+    Size* pRet = new Size(width, height);
     pRet->autorelease();
     return pRet;
 }
 
 //note : keys have to be passed as CCString, unfortunately. Must be NULL terminated
-CCDictionary* createDictionaryWithParameters(CCObject* firstObject, ... )
+CCDictionary* createDictionaryWithParameters(Ref* firstObject, ... )
 {
-    CCObject* eachObject;
+    Ref* eachObject;
     va_list argumentList;
     bool key = true;
-    CCObject* object;
+    Ref* object;
     if (firstObject)                      // The first argument isn't part of the varargs list,
     {                                   // so we'll handle it separately.
         //put all parameters in a Dictionary to access them as key/value pairs
         CCDictionary* values = CCDictionary::create();
         object = firstObject;
         va_start(argumentList, firstObject);          // Start scanning for arguments after firstObject.
-        while ((eachObject = va_arg(argumentList, CCObject*)) != NULL) // As many times as we can get an argument of type "id"
+        while ((eachObject = va_arg(argumentList, Ref*)) != NULL) // As many times as we can get an argument of type "id"
         {
             if(key)
             {
@@ -85,9 +85,9 @@ CCDictionary* createDictionaryWithParameters(CCObject* firstObject, ... )
     return NULL;
 }
 
-CCArray* createArrayWithParameters(CCObject* firstObject, ... )
+CCArray* createArrayWithParameters(Ref* firstObject, ... )
 {
-    CCObject* eachObject;
+    Ref* eachObject;
     va_list argumentList;
     if (firstObject)                      // The first argument isn't part of the varargs list,
     {                                   // so we'll handle it separately.
@@ -95,7 +95,7 @@ CCArray* createArrayWithParameters(CCObject* firstObject, ... )
         CCArray* values = CCArray::create();
         values->addObject(firstObject);
         va_start(argumentList, firstObject);          // Start scanning for arguments after firstObject.
-        while ((eachObject = va_arg(argumentList, CCObject*)) != NULL) // As many times as we can get an argument of type "id"
+        while ((eachObject = va_arg(argumentList, Ref*)) != NULL) // As many times as we can get an argument of type "id"
         {
             values->addObject(eachObject);
         }
@@ -109,27 +109,27 @@ CCArray* createArrayWithParameters(CCObject* firstObject, ... )
     return Acreate();
 }
 
-void performSelectorAfterDelay(CCObject* target, SEL_CallFuncO selector, float delay, CCObject* object)
+void performSelectorAfterDelay(Ref* target, SEL_CallFuncO selector, float delay, Ref* object)
 {
-    CCDelayTime *delayAction = CCDelayTime::create(delay);
+    DelayTime *delayAction = DelayTime::create(delay);
     CCCallFunc* callSelectorAction = CCCallFuncO::create(target, selector, object);
-    CCDirector::sharedDirector()->getNotificationNode()->runAction(CCSequence::create(delayAction, callSelectorAction, NULL));
+    Director::getInstance()->getNotificationNode()->runAction(Sequence::create(delayAction, callSelectorAction, NULL));
 }
 
-bool cancelSelector(CCObject* target, SEL_CallFuncO selector)
+bool cancelSelector(Ref* target, SEL_CallFuncO selector)
 {
-    Vector<Action*> actions = CCDirector::sharedDirector()->getNotificationNode()->getActionManager()->getAllActionsForTarget(CCDirector::sharedDirector()->getNotificationNode());
+    Vector<Action*> actions = Director::getInstance()->getNotificationNode()->getActionManager()->getAllActionsForTarget(Director::getInstance()->getNotificationNode());
     for(auto action : actions)
     {
-        if(isKindOfClass(action, CCSequence))
+        if(isKindOfClass(action, Sequence))
         {
-            CCSequence* sequence = (CCSequence*)action;
-            if(isKindOfClass(sequence->getCurrentAction(), CCDelayTime) && isKindOfClass(sequence->getNextAction(), CCCallFuncO))
+            Sequence* sequence = (Sequence*)action;
+            if(isKindOfClass(sequence->getCurrentAction(), DelayTime) && isKindOfClass(sequence->getNextAction(), CCCallFuncO))
             {
                 CCCallFuncO* callFunc = (CCCallFuncO*)sequence->getNextAction();
                 if(callFunc->getSelectorTarget() == selector)
                 {
-                    CCDirector::sharedDirector()->getNotificationNode()->getActionManager()->removeAction(action);
+                    Director::getInstance()->getNotificationNode()->getActionManager()->removeAction(action);
                     return true;
                 }
             }
@@ -143,7 +143,7 @@ bool cancelSelector(CCObject* target, SEL_CallFuncO selector)
 }
 
 
-void performNotificationAfterDelay(const char* name, CCObject* obj, float delay)
+void performNotificationAfterDelay(const char* name, Ref* obj, float delay)
 {
     CCDictionary* notifInfos = DcreateP(Screate(name), Screate("_NotificationName"), obj, Screate("_Infos"), NULL);
     //Retain the infos, otherwise they may be destroyed by the main thread before being passed to the function

@@ -53,7 +53,7 @@ std::string node_to_string(pugi::xml_node node)
     return writer.result;
 }
 
-void appendObject(CCObject* obj, xml_node& node)
+void appendObject(Ref* obj, xml_node& node)
 {
     if(isKindOfClass(obj, CCDictionary))
     {
@@ -78,7 +78,7 @@ void appendObject(CCObject* obj, xml_node& node)
         xml_node children = node.append_child("array");
         for(int i = 0; i < array->count(); i++)
         {
-            CCObject* child = (CCObject*)array->objectAtIndex(i);
+            Ref* child = (Ref*)array->objectAtIndex(i);
             appendObject(child, children);
         }
     }
@@ -115,7 +115,7 @@ void appendObject(CCObject* obj, xml_node& node)
 #endif
 }
 
-void saveObjectToFile(CCObject* obj, const char* name)
+void saveObjectToFile(Ref* obj, const char* name)
 {
     xml_document doc;
     //add the verbose things so that it's a proper plist like those created by xcode
@@ -139,10 +139,10 @@ void saveObjectToFile(CCObject* obj, const char* name)
 #endif
 }
 
-CCObject* loadObject(xml_node node)
+Ref* loadObject(xml_node node)
 {
     const char* name = node.name();
-    CCObject* obj = NULL;
+    Ref* obj = NULL;
     if(strcmp(name, "dict") == 0)
     {
         obj = Dcreate();
@@ -156,7 +156,7 @@ CCObject* loadObject(xml_node node)
             }
             else
             {
-                CCObject* result = loadObject(child);
+                Ref* result = loadObject(child);
                 if(result != NULL)
                 {
                     ((CCDictionary*)obj)->setObject(result, key);
@@ -170,7 +170,7 @@ CCObject* loadObject(xml_node node)
         obj = Acreate();
         for(xml_node child = node.first_child(); child; child = child.next_sibling())
         {
-            CCObject* result = loadObject(child);
+            Ref* result = loadObject(child);
             if(result != NULL)
             {
                 ((CCArray*)obj)->addObject(result);
@@ -206,7 +206,7 @@ CCObject* loadObject(xml_node node)
     return obj;
 }
 
-CCObject* loadObjectFromFile(const char* name, bool resource)
+Ref* loadObjectFromFile(const char* name, bool resource)
 {
     xml_document doc;
 #if VERBOSE_LOAD_PLIST
@@ -218,7 +218,7 @@ CCObject* loadObjectFromFile(const char* name, bool resource)
     {
         ssize_t bufferSize = 0;
         //Load file from apk
-        charbuffer = CCFileUtils::sharedFileUtils()->getFileData(name,"r", &bufferSize);
+        charbuffer = FileUtils::getInstance()->getFileData(name,"r", &bufferSize);
     }
     std::string path = resource ? "" : getLocalPath(name);
 #else
@@ -261,7 +261,7 @@ CCObject* loadObjectFromFile(const char* name, bool resource)
     CCLOG("Document loaded, parsing it");
     CCLOG("%s", node_to_string(doc).c_str()); //can't be done because this crash on Android, probably due to String_en.plist containing % not escaped properly
 #endif
-    CCObject* result = loadObject(doc.child("plist").first_child());
+    Ref* result = loadObject(doc.child("plist").first_child());
     
 #if VERBOSE_LOAD_PLIST
     CCLOG("Parse successful, returning");

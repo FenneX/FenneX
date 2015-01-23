@@ -53,7 +53,7 @@ void GraphicLayer::init()
     mainPanels = new CCArray();
     storedObjects = new CCArray();
     storedPanels = new CCArray();
-    layer = CCLayer::create();
+    layer = Layer::create();
     layer->retain();
     depthInScene = 0;
     clock = 0;
@@ -90,9 +90,9 @@ ButtonTapObserver* GraphicLayer::getTapObserver()
     return tapObserver;
 }
 
-void GraphicLayer::useBaseLayer(CCLayer* otherLayer)
+void GraphicLayer::useBaseLayer(Layer* otherLayer)
 {
-    CCNode* parent = layer->getParent();
+    Node* parent = layer->getParent();
     parent->addChild(otherLayer, depthInScene);
     parent->removeChild(layer, true);
     //Ensure the layer is properly released: actually, only the first one (at launch) will have a retain count of 2 here
@@ -130,7 +130,7 @@ void GraphicLayer::stop()
 }
 
 /* TODO : create it if needed
- RawObject* GraphicLayer::createObject(CCObject* firstObject, ... )
+ RawObject* GraphicLayer::createObject(Ref* firstObject, ... )
  {
  return NULL;
  }
@@ -140,19 +140,19 @@ void GraphicLayer::stop()
  return NULL;
  }*/
 
-Image* GraphicLayer::createImage(CCObject* firstObject, ... )
+Image* GraphicLayer::createImage(Ref* firstObject, ... )
 {
-    CCObject* eachObject;
+    Ref* eachObject;
     va_list argumentList;
     bool key = true;
-    CCObject* object;
+    Ref* object;
     if (firstObject)                      // The first argument isn't part of the varargs list,
     {                                   // so we'll handle it separately.
         //put all parameters in a Dictionary to access them as key/value pairs
         CCDictionary* values = CCDictionary::create();
         object = firstObject;
         va_start(argumentList, firstObject);          // Start scanning for arguments after firstObject.
-        while ((eachObject = va_arg(argumentList, CCObject*)) != NULL) // As many times as we can get an argument of type "id"
+        while ((eachObject = va_arg(argumentList, Ref*)) != NULL) // As many times as we can get an argument of type "id"
         {
             if(key)
             {
@@ -203,7 +203,7 @@ Image* GraphicLayer::createImage(CCDictionary* values)
         && values->objectForKey("Capacity") != NULL
         &&  isKindOfClass(values->objectForKey("Capacity"), CCInteger)))
     {
-        CCPoint pos = ccp(0, 0);
+        Vec2 pos = Vec2(0, 0);
         if(values->objectForKey("PositionX") != NULL
            && isKindOfClass(values->objectForKey("PositionX"), CCInteger))
         {
@@ -292,7 +292,7 @@ Image* GraphicLayer::createImage(CCDictionary* values)
             }
             if(values->objectForKey("Opacity") != NULL && isKindOfClass(values->objectForKey("Opacity"), CCInteger))
             {
-                ((CCSprite*)img->getNode())->setOpacity(((CCInteger*)values->objectForKey("Opacity"))->getValue());
+                ((Sprite*)img->getNode())->setOpacity(((CCInteger*)values->objectForKey("Opacity"))->getValue());
             }
             if(values->objectForKey("Help") != NULL && isKindOfClass(values->objectForKey("Help"), CCString))
             {
@@ -318,7 +318,7 @@ Image* GraphicLayer::createImage(CCDictionary* values)
     return img;
 }
 
-Image* GraphicLayer::createImageFromCCSprite(CCSprite* sprite, Panel* parent)
+Image* GraphicLayer::createImageFromSprite(Sprite* sprite, Panel* parent)
 {
     Image* img = NULL;
     img = new Image(sprite);
@@ -336,7 +336,7 @@ Image* GraphicLayer::createImageFromCCSprite(CCSprite* sprite, Panel* parent)
     return img;
 }
 
-CustomObject* GraphicLayer::createCustomObjectFromCCNode(CCNode* node, Panel* parent)
+CustomObject* GraphicLayer::createCustomObjectFromNode(Node* node, Panel* parent)
 {
     CustomObject* obj = NULL;
     obj = new CustomObject(node);
@@ -354,19 +354,19 @@ CustomObject* GraphicLayer::createCustomObjectFromCCNode(CCNode* node, Panel* pa
     return obj;
 }
 
-CustomObject* GraphicLayer::createCustomObject(CCObject* firstObject, ... )
+CustomObject* GraphicLayer::createCustomObject(Ref* firstObject, ... )
 {
-    CCObject* eachObject;
+    Ref* eachObject;
     va_list argumentList;
     bool key = true;
-    CCObject* object;
+    Ref* object;
     if (firstObject)                      // The first argument isn't part of the varargs list,
     {                                   // so we'll handle it separately.
         //put all parameters in a Dictionary to access them as key/value pairs
         CCDictionary* values = CCDictionary::create();
         object = firstObject;
         va_start(argumentList, firstObject);          // Start scanning for arguments after firstObject.
-        while ((eachObject = va_arg(argumentList, CCObject*)) != NULL) // As many times as we can get an argument of type "id"
+        while ((eachObject = va_arg(argumentList, Ref*)) != NULL) // As many times as we can get an argument of type "id"
         {
             if(key)
             {
@@ -408,9 +408,9 @@ CustomObject* GraphicLayer::createCustomObject(CCDictionary* values)
     //try to create an image : each value is checked : if it exists and if it is of the right type
     //an image should have at least an ImageFile (String) or ImageData and cocosName (String) for texture
     if(values->objectForKey("Delegate") != NULL
-       && isKindOfClass(values->objectForKey("Delegate"), CCNode))
+       && isKindOfClass(values->objectForKey("Delegate"), Node))
     {
-        CCPoint pos = ccp(0, 0);
+        Vec2 pos = Vec2(0, 0);
         if(values->objectForKey("PositionX") != NULL
            && isKindOfClass(values->objectForKey("PositionX"), CCInteger))
         {
@@ -428,10 +428,10 @@ CustomObject* GraphicLayer::createCustomObject(CCDictionary* values)
             pos.y =  ((TMPPoint*)values->objectForKey("Position"))->y;
         }
         if(values->objectForKey("Delegate") != NULL
-           && isKindOfClass(values->objectForKey("Delegate"), CCNode))
+           && isKindOfClass(values->objectForKey("Delegate"), Node))
             
         {
-            obj = new CustomObject((CCNode*)values->objectForKey("Delegate"), pos);
+            obj = new CustomObject((Node*)values->objectForKey("Delegate"), pos);
         }
         
         
@@ -487,7 +487,7 @@ CustomObject* GraphicLayer::createCustomObject(CCDictionary* values)
             }
             if(values->objectForKey("Opacity") != NULL && isKindOfClass(values->objectForKey("Opacity"), CCInteger))
             {
-                ((CCSprite*)obj->getNode())->setOpacity(((CCInteger*)values->objectForKey("Opacity"))->getValue());
+                ((Sprite*)obj->getNode())->setOpacity(((CCInteger*)values->objectForKey("Opacity"))->getValue());
             }
             if(values->objectForKey("Help") != NULL && isKindOfClass(values->objectForKey("Help"), CCString))
             {
@@ -515,19 +515,19 @@ CustomObject* GraphicLayer::createCustomObject(CCDictionary* values)
 
 
 
-LabelTTF* GraphicLayer::createLabelTTF(CCObject* firstObject, ... )
+LabelTTF* GraphicLayer::createLabelTTF(Ref* firstObject, ... )
 {
-    CCObject* eachObject;
+    Ref* eachObject;
     va_list argumentList;
     bool key = true;
-    CCObject* object;
+    Ref* object;
     if (firstObject)                      // The first argument isn't part of the varargs list,
     {                                   // so we'll handle it separately.
         //put all parameters in a Dictionary to access them as key/value pairs
         CCDictionary* values = CCDictionary::create();
         object = firstObject;
         va_start(argumentList, firstObject);          // Start scanning for arguments after firstObject.
-        while ((eachObject = va_arg(argumentList, CCObject*)) != NULL) // As many times as we can get an argument of type "id"
+        while ((eachObject = va_arg(argumentList, Ref*)) != NULL) // As many times as we can get an argument of type "id"
         {
             if(key)
             {
@@ -576,7 +576,7 @@ LabelTTF* GraphicLayer::createLabelTTF(CCDictionary* values)
 #if VERBOSE_LOAD_CCB
         CCLOG("creating labelTTF %s", ((CCString*)values->objectForKey("Label"))->getCString());
 #endif
-        CCPoint pos = ccp(0, 0);
+        Vec2 pos = Vec2(0, 0);
         if(values->objectForKey("PositionX") != NULL
            && isKindOfClass(values->objectForKey("PositionX"), CCInteger))
         {
@@ -594,23 +594,23 @@ LabelTTF* GraphicLayer::createLabelTTF(CCDictionary* values)
             pos.y =  ((TMPPoint*)values->objectForKey("Position"))->y;
         }
         if(values->objectForKey("Dimensions") != NULL
-           && isKindOfClass(values->objectForKey("Dimensions"), CCSize)
+           && isKindOfClass(values->objectForKey("Dimensions"), Size)
            &&values->objectForKey("TextFormat") != NULL
            && isKindOfClass(values->objectForKey("TextFormat"), CCInteger))
         {
             label = new LabelTTF(((CCString*)values->objectForKey("Label"))->getCString(),
                                  ((CCString*)values->objectForKey("FontFile"))->getCString(),
                                  pos,
-                                 *(CCSize*)(values->objectForKey("Dimensions")),
-                                 (CCTextAlignment)((CCInteger*)values->objectForKey("TextFormat"))->getValue());
+                                 *(Size*)(values->objectForKey("Dimensions")),
+                                 (TextHAlignment)((CCInteger*)values->objectForKey("TextFormat"))->getValue());
         }
         else if(values->objectForKey("Dimensions") != NULL
-                && isKindOfClass(values->objectForKey("Dimensions"), CCSize))
+                && isKindOfClass(values->objectForKey("Dimensions"), Size))
         {
             label = new LabelTTF(((CCString*)values->objectForKey("Label"))->getCString(),
                                  ((CCString*)values->objectForKey("FontFile"))->getCString(),
                                  pos,
-                                 *(CCSize*)(values->objectForKey("Dimensions")));
+                                 *(Size*)(values->objectForKey("Dimensions")));
         }
         else
         {
@@ -717,19 +717,19 @@ LabelTTF* GraphicLayer::createLabelTTFromLabel(Label* cocosLabel, Panel* parent)
 }
 
 
-InputLabel* GraphicLayer::createInputLabel(CCObject* firstObject, ... )
+InputLabel* GraphicLayer::createInputLabel(Ref* firstObject, ... )
 {
-    CCObject* eachObject;
+    Ref* eachObject;
     va_list argumentList;
     bool key = true;
-    CCObject* object;
+    Ref* object;
     if (firstObject)                      // The first argument isn't part of the varargs list,
     {                                   // so we'll handle it separately.
         //put all parameters in a Dictionary to access them as key/value pairs
         CCDictionary* values = CCDictionary::create();
         object = firstObject;
         va_start(argumentList, firstObject);          // Start scanning for arguments after firstObject.
-        while ((eachObject = va_arg(argumentList, CCObject*)) != NULL) // As many times as we can get an argument of type "id"
+        while ((eachObject = va_arg(argumentList, Ref*)) != NULL) // As many times as we can get an argument of type "id"
         {
             if(key)
             {
@@ -779,7 +779,7 @@ InputLabel* GraphicLayer::createInputLabel(CCDictionary* values)
 #if VERBOSE_LOAD_CCB
         CCLOG("creating input label %s", ((CCString*)values->objectForKey("PlaceHolder"))->getCString());
 #endif
-        CCPoint pos = ccp(0, 0);
+        Vec2 pos = Vec2(0, 0);
         if(values->objectForKey("PositionX") != NULL
            && isKindOfClass(values->objectForKey("PositionX"), CCInteger))
         {
@@ -797,10 +797,10 @@ InputLabel* GraphicLayer::createInputLabel(CCDictionary* values)
             pos.y =  ((TMPPoint*)values->objectForKey("Position"))->y;
         }
         
-        EditBox::InputMode inputMode = values->objectForKey("KeyboardType") != NULL && isKindOfClass(values->objectForKey("KeyboardType"), CCInteger) ? (EditBox::InputMode)TOINT(values->objectForKey("KeyboardType")) : EditBox::InputMode::ANY;
+        ui::EditBox::InputMode inputMode = values->objectForKey("KeyboardType") != NULL && isKindOfClass(values->objectForKey("KeyboardType"), CCInteger) ? (ui::EditBox::InputMode)TOINT(values->objectForKey("KeyboardType")) : ui::EditBox::InputMode::ANY;
         int maxDigits = values->objectForKey("MaxDigits") != NULL && isKindOfClass(values->objectForKey("MaxDigits"), CCInteger) ? TOINT(values->objectForKey("MaxDigits")) : -1;
         if(values->objectForKey("Dimensions") != NULL
-           && isKindOfClass(values->objectForKey("Dimensions"), CCSize)
+           && isKindOfClass(values->objectForKey("Dimensions"), Size)
            &&values->objectForKey("TextFormat") != NULL
            && isKindOfClass(values->objectForKey("TextFormat"), CCInteger))
         {
@@ -810,11 +810,11 @@ InputLabel* GraphicLayer::createInputLabel(CCDictionary* values)
                                    pos,
                                    inputMode,
                                    maxDigits,
-                                   *(CCSize*)(values->objectForKey("Dimensions")),
-                                   (CCTextAlignment)TOINT(values->objectForKey("TextFormat")));
+                                   *(Size*)(values->objectForKey("Dimensions")),
+                                   (TextHAlignment)TOINT(values->objectForKey("TextFormat")));
         }
         else if(values->objectForKey("Dimensions") != NULL
-                && isKindOfClass(values->objectForKey("Dimensions"), CCSize))
+                && isKindOfClass(values->objectForKey("Dimensions"), Size))
         {
             label = new InputLabel(((CCString*)values->objectForKey("PlaceHolder"))->getCString(),
                                    ((CCString*)values->objectForKey("FontFile"))->getCString(),
@@ -822,7 +822,7 @@ InputLabel* GraphicLayer::createInputLabel(CCDictionary* values)
                                    pos,
                                    inputMode,
                                    maxDigits,
-                                   *(CCSize*)(values->objectForKey("Dimensions")));
+                                   *(Size*)(values->objectForKey("Dimensions")));
         }
         else
         {
@@ -917,11 +917,11 @@ InputLabel* GraphicLayer::createInputLabel(CCDictionary* values)
 }
 
 
-InputLabel* GraphicLayer::createInputLabelFromScale9Sprite(Scale9Sprite* cocosSprite, Panel* parent)
+InputLabel* GraphicLayer::createInputLabelFromScale9Sprite(ui::Scale9Sprite* cocosSprite, Panel* parent)
 {
     InputLabel* label = NULL;
     
-    //EditBoxInputMode inputMode = /*(EditBoxInputMode)TOINT(values->objectForKey("KeyboardType"))*/ kEditBoxInputModeAny;
+    //ui::EditBoxInputMode inputMode = /*(ui::EditBoxInputMode)TOINT(values->objectForKey("KeyboardType"))*/ kui::EditBoxInputModeAny;
     //int maxDigits = values->objectForKey("MaxDigits") != NULL && isKindOfClass(values->objectForKey("MaxDigits"), CCInteger) ? TOINT(values->objectForKey("MaxDigits")) : -1;
     label = new InputLabel(cocosSprite);
     
@@ -945,19 +945,19 @@ InputLabel* GraphicLayer::createInputLabelFromScale9Sprite(Scale9Sprite* cocosSp
     return label;
 }
 
-Panel* GraphicLayer::createPanel(CCObject* firstObject, ... )
+Panel* GraphicLayer::createPanel(Ref* firstObject, ... )
 {
-    CCObject* eachObject;
+    Ref* eachObject;
     va_list argumentList;
     bool key = true;
-    CCObject* object;
+    Ref* object;
     if (firstObject)                      // The first argument isn't part of the varargs list,
     {                                   // so we'll handle it separately.
         //put all parameters in a Dictionary to access them as key/value pairs
         CCDictionary* values = CCDictionary::create();
         object = firstObject;
         va_start(argumentList, firstObject);          // Start scanning for arguments after firstObject.
-        while ((eachObject = va_arg(argumentList, CCObject*)) != NULL) // As many times as we can get an argument of type "id"
+        while ((eachObject = va_arg(argumentList, Ref*)) != NULL) // As many times as we can get an argument of type "id"
         {
             if(key)
             {
@@ -1000,7 +1000,7 @@ Panel* GraphicLayer::createPanel(CCDictionary* values)
     if(values->objectForKey("Name") != NULL
        && isKindOfClass(values->objectForKey("Name"), CCString))
     {
-        CCPoint pos = ccp(0, 0);
+        Vec2 pos = Vec2(0, 0);
         if(values->objectForKey("PositionX") != NULL
            && isKindOfClass(values->objectForKey("PositionX"), CCInteger))
         {
@@ -1068,7 +1068,7 @@ Panel* GraphicLayer::createPanel(CCDictionary* values)
             }
             /*if(values->objectForKey("Opacity") != NULL && isKindOfClass(values->objectForKey("Opacity"), CCInteger))
              {
-             ((CCSprite*)img->getNode())->setOpacity(((CCInteger*)values->objectForKey("Opacity"))->getValue());
+             ((Sprite*)img->getNode())->setOpacity(((CCInteger*)values->objectForKey("Opacity"))->getValue());
              }*/
             if(values->objectForKey("Help") != NULL && isKindOfClass(values->objectForKey("Help"), CCString))
             {
@@ -1091,7 +1091,7 @@ Panel* GraphicLayer::createPanel(CCDictionary* values)
     return panel;
 }
 
-Panel* GraphicLayer::createPanelFromCCNode(CCNode* cocosNode, Panel* parent)
+Panel* GraphicLayer::createPanelFromNode(Node* cocosNode, Panel* parent)
 {
     Panel* panel = NULL;
     panel = new Panel(cocosNode);
@@ -1111,7 +1111,7 @@ Panel* GraphicLayer::createPanelFromCCNode(CCNode* cocosNode, Panel* parent)
     return panel;
 }
 
-Panel* GraphicLayer::createPanelWithNode(const char* name, CCNode* panelNode, int zOrder)
+Panel* GraphicLayer::createPanelWithNode(const char* name, Node* panelNode, int zOrder)
 {
     Panel* panel = NULL;
     panel = new Panel(panelNode, name);
@@ -1145,7 +1145,7 @@ RawObject* GraphicLayer::duplicateObject(RawObject* otherObject)
     else if(isKindOfClass(otherObject, LabelTTF))
     {
         LabelTTF* otherLabel = (LabelTTF*)otherObject;
-        //const char* labelString, const char* filename, CCPoint location, CCSize dimensions, CCTextAlignment format
+        //const char* labelString, const char* filename, Vec2 location, Size dimensions, TextHAlignment format
         obj = new LabelTTF(otherLabel->getLabelValue(), otherLabel->getFullFontFile()->getCString(), otherLabel->getPosition(), otherLabel->getDimensions(), otherLabel->getAlignment());
         ((Label*)obj->getNode())->setColor(((Label*)otherLabel->getNode())->getColor());
         ((LabelTTF*)obj)->setFitType(otherLabel->getFitType());
@@ -1155,10 +1155,10 @@ RawObject* GraphicLayer::duplicateObject(RawObject* otherObject)
         obj = new Panel(otherObject->getName(), otherObject->getPosition());
         obj->getNode()->setContentSize(otherObject->getNode()->getContentSize());
     }
-    else if(isKindOfClass(otherObject, CustomObject) && isKindOfClass(otherObject->getNode(), Scale9Sprite))
+    else if(isKindOfClass(otherObject, CustomObject) && isKindOfClass(otherObject->getNode(), ui::Scale9Sprite))
     {
-        Scale9Sprite* otherNode = (Scale9Sprite*)otherObject->getNode();
-        Scale9Sprite* node = Scale9Sprite::create(TOCSTRING(otherObject->getEventInfos()->objectForKey("spriteFrame")), CCRectZero, otherNode->getCapInsets());
+        ui::Scale9Sprite* otherNode = (ui::Scale9Sprite*)otherObject->getNode();
+        ui::Scale9Sprite* node = ui::Scale9Sprite::create(TOCSTRING(otherObject->getEventInfos()->objectForKey("spriteFrame")), Rect(0, 0, 0, 0), otherNode->getCapInsets());
         node->setPosition(otherNode->getPosition());
         node->setPreferredSize(otherNode->getPreferredSize());
         node->setAnchorPoint(otherNode->getAnchorPoint());
@@ -1223,7 +1223,7 @@ RawObject* GraphicLayer::placeObject(RawObject* obj, Panel* panel)
 #if VERBOSE_WARNING
             else
             {
-                CCLOG("Warning : child %s doesn't have a CCNode, you shouldn't try to place it on a panel", obj->getName());
+                CCLOG("Warning : child %s doesn't have a Node, you shouldn't try to place it on a panel", obj->getName());
             }
 #endif
         }
@@ -1260,7 +1260,7 @@ void GraphicLayer::removeObjectFromPanel(RawObject* obj, Panel* panel)
 #if VERBOSE_WARNING
     else
     {
-        CCLOG("Warning : child %s doesn't have a CCNode, you shouldn't try to remove it from a panel", obj->getName());
+        CCLOG("Warning : child %s doesn't have a Node, you shouldn't try to remove it from a panel", obj->getName());
     }
 #endif
 }
@@ -1353,7 +1353,7 @@ void GraphicLayer::destroyObjects(Vector<RawObject*> array)
     }
 }
 
-void GraphicLayer::destroyObject(CCObject* obj)
+void GraphicLayer::destroyObject(Ref* obj)
 {
     if(obj != NULL)
     {
@@ -1369,7 +1369,7 @@ void GraphicLayer::destroyObject(CCObject* obj)
 #endif
     }
 }
-void GraphicLayer::destroyObjects(CCObject* obj)
+void GraphicLayer::destroyObjects(Ref* obj)
 {
     if(obj != NULL)
     {
@@ -1476,7 +1476,7 @@ RawObject* GraphicLayer::firstObjectWithNameInPanel(std::string name, Panel* pan
     return result;
 }
 
-RawObject* GraphicLayer::firstObjectAtPosition(CCPoint position)
+RawObject* GraphicLayer::firstObjectAtPosition(Vec2 position)
 {
     RawObject* result = NULL;
     for(int i =  storedObjects->count() - 1; i >= 0  && result == NULL; i--)
@@ -1490,13 +1490,13 @@ RawObject* GraphicLayer::firstObjectAtPosition(CCPoint position)
     return result;
 }
 
-RawObject* GraphicLayer::firstObjectInRect(CCRect rect)
+RawObject* GraphicLayer::firstObjectInRect(Rect rect)
 {
     RawObject* result = NULL;
     for(int i =  storedObjects->count() - 1; i >= 0  && result == NULL; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
-        CCRect realRect = rect;
+        Rect realRect = rect;
         realRect.origin = this->getPositionRelativeToObject(rect.origin, obj);
         if(obj->collision(realRect))
         {
@@ -1506,13 +1506,13 @@ RawObject* GraphicLayer::firstObjectInRect(CCRect rect)
     return result;
 }
 
-RawObject* GraphicLayer::firstObjectContainingRect(CCRect rect)
+RawObject* GraphicLayer::firstObjectContainingRect(Rect rect)
 {
     RawObject* result = NULL;
     for(int i =  storedObjects->count() - 1; i >= 0  && result == NULL; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
-        CCRect realRect = rect;
+        Rect realRect = rect;
         realRect.origin = this->getPositionRelativeToObject(rect.origin, obj);
         if(obj->containsRect(realRect))
         {
@@ -1582,7 +1582,7 @@ CCArray* GraphicLayer::allObjectsStartingWithString(std::string name)
     return this->allObjectsStartingWithString(Screate(name));
 }
 
-CCArray* GraphicLayer::allObjectsAtPosition(CCPoint position)
+CCArray* GraphicLayer::allObjectsAtPosition(Vec2 position)
 {
     CCArray* result = CCArray::create();
     for(int i =  storedObjects->count() - 1; i >= 0; i--)
@@ -1596,13 +1596,13 @@ CCArray* GraphicLayer::allObjectsAtPosition(CCPoint position)
     return result;
 }
 
-CCArray* GraphicLayer::allObjectsInRect(CCRect rect)
+CCArray* GraphicLayer::allObjectsInRect(Rect rect)
 {
     CCArray* result = CCArray::create();
     for(int i =  storedObjects->count() - 1; i >= 0; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
-        CCRect realRect = rect;
+        Rect realRect = rect;
         realRect.origin = this->getPositionRelativeToObject(rect.origin, obj);
         if(obj->collision(realRect))
         {
@@ -1612,13 +1612,13 @@ CCArray* GraphicLayer::allObjectsInRect(CCRect rect)
     return result;
 }
 
-CCArray* GraphicLayer::allObjectsContainingRect(CCRect rect)
+CCArray* GraphicLayer::allObjectsContainingRect(Rect rect)
 {
     CCArray* result = CCArray::create();
     for(int i =  storedObjects->count() - 1; i >= 0; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
-        CCRect realRect = rect;
+        Rect realRect = rect;
         realRect.origin = this->getPositionRelativeToObject(rect.origin, obj);
         if(obj->containsRect(realRect))
         {
@@ -1628,7 +1628,7 @@ CCArray* GraphicLayer::allObjectsContainingRect(CCRect rect)
     return result;
 }
 
-CCArray* GraphicLayer::allVisibleObjectsAtPosition(CCPoint position)
+CCArray* GraphicLayer::allVisibleObjectsAtPosition(Vec2 position)
 {
     CCArray* result = CCArray::create();
     for(int i =  storedObjects->count() - 1; i >= 0; i--)
@@ -1682,20 +1682,20 @@ CCArray* GraphicLayer::allActionnableObjects()
     return result;
 }
 
-bool GraphicLayer::collision(CCPoint position, RawObject* obj)
+bool GraphicLayer::collision(Vec2 position, RawObject* obj)
 {
     return obj->collision(this->getPositionRelativeToObject(position, obj));
 }
 
-bool GraphicLayer::isOnScreen(RawObject* obj, CCSize size)
+bool GraphicLayer::isOnScreen(RawObject* obj, Size size)
 {
-    CCPoint position = this->getRealPosition(obj);
+    Vec2 position = this->getRealPosition(obj);
     if(size.width == 0 && size.height == 0)
     {
-        size = CCSizeMult(obj->getSize(), this->getRealScale(obj));
+        size = SizeMult(obj->getSize(), this->getRealScale(obj));
     }
-    CCPoint anchorPoint = obj->getNode()->getAnchorPoint();
-    CCSize bounds = CCDirector::sharedDirector()->getOpenGLView()->getFrameSize();
+    Vec2 anchorPoint = obj->getNode()->getAnchorPoint();
+    Size bounds = Director::getInstance()->getOpenGLView()->getFrameSize();
     if(bounds.width > position.x - size.width * anchorPoint.x
        && 0 < position.x + size.width * (1-anchorPoint.x)
        && bounds.height > position.y - size.height * anchorPoint.y
@@ -1763,9 +1763,9 @@ Panel* GraphicLayer::firstVisiblePanelWithName(CCString* name)
     return result;
 }
 
-CCPoint GraphicLayer::getPositionRelativeToObject(CCPoint point, RawObject* obj)
+Vec2 GraphicLayer::getPositionRelativeToObject(Vec2 point, RawObject* obj)
 {
-    CCPoint realPosition = point;
+    Vec2 realPosition = point;
     RawObject* parent = this->getContainingPanel(obj);
     //construct an array of parents to traverse them in reverse order
     CCArray* parents = Acreate();
@@ -1783,9 +1783,9 @@ CCPoint GraphicLayer::getPositionRelativeToObject(CCPoint point, RawObject* obj)
     return realPosition;
 }
 
-CCPoint GraphicLayer::getRealPosition(RawObject* obj)
+Vec2 GraphicLayer::getRealPosition(RawObject* obj)
 {
-    CCPoint realPosition = obj->getPosition();
+    Vec2 realPosition = obj->getPosition();
     RawObject* parent = this->getContainingPanel(obj);
     while(parent != NULL)
     {
@@ -1796,9 +1796,9 @@ CCPoint GraphicLayer::getRealPosition(RawObject* obj)
     return realPosition;
 }
 
-CCPoint GraphicLayer::getCenterRealPosition(RawObject* obj)
+Vec2 GraphicLayer::getCenterRealPosition(RawObject* obj)
 {
-    CCPoint realPosition = ccp(obj->getPosition().x + obj->getSize().width * (0.5 - obj->getNode()->getAnchorPoint().x)  * obj->getScaleX(),
+    Vec2 realPosition = Vec2(obj->getPosition().x + obj->getSize().width * (0.5 - obj->getNode()->getAnchorPoint().x)  * obj->getScaleX(),
                                obj->getPosition().y + obj->getSize().height * (0.5 - obj->getNode()->getAnchorPoint().y)  * obj->getScaleY());
     RawObject* parent = this->getContainingPanel(obj);
     while(parent != NULL)
@@ -1846,7 +1846,7 @@ float GraphicLayer::getRealScaleY(RawObject* obj)
     return realScale;
 }
 
-bool GraphicLayer::touchAtPosition(CCPoint position, bool event)
+bool GraphicLayer::touchAtPosition(Vec2 position, bool event)
 {
 #if VERBOSE_GENERAL_INFO
     CCLOG("Before trying touchAtPosition, obj order :");
@@ -1863,7 +1863,7 @@ bool GraphicLayer::touchAtPosition(CCPoint position, bool event)
             CCLOG("Problem with object at index %d, not a valid RawObject", i);
         }
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
-        CCNode* node = obj->getNode();
+        Node* node = obj->getNode();
         if(node != NULL && node->isVisible() && obj->collision(this->getPositionRelativeToObject(position, obj)))
         {
             bool parentVisible = true;
@@ -1888,7 +1888,7 @@ bool GraphicLayer::touchAtPosition(CCPoint position, bool event)
     return false;
 }
 
-bool GraphicLayer::touchObject(RawObject* obj, bool event, CCPoint position)
+bool GraphicLayer::touchObject(RawObject* obj, bool event, Vec2 position)
 {
     //TODO : check opacity ?
     if(obj->getEventName() != NULL && obj->getEventName()[0] != '\0' && obj->getEventActivated())
@@ -1986,14 +1986,14 @@ void GraphicLayer::reorderChildrenOfPanel(Panel* panel)
 /* back up version of the method : scale working properly, position not so much
  void GraphicLayer::applyDisplayScaling(RawObject* obj, DisplayScaling options)
  {
- CCSize frameSize = CCDirector::sharedDirector()->getOpenGLView()->getFrameSize();
+ Size frameSize = Director::getInstance()->getOpenGLView()->getFrameSize();
  float shinzuScale = 1;
- float scaleFactor = CCDirector::sharedDirector()->getContentScaleFactor();
- CCSize designSize = CCDirector::sharedDirector()->getOpenGLView()->getDesignResolutionSize();
- CCSize usedSize;
+ float scaleFactor = Director::getInstance()->getContentScaleFactor();
+ Size designSize = Director::getInstance()->getOpenGLView()->getDesignResolutionSize();
+ Size usedSize;
  usedSize.width = designSize.width * scaleFactor * shinzuScale;
  usedSize.height = designSize.height * scaleFactor * shinzuScale;
- CCPoint position = obj->getPosition();
+ Vec2 position = obj->getPosition();
  if(options & AnchorLeft && position.x < designSize.width/2)
  {
  position.x -= (frameSize.width - usedSize.width)/2 / (scaleFactor*shinzuScale);
@@ -2065,7 +2065,7 @@ void GraphicLayer::addObject(RawObject* obj, int z)
 #if VERBOSE_WARNING
             else if(obj->getNode() == NULL)
             {
-                CCLOG("Warning : Child %s doesn't have a CCNode, it will not be displayed by cocos2d", obj->getName());
+                CCLOG("Warning : Child %s doesn't have a Node, it will not be displayed by cocos2d", obj->getName());
             }
 #endif
         }
@@ -2081,7 +2081,7 @@ void GraphicLayer::addObject(RawObject* obj, int z)
 void GraphicLayer::update(float deltaTime)
 {
     isUpdating = true;
-    CCObject* obj;
+    Ref* obj;
     CCARRAY_FOREACH(storedObjects, obj)
     {
         if(isKindOfClass(obj, RawObject))
@@ -2115,16 +2115,16 @@ void GraphicLayer::update(float deltaTime)
     clock += deltaTime;
 }
 
-void GraphicLayer::refreshRenderTextures(CCObject* obj)
+void GraphicLayer::refreshRenderTextures(Ref* obj)
 {
     for(int i = 0; i < storedObjects->count(); i++)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
-        if(isKindOfClass(obj, CustomObject) && isKindOfClass(((CustomObject*)obj)->getNode(), CCRenderTexture))
+        if(isKindOfClass(obj, CustomObject) && isKindOfClass(((CustomObject*)obj)->getNode(), RenderTexture))
         {
             CustomObject* custObj = ((CustomObject*)obj);
-            CCRenderTexture* renderText = (CCRenderTexture*)custObj->getNode();
-            CCRenderTexture* newText = CCRenderTexture::create(renderText->getSprite()->getContentSize().width, renderText->getSprite()->getContentSize().height);
+            RenderTexture* renderText = (RenderTexture*)custObj->getNode();
+            RenderTexture* newText = RenderTexture::create(renderText->getSprite()->getContentSize().width, renderText->getSprite()->getContentSize().height);
             custObj->setNode(newText);
         }
     }

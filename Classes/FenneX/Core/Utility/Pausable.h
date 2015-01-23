@@ -33,7 +33,7 @@ class Pausable
 {
 public:
     //The update method is the only one you HAVE to implement and which is guaranteed to be called.
-    //virtual void update(float deltaTime) = 0; //Well, seems like it's already implemented by CCObject, and obviously this cause a diamond of death during method resolution if left here ....
+    //virtual void update(float deltaTime) = 0; //Well, seems like it's already implemented by Ref, and obviously this cause a diamond of death during method resolution if left here ....
     virtual void update(float deltaTime) = 0;
     virtual void pause() {}
     virtual void resume() {}

@@ -40,11 +40,11 @@ public:
     
     static TMPPoint* create();
     static TMPPoint* create(float x, float y);
-    static TMPPoint* create(CCPoint pos);
+    static TMPPoint* create(Vec2 pos);
     
     TMPPoint();
     TMPPoint(float x, float y);
-    TMPPoint(CCPoint pos);
+    TMPPoint(Vec2 pos);
     
     virtual TMPPoint* clone() const
     {

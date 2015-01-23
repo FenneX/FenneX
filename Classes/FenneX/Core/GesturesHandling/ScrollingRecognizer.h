@@ -35,7 +35,7 @@ USING_NS_CC;
 //WARNING : do not copy this ScrollingRecognizer version, because it ignore if the touch is already linked to another object
 
 NS_FENNEX_BEGIN
-//throw events Scrolling with argument Offset, Position (as CCPoint), DeltaTime (as CCFloat) and TouchesCount (as CCInteger
+//throw events Scrolling with argument Offset, Position (as Vec2), DeltaTime (as CCFloat) and TouchesCount (as CCInteger
 // and ScrollingEnded
 //if there is a Target, only the associated target should respond
 //must be updated, as Scrolling events are generated on update (for performance issues, the events are throttled)
@@ -47,33 +47,33 @@ public:
     static ScrollingRecognizer* sharedRecognizer(void);
     void init();
     
-    virtual bool onTouchBegan(CCTouch *touch, CCEvent *pEvent);
-    virtual void onTouchMoved(CCTouch *touch, CCEvent *pEvent);
-    virtual void onTouchEnded(CCTouch *touch, CCEvent *pEvent);
+    virtual bool onTouchBegan(Touch *touch, Event *pEvent);
+    virtual void onTouchMoved(Touch *touch, Event *pEvent);
+    virtual void onTouchEnded(Touch *touch, Event *pEvent);
     virtual void cleanTouches();
     virtual void update(float delta);
-    void cancelRecognitionForTouch(CCTouch* touch);
-    void adjustTargetPosition(CCObject* obj);
+    void cancelRecognitionForTouch(Touch* touch);
+    void adjustTargetPosition(Ref* obj);
 private:
     std::map<int, Vec2> lastPositions;//key : touch ID, value : last position
     float lastScrollingNotificationTime;
     bool touchMoved;
     
     //last indicate to use the lastPosition instead of Scene::touchPosition
-    CCPoint positionWithTouches(CCArray* touches, bool last = false);
-    CCPoint offsetFromLastPosition(CCObject* target);
+    Vec2 positionWithTouches(CCArray* touches, bool last = false);
+    Vec2 offsetFromLastPosition(Ref* target);
     
     /* Currently, do not support inertia because it's a mess. Think about supporting it on the receiver part (that would allow multi-touch inertia too)
      Perhaps a ScrollableDelegate that takes a list of scrollable objects to give them inertia
      //inertia only trigerred when the last touch is released
      //inertia properties
-     CCObject* inertiaTarget; //the target (if the last touch had one)
-     CCPoint inertiaPosition; //always the position of the last touchEnded, but the offset varies (observers should use position to detect boundaries and offset to do the scrolling)
-     CCPoint lastTouchMovedPosition;
+     Ref* inertiaTarget; //the target (if the last touch had one)
+     Vec2 inertiaPosition; //always the position of the last touchEnded, but the offset varies (observers should use position to detect boundaries and offset to do the scrolling)
+     Vec2 lastTouchMovedPosition;
      float lastTouchMovedTime;
-     CCPoint previousLastTouchMovedPosition;
+     Vec2 previousLastTouchMovedPosition;
      float previousLastTouchMovedTime;
-     CCPoint inertiaOffset;
+     Vec2 inertiaOffset;
      float inertiaLocked; //used to lock the inertia during a scene switch*/
 };
 NS_FENNEX_END

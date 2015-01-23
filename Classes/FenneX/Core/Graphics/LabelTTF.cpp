@@ -32,25 +32,25 @@ THE SOFTWARE.
 using namespace std;
 
 NS_FENNEX_BEGIN
-CCRect LabelTTF::getBoundingBox()
+Rect LabelTTF::getBoundingBox()
 {
-    return CCRect(delegate->getPositionX(), delegate->getPositionY(), delegate->getContentSize().width, delegate->getContentSize().height);
+    return Rect(delegate->getPositionX(), delegate->getPositionY(), delegate->getContentSize().width, delegate->getContentSize().height);
 }
 
-CCNode* LabelTTF::getNode()
+Node* LabelTTF::getNode()
 {
     CCAssert(delegate != NULL, "Label getNode is called upon a non-initialized object (or perhaps image/sheet load failed)");
     return delegate;
 }
 
 
-void LabelTTF::setDimensions(CCSize dimensions)
+void LabelTTF::setDimensions(Size dimensions)
 {
     adjustLabel();
     realDimensions = dimensions;
 }
 
-CCSize LabelTTF::getDimensions()
+Size LabelTTF::getDimensions()
 {
     return realDimensions;
 }
@@ -109,7 +109,7 @@ loadingValue("")
 {
 }
 
-LabelTTF::LabelTTF(const char* labelString, const char* filename, CCPoint location, CCSize dimensions, CCTextAlignment format) :
+LabelTTF::LabelTTF(const char* labelString, const char* filename, Vec2 location, Size dimensions, TextHAlignment format) :
 loadingValue("")
 {
     name = labelString;
@@ -156,7 +156,7 @@ loadingValue("")
     delegate->retain();
     delegate->setPosition(location);
     delegate->setHorizontalAlignment(format);
-    ccColor3B color3B = color->isEqual(Screate("Gray")) ? ccGRAY : color->isEqual(Screate("White")) ? ccWHITE : ccBLACK;
+    Color3B color3B = color->isEqual(Screate("Gray")) ? Color3B::GRAY : color->isEqual(Screate("White")) ? Color3B::WHITE : Color3B::BLACK;
     delegate->setColor(color3B);
     realDimensions = dimensions;
     delegate->setDimensions(realDimensions.width / this->getScale(), 0);
@@ -170,11 +170,11 @@ loadingValue("")
     name = label->getString();
     fitType = ResizeFont;
     fontFile = new CCString(label->getSystemFontName().c_str());
-    alignment = kCCTextAlignmentCenter;
+    alignment = TextHAlignment::CENTER;
     realDimensions = label->getDimensions();
     delegate = label;
     label->retain();
-    fullFontFile = ScreateF("%s%d%s", label->getSystemFontName().c_str(), (int)label->getSystemFontSize(), isColorEqual(label->getColor() , ccBLACK) ? "Black" : isColorEqual(label->getColor() , ccWHITE) ? "White" : "Gray");
+    fullFontFile = ScreateF("%s%d%s", label->getSystemFontName().c_str(), (int)label->getSystemFontSize(), isColorEqual(label->getColor() , Color3B::BLACK) ? "Black" : isColorEqual(label->getColor() , Color3B::WHITE) ? "White" : "Gray");
     fullFontFile->retain();
     CustomLabel* customLabel = dynamic_cast<CustomLabel*>(label);
     if(customLabel != NULL)
@@ -193,7 +193,7 @@ loadingValue("")
 LabelTTF::~LabelTTF()
 {
 #if VERBOSE_DEALLOC
-    CCLog("Dealloc label %s, font : %s", name.c_str(), fullFontFile->getCString());
+    CCLOG("Dealloc label %s, font : %s", name.c_str(), fullFontFile->getCString());
 #endif
     delegate->release();
     fontFile->release();
@@ -280,7 +280,7 @@ CCString* LabelTTF::getFullFontFile()
     return fullFontFile;
 }
 
-CCTextAlignment LabelTTF::getAlignment()
+TextHAlignment LabelTTF::getAlignment()
 {
     return delegate->getHorizontalAlignment();
 }

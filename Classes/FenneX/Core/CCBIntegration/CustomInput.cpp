@@ -31,10 +31,10 @@ bool CustomInput::init()
     numbersOnly = false;
     maxChar = -1;
     fontSize = -1;
-    return Scale9Sprite::init();
+    return ui::Scale9Sprite::init();
 }
 
-bool CustomInput::onAssignCCBCustomProperty(CCObject* pTarget, const char* pMemberVariableName, const cocos2d::Value& pCCBValue)
+bool CustomInput::onAssignCCBCustomProperty(Ref* pTarget, const char* pMemberVariableName, const cocos2d::Value& pCCBValue)
 {
     CustomInput* target = dynamic_cast<CustomInput*>(pTarget);
     if(pCCBValue.getType() == cocos2d::Value::Type::INTEGER && strcmp(pMemberVariableName, "maxChar") == 0)

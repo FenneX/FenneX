@@ -36,7 +36,7 @@ class EventResponder;
 
 NS_FENNEX_BEGIN
 
-class LayoutHandler : public CCObject
+class LayoutHandler : public Ref
 {
 public:
     static LayoutHandler* sharedHandler(void);

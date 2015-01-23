@@ -26,7 +26,7 @@ THE SOFTWARE.
 #include "Shorteners.h"
 
 NS_FENNEX_BEGIN
-bool CustomLabel::onAssignCCBCustomProperty(CCObject* pTarget, const char* pMemberVariableName, const cocos2d::Value& pCCBValue)
+bool CustomLabel::onAssignCCBCustomProperty(Ref* pTarget, const char* pMemberVariableName, const cocos2d::Value& pCCBValue)
 {
     CustomLabel* target = dynamic_cast<CustomLabel*>(pTarget);
     if(pCCBValue.getType() == cocos2d::Value::Type::INTEGER && strcmp(pMemberVariableName, "fitType") == 0)

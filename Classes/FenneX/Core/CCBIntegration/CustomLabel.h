@@ -42,7 +42,7 @@ public:
     CCB_STATIC_NEW_AUTORELEASE_OBJECT_WITH_INIT_METHOD(CustomLabel, create);
     bool init();
     CC_SYNTHESIZE(LabelFitType, fitType, FitType);
-    virtual bool onAssignCCBCustomProperty(CCObject* pTarget, const char* pMemberVariableName, const cocos2d::Value& pCCBValue);
+    virtual bool onAssignCCBCustomProperty(Ref* pTarget, const char* pMemberVariableName, const cocos2d::Value& pCCBValue);
 };
 
 class CustomLabelLoader : public LabelTTFLoader

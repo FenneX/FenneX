@@ -33,10 +33,10 @@ USING_NS_FENNEX;
 //Warning : there is a small difference :
 //on iOS you'll need to play a video after creating it
 //on Android, a video will autoplay after prepare finish
-class VideoPlayer : public CCObject
+class VideoPlayer : public Ref
 {
 public:
-    VideoPlayer(std::string file, CCPoint position, CCSize size, bool front = true, bool loop = true);
+    VideoPlayer(std::string file, Vec2 position, cocos2d::Size size, bool front = true, bool loop = true);
     ~VideoPlayer();
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
     //On Android, the default implementation use a VideoView
@@ -67,7 +67,7 @@ public:
     //For trimmed video (picked from library) on iOS and all video on Android, directly return the right value
     static bool videoExists(const std::string& file);
 private:
-//TODO : refactor to have a cross-platform way to do that (use EditBox as an example)
+//TODO : refactor to have a cross-platform way to do that (use ui::EditBox as an example)
     void* delegate;
 };
 

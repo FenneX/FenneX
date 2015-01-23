@@ -34,8 +34,8 @@ USING_NS_CC;
 // NOT HANDLED : Date and Data
 
 NS_FENNEX_BEGIN
-void saveObjectToFile(CCObject* obj, const char* name);
-CCObject* loadObjectFromFile(const char* name, bool resource = false);
+void saveObjectToFile(Ref* obj, const char* name);
+Ref* loadObjectFromFile(const char* name, bool resource = false);
 void deleteFile(const char* name);
 NS_FENNEX_END
 
