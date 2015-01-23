@@ -166,4 +166,9 @@ void launchYoutube()
     openUrl("http://www.youtube.fr/");
 }
 
+bool isPackageInstalled(std::string packageName)
+{
+    return false;
+}
+
 NS_FENNEX_END

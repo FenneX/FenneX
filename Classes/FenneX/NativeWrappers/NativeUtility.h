@@ -85,6 +85,9 @@ void openSystemSettings();
 //Launch Youtube intent on Android, simple openUrl on iOS
 void launchYoutube();
 
+//Return if a package is installed on android, return false on iOS
+bool isPackageInstalled(std::string packageName);
+
 //On iOS, those notifications will automatically start being thrown after getDeviceVolume has been called for the first time
 //On Android, they are always on
 static inline void notifyVolumeChanged()

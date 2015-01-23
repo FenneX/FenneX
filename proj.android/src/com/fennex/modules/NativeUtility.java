@@ -33,6 +33,7 @@ import java.io.InputStream;
 
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.content.Context;
@@ -299,5 +300,17 @@ public class NativeUtility
     	Intent youtubeIntent = getMainActivity().getPackageManager().getLaunchIntentForPackage("com.google.android.youtube");
     	if (youtubeIntent != null) 
     		getMainActivity().startActivity(youtubeIntent);
+    }
+
+    public static boolean isPackageInstalled(String packageName) {
+        Context myContext = NativeUtility.getMainActivity().getBaseContext();
+        PackageManager myPackageMgr = myContext.getPackageManager();
+        try {
+            myPackageMgr.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
+        }
+        catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
+        return true;
     }
 }
