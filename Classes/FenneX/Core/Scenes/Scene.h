@@ -42,8 +42,8 @@ class Scene : public Pausable, public Layer
 {
     CC_SYNTHESIZE(SceneName, sceneName, SceneName);
     CC_SYNTHESIZE_READONLY(cocos2d::Scene*, delegate, CocosScene);
-    CC_SYNTHESIZE_READONLY(CCArray*, updateList, UpdateList);
-    CC_SYNTHESIZE_READONLY(CCArray*, touchReceiversList, TouchReceiversList);
+    CC_SYNTHESIZE_READONLY(std::vector<Pausable*>, updateList, UpdateList);
+    CC_SYNTHESIZE_READONLY(Vector<GenericRecognizer*>, touchReceiversList, TouchReceiversList);
     //TODO : add touchlinker
     CC_SYNTHESIZE_READONLY(float, currentTime, CurrentTime);
     CC_SYNTHESIZE_READONLY(CCDictionary*, parameters, Parameters);
@@ -69,8 +69,12 @@ public:
     
     void tapRecognized(Ref* obj);
     void dropAllTouches(Ref* obj);
-    void addUpdatable(Ref* obj);
-    void removeUpdatable(Ref* obj);
+    
+    //Pausable will be retain/released if they are of type Ref*
+    void addUpdatable(Pausable* obj);
+    void removeUpdatable(Pausable* obj);
+    
+    //GenericRecognizer will always be retain/released
     void addTouchreceiver(GenericRecognizer* obj);
     void removeTouchreceiver(GenericRecognizer* obj);
     
@@ -91,10 +95,10 @@ protected:
     Image* getButtonAtPosition(Vec2 position, bool state);
     int numberOfTouches;
     TouchLinker* linker;
-    CCArray* updatablesToRemove;
-    CCArray* updatablesToAdd;
-    CCArray* receiversToRemove;
-    CCArray* receiversToAdd;
+    std::vector<Pausable*> updatablesToRemove;
+    std::vector<Pausable*> updatablesToAdd;
+    Vector<GenericRecognizer*> receiversToRemove;
+    Vector<GenericRecognizer*> receiversToAdd;
     int frameNumber;
     EventListenerTouchOneByOne* touchListener;
     EventListenerKeyboard* keyboardListener;

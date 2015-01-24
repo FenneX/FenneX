@@ -47,13 +47,6 @@ void Scene::initScene()
     }
     delegate->addChild(Director::getInstance()->getNotificationNode());
     delegate->addChild(this);
-    updateList = new CCArray();
-    touchReceiversList = new CCArray();
-    updatablesToRemove = new CCArray();
-    updatablesToAdd = new CCArray();
-    receiversToAdd = new CCArray();
-    receiversToRemove = new CCArray();
-    //TODO : add touchlinker
     linker = new TouchLinker();
 }
 
@@ -64,7 +57,10 @@ sceneName(identifier)
     this->parameters = CCDictionary::createWithDictionary(parameters);
     this->parameters->retain();
     numberOfTouches = 0;
-    updateList->addObject(GraphicLayer::sharedLayer());
+    
+    //GraphicLayer is a Ref*, retain it for updateList
+    GraphicLayer::sharedLayer()->retain();
+    updateList.push_back(GraphicLayer::sharedLayer());
     
     //The order is very important : TapRecognized must be registered before InertiaGenerator (generally added in linkToScene), because it can cancel inertia
     this->addTouchreceiver(TapRecognizer::sharedRecognizer());
@@ -95,6 +91,14 @@ sceneName(identifier)
 }
 Scene::~Scene()
 {
+    for(Pausable* obj : updateList)
+    {
+        if(isKindOfClass(obj, Ref))
+        {
+            dynamic_cast<Ref*>(obj)->release();
+        }
+    }
+    updateList.clear();
     if(touchListener != NULL)
     {
         Director::getInstance()->getEventDispatcher()->removeEventListener(touchListener);
@@ -110,13 +114,7 @@ Scene::~Scene()
     CCNotificationCenter::sharedNotificationCenter()->removeAllObservers(this);
     parameters->release();
     delegate->release();
-    updateList->release();
-    touchReceiversList->release();
     linker->release();
-    updatablesToAdd->release();
-    updatablesToRemove->release();
-    receiversToAdd->release();
-    receiversToRemove->release();
 }
 
 void Scene::update(float deltaTime)
@@ -128,46 +126,61 @@ void Scene::update(float deltaTime)
         gettimeofday(&startTime, NULL);
 #endif
     currentTime += deltaTime;
-    Ref* obj = NULL;
 #if VERBOSE_GENERAL_INFO
     CCLOG("Begin scene update");
 #endif
-    CCARRAY_FOREACH(updateList, obj)
+    for(Pausable* obj : updateList)
     {
         //CCLOG("Updating object of type: %s", typeid(*obj).name());
-        dynamic_cast<Pausable*>(obj)->update(deltaTime);
+        obj->update(deltaTime);
     }
 #if VERBOSE_GENERAL_INFO
     CCLOG("scene update: second part");
 #endif
     SceneSwitcher::sharedSwitcher()->trySceneSwitch(deltaTime);
-    if(updatablesToRemove->count() > 0)
+    if(updatablesToRemove.size() > 0)
     {
         //CCLOG("Removing %d updatables", updatablesToRemove->count());
-        updateList->removeObjectsInArray(updatablesToRemove);
-        updatablesToRemove->removeAllObjects();
-    }
-    if(updatablesToAdd->count() > 0)
-    {
-        //CCLOG("Removing %d updatables", updatablesToAdd->count());
-        updateList->addObjectsFromArray(updatablesToAdd);
-        updatablesToAdd->removeAllObjects();
-    }
-    if(receiversToRemove->count() > 0)
-    {
-        //CCLOG("Removing %d updatables", updatablesToRemove->count());
-        touchReceiversList->removeObjectsInArray(receiversToRemove);
-        receiversToRemove->removeAllObjects();
-    }
-    if(receiversToAdd->count() > 0)
-    {
-        //CCLOG("Removing %d updatables", updatablesToAdd->count());
-        touchReceiversList->addObjectsFromArray(receiversToAdd);
-        for(int i = 0; i < receiversToAdd->count(); i++)
+        //Manual release for updateList Ref*
+        for(Pausable* obj : updatablesToRemove)
         {
-            ((GenericRecognizer*)receiversToAdd->objectAtIndex(i))->setLinker(linker);
+            if(isKindOfClass(obj, Ref))
+            {
+                dynamic_cast<Ref*>(obj)->release();
+            }
         }
-        receiversToAdd->removeAllObjects();
+        updateList.erase(updatablesToRemove.begin(), updatablesToRemove.end());
+        updatablesToRemove.clear();
+    }
+    if(updatablesToAdd.size() > 0)
+    {
+        //CCLOG("Removing %d updatables", updatablesToAdd->count());
+        //Manual retain for updateList Ref*
+        for(Pausable* obj : updatablesToAdd)
+        {
+            if(isKindOfClass(obj, Ref))
+            {
+                dynamic_cast<Ref*>(obj)->retain();
+            }
+            updateList.push_back(obj);
+        }
+        updatablesToAdd.clear();
+    }
+    if(receiversToRemove.size() > 0)
+    {
+        //CCLOG("Removing %d updatables", updatablesToRemove->count());
+        touchReceiversList.erase(receiversToRemove.begin(), receiversToRemove.end());
+        receiversToRemove.clear();
+    }
+    if(receiversToAdd.size() > 0)
+    {
+        //CCLOG("Removing %d updatables", updatablesToAdd->count());
+        for(GenericRecognizer* newReceiver : receiversToAdd)
+        {
+            newReceiver->setLinker(linker);
+        }
+        touchReceiversList.pushBack(receiversToAdd);
+        receiversToAdd.clear();
     }
     SynchronousReleaser::sharedReleaser()->emptyReleasePool();
 #if VERBOSE_GENERAL_INFO
@@ -192,10 +205,9 @@ void Scene::update(float deltaTime)
 void Scene::pause()
 {
     _running = false;
-    Ref* obj = NULL;
-    CCARRAY_FOREACH(updateList, obj)
+    for(Pausable* obj : updateList)
     {
-        dynamic_cast<Pausable*>(obj)->pause();
+        obj->pause();
     }
     this->unscheduleUpdate();
 }
@@ -206,10 +218,9 @@ void Scene::resume()
     touchListener->setEnabled(true);
     keyboardListener->setEnabled(true);
     this->scheduleUpdateWithPriority(-1);
-    Ref* obj = NULL;
-    CCARRAY_FOREACH(updateList, obj)
+    for(Pausable* obj : updateList)
     {
-        dynamic_cast<Pausable*>(obj)->resume();
+        obj->resume();
     }
     LayoutHandler::sharedHandler()->linkToScene(this, false);
 }
@@ -221,18 +232,21 @@ void Scene::stop()
     Director::getInstance()->getNotificationNode()->stopAllActions();
     this->unscheduleUpdate();
     
-    Ref* obj = NULL;
-    CCARRAY_FOREACH(updateList, obj)
+    for(Pausable* obj : updateList)
     {
-        dynamic_cast<Pausable*>(obj)->stop();
+        obj->stop();
+        if(isKindOfClass(obj, Ref))
+        {
+            dynamic_cast<Ref*>(obj)->release();
+        }
     }
-    updateList->removeAllObjects();
+    updateList.clear();
     
-    CCARRAY_FOREACH(touchReceiversList, obj)
+    for(GenericRecognizer* obj : touchReceiversList)
     {
-        dynamic_cast<GenericRecognizer*>(obj)->cleanTouches();
+        obj->cleanTouches();
     }
-    touchReceiversList->removeAllObjects();
+    touchReceiversList.clear();
     
     delegate->removeChild(this, false);
     delegate->removeChild(Director::getInstance()->getNotificationNode(), false);
@@ -250,10 +264,8 @@ bool Scene::onTouchBegan(Touch *touch, Event *pEvent)
     this->switchButton(Scene::touchPosition(touch), true, touch);
     
     //CCLOG("sending to receivers ...");
-    Ref* CCobj;
-    CCARRAY_FOREACH(touchReceiversList, CCobj)
+    for(GenericRecognizer* receiver : touchReceiversList)
     {
-        GenericRecognizer* receiver = (GenericRecognizer*)CCobj;
         receiver->onTouchBegan(touch, pEvent);
     }
     //TODO : cancel selection if needed
@@ -276,10 +288,9 @@ void Scene::onTouchMoved(Touch *touch, Event *pEvent)
             this->switchButton(toggle, false);
         }
     }
-    Ref* CCobj;
-    CCARRAY_FOREACH(touchReceiversList, CCobj)
+    
+    for(GenericRecognizer* receiver : touchReceiversList)
     {
-        GenericRecognizer* receiver = (GenericRecognizer*)CCobj;
         receiver->onTouchMoved(touch, pEvent);
     }
     //CCLOG("onTouchMoved ended");
@@ -300,10 +311,9 @@ void Scene::onTouchEnded(Touch *touch, Event *pEvent)
             this->switchButton(toggle, false);
         }
     }
-    Ref* CCobj;
-    CCARRAY_FOREACH(touchReceiversList, CCobj)
+    
+    for(GenericRecognizer* receiver : touchReceiversList)
     {
-        GenericRecognizer* receiver = (GenericRecognizer*)CCobj;
         receiver->onTouchEnded(touch, pEvent);
     }
     numberOfTouches--;
@@ -391,41 +401,45 @@ void Scene::tapRecognized(Ref* obj)
 void Scene::dropAllTouches(Ref* obj)
 {
     Vector<Touch*> touches = linker->allTouches();
-    for(int i = touches.size() - 1; i > 0; i--)
+    for(long i = touches.size() - 1; i > 0; i--)
     {
         this->onTouchEnded(touches.at(i), NULL);
     }
 }
 
-void Scene::addUpdatable(Ref* obj)
+void Scene::addUpdatable(Pausable* obj)
 {
-    if(obj != NULL && !updateList->containsObject(obj) && !updatablesToAdd->containsObject(obj))
+    if(obj != NULL
+       && std::find(updateList.begin(), updateList.end(), obj) == updateList.end()
+       && std::find(updatablesToAdd.begin(), updatablesToAdd.end(), obj) == updatablesToAdd.end())
     {
-        updatablesToAdd->addObject(obj);
+        updatablesToAdd.push_back(obj);
     }
 }
 
-void Scene::removeUpdatable(Ref* obj)
+void Scene::removeUpdatable(Pausable* obj)
 {
-    if(obj != NULL && updateList->containsObject(obj) && !updatablesToRemove->containsObject(obj))
+    if(obj != NULL
+       && std::find(updateList.begin(), updateList.end(), obj) == updateList.end()
+       && std::find(updatablesToRemove.begin(), updatablesToRemove.end(), obj) == updatablesToRemove.end())
     {
-        updatablesToRemove->addObject(obj);
+        updatablesToRemove.push_back(obj);
     }
 }
 
 void Scene::addTouchreceiver(GenericRecognizer* obj)
 {
-    if(obj != NULL && !touchReceiversList->containsObject(obj) && !receiversToAdd->containsObject(obj))
+    if(obj != NULL && !touchReceiversList.contains(obj) && !receiversToAdd.contains(obj))
     {
-        receiversToAdd->addObject(obj);
+        receiversToAdd.pushBack(obj);
     }
 }
 
 void Scene::removeTouchreceiver(GenericRecognizer* obj)
 {
-    if(obj != NULL && touchReceiversList->containsObject(obj) && !receiversToRemove->containsObject(obj))
+    if(obj != NULL && touchReceiversList.contains(obj) && !receiversToRemove.contains(obj))
     {
-        receiversToRemove->addObject(obj);
+        receiversToRemove.pushBack(obj);
     }
 }
 
