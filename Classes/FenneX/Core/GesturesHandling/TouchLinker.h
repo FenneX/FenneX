@@ -33,10 +33,7 @@ USING_NS_CC;
 NS_FENNEX_BEGIN
 class TouchLinker : public Ref
 {
-public:
-    TouchLinker();
-    ~TouchLinker();
-    
+public:    
     //call record on touchBegin if it should be used by recognizers. Any linkTouch will also record the touch if it's not already done.
     void recordTouch(Touch* touch);
     
@@ -46,20 +43,20 @@ public:
     void linkTouch(Touch* touch, Ref* object);
     bool isTouchLinkedTo(Touch* touch, Ref* object);
     Ref* linkedObjectOf(Touch* touch);
-    CCArray* touchesLinkedTo(Ref* object);
+    Vector<Touch*> touchesLinkedTo(Ref* object);
     void unlinkTouch(Touch* touch);
     
     //return the touches which were unlinked
-    CCArray* unlinkObject(Ref* object);
+    Vector<Touch*> unlinkObject(Ref* object);
     
     //return all touches, even unlinked ones
-    CCArray* allTouches();
+    Vector<Touch*> allTouches();
     //return all objects, without duplicate
-    CCArray* allObjects();
+    Vector<Ref*> allObjects();
     int count();
 protected:
-    CCDictionary* touchLinker;
-    CCArray* touches;
+    Map<int, Ref*> touchLinker;
+    Vector<Touch*> touches;
 };
 NS_FENNEX_END
 

@@ -46,15 +46,14 @@ TapRecognizer* TapRecognizer::sharedRecognizer(void)
 
 void TapRecognizer::init()
 {
-    touchStart = CCDictionary::create();
-    touchStart->retain();
+    touchStart.clear();
     touchInitialPosition.clear();
 }
 
 
 bool TapRecognizer::onTouchBegan(Touch *touch, Event *pEvent)
 {
-    touchStart->setObject(Fcreate(TIME), touch->getID());
+    touchStart.insert(std::make_pair(touch->getID(), TIME));
     touchInitialPosition.insert(std::make_pair(touch->getID(), Scene::touchPosition(touch)));
     return true;
 }
@@ -68,34 +67,32 @@ void TapRecognizer::onTouchEnded(Touch *touch, Event *pEvent)
 {
 #if VERBOSE_TOUCH_RECOGNIZERS
     CCLOG("linked ? %s", mainLinker->linkedObjectOf(touch) == NULL ? "yes" : "no");
-    CCLOG("is in start ? %s", touchStart->objectForKey(touch->getID()) != NULL ? "yes" : "no");
-    CCLOG("time ? %s", (TIME - ((CCFloat*)touchStart->objectForKey(touch->getID()))->getValue()) < 2.0 ? "yes" : "no");
-    CCLOG("distance ? %s : real : %f", Scene::touchPosition(touch).getDistance(touchInitialPosition->at(touch->getID())) < 20 ? "yes" : "no", Scene::touchPosition(touch).getDistance(touchInitialPosition->at(touch->getID())));
-    CCLOG("initial position : %f, %f, current : %f, %f", touchInitialPosition->at(touch->getID()).x, touchInitialPosition->at(touch->getID()).y, Scene::touchPosition(touch).x, Scene::touchPosition(touch).y);
+    CCLOG("is in start ? %s", touchStart.find(touch->getID()) != touchStart.end() ? "yes" : "no");
+    CCLOG("time ? %s", (TIME - touchStart.at(touch->getID())) < 2.0 ? "yes" : "no");
+    CCLOG("distance ? %s : real : %f", Scene::touchPosition(touch).getDistance(touchInitialPosition.at(touch->getID())) < 20 ? "yes" : "no", Scene::touchPosition(touch).getDistance(touchInitialPosition.at(touch->getID())));
+    CCLOG("initial position : %f, %f, current : %f, %f", touchInitialPosition.at(touch->getID()).x, touchInitialPosition.at(touch->getID()).y, Scene::touchPosition(touch).x, Scene::touchPosition(touch).y);
 #endif
     if(mainLinker != NULL
        //&& mainLinker->linkedObjectOf(touch) == NULL //prevent drag + tap from working at the same time
-       && touchStart->objectForKey(touch->getID()) != NULL
-       && (TIME - ((CCFloat*)touchStart->objectForKey(touch->getID()))->getValue()) < 2.0
+       && touchStart.find(touch->getID()) != touchStart.end()
+       && (TIME - touchStart.at(touch->getID())) < 2.0
        && Scene::touchPosition(touch).getDistance(touchInitialPosition.at(touch->getID())) < 50 * RESOLUTION_MULTIPLIER)
     {
-        CCDictionary* infos = CCDictionary::create();
-        infos->setObject(touch, "Touch");
-        CCNotificationCenter::sharedNotificationCenter()->postNotification("TapRecognized", infos);
+        CCNotificationCenter::sharedNotificationCenter()->postNotification("TapRecognized", DcreateP(touch, Screate("Touch"), NULL));
     }
-    touchStart->removeObjectForKey(touch->getID());
+    touchStart.erase(touch->getID());
     touchInitialPosition.erase(touch->getID());
 }
 
 void TapRecognizer::cleanTouches()
 {
-    touchStart->removeAllObjects();
+    touchStart.clear();
     touchInitialPosition.clear();
 }
 
 void TapRecognizer::cancelRecognitionForTouch(Touch* touch)
 {
-    touchStart->removeObjectForKey(touch->getID());
+    touchStart.erase(touch->getID());
     touchInitialPosition.erase(touch->getID());
 }
 NS_FENNEX_END

@@ -34,21 +34,19 @@ bool GenericRecognizer::isInLinker(Touch* touch)
     return false;
 }
 
-CCArray* GenericRecognizer::unlinkedTouches()
+Vector<Touch*> GenericRecognizer::unlinkedTouches()
 {
-    CCArray* linkedTouches = CCArray::create();
+    Vector<Touch*> unlinkedTouches;
     if(mainLinker != NULL)
     {
-        CCArray* touches = mainLinker->allTouches();
-        for (int i = 0; i < touches->count(); i++)
+        for (Touch* touch : mainLinker->allTouches())
         {
-            Touch* touch = (Touch*) touches->objectAtIndex(i);
             if(mainLinker->linkedObjectOf(touch) == NULL)
             {
-                linkedTouches->addObject(touch);
+                unlinkedTouches.pushBack(touch);
             }
         }
     }
-    return linkedTouches;
+    return unlinkedTouches;
 }
 NS_FENNEX_END

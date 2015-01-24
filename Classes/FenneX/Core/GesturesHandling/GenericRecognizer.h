@@ -48,7 +48,7 @@ public:
     virtual void cleanTouches() {};
 protected:
     bool isInLinker(Touch* touch);
-    CCArray* unlinkedTouches();
+    Vector<Touch*> unlinkedTouches();
 };
 NS_FENNEX_END
 

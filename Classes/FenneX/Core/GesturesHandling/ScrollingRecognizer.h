@@ -60,7 +60,7 @@ private:
     bool touchMoved;
     
     //last indicate to use the lastPosition instead of Scene::touchPosition
-    Vec2 positionWithTouches(CCArray* touches, bool last = false);
+    Vec2 positionWithTouches(Vector<Touch*> touches, bool last = false);
     Vec2 offsetFromLastPosition(Ref* target);
     
     /* Currently, do not support inertia because it's a mess. Think about supporting it on the receiver part (that would allow multi-touch inertia too)

@@ -32,7 +32,9 @@ THE SOFTWARE.
 
 USING_NS_CC;
 
+
 NS_FENNEX_BEGIN
+class Inertia;
 class InertiaGenerator : public Ref, public Pausable
 {
 public:
@@ -48,19 +50,19 @@ public:
     void tapRecognized(Ref* obj);
     void ignoreTouch(Touch* touch);
     
-    void addPossibleTarget(Ref* object);
-    void addPossibleTargets(CCArray* array);
+    void addPossibleTarget(Ref* target);
+    CC_DEPRECATED_ATTRIBUTE void addPossibleTargets(CCArray* target);
+    void addPossibleTargets(Vector<Ref*> target);
     
 protected:
     void init();
-    ~InertiaGenerator();
     
-    CCArray* possibleTargets;
-    CCArray* inertiaTargets;
-    CCArray* inertiaParameters;
+    Vector<Ref*> possibleTargets;
+    Vector<Ref*> inertiaTargets;
+    Vector<Inertia*> inertiaParameters;
     
-    CCDictionary* lastOffsets;
-    CCArray* ignoredTouches;
+    std::map<int, std::vector<Vec2>> lastOffsets;
+    Vector<Touch*> ignoredTouches;
     
     float currentTime;
     float lastInertiaNotificationTime;

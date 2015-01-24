@@ -25,8 +25,8 @@ THE SOFTWARE.
 #include "InertiaGenerator.h"
 #include "GraphicLayer.h"
 #include "Shorteners.h"
-#include "Inertia.h"
 #include "AppMacros.h"
+#include "Inertia.h"
 
 #define TIME GraphicLayer::sharedLayer()->getClock()
 #define ADD_OBSERVER(func, notifName) (center->addObserver(this, callfuncO_selector(InertiaGenerator::func), notifName, NULL))
@@ -52,16 +52,9 @@ InertiaGenerator* InertiaGenerator::sharedInertia(void)
 }
 
 void InertiaGenerator::init()
-{
-    inertiaTargets = new CCArray();
-    inertiaParameters = new CCArray();
-    possibleTargets = new CCArray();
-    lastOffsets = new CCDictionary();
-    ignoredTouches = new CCArray();
-    
+{    
     currentTime = 0;
     lastInertiaNotificationTime = 0;
-    
     
     CCNotificationCenter* center = CCNotificationCenter::sharedNotificationCenter();
     ADD_OBSERVER(planSceneSwitch, "PlanSceneSwitch");
@@ -70,49 +63,48 @@ void InertiaGenerator::init()
     ADD_OBSERVER(tapRecognized, "TapRecognized");
 }
 
-InertiaGenerator::~InertiaGenerator()
+void InertiaGenerator::addPossibleTarget(Ref* target)
 {
-    inertiaTargets->release();
-    inertiaParameters->release();
-    possibleTargets->release();
-    lastOffsets->release();
-    ignoredTouches->release();
-}
-
-void InertiaGenerator::addPossibleTarget(Ref* object)
-{
-    if(object != NULL)
+    if(target != NULL)
     {
-        possibleTargets->addObject(object);
+        possibleTargets.pushBack(target);
     }
 }
 
-void InertiaGenerator::addPossibleTargets(CCArray* array)
+void InertiaGenerator::addPossibleTargets(CCArray* targets)
 {
     Ref* obj;
-    CCARRAY_FOREACH(array, obj)
+    CCARRAY_FOREACH(targets, obj)
     {
         this->addPossibleTarget(obj);
     }
 }
 
+void InertiaGenerator::addPossibleTargets(Vector<Ref*> targets)
+{
+    for(Ref* target : targets)
+    {
+        addPossibleTarget(target);
+    }
+}
+
 void InertiaGenerator::planSceneSwitch(Ref* obj)
 {
-    inertiaTargets->removeAllObjects();
-    inertiaParameters->removeAllObjects();
-    possibleTargets->removeAllObjects();
-    ignoredTouches->removeAllObjects();
+    inertiaTargets.clear();
+    inertiaParameters.clear();
+    possibleTargets.clear();
+    ignoredTouches.clear();
 }
 
 void InertiaGenerator::update(float delta)
 {
     if(TIME > lastInertiaNotificationTime + TIME_BETWEEN_NOTIFICATIONS)
     {
-        CCArray* toRemove = new CCArray();
-        for(int i = 0; i < inertiaTargets->count(); i++)
+        Vector<Ref*> toRemove;
+        for(int i = 0; i < inertiaTargets.size(); i++)
         {
-            Ref* target = inertiaTargets->objectAtIndex(i);
-            Inertia* inertia = (Inertia*)inertiaParameters->objectAtIndex(i);
+            Ref* target = inertiaTargets.at(i);
+            Inertia* inertia = inertiaParameters.at(i);
             inertia->retain(); //retain inertia in case stopInertia is called during the notification
             inertia->setOffset(inertia->getOffset() * (1-INERTIA_FRICTION));
             CCDictionary* arguments = DcreateP(Pcreate(inertia->getOffset()), Screate("Offset"),
@@ -124,16 +116,15 @@ void InertiaGenerator::update(float delta)
             CCNotificationCenter::sharedNotificationCenter()->postNotification("Inertia", arguments);
             if (fabs(inertia->getOffset().x) < MIN_SCROLL && fabs(inertia->getOffset().y) < MIN_SCROLL)
             {
-                toRemove->addObject(target);
+                toRemove.pushBack(target);
             }
             inertia->release();
         }
-        while(toRemove->count() > 0)
+        while(toRemove.size() > 0)
         {
-            this->stopInertia(toRemove->objectAtIndex(0));
-            toRemove->removeObjectAtIndex(0);
+            this->stopInertia(toRemove.at(0));
+            toRemove.erase(0);
         }
-        toRemove->release();
         lastInertiaNotificationTime = TIME;
     }
 }
@@ -148,8 +139,8 @@ void InertiaGenerator::tapRecognized(Ref* obj)
 
 void InertiaGenerator::ignoreTouch(Touch* touch)
 {
-    lastOffsets->removeObjectForKey(touch->getID());
-    ignoredTouches->addObject(touch);
+    lastOffsets.erase(touch->getID());
+    ignoredTouches.pushBack(touch);
 }
 
 void InertiaGenerator::scrolling(Ref* obj)
@@ -159,18 +150,18 @@ void InertiaGenerator::scrolling(Ref* obj)
     for(int i = 0; i < touches->count(); i++)
     {
         Touch* touch = (Touch*)touches->objectAtIndex(i);
-        if(!ignoredTouches->containsObject(touch))
+        if(!ignoredTouches.contains(touch))
         {
             Vec2 offset = Scene::touchOffset(touch);
-            if(lastOffsets->objectForKey(touch->getID()) == NULL)
+            if(lastOffsets.find(touch->getID()) == lastOffsets.end())
             {
-                lastOffsets->setObject(Acreate(), touch->getID());
+                lastOffsets.insert(std::make_pair(touch->getID(), std::vector<Vec2>()));
             }
-            CCArray* offsets = (CCArray*)lastOffsets->objectForKey(touch->getID());
-            offsets->addObject(Pcreate(offset));
-            if(offsets->count() > MAX_OFFSETS_MEMORY)
+            std::vector<Vec2>& offsets = lastOffsets.at(touch->getID());
+            offsets.push_back(offset);
+            if(offsets.size() > MAX_OFFSETS_MEMORY)
             {
-                offsets->removeObjectAtIndex(0);
+                offsets.erase(offsets.begin());
             }
         }
     }
@@ -180,22 +171,21 @@ void InertiaGenerator::scrollingEnded(Ref* obj)
 {
     CCDictionary* infos = (CCDictionary*)obj;
     int touches_count = TOINT(infos->objectForKey("TouchesCount"));
-    if(touches_count == 1 && possibleTargets->count() > 0)
+    if(touches_count == 1 && possibleTargets.size() > 0)
     {
         Vec2 inertiaOffset = Vec2(0, 0);
         Touch* touch = (Touch*)((CCArray*)infos->objectForKey("Touches"))->objectAtIndex(0);
-        if(!ignoredTouches->containsObject(touch))
+        if(!ignoredTouches.contains(touch))
         {
-            CCArray* offsets = (CCArray*)lastOffsets->objectForKey(touch->getID());
-            if(offsets != NULL)
+            if(lastOffsets.find(touch->getID()) != lastOffsets.end())
             {
-                for(int i = 0; i < offsets->count(); i++)
+                std::vector<Vec2>& offsets = lastOffsets.at(touch->getID());
+                for(Vec2 offset : offsets)
                 {
-                    inertiaOffset = inertiaOffset + TOPOINT(offsets->objectAtIndex(i));
+                    inertiaOffset += offset;
                 }
-                inertiaOffset *= 1.0/offsets->count();
-                offsets = NULL;
-                lastOffsets->removeObjectForKey(touch->getID());
+                inertiaOffset *= 1.0/offsets.size();
+                lastOffsets.erase(lastOffsets.find(touch->getID()));
             }
             else
             {
@@ -218,7 +208,7 @@ void InertiaGenerator::scrollingEnded(Ref* obj)
                 originalTarget = false;
                 for(int i = 0; i < intersectingObjects->count() && target == NULL; i++)
                 {
-                    if(possibleTargets->containsObject(intersectingObjects->objectAtIndex(i)))
+                    if(possibleTargets.contains(intersectingObjects->objectAtIndex(i)))
                     {
                         target = (RawObject*)intersectingObjects->objectAtIndex(i);
                     }
@@ -232,8 +222,8 @@ void InertiaGenerator::scrollingEnded(Ref* obj)
 #if VERBOSE_TOUCH_RECOGNIZERS
                 CCLOG("inertiaOffset : %f, %f", inertiaOffset.x, inertiaOffset.y);
 #endif
-                inertiaTargets->addObject(target);
-                inertiaParameters->addObject(Inertia::create(inertiaOffset, position, target->getEventInfos()->objectForKey("isVertical") != NULL && TOBOOL(target->getEventInfos()->objectForKey("isVertical"))));
+                inertiaTargets.pushBack(target);
+                inertiaParameters.pushBack(Inertia::create(inertiaOffset, position, target->getEventInfos()->objectForKey("isVertical") != NULL && TOBOOL(target->getEventInfos()->objectForKey("isVertical"))));
             }
             else
             {
@@ -242,18 +232,18 @@ void InertiaGenerator::scrollingEnded(Ref* obj)
         }
         else
         {
-            ignoredTouches->removeObject(touch);
+            ignoredTouches.eraseObject(touch);
         }
     }
 }
 
 void InertiaGenerator::stopInertia(Ref* obj)
 {
-    if(obj != NULL && inertiaTargets->containsObject(obj))
+    if(obj != NULL && inertiaTargets.contains(obj))
     {
-        int index = inertiaTargets->indexOfObject(obj);
-        inertiaParameters->removeObjectAtIndex(index);
-        inertiaTargets->removeObjectAtIndex(index);
+        int index = inertiaTargets.getIndex(obj);
+        inertiaParameters.erase(index);
+        inertiaTargets.erase(index);
         CCNotificationCenter::sharedNotificationCenter()->postNotification("InertiaEnded", DcreateP(obj, Screate("Target"), NULL));
     }
 }

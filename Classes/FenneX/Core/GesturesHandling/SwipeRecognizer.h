@@ -54,7 +54,7 @@ protected:
     void init();
     
 protected:
-    CCDictionary* touchStart;
+    std::map<int, float> touchStart;
     std::map<int, Vec2> touchInitialPosition;
 };
 NS_FENNEX_END

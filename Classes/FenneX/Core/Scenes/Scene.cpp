@@ -295,7 +295,7 @@ void Scene::onTouchEnded(Touch *touch, Event *pEvent)
         Image* toggle = (Image*)linker->linkedObjectOf(touch);
         linker->unlinkTouch(touch);
         char *end = strrchr(toggle->getImageFile(), '-');
-        if(end && strcmp(end, "-on") == 0 && toggle->getEventInfos()->objectForKey("_OriginalImageFile") != NULL && linker->touchesLinkedTo(toggle)->count() == 0)
+        if(end && strcmp(end, "-on") == 0 && toggle->getEventInfos()->objectForKey("_OriginalImageFile") != NULL && linker->touchesLinkedTo(toggle).size() == 0)
         {
             this->switchButton(toggle, false);
         }
@@ -368,7 +368,7 @@ void Scene::tapRecognized(Ref* obj)
     CCLOG("Tap recognized at pos %f, %f, forwarding to layer ...", pos.x, pos.y);
 #endif
     RawObject* target = getButtonAtPosition(pos, false);
-    if(target != NULL && linker->touchesLinkedTo(target)->count() > 0)
+    if(target != NULL && linker->touchesLinkedTo(target).size() > 0)
     {
 #if VERBOSE_TOUCH_RECOGNIZERS
         CCLOG("Tap intercepted by button still linked");
@@ -390,10 +390,10 @@ void Scene::tapRecognized(Ref* obj)
 
 void Scene::dropAllTouches(Ref* obj)
 {
-    CCArray* touches = linker->allTouches();
-    for(int i = touches->count() - 1; i > 0; i--)
+    Vector<Touch*> touches = linker->allTouches();
+    for(int i = touches.size() - 1; i > 0; i--)
     {
-        this->onTouchEnded((Touch*)touches->objectAtIndex(i), NULL);
+        this->onTouchEnded(touches.at(i), NULL);
     }
 }
 
