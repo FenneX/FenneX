@@ -245,9 +245,10 @@ void setDeviceLuminosity(float luminosity)
 void openSystemSettings()
 {
     JniMethodInfo minfo;
-    CCAssert(JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "openSystemSettings", "()V"), "Function doesn't exist");
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID);
+    CCAssert(JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "openSystemSettings", "()Z"), "Function doesn't exist");
+    bool result = minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID);
     minfo.env->DeleteLocalRef(minfo.classID);
+    return result;
 }
 
 void launchYoutube()
@@ -262,7 +263,9 @@ bool isPackageInstalled()
 {
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "isPackageInstalled", "()Z"), "Function doesn't exist");
-	return minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID);
+	bool result = minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    return result;
 }
 
 NS_FENNEX_END

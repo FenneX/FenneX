@@ -290,9 +290,18 @@ public class NativeUtility
     	});
     }
     
-    public static void openSystemSettings()
+    public static boolean openSystemSettings()
     {
-    	getMainActivity().startActivityForResult(new Intent(android.provider.Settings.ACTION_SETTINGS), 0);
+        boolean result = true;
+        try {
+            getMainActivity().startActivityForResult(new Intent(android.provider.Settings.ACTION_SETTINGS), 0);
+        }
+        catch (Exception e)
+        {
+            result = false;
+            Log.e(TAG, "Exception when opening settings: " + e.getLocalizedMessage());
+        }
+        return result;
     }
 
     public static void launchYoutube()

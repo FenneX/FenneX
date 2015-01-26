@@ -156,9 +156,14 @@ void setDeviceLuminosity(float percent) {
     mainScreen.brightness = percent;
 }
 
-void openSystemSettings()
+bool openSystemSettings()
 {
-    
+    //Only available since iOS8
+    if (&UIApplicationOpenSettingsURLString != NULL) {
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+        return true;
+    }
+    return false;
 }
 
 void launchYoutube()

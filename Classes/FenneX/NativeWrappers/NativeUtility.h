@@ -79,8 +79,9 @@ float getDeviceLuminosity();
 //Change the device luminosity, must be a float between 0 and 1
 void setDeviceLuminosity(float);
 
-//Open system settings activity
-void openSystemSettings();
+//Open system settings app. Should always work on iOS8+ and Android. Not available on iOS < 8
+//Return true if the settings app will open
+bool openSystemSettings();
 
 //Launch Youtube intent on Android, simple openUrl on iOS
 void launchYoutube();
