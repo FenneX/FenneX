@@ -149,7 +149,14 @@ void Scene::update(float deltaTime)
                 dynamic_cast<Ref*>(obj)->release();
             }
         }
-        updateList.erase(updatablesToRemove.begin(), updatablesToRemove.end());
+        
+        updateList.erase(std::remove_if(updateList.begin(),
+                                        updateList.end(),
+                                        [&](Pausable* obj)
+                                        {
+                                            return std::find(updatablesToRemove.begin(), updatablesToRemove.end(), obj) != updatablesToRemove.end();
+                                        }),
+                         updateList.end());
         updatablesToRemove.clear();
     }
     if(updatablesToAdd.size() > 0)
@@ -169,7 +176,13 @@ void Scene::update(float deltaTime)
     if(receiversToRemove.size() > 0)
     {
         //CCLOG("Removing %d updatables", updatablesToRemove->count());
-        touchReceiversList.erase(receiversToRemove.begin(), receiversToRemove.end());
+        touchReceiversList.erase(std::remove_if(touchReceiversList.begin(),
+                                                touchReceiversList.end(),
+                                                [&](GenericRecognizer* obj)
+                                                {
+                                                    return receiversToRemove.contains(obj);
+                                                }),
+                                 touchReceiversList.end());
         receiversToRemove.clear();
     }
     if(receiversToAdd.size() > 0)
