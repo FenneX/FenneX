@@ -242,7 +242,7 @@ void setDeviceLuminosity(float luminosity)
     minfo.env->DeleteLocalRef(minfo.classID);
 }
 
-void openSystemSettings()
+bool openSystemSettings()
 {
     JniMethodInfo minfo;
     CCAssert(JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "openSystemSettings", "()Z"), "Function doesn't exist");
