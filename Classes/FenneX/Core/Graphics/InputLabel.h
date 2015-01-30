@@ -68,6 +68,7 @@ public:
     virtual void closeKeyboard(Ref* obj);
     virtual void disableInputs(Ref* obj);
     virtual void enableInputs(Ref* obj);
+    virtual void exitBoxEditingWillBegin(ui::EditBox* editBox);
     virtual void editBoxEditingDidBegin(ui::EditBox* editBox);
     virtual void editBoxReturn(ui::EditBox* editBox);
     virtual void editBoxEditingDidEnd(ui::EditBox* editBox);

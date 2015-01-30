@@ -49,6 +49,14 @@ namespace ui {
             virtual ~EditBoxDelegate() {};
             
             /**
+             * This method is called when an edit box gains focus before keyboard is shown.
+             * @param editBox The edit box object that generated the event.
+             * @js NA
+             * @lua NA
+             */
+            virtual void exitBoxEditingWillBegin(ui::EditBox* editBox) {};
+            
+            /**
              * This method is called when an edit box gains focus after keyboard is shown.
              * @param editBox The edit box object that generated the event.
              * @js NA

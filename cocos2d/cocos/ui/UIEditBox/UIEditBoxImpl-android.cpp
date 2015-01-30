@@ -293,7 +293,12 @@ void EditBoxImplAndroid::openKeyboard()
         ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
     }
 #endif
-	
+    
+    if (_delegate != NULL)
+    {
+        _delegate->exitBoxEditingWillBegin(_editBox);
+    }
+    
     showEditTextDialogJNI(  _placeHolder.c_str(),
 						  _text.c_str(),
 						  (int)_editBoxInputMode,
@@ -307,7 +312,6 @@ void EditBoxImplAndroid::openKeyboard()
     {
         _delegate->editBoxEditingDidBegin(_editBox);
     }
-
 }
 
 void EditBoxImplAndroid::closeKeyboard()

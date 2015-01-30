@@ -284,18 +284,11 @@ void InputLabel::enableInputs(Ref* obj)
     delegate->setEnabled(true);
 }
 
-
-void InputLabel::editBoxEditingDidBegin(ui::EditBox* editBox)
+void InputLabel::exitBoxEditingWillBegin(ui::EditBox* editBox)
 {
-    if(locks.size() > 0)
+    if(locks.size() == 0 && !isOpened && delegate->isEnabled())
     {
-        closeKeyboard(DcreateP(Icreate(this->getID()), Screate("Sender"), NULL));
-        return;
-    }
-    if(!isOpened && delegate->isEnabled())
-    {
-        isOpened = true;
-        CCLOG("editing did begin InputLabel");
+        CCLOG("editing will begin InputLabel");
         if(linkTo != NULL)
         {
             //A password should be cleared when you begin editing. That's the default behavior on iOS, and we can't easily go around anyway, since UITextField.secureEntry force this behavior
@@ -308,6 +301,20 @@ void InputLabel::editBoxEditingDidBegin(ui::EditBox* editBox)
             }
             linkTo->getNode()->setVisible(false);
         }
+    }
+}
+
+
+void InputLabel::editBoxEditingDidBegin(ui::EditBox* editBox)
+{
+    if(locks.size() > 0)
+    {
+        closeKeyboard(DcreateP(Icreate(this->getID()), Screate("Sender"), NULL));
+        return;
+    }
+    if(!isOpened && delegate->isEnabled())
+    {
+        isOpened = true;
         CCNotificationCenter::sharedNotificationCenter()->postNotification("InputLabelBeginEdit", DcreateP(Icreate(identifier), Screate("Sender"), NULL));
     }
 }
