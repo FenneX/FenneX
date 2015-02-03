@@ -249,10 +249,10 @@ void InputLabel::openKeyboard(Ref* obj)
 {
     CCDictionary* infos = (CCDictionary*)obj;
     if(locks.size() == 0
-       && (isKindOfClass(infos->objectForKey("Sender"), CCInteger)
-           && TOINT(infos->objectForKey("Sender")) == identifier)
-       || (isKindOfClass(infos->objectForKey("Target"), CCInteger)
-           && TOINT(infos->objectForKey("Target")) == identifier))
+       && ((isKindOfClass(infos->objectForKey("Sender"), CCInteger)
+            && TOINT(infos->objectForKey("Sender")) == identifier)
+           || (isKindOfClass(infos->objectForKey("Target"), CCInteger)
+               && TOINT(infos->objectForKey("Target")) == identifier)))
     {
         CCLOG("Open InputLabel keyboard");
         delegate->touchDownAction(this, cocos2d::ui::Widget::TouchEventType::ENDED);//open keyboard by simulating a touch inside
