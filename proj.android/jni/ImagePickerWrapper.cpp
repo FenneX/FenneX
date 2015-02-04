@@ -30,10 +30,10 @@ THE SOFTWARE.
 
 USING_NS_FENNEX;
 
-bool pickImageFrom(const char* saveName, bool useCamera, int width, int height, const char* identifier, float thumbnailScale)
+bool pickImageFrom(const char* saveName, bool useCamera, int width, int height, const char* identifier, bool rescale, float thumbnailScale)
 {
 	JniMethodInfo minfo;
-	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"pickImageFrom", "(Ljava/lang/String;ZIILjava/lang/String;)Z"), "Function doesn't exist");
+	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"pickImageFrom", "(Ljava/lang/String;ZIILjava/lang/String;FZ)Z"), "Function doesn't exist");
 	jstring jSaveName = minfo.env->NewStringUTF(saveName);
 	jstring jIdentifier = minfo.env->NewStringUTF(identifier);
 	bool result = minfo.env->CallStaticBooleanMethod(minfo.classID,
@@ -42,27 +42,9 @@ bool pickImageFrom(const char* saveName, bool useCamera, int width, int height, 
 													 (jboolean)useCamera,
 													 (jint)width,
 													 (jint)height,
-													 jIdentifier);
-    minfo.env->DeleteLocalRef(minfo.classID);
-	minfo.env->DeleteLocalRef(jSaveName);
-	minfo.env->DeleteLocalRef(jIdentifier);
-    return result;
-}
-
-#warning Different constructor but same content as function above
-bool pickImageFrom(const char* saveName, bool useCamera, int width, int height, const char* identifier)
-{
-	JniMethodInfo minfo;
-	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"pickImageFrom", "(Ljava/lang/String;ZIILjava/lang/String;)Z"), "Function doesn't exist");
-	jstring jSaveName = minfo.env->NewStringUTF(saveName);
-	jstring jIdentifier = minfo.env->NewStringUTF(identifier);
-	bool result = minfo.env->CallStaticBooleanMethod(minfo.classID,
-													 minfo.methodID,
-													 jSaveName,
-													 (jboolean)useCamera,
-													 (jint)width,
-													 (jint)height,
-													 jIdentifier);
+													 jIdentifier,
+													 (jfloat)thumbnailScale,
+													 (jboolean)rescale);
     minfo.env->DeleteLocalRef(minfo.classID);
 	minfo.env->DeleteLocalRef(jSaveName);
 	minfo.env->DeleteLocalRef(jIdentifier);
@@ -76,12 +58,6 @@ bool isCameraAvailable()
 	bool result = minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID);
     minfo.env->DeleteLocalRef(minfo.classID);
     return result;
-}
-
-
-void notifyImagePicked(const char* name, const char* identifier)
-{
-    CCNotificationCenter::sharedNotificationCenter()->postNotification("ImagePicked", DcreateP(Screate(name), Screate("Name"), Screate(identifier), Screate("Identifier"), NULL) );
 }
 
 extern "C"

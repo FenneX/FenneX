@@ -32,13 +32,7 @@
 USING_NS_CC;
 USING_NS_FENNEX;
 
-
-bool pickImageFrom(const char* saveName, bool useCamera, int width, int height, const char* identifier)
-{
-    return pickImageFrom(saveName, useCamera, width, height, identifier, -1);
-}
-
-bool pickImageFrom(const char* saveName, bool useCamera, int width, int height, const char* identifier, float thumbnailScale)
+bool pickImageFrom(const char* saveName, bool useCamera, int width, int height, const char* identifier, bool rescale, float thumbnailScale)
 {
     CCDirector::sharedDirector()->stopAnimation();
     [[ImagePicker sharedPicker] initController];
@@ -47,6 +41,7 @@ bool pickImageFrom(const char* saveName, bool useCamera, int width, int height, 
     [ImagePicker sharedPicker].width = width;
     [ImagePicker sharedPicker].height = height;
     [ImagePicker sharedPicker].thumbnailScale = thumbnailScale;
+    [ImagePicker sharedPicker].rescale = rescale;
     NSLog(@"Picking image %s", saveName);
     
     [[ImagePicker sharedPicker] setSourceType:useCamera ? UIImagePickerControllerSourceTypeCamera : UIImagePickerControllerSourceTypePhotoLibrary];
@@ -80,11 +75,6 @@ bool isCameraAvailable()
     return [UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera];
 }
 
-void notifyImagePicked(const char* name, const char* identifier)
-{
-    CCNotificationCenter::sharedNotificationCenter()->postNotification("ImagePicked", DcreateP(Screate(name), Screate("Name"), Screate(identifier), Screate("Identifier"), NULL) );
-}
-
 @implementation ImagePicker
 
 @synthesize controller;
@@ -93,6 +83,7 @@ void notifyImagePicked(const char* name, const char* identifier)
 @synthesize width;
 @synthesize height;
 @synthesize thumbnailScale;
+@synthesize rescale;
 @synthesize popOver;
 static ImagePicker* _sharedPicker = nil;
 
@@ -141,7 +132,7 @@ static ImagePicker* _sharedPicker = nil;
     [controller release];
     controller = [[UIImagePickerController alloc] init];
     controller.delegate = self;
-    controller.allowsEditing = YES;
+    controller.allowsEditing = rescale;
 }
 
 // For responding to the user accepting a newly-captured picture or movie
@@ -169,7 +160,7 @@ static ImagePicker* _sharedPicker = nil;
         NSLog(@"Original Image size : %f, %f", imageToSave.size.width, imageToSave.size.height);
         UIImage* resultImage = nil;
         
-        if(imageToSave.size.width != imageToSave.size.height)
+        if(imageToSave.size.width != imageToSave.size.height && rescale)
         {
             float difference = fabsf(imageToSave.size.width - imageToSave.size.height);
             BOOL cropWidth = imageToSave.size.width > imageToSave.size.height;

@@ -34,6 +34,7 @@
     int height;
     float thumbnailScale;
     UIPopoverController* popOver;
+    bool rescale;
 }
 
 @property (nonatomic, readonly) UIImagePickerController* controller;
@@ -42,6 +43,7 @@
 @property (nonatomic, assign) int width;
 @property (nonatomic, assign) int height;
 @property (nonatomic, assign) float thumbnailScale;
+@property (nonatomic, assign) bool rescale;
 @property (nonatomic, assign) UIPopoverController* popOver;
 
 - (void) initController;

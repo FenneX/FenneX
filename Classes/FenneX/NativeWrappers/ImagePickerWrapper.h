@@ -39,14 +39,17 @@ void Java_org_cocos2dx_socialhandy_FenneX_notifyImagePickedWrapper(JNIEnv* env, 
 //The image picker will send an ImagePicked notification
 
 //The picker can include a thumbnail at the desired scale, which will have a -thumbnail prefix (before .png)
-//If the scale is negative, no thumbnail will be generated
+//If the scale is negative, no thumbnail will be generated. Generally, if you disable rescale, you probably won't need a thumbnail
 
 //check if it's a supported platform
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-bool pickImageFrom(const char* saveName, bool useCamera, int width, int height, const char* identifier, float thumbnailScale);
-bool pickImageFrom(const char* saveName, bool useCamera, int width, int height, const char* identifier);
+bool pickImageFrom(const char* saveName, bool useCamera, int width, int height, const char* identifier, bool rescale = true, float thumbnailScale = -1);
 bool isCameraAvailable();
-void notifyImagePicked(const char* name, const char* identifier);
+
+static inline void notifyImagePicked(const char* name, const char* identifier)
+{
+    performNotificationAfterDelay("ImagePicked", DcreateP(Screate(name), Screate("Name"), Screate(identifier), Screate("Identifier"), NULL), 0.001);
+}
 #endif
 
 
