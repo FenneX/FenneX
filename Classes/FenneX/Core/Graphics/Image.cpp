@@ -53,7 +53,7 @@ isLoadingTexture(false)
 {
     
 }
-Image::Image(const char* filename, Vec2 location):
+Image::Image(std::string filename, Vec2 location):
 spritesName(NULL),
 spriteSheet(NULL),
 runningAnimation(NULL),
@@ -76,12 +76,12 @@ isLoadingTexture(false)
     }
     if(delegate == NULL)
     {
-        CCLOG("Problem with asset : %s, the application will crash", filename);
+        CCLOG("Problem with asset : %s, the application will crash", filename.c_str());
     }
     delegate->retain();
     this->setPosition(location);
 }
-Image::Image(const char* filename, Vec2 location, int capacity):
+Image::Image(std::string filename, Vec2 location, int capacity):
 imageFile(filename),
 loadingImageFile(""),
 isLoadingTexture(false)
@@ -99,7 +99,7 @@ isLoadingTexture(false)
     {
         /*char num[10];
          sprintf(num, "%04d", i);*/
-        spritesName->addObject(ScreateF("%s_%02d.png", filename, i));//imageFile.append(num).append(".png")));
+        spritesName->addObject(ScreateF("%s_%02d.png", filename.c_str(), i));//imageFile.append(num).append(".png")));
     }
     delegate = Sprite::create();
     delegate->retain();
@@ -118,7 +118,7 @@ loadingImageFile(""),
 isLoadingTexture(false)
 {
     imageFile = Director::getInstance()->getTextureCache()->getKeyForTexture(node->getTexture());
-    int extensionPos = imageFile.rfind(".png");
+    size_t extensionPos = imageFile.rfind(".png");
     if(extensionPos != std::string::npos)
     {
         imageFile = imageFile.substr(0, extensionPos);
@@ -133,7 +133,7 @@ isLoadingTexture(false)
     {
         imageFile = imageFile.substr(0, extensionPos);
     }
-    int slashPos = imageFile.rfind('/');
+    size_t slashPos = imageFile.rfind('/');
     if(slashPos != std::string::npos)
     {
         imageFile = imageFile.substr(slashPos+1);

@@ -43,8 +43,8 @@ public:
     void setNode(Node* node);
     void setClippingNode(); //Will replace itself by a ClippingNode with a DrawNode stencil using ContentSize
     
-    Panel(const char* panelName, Vec2 location);
-    Panel(Node* node, const char* panelName = NULL);
+    Panel(std::string panelName, Vec2 location);
+    Panel(Node* node, std::string panelName = "");
     ~Panel();
     
     void addChild(RawObject* child);

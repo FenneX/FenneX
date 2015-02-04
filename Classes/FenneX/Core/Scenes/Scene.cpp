@@ -295,7 +295,7 @@ void Scene::onTouchMoved(Touch *touch, Event *pEvent)
     {
         Image* toggle = (Image*)linker->linkedObjectOf(touch);
         GraphicLayer* layer = GraphicLayer::sharedLayer();
-        char *end = strrchr(toggle->getImageFile(), '-');
+        char *end = strrchr(toggle->getImageFile().c_str(), '-');
         if(end && strcmp(end, "-on") == 0 && !layer->allObjectsAtPosition(Scene::touchPosition(touch))->containsObject(toggle))
         {
             this->switchButton(toggle, false);
@@ -318,7 +318,7 @@ void Scene::onTouchEnded(Touch *touch, Event *pEvent)
     {
         Image* toggle = (Image*)linker->linkedObjectOf(touch);
         linker->unlinkTouch(touch);
-        char *end = strrchr(toggle->getImageFile(), '-');
+        char *end = strrchr(toggle->getImageFile().c_str(), '-');
         if(end && strcmp(end, "-on") == 0 && toggle->getEventInfos()->objectForKey("_OriginalImageFile") != NULL && linker->touchesLinkedTo(toggle).size() == 0)
         {
             this->switchButton(toggle, false);
@@ -362,10 +362,10 @@ void Scene::switchButton(Image* obj, bool state, Touch* touch)
         if(obj->getEventInfos()->objectForKey("_OriginalImageFile") == NULL)
         {
             obj->setEventInfo(Screate(obj->getImageFile()), "_OriginalImageFile");
-            obj->replaceTexture(ScreateF("%s-on", obj->getImageFile())->getCString());
+            obj->replaceTexture(ScreateF("%s-on", obj->getImageFile().c_str())->getCString());
         }
         //If it was actually replaced, it will end by -on
-        char *end = strrchr(obj->getImageFile(), '-');
+        char *end = strrchr(obj->getImageFile().c_str(), '-');
         if (end && strcmp(end, "-on") == 0)
         {
             linker->linkTouch(touch, obj);
@@ -511,10 +511,10 @@ Image* Scene::getButtonAtPosition(Vec2 position, bool state)
     for(int i = 0; i < objects->count() && target == NULL; i++)
     {
         RawObject* obj = (RawObject*)objects->objectAtIndex(i);
-        if(obj->getNode()->isVisible() && obj->getEventActivated() && obj->getEventName() != NULL && obj->getEventName()[0] != '\0' && isKindOfClass(obj, Image))
+        if(obj->getNode()->isVisible() && obj->getEventActivated() && !obj->getEventName().empty() && obj->getEventName()[0] != '\0' && isKindOfClass(obj, Image))
         {
             //If state = false, the object imagefile must finish by "-on" and and have an _OriginalImageFile
-            char *end = strrchr(((Image*)obj)->getImageFile(), '-');
+            char *end = strrchr(((Image*)obj)->getImageFile().c_str(), '-');
             if(state || (end && strcmp(end, "-on") == 0 && obj->getEventInfos()->objectForKey("_OriginalImageFile") != NULL))
                 target = (Image*)obj;
         }

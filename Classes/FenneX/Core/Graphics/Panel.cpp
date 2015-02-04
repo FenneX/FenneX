@@ -65,7 +65,7 @@ void Panel::setClippingNode()
     clipNode->setSquareStencil();
 }
 
-Panel::Panel(const char* panelName, Vec2 location)
+Panel::Panel(std::string panelName, Vec2 location)
 {
     delegate = Node::create();
     delegate->retain();
@@ -75,9 +75,9 @@ Panel::Panel(const char* panelName, Vec2 location)
     name = panelName;
 }
 
-Panel::Panel(Node* node, const char* panelName)
+Panel::Panel(Node* node, std::string panelName)
 {
-    name = panelName != NULL ? panelName : "Panel";
+    name = panelName != "" ? panelName : "Panel";
     delegate = node;
     delegate->retain();
     children = CCArray::create();
@@ -105,7 +105,7 @@ void Panel::addChild(RawObject* child)
     }
     else
     {
-        CCLOG("Warning : child %s doesn't have a Node, you shouldn't try to place it on a panel", child->getName());
+        CCLOG("Warning : child %s doesn't have a Node, you shouldn't try to place it on a panel", child->getName().c_str());
     }
 }
 
@@ -123,7 +123,7 @@ void Panel::removeChild(RawObject* child)
     }
     else
     {
-        CCLOG("Warning : child %s doesn't have a Node, you shouldn't try to remove it from panel", child->getName());
+        CCLOG("Warning : child %s doesn't have a Node, you shouldn't try to remove it from panel", child->getName().c_str());
     }
 }
 

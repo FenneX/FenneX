@@ -41,8 +41,8 @@ public:
     virtual Node* getNode();
     
     Image();
-    Image(const char* filename, Vec2 location);
-    Image(const char* filename, Vec2 location, int capacity);
+    Image(std::string filename, Vec2 location);
+    Image(std::string filename, Vec2 location, int capacity);
     Image(Sprite* node);
     //TODO : add init from pixels data
     ~Image();

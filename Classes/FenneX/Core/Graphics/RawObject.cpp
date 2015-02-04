@@ -90,7 +90,7 @@ void RawObject::addEventInfos(CCDictionary* infos)
     CCARRAY_FOREACH(keys, keyObj)
     {
         std::string key = ((CCString*)keyObj)->getCString();
-        if(strcmp(key.c_str(), "Sender") != 0)
+        if(key != "Sender")
         {
             this->setEventInfo(infos->objectForKey(key), key);
         }

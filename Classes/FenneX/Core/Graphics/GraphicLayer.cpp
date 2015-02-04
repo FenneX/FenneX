@@ -1223,7 +1223,7 @@ RawObject* GraphicLayer::placeObject(RawObject* obj, Panel* panel)
 #if VERBOSE_WARNING
             else
             {
-                CCLOG("Warning : child %s doesn't have a Node, you shouldn't try to place it on a panel", obj->getName());
+                CCLOG("Warning : child %s doesn't have a Node, you shouldn't try to place it on a panel", obj->getName().c_str());
             }
 #endif
         }
@@ -1260,7 +1260,7 @@ void GraphicLayer::removeObjectFromPanel(RawObject* obj, Panel* panel)
 #if VERBOSE_WARNING
     else
     {
-        CCLOG("Warning : child %s doesn't have a Node, you shouldn't try to remove it from a panel", obj->getName());
+        CCLOG("Warning : child %s doesn't have a Node, you shouldn't try to remove it from a panel", obj->getName().c_str());
     }
 #endif
 }
@@ -1468,7 +1468,7 @@ RawObject* GraphicLayer::firstObjectWithNameInPanel(std::string name, Panel* pan
     for(int i =  storedObjects->count() - 1; i >= 0  && result == NULL; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
-        if(panel->containsObject(obj) && strcmp(name.c_str(), obj->getName()) == 0)
+        if(panel->containsObject(obj) && name == obj->getName())
         {
             result = obj;
         }
@@ -1535,7 +1535,7 @@ CCArray* GraphicLayer::allObjectsWithName(CCString* name)
     for(int i =  storedObjects->count() - 1; i >= 0; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
-        if(strcmp(name->getCString(), obj->getName()) == 0)
+        if(name->_string == obj->getName())
         {
             result->addObject(obj);
         }
@@ -1554,7 +1554,7 @@ CCArray* GraphicLayer::allObjectsWithNameInPanel(std::string name, Panel* panel)
     for(int i =  storedObjects->count() - 1; i >= 0; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
-        if(panel->containsObject(obj) && strcmp(name.c_str(), obj->getName()) == 0)
+        if(panel->containsObject(obj) && name == obj->getName())
         {
             result->addObject(obj);
         }
@@ -1661,7 +1661,7 @@ CCArray* GraphicLayer::allActionnableObjects()
     for(int i =  storedObjects->count() - 1; i >= 0; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
-        if(obj->getNode() != NULL && obj->getNode()->isVisible() && obj->getEventName() != NULL && obj->getEventName()[0] != '\0' && obj->getEventActivated())
+        if(obj->getNode() != NULL && obj->getNode()->isVisible() && !obj->getEventName().empty() && obj->getEventName()[0] != '\0' && obj->getEventActivated())
         {
             bool parentVisible = true;
             RawObject* parent = this->getContainingPanel(obj);
@@ -1722,7 +1722,7 @@ CCArray* GraphicLayer::allPanelsWithName(CCString* name)
     for(int i =  storedPanels->count() - 1; i >= 0; i--)
     {
         Panel* obj = (Panel*)storedPanels->objectAtIndex(i);
-        if(strcmp(name->getCString(), obj->getName()) == 0 && storedObjects->containsObject(obj))
+        if(name->_string == obj->getName() && storedObjects->containsObject(obj))
         {
             result->addObject(obj);
         }
@@ -1741,7 +1741,7 @@ Panel* GraphicLayer::firstPanelWithName(CCString* name)
     for(int i =  storedPanels->count() - 1; i >= 0  && result == NULL; i--)
     {
         Panel* obj = (Panel*)storedPanels->objectAtIndex(i);
-        if(strcmp(name->getCString(), obj->getName()) == 0 && storedObjects->containsObject(obj))
+        if(name->_string == obj->getName() && storedObjects->containsObject(obj))
         {
             result = obj;
         }
@@ -1755,7 +1755,7 @@ Panel* GraphicLayer::firstVisiblePanelWithName(CCString* name)
     for(int i =  storedPanels->count() - 1; i >= 0  && result == NULL; i--)
     {
         Panel* obj = (Panel*)storedPanels->objectAtIndex(i);
-        if(strcmp(name->getCString(), obj->getName()) == 0 && obj->getNode()->isVisible() && storedObjects->containsObject(obj))
+        if(name->_string == obj->getName() && obj->getNode()->isVisible() && storedObjects->containsObject(obj))
         {
             result = obj;
         }
@@ -1891,7 +1891,7 @@ bool GraphicLayer::touchAtPosition(Vec2 position, bool event)
 bool GraphicLayer::touchObject(RawObject* obj, bool event, Vec2 position)
 {
     //TODO : check opacity ?
-    if(obj->getEventName() != NULL && obj->getEventName()[0] != '\0' && obj->getEventActivated())
+    if(!obj->getEventName().empty() && obj->getEventName()[0] != '\0' && obj->getEventActivated())
     {
         if(event)
         {
@@ -1913,7 +1913,7 @@ bool GraphicLayer::touchObject(RawObject* obj, bool event, Vec2 position)
                 AnalyticsWrapper::logEvent(trackingName->getCString(), trackingInfo != NULL ? trackingInfo->getCString() : trackingLabel != NULL ? trackingLabel->getCString() : NULL);
             }
         }
-        else if(obj->getHelp() != NULL && obj->getHelp()[0] != '\0')
+        else if(!obj->getHelp().empty() && obj->getHelp()[0] != '\0')
         {
             CCDictionary* helpInfos = CCDictionary::create();
             helpInfos->setObject(Icreate(obj->getID()), "Sender");
@@ -2065,7 +2065,7 @@ void GraphicLayer::addObject(RawObject* obj, int z)
 #if VERBOSE_WARNING
             else if(obj->getNode() == NULL)
             {
-                CCLOG("Warning : Child %s doesn't have a Node, it will not be displayed by cocos2d", obj->getName());
+                CCLOG("Warning : Child %s doesn't have a Node, it will not be displayed by cocos2d", obj->getName().c_str());
             }
 #endif
         }
