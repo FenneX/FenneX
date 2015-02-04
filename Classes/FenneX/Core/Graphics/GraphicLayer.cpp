@@ -288,7 +288,7 @@ Image* GraphicLayer::createImage(CCDictionary* values)
             }
             if(values->objectForKey("Visible") != NULL && isKindOfClass(values->objectForKey("Visible"), CCInteger))
             {
-                img->getNode()->setVisible(((CCInteger*)values->objectForKey("Visible"))->getValue());
+                img->setVisible(((CCInteger*)values->objectForKey("Visible"))->getValue());
             }
             if(values->objectForKey("Opacity") != NULL && isKindOfClass(values->objectForKey("Opacity"), CCInteger))
             {
@@ -483,7 +483,7 @@ CustomObject* GraphicLayer::createCustomObject(CCDictionary* values)
             }
             if(values->objectForKey("Visible") != NULL && isKindOfClass(values->objectForKey("Visible"), CCInteger))
             {
-                obj->getNode()->setVisible(((CCInteger*)values->objectForKey("Visible"))->getValue());
+                obj->setVisible(((CCInteger*)values->objectForKey("Visible"))->getValue());
             }
             if(values->objectForKey("Opacity") != NULL && isKindOfClass(values->objectForKey("Opacity"), CCInteger))
             {
@@ -668,7 +668,7 @@ LabelTTF* GraphicLayer::createLabelTTF(CCDictionary* values)
             }
             if(values->objectForKey("Visible") != NULL && isKindOfClass(values->objectForKey("Visible"), CCInteger))
             {
-                label->getNode()->setVisible(((CCInteger*)values->objectForKey("Visible"))->getValue());
+                label->setVisible(((CCInteger*)values->objectForKey("Visible"))->getValue());
             }
             if(values->objectForKey("Opacity") != NULL && isKindOfClass(values->objectForKey("Opacity"), CCInteger))
             {
@@ -885,7 +885,7 @@ InputLabel* GraphicLayer::createInputLabel(CCDictionary* values)
             }
             if(values->objectForKey("Visible") != NULL && isKindOfClass(values->objectForKey("Visible"), CCInteger))
             {
-                label->getNode()->setVisible(((CCInteger*)values->objectForKey("Visible"))->getValue());
+                label->setVisible(((CCInteger*)values->objectForKey("Visible"))->getValue());
             }
             if(values->objectForKey("Opacity") != NULL && isKindOfClass(values->objectForKey("Opacity"), CCInteger))
             {
@@ -1064,7 +1064,7 @@ Panel* GraphicLayer::createPanel(CCDictionary* values)
             }
             if(values->objectForKey("Visible") != NULL && isKindOfClass(values->objectForKey("Visible"), CCInteger))
             {
-                panel->getNode()->setVisible(((CCInteger*)values->objectForKey("Visible"))->getValue());
+                panel->setVisible(((CCInteger*)values->objectForKey("Visible"))->getValue());
             }
             /*if(values->objectForKey("Opacity") != NULL && isKindOfClass(values->objectForKey("Opacity"), CCInteger))
              {
@@ -1180,7 +1180,7 @@ RawObject* GraphicLayer::duplicateObject(RawObject* otherObject)
     //Set other infos
     obj->setName(otherObject->getName());
     obj->setEventName(otherObject->getEventName());
-    obj->getNode()->setVisible(otherObject->getNode()->isVisible());
+    obj->setVisible(otherObject->getNode()->isVisible());
     obj->getNode()->setAnchorPoint(otherObject->getNode()->getAnchorPoint());
     obj->addEventInfos(otherObject->getEventInfos());
     obj->setScaleX(otherObject->getScaleX());

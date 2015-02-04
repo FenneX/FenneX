@@ -35,6 +35,10 @@ void RawObject::setPosition(const Vec2& newPosition)
 {
     this->getNode()->setPosition(newPosition);
 }
+void RawObject::setVisible(bool newVisible)
+{
+    this->getNode()->setVisible(newVisible);
+}
 const Size& RawObject::getSize()
 {
     return this->getNode()->getContentSize();

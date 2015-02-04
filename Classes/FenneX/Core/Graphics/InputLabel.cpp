@@ -299,7 +299,7 @@ void InputLabel::exitBoxEditingWillBegin(ui::EditBox* editBox)
                 IFEXIST(passwordText)->autorelease();
                 passwordText = new CCString();
             }
-            linkTo->getNode()->setVisible(false);
+            linkTo->setVisible(false);
         }
     }
 }
@@ -358,7 +358,7 @@ void InputLabel::editBoxEditingDidEnd(ui::EditBox* editBox)
                 linkTo->setLabelValue(initialText->getCString());
             }
             delegate->setText("");
-            linkTo->getNode()->setVisible(true);
+            linkTo->setVisible(true);
         }
         CCDictionary* param = this->getEventInfos();
         param->setObject(Screate(this->getLabelValue()), "Text");
