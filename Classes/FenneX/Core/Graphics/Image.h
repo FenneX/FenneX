@@ -64,7 +64,7 @@ public:
      async : will defer the actual replace to next frame, and the texture will be loaded in async using TextureCache
      keepRatio : will crop the new image to have the same ratio as the previous one. Use keepExactSize to also have the same exact size
      */
-    void replaceTexture(const char* filename, bool keepExactSize = false, bool async = false, bool keepRatio = false);
+    void replaceTexture(std::string filename, bool keepExactSize = false, bool async = false, bool keepRatio = false);
     void textureLoaded(Texture2D* tex);
     bool isAnimation();
     bool collision(Vec2 point); //Overload for spritesheet, which behaves differently

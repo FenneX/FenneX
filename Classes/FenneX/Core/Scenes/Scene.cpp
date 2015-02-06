@@ -362,7 +362,7 @@ void Scene::switchButton(Image* obj, bool state, Touch* touch)
         if(obj->getEventInfos()->objectForKey("_OriginalImageFile") == NULL)
         {
             obj->setEventInfo(Screate(obj->getImageFile()), "_OriginalImageFile");
-            obj->replaceTexture(ScreateF("%s-on", obj->getImageFile().c_str())->getCString());
+            obj->replaceTexture(obj->getImageFile() + "-on");
         }
         //If it was actually replaced, it will end by -on
         char *end = strrchr(obj->getImageFile().c_str(), '-');

@@ -257,7 +257,7 @@ void Image::loadAnimation(const char* filename, int capacity, bool useLastFrame)
     runningAnimation = NULL;
 }
 
-void Image::replaceTexture(const char* filename, bool keepExactSize, bool async, bool keepRatio)
+void Image::replaceTexture(std::string filename, bool keepExactSize, bool async, bool keepRatio)
 {
     if(async)
     {
@@ -288,7 +288,7 @@ void Image::replaceTexture(const char* filename, bool keepExactSize, bool async,
         if(newTexture == NULL)
         {
 #if VERBOSE_WARNING
-            CCLOG("Warning : Problem with asset : %s, texture not replaced", filename);
+            CCLOG("Warning : Problem with asset : %s, texture not replaced", filename.c_str());
 #endif
             imageFile = originalImageFile;
             return;
@@ -337,7 +337,7 @@ void Image::textureLoaded(Texture2D* tex)
 {
     if(!loadingImageFile.empty())
     {
-        this->replaceTexture(loadingImageFile.c_str(), loadingKeepExactSize, false, loadingKeepRatio);
+        this->replaceTexture(loadingImageFile, loadingKeepExactSize, false, loadingKeepRatio);
         loadingImageFile = "";
         isLoadingTexture = false;
     }
