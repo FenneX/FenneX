@@ -99,6 +99,7 @@ const std::string Localization::getLocalizedString(const std::string& string){
 
 void Localization::loadAdditionalTranslations(std::function<std::string(std::string)> resolveLanguageFile)
 {
+    //Ensure Localization is loaded
     getLocalizedString("");
     if(willTranslate())
     {
