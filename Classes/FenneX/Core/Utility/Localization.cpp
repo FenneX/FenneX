@@ -97,6 +97,30 @@ const std::string Localization::getLocalizedString(const std::string& string){
     return getLocalizedString(Screate(string.c_str()))->getCString();
 }
 
+void Localization::loadAdditionalTranslations(std::function<std::string(std::string)> resolveLanguageFile)
+{
+    getLocalizedString("");
+    if(willTranslate())
+    {
+        CCDictionary* additionalTranslations = (CCDictionary*)loadObjectFromFile(resolveLanguageFile(currentLanguage->getCString()).c_str(), true);
+        if(additionalTranslations != NULL)
+        {
+            CCArray* keys = additionalTranslations->allKeys();
+            for(int i = 0; i < keys->count(); i++)
+            {
+                std::string key = TOCSTRING(keys->objectAtIndex(i));
+                if(infos->objectForKey(key) == NULL)
+                {
+                    infos->setObject(additionalTranslations->objectForKey(key), key);
+                }
+                else
+                {
+                    CCLOG("Warning, translations already contain key %s", key.c_str());
+                }
+            }
+        }
+    }
+}
 
 bool Localization::loadAvailableTranslations()
 {

@@ -40,6 +40,8 @@ public:
     static CCString* getLocalizedString(CCString* string);
     static const char* getLocalizedString(const char* string);
     static const std::string getLocalizedString(const std::string& string);
+    
+    static void loadAdditionalTranslations(std::function<std::string(std::string)> resolveLanguageFile);
 private:
     static CCString* currentLanguage;
     static CCDictionary* infos;
