@@ -60,7 +60,7 @@ void InputLabel::setLabelValue(const char* value)
     if(linkTo != NULL)
     {
         linkTo->setLabelValue(value);
-        if(!linkTo->getNode()->isVisible() && delegate->isVisible())
+        if(!linkTo->isVisible() && delegate->isVisible())
         {
             delegate->setText(value);
         }

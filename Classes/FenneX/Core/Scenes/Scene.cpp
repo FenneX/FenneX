@@ -511,7 +511,7 @@ Image* Scene::getButtonAtPosition(Vec2 position, bool state)
     for(int i = 0; i < objects->count() && target == NULL; i++)
     {
         RawObject* obj = (RawObject*)objects->objectAtIndex(i);
-        if(obj->getNode()->isVisible() && obj->getEventActivated() && !obj->getEventName().empty() && obj->getEventName()[0] != '\0' && isKindOfClass(obj, Image))
+        if(obj->isVisible() && obj->getEventActivated() && !obj->getEventName().empty() && obj->getEventName()[0] != '\0' && isKindOfClass(obj, Image))
         {
             //If state = false, the object imagefile must finish by "-on" and and have an _OriginalImageFile
             char *end = strrchr(((Image*)obj)->getImageFile().c_str(), '-');

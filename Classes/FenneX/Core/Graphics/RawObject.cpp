@@ -39,6 +39,10 @@ void RawObject::setVisible(bool newVisible)
 {
     this->getNode()->setVisible(newVisible);
 }
+bool RawObject::isVisible()
+{
+    return this->getNode()->isVisible();
+}
 const Size& RawObject::getSize()
 {
     return this->getNode()->getContentSize();

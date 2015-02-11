@@ -1180,7 +1180,7 @@ RawObject* GraphicLayer::duplicateObject(RawObject* otherObject)
     //Set other infos
     obj->setName(otherObject->getName());
     obj->setEventName(otherObject->getEventName());
-    obj->setVisible(otherObject->getNode()->isVisible());
+    obj->setVisible(otherObject->isVisible());
     obj->getNode()->setAnchorPoint(otherObject->getNode()->getAnchorPoint());
     obj->addEventInfos(otherObject->getEventInfos());
     obj->setScaleX(otherObject->getScaleX());
@@ -1634,13 +1634,13 @@ CCArray* GraphicLayer::allVisibleObjectsAtPosition(Vec2 position)
     for(int i =  storedObjects->count() - 1; i >= 0; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
-        if(obj->getNode() != NULL && obj->getNode()->isVisible() && obj->collision(this->getPositionRelativeToObject(position, obj)))
+        if(obj->getNode() != NULL && obj->isVisible() && obj->collision(this->getPositionRelativeToObject(position, obj)))
         {
             bool parentVisible = true;
             RawObject* parent = this->getContainingPanel(obj);
             while(parent != NULL && parentVisible)
             {
-                if(parent->getNode() == NULL || !parent->getNode()->isVisible())
+                if(parent->getNode() == NULL || !parent->isVisible())
                 {
                     parentVisible = false;
                 }
@@ -1661,13 +1661,13 @@ CCArray* GraphicLayer::allActionnableObjects()
     for(int i =  storedObjects->count() - 1; i >= 0; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
-        if(obj->getNode() != NULL && obj->getNode()->isVisible() && !obj->getEventName().empty() && obj->getEventName()[0] != '\0' && obj->getEventActivated())
+        if(obj->getNode() != NULL && obj->isVisible() && !obj->getEventName().empty() && obj->getEventName()[0] != '\0' && obj->getEventActivated())
         {
             bool parentVisible = true;
             RawObject* parent = this->getContainingPanel(obj);
             while(parent != NULL && parentVisible)
             {
-                if(parent->getNode() == NULL || !parent->getNode()->isVisible())
+                if(parent->getNode() == NULL || !parent->isVisible())
                 {
                     parentVisible = false;
                 }
@@ -1755,7 +1755,7 @@ Panel* GraphicLayer::firstVisiblePanelWithName(CCString* name)
     for(int i =  storedPanels->count() - 1; i >= 0  && result == NULL; i--)
     {
         Panel* obj = (Panel*)storedPanels->objectAtIndex(i);
-        if(name->_string == obj->getName() && obj->getNode()->isVisible() && storedObjects->containsObject(obj))
+        if(name->_string == obj->getName() && obj->isVisible() && storedObjects->containsObject(obj))
         {
             result = obj;
         }
@@ -1870,7 +1870,7 @@ bool GraphicLayer::touchAtPosition(Vec2 position, bool event)
             RawObject* parent = this->getContainingPanel(obj);
             while(parent != NULL && parentVisible)
             {
-                if(parent->getNode() == NULL || !parent->getNode()->isVisible())
+                if(parent->getNode() == NULL || !parent->isVisible())
                 {
                     parentVisible = false;
                 }
