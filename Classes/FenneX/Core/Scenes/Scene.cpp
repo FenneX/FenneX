@@ -176,13 +176,10 @@ void Scene::update(float deltaTime)
     if(receiversToRemove.size() > 0)
     {
         //CCLOG("Removing %d updatables", updatablesToRemove->count());
-        touchReceiversList.erase(std::remove_if(touchReceiversList.begin(),
-                                                touchReceiversList.end(),
-                                                [&](GenericRecognizer* obj)
-                                                {
-                                                    return receiversToRemove.contains(obj);
-                                                }),
-                                 touchReceiversList.end());
+        for(GenericRecognizer* recognizer : receiversToRemove)
+        {
+            touchReceiversList.eraseObject(recognizer);
+        }
         receiversToRemove.clear();
     }
     if(receiversToAdd.size() > 0)
