@@ -27,7 +27,6 @@ package com.fennex.modules;
 import java.util.ArrayList;
 
 import org.cocos2dx.lib.Cocos2dxActivity;
-import org.cocos2dx.lib.Cocos2dxBitmap;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -94,7 +93,7 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 	{
 		Log.i("ActivityResultNotifier", "Activity result received ...");
 		super.onActivityResult(requestCode, resultcode, intent);
-		if (intent != null && resultcode == RESULT_OK) 
+		if (resultcode == RESULT_OK)
 		{
 			Log.i("ActivityResultNotifier", "Valid intent, notifying children ...");
 			for(ActivityResultResponder responder : responders)
@@ -106,7 +105,7 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 		}
 		else
 		{
-			Log.i("ActivityResultNotifier", "Intent not valid");
+			Log.i("ActivityResultNotifier", "Result not OK");
 		}
 	}
 	

@@ -29,13 +29,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
@@ -83,7 +81,7 @@ public class ImagePicker implements ActivityResultResponder
 	
 	//Return true if it uses the activity result is handled by the in-app module
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(TAG, "onActivityResult(" + requestCode + "," + resultCode + "," + data.getExtras());
+        Log.d(TAG, "onActivityResult(" + requestCode + "," + resultCode + "," + (data != null ? data.getExtras() : "no data"));
         if (requestCode == PICTURE_GALLERY || requestCode == CAMERA_CAPTURE || requestCode == CROP)
 		{
             if(requestCode == CROP || !_rescale)
@@ -98,8 +96,14 @@ public class ImagePicker implements ActivityResultResponder
                         InputStream imageStream = NativeUtility.getMainActivity().getContentResolver().openInputStream(selectedImage);
                         original = BitmapFactory.decodeStream(imageStream);
                     }
-                    else {
-                        original = data.getParcelableExtra("data");
+                    else { //CAMERA_CAPTURE
+                        /* When not using EXTRA_OUTPUT, the Intent will produce a small image, depending on device and app used
+                        original = data.getParcelableExtra("data");*/
+                        //The EXTRA_OUTPUT parameter of Intent
+                        File file = new File(storageDirectory +  "/" + _fileName.substring(0, _fileName.length() - 4) + ".jpg");
+                        original = BitmapFactory.decodeFile(file.getAbsolutePath());
+                        //Clean file
+                        file.delete();
                     }
                     if(original != null) {
                         Bitmap bitmap = scaleToFill(original, _width, _height);
@@ -183,6 +187,11 @@ public class ImagePicker implements ActivityResultResponder
     		try
     		{
 	       		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                if(!rescale) {
+                    File file = new File(storageDirectory +  "/" + saveName + ".jpg");
+                    Uri outputFileUri = Uri.fromFile(file);
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
+                }
 		        NativeUtility.getMainActivity().startActivityForResult(intent, CAMERA_CAPTURE);
     		}
     		catch(ActivityNotFoundException e)
