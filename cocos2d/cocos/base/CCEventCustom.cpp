@@ -34,4 +34,13 @@ EventCustom::EventCustom(const std::string& eventName)
 {
 }
 
+
+EventCustom* EventCustom::create(const std::string& eventName, void* data)
+{
+    EventCustom* event = new EventCustom(eventName);
+    event->setUserData(data);
+    event->autorelease();
+    return event;
+}
+
 NS_CC_END

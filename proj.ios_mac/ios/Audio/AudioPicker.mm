@@ -57,12 +57,12 @@ bool pickSound(const char* promptText, const char* saveName, const char* identif
 
 void notifySoundPicked(const char* name, const char* identifier)
 {
-    CCNotificationCenter::sharedNotificationCenter()->postNotification("SoundPicked", DcreateP(Screate(name), Screate("Name"), Screate(identifier), Screate("Identifier"), NULL) );
+    Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("SoundPicked", DcreateP(Screate(name), Screate("Name"), Screate(identifier), Screate("Identifier"), NULL) );
 }
 
 void notifySoundEncoded(const char* name, const char* identifier)
 {
-    CCNotificationCenter::sharedNotificationCenter()->postNotification("SoundEncoded", DcreateP(Screate(name), Screate("Name"), Screate(identifier), Screate("Identifier"), NULL) );
+    Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("SoundEncoded", DcreateP(Screate(name), Screate("Name"), Screate(identifier), Screate("Identifier"), NULL) );
 }
 
 bool isAudioPickerExporting()

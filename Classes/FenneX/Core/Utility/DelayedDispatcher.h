@@ -22,36 +22,35 @@
  THE SOFTWARE.
  ****************************************************************************///
 
-#ifndef __FenneX__TMPPoint__
-#define __FenneX__TMPPoint__
+#ifndef __FenneX__DelayedDispatcher__
+#define __FenneX__DelayedDispatcher__
 
 #include "cocos2d.h"
+#include "Pausable.h"
 
-USING_NS_CC;
+NS_FENNEX_BEGIN
 
-/* This class is a stop-gap fix to the fact you can't pass Vec2 in Array and Dictionary (since modifying Vec2 to be passed causes DrawNode to stop working)
+typedef std::tuple<float, std::string, cocos2d::Ref*> EventTuple;
+typedef std::tuple<float, std::function<void(cocos2d::EventCustom*)>, cocos2d::Ref*, std::string> FuncTuple;
+
+/* DelayedDispatcher works by attaching itself to current scene and monitoring updates.
+ For retro-compatibility, it only works for current scene
  */
-
-class CC_DEPRECATED_ATTRIBUTE TMPPoint : public Ref, public Clonable
+class DelayedDispatcher : public cocos2d::Ref, public Pausable
 {
 public:
-    float x;
-    float y;
-    
-    static TMPPoint* create();
-    static TMPPoint* create(float x, float y);
-    static TMPPoint* create(Vec2 pos);
-    
-    TMPPoint();
-    TMPPoint(float x, float y);
-    TMPPoint(Vec2 pos);
-    
-    virtual TMPPoint* clone() const
-    {
-        auto v = new TMPPoint(x, y);
-        v->autorelease();
-        return v;
-    }
+    static void eventAfterDelay(std::string eventName, Ref* userData, float delay);
+    static void funcAfterDelay(std::function<void(cocos2d::EventCustom*)> func, Ref* userData, float delay, std::string eventName="");
+    //Return true if at least one was cancelled
+    static bool cancelEvents(std::string eventName);
+    static bool cancelFuncs(std::string eventName);
+    void update(float deltaTime);
+private:
+    static DelayedDispatcher* getInstance();
+    std::vector<EventTuple> events;
+    std::vector<FuncTuple> funcs;
 };
 
-#endif /* defined(__FenneX__TMPPoint__) */
+NS_FENNEX_END
+
+#endif /* defined(__FenneX__DelayedDispatcher__) */

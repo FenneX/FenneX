@@ -34,8 +34,8 @@ public:
     virtual void setPlaceHolderColor(Color3B color) = 0;
     virtual const char* getLabelValue() = 0;
     virtual void setLabelValue(const char* value) = 0;
-    virtual void openKeyboard(Ref* obj) = 0;
-    virtual void closeKeyboard(Ref* obj) = 0;
+    virtual void openKeyboard(EventCustom* event) = 0;
+    virtual void closeKeyboard(EventCustom* event) = 0;
 };
 NS_FENNEX_END
 

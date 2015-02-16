@@ -1353,13 +1353,13 @@ void GraphicLayer::destroyObjects(Vector<RawObject*> array)
     }
 }
 
-void GraphicLayer::destroyObject(Ref* obj)
+void GraphicLayer::destroyObjectEvent(EventCustom* event)
 {
-    if(obj != NULL)
+    if(event->getUserData() != NULL)
     {
-        if(isKindOfClass(obj, RawObject))
+        if(isKindOfClass((Ref*)event->getUserData(), RawObject))
         {
-            this->destroyObject((RawObject*)obj);
+            this->destroyObject((RawObject*)event->getUserData());
         }
 #if VERBOSE_WARNING
         else
@@ -1369,13 +1369,13 @@ void GraphicLayer::destroyObject(Ref* obj)
 #endif
     }
 }
-void GraphicLayer::destroyObjects(Ref* obj)
+void GraphicLayer::destroyObjectsEvent(EventCustom* event)
 {
-    if(obj != NULL)
+    if(event->getUserData() != NULL)
     {
-        if(isKindOfClass(obj, CCArray))
+        if(isKindOfClass((Ref*)event->getUserData(), CCArray))
         {
-            CCArray* array = (CCArray*)obj;
+            CCArray* array = (CCArray*)event->getUserData();
             for(int i = 0; i < array->count(); i++)
             {
                 if(isKindOfClass(array->objectAtIndex(i), RawObject))
@@ -1898,7 +1898,7 @@ bool GraphicLayer::touchObject(RawObject* obj, bool event, Vec2 position)
             CCDictionary* infos = obj->getEventInfos();
             infos->setObject(Pcreate(position), "TouchPosition");
             IFEXIST(tapObserver)->onButtonTapped(obj, obj->getEventName(), infos);
-            CCNotificationCenter::sharedNotificationCenter()->postNotification(obj->getEventName(), infos);
+            Director::getInstance()->getEventDispatcher()->dispatchCustomEvent(obj->getEventName(), infos);
             CCString* trackingName = (CCString*)obj->getEventInfos()->objectForKey("TrackingName");
             SceneName currentScene = SceneSwitcher::sharedSwitcher()->getCurrentSceneName();
             //In VideoView, buttons are only tracked if the video meet the minimum duration
@@ -1918,7 +1918,7 @@ bool GraphicLayer::touchObject(RawObject* obj, bool event, Vec2 position)
             CCDictionary* helpInfos = CCDictionary::create();
             helpInfos->setObject(Icreate(obj->getID()), "Sender");
             helpInfos->setObject(Screate(obj->getHelp()), "RequestedHelp");
-            CCNotificationCenter::sharedNotificationCenter()->postNotification("DisplayHelp", helpInfos);
+            Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("DisplayHelp", helpInfos);
         }
         return true;
     }

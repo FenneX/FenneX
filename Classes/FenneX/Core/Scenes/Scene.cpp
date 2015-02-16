@@ -64,9 +64,9 @@ sceneName(identifier)
     
     //The order is very important : TapRecognized must be registered before InertiaGenerator (generally added in linkToScene), because it can cancel inertia
     this->addTouchreceiver(TapRecognizer::sharedRecognizer());
-    CCNotificationCenter::sharedNotificationCenter()->addObserver(this, callfuncO_selector(Scene::tapRecognized), "TapRecognized", NULL);
+    tapListener = Director::getInstance()->getEventDispatcher()->addCustomEventListener("TapRecognized", std::bind(&Scene::tapRecognized, this, std::placeholders::_1));
     
-    CCNotificationCenter::sharedNotificationCenter()->addObserver(this, callfuncO_selector(Scene::dropAllTouches), "AppWillResignActive", NULL);
+    appWillResignListener = Director::getInstance()->getEventDispatcher()->addCustomEventListener("AppWillResignActive", std::bind(&Scene::dropAllTouches, this, std::placeholders::_1));
     
     GraphicLayer::sharedLayer()->renderOnLayer(this, 0);
     LayoutHandler::sharedHandler()->linkToScene(this);
@@ -111,7 +111,8 @@ Scene::~Scene()
         keyboardListener->release();
         keyboardListener = NULL;
     }
-    CCNotificationCenter::sharedNotificationCenter()->removeAllObservers(this);
+    Director::getInstance()->getEventDispatcher()->removeEventListener(tapListener);
+    Director::getInstance()->getEventDispatcher()->removeEventListener(appWillResignListener);
     parameters->release();
     delegate->release();
     linker->release();
@@ -165,10 +166,6 @@ void Scene::update(float deltaTime)
         //Manual retain for updateList Ref*
         for(Pausable* obj : updatablesToAdd)
         {
-            if(isKindOfClass(obj, Ref))
-            {
-                dynamic_cast<Ref*>(obj)->retain();
-            }
             updateList.push_back(obj);
         }
         updatablesToAdd.clear();
@@ -379,9 +376,9 @@ void Scene::switchButton(Image* obj, bool state, Touch* touch)
     }
 }
 
-void Scene::tapRecognized(Ref* obj)
+void Scene::tapRecognized(EventCustom* event)
 {
-    Touch* touch = (Touch*)((CCDictionary*)obj)->objectForKey("Touch");
+    Touch* touch = (Touch*)((CCDictionary*)event->getUserData())->objectForKey("Touch");
     
     Vec2 pos = Scene::touchPosition(touch);
 #if VERBOSE_TOUCH_RECOGNIZERS
@@ -408,7 +405,7 @@ void Scene::tapRecognized(Ref* obj)
     }
 }
 
-void Scene::dropAllTouches(Ref* obj)
+void Scene::dropAllTouches(EventCustom* event)
 {
     Vector<Touch*> touches = linker->allTouches();
     for(long i = touches.size() - 1; i > 0; i--)
@@ -424,6 +421,10 @@ void Scene::addUpdatable(Pausable* obj)
        && std::find(updatablesToAdd.begin(), updatablesToAdd.end(), obj) == updatablesToAdd.end())
     {
         updatablesToAdd.push_back(obj);
+        if(isKindOfClass(obj, Ref))
+        {
+            dynamic_cast<Ref*>(obj)->retain();
+        }
     }
 }
 
@@ -434,6 +435,10 @@ void Scene::removeUpdatable(Pausable* obj)
        && std::find(updatablesToRemove.begin(), updatablesToRemove.end(), obj) == updatablesToRemove.end())
     {
         updatablesToRemove.push_back(obj);
+        if(isKindOfClass(obj, Ref))
+        {
+            dynamic_cast<Ref*>(obj)->retain();
+        }
     }
 }
 
@@ -483,11 +488,11 @@ void Scene::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event)
 {
     if(keyCode == EventKeyboard::KeyCode::KEY_ESCAPE)
     {
-        CCNotificationCenter::sharedNotificationCenter()->postNotification("KeyBackClicked");
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("KeyBackClicked");
     }
     else if(keyCode == EventKeyboard::KeyCode::KEY_HOME)
     {
-        CCNotificationCenter::sharedNotificationCenter()->postNotification("KeyMenuClicked");
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("KeyMenuClicked");
     }
 }
 

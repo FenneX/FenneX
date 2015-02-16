@@ -36,6 +36,9 @@ public:
     /** Constructor */
     EventCustom(const std::string& eventName);
     
+    /** CUSTOM create */
+    static EventCustom* create(const std::string& eventName = "", void* data = NULL);
+    
     /** Sets user data */
     inline void setUserData(void* data) { _userData = data; };
     

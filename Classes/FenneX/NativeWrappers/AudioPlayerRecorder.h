@@ -71,8 +71,8 @@ public:
     void stopAll();
     
     //Those methods first try Object before Sender because it can be a subcall (for example if the selection is via a pop-up. If the Sender is a CCInteger, it will try to get a valid RawObject from GraphicLayer
-    void playObject(Ref* obj); //infos may contains the Object/Sender (Ref*) and the File (CCString)
-    void recordObject(Ref* obj); //infos may contains the Object/Sender (Ref*), the File (CCString) will be generated if absent
+    void playObject(EventCustom* event); //infos may contains the Object/Sender (Ref*) and the File (CCString)
+    void recordObject(EventCustom* event); //infos may contains the Object/Sender (Ref*), the File (CCString) will be generated if absent
     
     //implementation specific methods
     bool isRecording();
@@ -81,7 +81,7 @@ public:
     void record(const std::string&  file, Ref* linkTo);
     void stopRecording();
     float play(const std::string&  file, Ref* linkTo, bool independent = false); //return the duration of the file
-    void stopPlaying(Ref* obj = NULL);
+    void stopPlaying(EventCustom* event = NULL);
     void fadeVolumeOut();
     
     void play();
@@ -110,12 +110,13 @@ protected:
     bool recordEnabled;
     
     Ref* noLinkObject; //If a sound have no link, it is linked to this object so that everything works well
+    Vector<EventListenerCustom*> listeners;
 };
 #endif
 
 static inline void notifyPlayingSoundEnded()
 {
-    performNotificationAfterDelay("PlayingSoundEnded", Dcreate(), 0.01);
+    DelayedDispatcher::eventAfterDelay("PlayingSoundEnded", Dcreate(), 0.01);
 }
 
 #endif

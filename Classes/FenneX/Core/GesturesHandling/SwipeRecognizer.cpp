@@ -88,7 +88,7 @@ void SwipeRecognizer::onTouchEnded(Touch *touch, Event *pEvent)
             infos->setObject(initialPosition.x > currentPosition.x ? Screate("Left") : Screate("Right"), "Direction");
             infos->setObject(Fcreate(initialPosition.x), "InitialPositionX");
             infos->setObject(Fcreate(initialPosition.y), "InitialPositionY");
-            CCNotificationCenter::sharedNotificationCenter()->postNotification("SwipeRecognized", infos);
+            Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("SwipeRecognized", infos);
         }
         
     }

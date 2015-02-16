@@ -29,7 +29,7 @@ THE SOFTWARE.
 #include "Inertia.h"
 
 #define TIME GraphicLayer::sharedLayer()->getClock()
-#define ADD_OBSERVER(func, notifName) (center->addObserver(this, callfuncO_selector(InertiaGenerator::func), notifName, NULL))
+#define ADD_OBSERVER(func, notifName) (listeners.pushBack(Director::getInstance()->getEventDispatcher()->addCustomEventListener(notifName, std::bind(&InertiaGenerator::func, this, std::placeholders::_1))))
 #define TIME_BETWEEN_NOTIFICATIONS 0.015
 
 #define MAX_SCROLL 200 * RESOLUTION_MULTIPLIER
@@ -56,11 +56,19 @@ void InertiaGenerator::init()
     currentTime = 0;
     lastInertiaNotificationTime = 0;
     
-    CCNotificationCenter* center = CCNotificationCenter::sharedNotificationCenter();
     ADD_OBSERVER(planSceneSwitch, "PlanSceneSwitch");
     ADD_OBSERVER(scrollingEnded, "ScrollingEnded");
     ADD_OBSERVER(scrolling, "Scrolling");
     ADD_OBSERVER(tapRecognized, "TapRecognized");
+}
+
+InertiaGenerator::~InertiaGenerator()
+{
+    for(EventListenerCustom* listener : listeners)
+    {
+        Director::getInstance()->getEventDispatcher()->removeEventListener(listener);
+    }
+    listeners.clear();
 }
 
 void InertiaGenerator::addPossibleTarget(Ref* target)
@@ -88,7 +96,7 @@ void InertiaGenerator::addPossibleTargets(Vector<Ref*> targets)
     }
 }
 
-void InertiaGenerator::planSceneSwitch(Ref* obj)
+void InertiaGenerator::planSceneSwitch(EventCustom* event)
 {
     inertiaTargets.clear();
     inertiaParameters.clear();
@@ -113,7 +121,7 @@ void InertiaGenerator::update(float delta)
                                                Fcreate(TIME - lastInertiaNotificationTime), Screate("DeltaTime"),
                                                Bcreate(true), Screate("Inertia"),
                                                target, Screate("Target"), NULL);
-            CCNotificationCenter::sharedNotificationCenter()->postNotification("Inertia", arguments);
+            Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("Inertia", arguments);
             if (fabs(inertia->getOffset().x) < MIN_SCROLL && fabs(inertia->getOffset().y) < MIN_SCROLL)
             {
                 toRemove.pushBack(target);
@@ -130,9 +138,9 @@ void InertiaGenerator::update(float delta)
 }
 
 //If a tap is recognized, no inertia is generated
-void InertiaGenerator::tapRecognized(Ref* obj)
+void InertiaGenerator::tapRecognized(EventCustom* event)
 {
-    CCDictionary* infos = (CCDictionary*)obj;
+    CCDictionary* infos = (CCDictionary*)event->getUserData();
     Touch* touch = (Touch*)infos->objectForKey("Touch");
     this->ignoreTouch(touch);
 }
@@ -143,9 +151,9 @@ void InertiaGenerator::ignoreTouch(Touch* touch)
     ignoredTouches.pushBack(touch);
 }
 
-void InertiaGenerator::scrolling(Ref* obj)
+void InertiaGenerator::scrolling(EventCustom* event)
 {
-    CCDictionary* infos = (CCDictionary*)obj;
+    CCDictionary* infos = (CCDictionary*)event->getUserData();
     CCArray* touches = (CCArray*)infos->objectForKey("Touches");
     for(int i = 0; i < touches->count(); i++)
     {
@@ -167,9 +175,9 @@ void InertiaGenerator::scrolling(Ref* obj)
     }
 }
 
-void InertiaGenerator::scrollingEnded(Ref* obj)
+void InertiaGenerator::scrollingEnded(EventCustom* event)
 {
-    CCDictionary* infos = (CCDictionary*)obj;
+    CCDictionary* infos = (CCDictionary*)event->getUserData();
     int touches_count = TOINT(infos->objectForKey("TouchesCount"));
     if(touches_count == 1 && possibleTargets.size() > 0)
     {
@@ -227,7 +235,7 @@ void InertiaGenerator::scrollingEnded(Ref* obj)
             }
             else
             {
-                CCNotificationCenter::sharedNotificationCenter()->postNotification("NoInertia", DcreateP(target, Screate("Target"), NULL));
+                Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("NoInertia", DcreateP(target, Screate("Target"), NULL));
             }
         }
         else
@@ -244,7 +252,7 @@ void InertiaGenerator::stopInertia(Ref* obj)
         int index = inertiaTargets.getIndex(obj);
         inertiaParameters.erase(index);
         inertiaTargets.erase(index);
-        CCNotificationCenter::sharedNotificationCenter()->postNotification("InertiaEnded", DcreateP(obj, Screate("Target"), NULL));
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("InertiaEnded", DcreateP(obj, Screate("Target"), NULL));
     }
 }
 NS_FENNEX_END

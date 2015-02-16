@@ -125,7 +125,7 @@ float AudioPlayerRecorder::play(const std::string& file, CCObject* linkTo, bool 
     return 0;
 }
 
-void AudioPlayerRecorder::stopPlaying(CCObject* obj)
+void AudioPlayerRecorder::stopPlaying(EventCustom* event)
 {
     [[AudioPlayerRecorderImpl sharedAudio] stopPlaying];
     link = NULL; //don't call setLink to avoid infinite recursion

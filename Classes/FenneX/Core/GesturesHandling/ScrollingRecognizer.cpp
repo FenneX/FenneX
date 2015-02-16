@@ -82,7 +82,7 @@ void ScrollingRecognizer::onTouchEnded(Touch *touch, Event *pEvent)
                                            Fcreate(TIME - lastScrollingNotificationTime), Screate("DeltaTime"),
                                            touchesConvert, Screate("Touches"),
                                            object, Screate("Target"), NULL);//Note : target have to be last because it can be NULL
-        CCNotificationCenter::sharedNotificationCenter()->postNotification("ScrollingEnded", arguments);
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ScrollingEnded", arguments);
         
         if(lastPositions.find(touch->getID()) != lastPositions.end())
         {
@@ -119,7 +119,7 @@ void ScrollingRecognizer::update(float delta)
                                                    Fcreate(TIME - lastScrollingNotificationTime), Screate("DeltaTime"),
                                                    touchesConvert, Screate("Touches"),
                                                    object, Screate("Target"), NULL);//Note : target have to be last because it can be NULL
-                CCNotificationCenter::sharedNotificationCenter()->postNotification("Scrolling", arguments);
+                Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("Scrolling", arguments);
             }
         }
         Vector<Touch*> touches = mainLinker->allTouches();

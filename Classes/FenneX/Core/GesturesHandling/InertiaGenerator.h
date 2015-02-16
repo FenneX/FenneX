@@ -40,14 +40,14 @@ class InertiaGenerator : public Ref, public Pausable
 public:
     static InertiaGenerator* sharedInertia(void);
     
-    void planSceneSwitch(Ref* obj);
-    void scrolling(Ref* obj);
-    void scrollingEnded(Ref* obj);
+    void planSceneSwitch(EventCustom* event);
+    void scrolling(EventCustom* eventj);
+    void scrollingEnded(EventCustom* event);
     void stopInertia(Ref* obj);
     virtual void update(float delta);
     
     //If a tap is recognized, no inertia is generated
-    void tapRecognized(Ref* obj);
+    void tapRecognized(EventCustom* event);
     void ignoreTouch(Touch* touch);
     
     void addPossibleTarget(Ref* target);
@@ -56,6 +56,7 @@ public:
     
 protected:
     void init();
+    ~InertiaGenerator();
     
     Vector<Ref*> possibleTargets;
     Vector<Ref*> inertiaTargets;
@@ -66,6 +67,7 @@ protected:
     
     float currentTime;
     float lastInertiaNotificationTime;
+    Vector<EventListenerCustom*> listeners;
 };
 NS_FENNEX_END
 

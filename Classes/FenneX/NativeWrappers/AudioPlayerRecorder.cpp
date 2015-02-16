@@ -48,9 +48,9 @@ AudioPlayerRecorder::AudioPlayerRecorder()
     noLinkObject = Node::create(); //the exact type isn't important, it just needs to be a Ref*
     noLinkObject->retain();
     recordEnabled = false;
-    CCNotificationCenter::sharedNotificationCenter()->addObserver(this, callfuncO_selector(AudioPlayerRecorder::playObject), "PlayObject", NULL);
-    CCNotificationCenter::sharedNotificationCenter()->addObserver(this, callfuncO_selector(AudioPlayerRecorder::recordObject), "RecordObject", NULL);
-    CCNotificationCenter::sharedNotificationCenter()->addObserver(this, callfuncO_selector(AudioPlayerRecorder::stopPlaying), "PauseSound", NULL);
+    listeners.pushBack(Director::getInstance()->getEventDispatcher()->addCustomEventListener("PlayObject", std::bind(&AudioPlayerRecorder::playObject, this, std::placeholders::_1)));
+    listeners.pushBack(Director::getInstance()->getEventDispatcher()->addCustomEventListener("RecordObject", std::bind(&AudioPlayerRecorder::recordObject, this, std::placeholders::_1)));
+    listeners.pushBack(Director::getInstance()->getEventDispatcher()->addCustomEventListener("PauseSound", std::bind(&AudioPlayerRecorder::stopPlaying, this, std::placeholders::_1)));
 }
 
 
@@ -61,7 +61,11 @@ bool AudioPlayerRecorder::isRecordEnabled()
 
 AudioPlayerRecorder::~AudioPlayerRecorder()
 {
-    CCNotificationCenter::sharedNotificationCenter()->removeAllObservers(this);
+    for(EventListenerCustom* listener : listeners)
+    {
+        Director::getInstance()->getEventDispatcher()->removeEventListener(listener);
+    }
+    listeners.clear();
     if(!path.empty())
     {
         path = "";
@@ -81,9 +85,9 @@ void AudioPlayerRecorder::stopAll()
     }
 }
 
-void AudioPlayerRecorder::playObject(Ref* obj)
+void AudioPlayerRecorder::playObject(EventCustom* event)
 {
-    CCDictionary* infos = (CCDictionary*)obj;
+    CCDictionary* infos = (CCDictionary*)event->getUserData();
     Ref* linkTo = infos->objectForKey("Object");
     CCString* file = (CCString*) infos->objectForKey("File");
     if(linkTo == NULL)
@@ -105,14 +109,14 @@ void AudioPlayerRecorder::playObject(Ref* obj)
     }
 }
 
-void AudioPlayerRecorder::recordObject(Ref* obj)
+void AudioPlayerRecorder::recordObject(EventCustom* event)
 {
     CCAssert(recordEnabled, "Record is disabled, enable it before starting to record");
     if(this->isPlaying())
     {
         this->stopPlaying();
     }
-    CCDictionary* infos = (CCDictionary*)obj;
+    CCDictionary* infos = (CCDictionary*)event->getUserData();
     Ref* linkTo = infos->objectForKey("Object");
     CCString* oldFile = (CCString*) infos->objectForKey("File");
     if(linkTo == NULL)
@@ -140,7 +144,7 @@ void AudioPlayerRecorder::recordObject(Ref* obj)
     if(!file.empty())
     {
         this->record(file, linkTo);
-        CCNotificationCenter::sharedNotificationCenter()->postNotification("RecordingStarted", DcreateP(linkTo, Screate("Object"), oldFile, Screate("OldFile"), NULL));
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("RecordingStarted", DcreateP(linkTo, Screate("Object"), oldFile, Screate("OldFile"), NULL));
     }
 }
 

@@ -69,3 +69,17 @@ Fixing SuperAnim compilation
 ----
 
 GetFileData must have the size parameter be a ssize_t and calls to CCFileUtils::sharedFileUtils()->getFileData must use a ssize_t as last parameter
+
+CCNotificationCenter to EventDispatcher
+----
+
+As CCNotificationCenter is deprecated, it is required to migrate to EventDispatcher. This migration is time-consuming, as it's not a 1 to 1 equivalence.
+
+Instructions:
+
+* Replace CCNotificationCenter::sharedNotificationCenter() by Director::getInstance()->getEventDispatcher(). It is recommended to do that last to be able to search globally for CCNotificationCenter
+* replace addObserver by addCustomEventListener, which takes a function instead of selector + object + filter. You will generally use std::bind(&ObjectClass:funcname, this, std::placeholders::_1) (skip the placeholder if the function doesn't take an argument)
+* you will need to save the created listeners somewhere to be able to remove them, as they are no longer directly linked to an object
+* function prototype must be changed from Ref\* (or CCObject\*) to EventCustom\* event. To get the informations, you must now get event->getUserData(), which is of type void* (instead of Ref*)
+* to send a notification, replace postNotification by dispatchCustomEvent
+* perfomNotificationAfterDelay and performSelectorAfterDelay have been replaced by DelayedDispatcher class. See Shorteners.h and DelayedDispatcher.h for more infos

@@ -179,8 +179,8 @@ public:
     void destroyObjects(Vector<RawObject*> array);
     
     //Convenience method for performSelector method. Will check the type before passing.
-    void destroyObject(Ref* obj);
-    void destroyObjects(Ref* obj);
+    void destroyObjectEvent(EventCustom* event);
+    void destroyObjectsEvent(EventCustom* event);
     
     int count() { return storedObjects->count(); }
     

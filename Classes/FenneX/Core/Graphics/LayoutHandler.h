@@ -52,6 +52,7 @@ private:
     GraphicLayer* layer;
     Scene* currentScene;
     EventResponder* responder;
+    Vector<EventListenerCustom*> listeners;
 };
 NS_FENNEX_END
 

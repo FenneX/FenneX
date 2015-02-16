@@ -74,5 +74,6 @@ THE SOFTWARE.
 #include "SynthesizeString.h"
 #include "StringUtility.h"
 #include "TMPPoint.h"
+#include "DelayedDispatcher.h"
 
 #endif

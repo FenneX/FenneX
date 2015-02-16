@@ -93,7 +93,7 @@ bool isPackageInstalled(std::string packageName);
 //On Android, they are always on
 static inline void notifyVolumeChanged()
 {
-	performNotificationAfterDelay("VolumeChanged", DcreateP(Fcreate(getDeviceVolume()), Screate("Volume"), NULL), 0.01);
+	DelayedDispatcher::eventAfterDelay("VolumeChanged", DcreateP(Fcreate(getDeviceVolume()), Screate("Volume"), NULL), 0.01);
 }
 
 inline void notifyMemoryWarning(){

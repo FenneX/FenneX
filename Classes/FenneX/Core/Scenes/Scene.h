@@ -67,8 +67,8 @@ public:
     void switchButton(Image* obj, bool state, Touch* touch = NULL);
     
     
-    void tapRecognized(Ref* obj);
-    void dropAllTouches(Ref* obj);
+    void tapRecognized(EventCustom* event);
+    void dropAllTouches(EventCustom* event);
     
     //Pausable will be retain/released if they are of type Ref*
     void addUpdatable(Pausable* obj);
@@ -102,6 +102,8 @@ protected:
     int frameNumber;
     EventListenerTouchOneByOne* touchListener;
     EventListenerKeyboard* keyboardListener;
+    EventListenerCustom* tapListener;
+    EventListenerCustom* appWillResignListener;
 };
 NS_FENNEX_END
 

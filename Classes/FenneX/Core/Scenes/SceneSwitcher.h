@@ -49,7 +49,7 @@ public:
     static SceneSwitcher* sharedSwitcher();
     void initWithScene(SceneName nextScene, CCDictionary* param = NULL);
     void trySceneSwitch(float deltaTime = 0);
-    void planSceneSwitch(Ref *obj);
+    void planSceneSwitch(EventCustom* event);
     //A cancel will ignore next scene and directly jump to the queued scene
     //You can only cancel one scene per frame
     void cancelSceneSwitch();
@@ -74,6 +74,8 @@ protected:
     float delayReplace;
     //The key for keyboard lock during scene switch
     int keyboardLock;
+    
+    EventListenerCustom* planSceneSwitchListener;
 };
 NS_FENNEX_END
 

@@ -48,7 +48,11 @@ void LayoutHandler::init()
 
 LayoutHandler::~LayoutHandler()
 {
-    CCNotificationCenter::sharedNotificationCenter()->removeAllObservers(responder);
+    for(EventListenerCustom* listener : listeners)
+    {
+        Director::getInstance()->getEventDispatcher()->removeEventListener(listener);
+    }
+    listeners.clear();
     responder->release();
 }
 
@@ -59,7 +63,11 @@ EventResponder* LayoutHandler::getResponder()
 
 void LayoutHandler::linkToScene(Scene* target, bool initDisplay)
 {
-    CCNotificationCenter::sharedNotificationCenter()->removeAllObservers(responder);
+    for(EventListenerCustom* listener : listeners)
+    {
+        Director::getInstance()->getEventDispatcher()->removeEventListener(listener);
+    }
+    listeners.clear();
     currentScene = target;
     responder->currentScene = target;
     layer = GraphicLayer::sharedLayer();

@@ -130,7 +130,7 @@ float AudioPlayerRecorder::play(const std::string& file, CCObject* linkTo, bool 
     return getSoundDuration(file);
 }
 
-void AudioPlayerRecorder::stopPlaying(CCObject* obj)
+void AudioPlayerRecorder::stopPlaying(EventCustom* event)
 {
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"stopPlaying", "()V"), "Function doesn't exist");

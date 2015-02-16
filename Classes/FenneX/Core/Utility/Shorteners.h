@@ -29,6 +29,7 @@ THE SOFTWARE.
 #include "SceneSwitcher.h"
 #include "FenneXMacros.h"
 #include "TMPPoint.h"
+#include "DelayedDispatcher.h"
 USING_NS_CC;
 
 NS_FENNEX_BEGIN
@@ -78,9 +79,18 @@ CCDictionary* createDictionaryWithParameters(Ref* firstObject, ... );
 CCArray* createArrayWithParameters(Ref* firstObject, ... );
 
 //perform a selector after a delay. All pending selector will be cancelled during a scene switch (it's assumed most of them are tied to the current Scene)
+/* Obsolete functions. Please use DelayedDispatcher
+ 
+ Replaced by DelayedDispatcher::funcAfterDelay (requires to merge first 2 argument into a std::function, and change delay/object order)
 void performSelectorAfterDelay(Ref* target, SEL_CallFuncO selector, float delay, Ref* object = NULL);
+ 
+ Replaced by DelayedDispatcher::cancelFunc (requires to use std::string as identifiers)
 bool cancelSelector(Ref* target, SEL_CallFuncO selector);
-void performNotificationAfterDelay(const char* name, Ref* obj, float delay);
+ 
+ Replaced by DelayedDispatcher::eventAfterDelay (simple replace)
+void performNotificationAfterDelay(const char* name, Ref* obj, float delay);*/
+
+#define performNotificationAfterDelay DelayedDispatcher::eventAfterDelay
 
 static inline cocos2d::Size
 SizeMult(const cocos2d::Size& v, const float s)
@@ -107,7 +117,7 @@ static inline float getTimeDifferenceMS(timeval& start, timeval& end)
     return ((((end.tv_sec - start.tv_sec)*1000.0f
              +end.tv_usec) - start.tv_usec) / 1000.0f);
 }
-
+/*
 class Shorteners : public Ref
 {
 public:
@@ -115,7 +125,7 @@ public:
     //Reserved for internal usage, need "_NotificationName" as a CCString and "_Infos" as a Ref
     void delayedPostNotification(Ref* obj);
 private:
-};
+};*/
 NS_FENNEX_END
 
 #endif

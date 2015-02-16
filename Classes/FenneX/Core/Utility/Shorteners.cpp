@@ -108,7 +108,7 @@ CCArray* createArrayWithParameters(Ref* firstObject, ... )
     }
     return Acreate();
 }
-
+/*
 void performSelectorAfterDelay(Ref* target, SEL_CallFuncO selector, float delay, Ref* object)
 {
     DelayTime *delayAction = DelayTime::create(delay);
@@ -168,7 +168,7 @@ void Shorteners::delayedPostNotification(Ref* obj)
     CCDictionary* infos = (CCDictionary*)obj;
     CCAssert(isKindOfClass(infos->objectForKey("_NotificationName"), CCString), "Missing _NotificationName in delayedPostNotification");
     CCAssert(infos->objectForKey("_Infos") != NULL, "Missing _Infos in delayedPostNotification");
-    CCNotificationCenter::sharedNotificationCenter()->postNotification(TOCSTRING(infos->objectForKey("_NotificationName")), infos->objectForKey("_Infos"));
+    Director::getInstance()->getEventDispatcher()->dispatchCustomEvent(TOCSTRING(infos->objectForKey("_NotificationName")), infos->objectForKey("_Infos"));
     infos->release();
-}
+}*/
 NS_FENNEX_END

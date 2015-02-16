@@ -56,7 +56,7 @@ protected:
     
 protected:
     std::map<int, Vec2> storedTouches;//key : touch ID, value : origin
-    void checkForSelection(Ref* obj);
+    void checkForSelection(EventCustom* event);
 };
 NS_FENNEX_END
 

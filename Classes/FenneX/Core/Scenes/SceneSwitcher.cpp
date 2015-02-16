@@ -47,7 +47,7 @@ SceneSwitcher* SceneSwitcher::sharedSwitcher(void)
 
 SceneSwitcher::~SceneSwitcher()
 {
-    CCNotificationCenter::sharedNotificationCenter()->removeAllObservers(this);
+    Director::getInstance()->getEventDispatcher()->removeEventListener(planSceneSwitchListener);
     s_SharedSwitcher = NULL;
 }
 
@@ -61,7 +61,7 @@ void SceneSwitcher::init()
     keyboardLock = -1;
     delayReplace = 0;
     Director::getInstance()->setNotificationNode(Node::create());
-    CCNotificationCenter::sharedNotificationCenter()->addObserver(this, callfuncO_selector(SceneSwitcher::planSceneSwitch), "PlanSceneSwitch", NULL);
+    planSceneSwitchListener = Director::getInstance()->getEventDispatcher()->addCustomEventListener("PlanSceneSwitch", std::bind(&SceneSwitcher::planSceneSwitch, this, std::placeholders::_1));
 }
 
 void SceneSwitcher::initWithScene(SceneName nextSceneType, CCDictionary* param)
@@ -167,9 +167,9 @@ void SceneSwitcher::takeQueuedScene()
     queuedParam = NULL;
 }
 
-void SceneSwitcher::planSceneSwitch(Ref *obj)
+void SceneSwitcher::planSceneSwitch(EventCustom* event)
 {
-    CCDictionary* infos = (CCDictionary*)obj;
+    CCDictionary* infos = (CCDictionary*)event->getUserData();
     if(!processingSwitch && nextScene == None)
     {
         //Unbind all async texture load: since the scene will be replaced, the image won't need their new texture
@@ -257,7 +257,7 @@ void SceneSwitcher::replaceScene()
         }
         currentSceneName = nextScene;
         this->takeQueuedScene();
-        CCNotificationCenter::sharedNotificationCenter()->postNotification("SceneSwitched", DcreateP(Icreate(currentSceneName), Screate("Scene"), NULL));
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("SceneSwitched", DcreateP(Icreate(currentSceneName), Screate("Scene"), NULL));
     }
     else
     {

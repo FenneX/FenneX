@@ -118,10 +118,10 @@ InputLabel::InputLabel(ui::Scale9Sprite* sprite)
     CCLOG("delegate position after : %f, %f", delegate->getPosition().x, delegate->getPosition().y);
     delegate->setInputMode(ui::EditBox::InputMode::SINGLE_LINE);
     delegate->setReturnType(ui::EditBox::KeyboardReturnType::DONE);
-    CCNotificationCenter::sharedNotificationCenter()->addObserver(this, callfuncO_selector(InputLabel::openKeyboard), "OpenKeyboard", NULL);
-    CCNotificationCenter::sharedNotificationCenter()->addObserver(this, callfuncO_selector(InputLabel::closeKeyboard), "CloseKeyboard", NULL);
-    CCNotificationCenter::sharedNotificationCenter()->addObserver(this, callfuncO_selector(InputLabel::disableInputs), "DisableInputs", NULL);
-    CCNotificationCenter::sharedNotificationCenter()->addObserver(this, callfuncO_selector(InputLabel::enableInputs), "EnableInputs", NULL);
+    Director::getInstance()->getEventDispatcher()->addCustomEventListener("OpenKeyboard", std::bind(&InputLabel::openKeyboard, this, std::placeholders::_1));
+    Director::getInstance()->getEventDispatcher()->addCustomEventListener("CloseKeyboard", std::bind(&InputLabel::closeKeyboard, this, std::placeholders::_1));
+    Director::getInstance()->getEventDispatcher()->addCustomEventListener("DisableInputs", std::bind(&InputLabel::disableInputs, this, std::placeholders::_1));
+    Director::getInstance()->getEventDispatcher()->addCustomEventListener("EnableInputs", std::bind(&InputLabel::enableInputs, this, std::placeholders::_1));
     
     CustomInput* input = dynamic_cast<CustomInput*>(sprite);
     if(input != NULL)
@@ -176,10 +176,10 @@ InputLabel::InputLabel(const char* placeHolder, const char* fontName, int fontSi
     {
         delegate->setMaxLength(maxChar);
     }
-    CCNotificationCenter::sharedNotificationCenter()->addObserver(this, callfuncO_selector(InputLabel::openKeyboard), "OpenKeyboard", NULL);
-    CCNotificationCenter::sharedNotificationCenter()->addObserver(this, callfuncO_selector(InputLabel::closeKeyboard), "CloseKeyboard", NULL);
-    CCNotificationCenter::sharedNotificationCenter()->addObserver(this, callfuncO_selector(InputLabel::disableInputs), "DisableInputs", NULL);
-    CCNotificationCenter::sharedNotificationCenter()->addObserver(this, callfuncO_selector(InputLabel::enableInputs), "EnableInputs", NULL);
+    listeners.pushBack(Director::getInstance()->getEventDispatcher()->addCustomEventListener("OpenKeyboard", std::bind(&InputLabel::openKeyboard, this, std::placeholders::_1)));
+    listeners.pushBack(Director::getInstance()->getEventDispatcher()->addCustomEventListener("CloseKeyboard", std::bind(&InputLabel::closeKeyboard, this, std::placeholders::_1)));
+    listeners.pushBack(Director::getInstance()->getEventDispatcher()->addCustomEventListener("DisableInputs", std::bind(&InputLabel::disableInputs, this, std::placeholders::_1)));
+    listeners.pushBack(Director::getInstance()->getEventDispatcher()->addCustomEventListener("EnableInputs", std::bind(&InputLabel::enableInputs, this, std::placeholders::_1)));
     
 }
 
@@ -195,7 +195,11 @@ InputLabel::~InputLabel()
         initialText->release();
         initialText = NULL;
     }
-    CCNotificationCenter::sharedNotificationCenter()->removeAllObservers(this);
+    for(EventListenerCustom* listener : listeners)
+    {
+        Director::getInstance()->getEventDispatcher()->removeEventListener(listener);
+    }
+    listeners.clear();
     delegate->setDelegate(NULL);
     delegate->release();
     if(originalInfos != NULL)
@@ -245,9 +249,9 @@ void InputLabel::update(float deltaTime)
     textDirty = false;
 }
 
-void InputLabel::openKeyboard(Ref* obj)
+void InputLabel::openKeyboard(EventCustom* event)
 {
-    CCDictionary* infos = (CCDictionary*)obj;
+    CCDictionary* infos = (CCDictionary*)event->getUserData();
     if(locks.size() == 0
        && ((isKindOfClass(infos->objectForKey("Sender"), CCInteger)
             && TOINT(infos->objectForKey("Sender")) == identifier)
@@ -260,9 +264,9 @@ void InputLabel::openKeyboard(Ref* obj)
     }
 }
 
-void InputLabel::closeKeyboard(Ref* obj)
+void InputLabel::closeKeyboard(EventCustom* event)
 {
-    CCDictionary* infos = (CCDictionary*)obj;
+    CCDictionary* infos = (CCDictionary*)event->getUserData();
     if((isKindOfClass(infos->objectForKey("Sender"), CCInteger)
         && TOINT(infos->objectForKey("Sender")) == identifier)
        || (isKindOfClass(infos->objectForKey("Target"), CCInteger)
@@ -274,12 +278,12 @@ void InputLabel::closeKeyboard(Ref* obj)
     }
 }
 
-void InputLabel::disableInputs(Ref* obj)
+void InputLabel::disableInputs(EventCustom* event)
 {
     delegate->setEnabled(false);
 }
 
-void InputLabel::enableInputs(Ref* obj)
+void InputLabel::enableInputs(EventCustom* event)
 {
     delegate->setEnabled(true);
 }
@@ -309,13 +313,13 @@ void InputLabel::editBoxEditingDidBegin(ui::EditBox* editBox)
 {
     if(locks.size() > 0)
     {
-        closeKeyboard(DcreateP(Icreate(this->getID()), Screate("Sender"), NULL));
+        closeKeyboard(EventCustom::create("CloseKeyboard", DcreateP(Icreate(this->getID()), Screate("Sender"), NULL)));
         return;
     }
     if(!isOpened && delegate->isEnabled())
     {
         isOpened = true;
-        CCNotificationCenter::sharedNotificationCenter()->postNotification("InputLabelBeginEdit", DcreateP(Icreate(identifier), Screate("Sender"), NULL));
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("InputLabelBeginEdit", DcreateP(Icreate(identifier), Screate("Sender"), NULL));
     }
 }
 
@@ -323,7 +327,7 @@ void InputLabel::editBoxEditingDidBegin(ui::EditBox* editBox)
 void InputLabel::editBoxReturn(ui::EditBox* editBox)
 {
     CCLOG("ui::EditBoxReturn : Close InputLabel keyboard");
-    performNotificationAfterDelay("InputLabelReturn", this->getEventInfos(), 0.01);
+    DelayedDispatcher::eventAfterDelay("InputLabelReturn", this->getEventInfos(), 0.01);
 }
 
 
@@ -362,7 +366,7 @@ void InputLabel::editBoxEditingDidEnd(ui::EditBox* editBox)
         }
         CCDictionary* param = this->getEventInfos();
         param->setObject(Screate(this->getLabelValue()), "Text");
-        CCNotificationCenter::sharedNotificationCenter()->postNotification("TextAdded", param);
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("TextAdded", param);
     }
     delegate->detachWithIME();
 }

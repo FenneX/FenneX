@@ -42,7 +42,7 @@ bool isSpeaking();
 
 static inline void notifyTTSDone(int speechID)
 {
-    performNotificationAfterDelay("TTSDone", DcreateP(Icreate(speechID), Screate("Identifier"), NULL), 0.01);
+    DelayedDispatcher::eventAfterDelay("TTSDone", DcreateP(Icreate(speechID), Screate("Identifier"), NULL), 0.01);
 }
 
 #endif /* defined(__FenneX__TTSWrapper_h) */

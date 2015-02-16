@@ -64,10 +64,10 @@ public:
     
     virtual void setEventName(const char* eventName);
     
-    virtual void openKeyboard(Ref* obj);
-    virtual void closeKeyboard(Ref* obj);
-    virtual void disableInputs(Ref* obj);
-    virtual void enableInputs(Ref* obj);
+    virtual void openKeyboard(EventCustom* event);
+    virtual void closeKeyboard(EventCustom* event);
+    virtual void disableInputs(EventCustom* event);
+    virtual void enableInputs(EventCustom* event);
     virtual void exitBoxEditingWillBegin(ui::EditBox* editBox);
     virtual void editBoxEditingDidBegin(ui::EditBox* editBox);
     virtual void editBoxReturn(ui::EditBox* editBox);
@@ -101,6 +101,7 @@ protected:
      int maxHeight;
      bool textChanged;
      float originalFontSize;*/
+    Vector<EventListenerCustom*> listeners;
 };
 NS_FENNEX_END
 

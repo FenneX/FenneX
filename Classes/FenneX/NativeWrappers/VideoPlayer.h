@@ -73,22 +73,22 @@ private:
 
 static inline void notifyVideoDurationAvailable(const char* path, float duration)
 {
-    performNotificationAfterDelay("VideoDurationAvailable", DcreateP(Screate(path), Screate("Path"), Fcreate(duration), Screate("Duration"), NULL), 0.01);
+    DelayedDispatcher::eventAfterDelay("VideoDurationAvailable", DcreateP(Screate(path), Screate("Path"), Fcreate(duration), Screate("Duration"), NULL), 0.01);
 }
 
 static inline void notifyVideoEnded(const char* path)
 {
-    performNotificationAfterDelay("VideoEnded", DcreateP(Screate(path), Screate("Path"), NULL), 0.01);
+    DelayedDispatcher::eventAfterDelay("VideoEnded", DcreateP(Screate(path), Screate("Path"), NULL), 0.01);
 }
 
 static inline void notifyVideoExists(const char* path)
 {
-    performNotificationAfterDelay("VideoExists", DcreateP(Screate(path), Screate("Path"), NULL), 0.01);
+    DelayedDispatcher::eventAfterDelay("VideoExists", DcreateP(Screate(path), Screate("Path"), NULL), 0.01);
 }
 
 static inline void notifyVideoRemoved(const char* path)
 {
-    performNotificationAfterDelay("VideoRemoved", DcreateP(Screate(path), Screate("Path"), NULL), 0.01);
+    DelayedDispatcher::eventAfterDelay("VideoRemoved", DcreateP(Screate(path), Screate("Path"), NULL), 0.01);
 }
 
 #endif /* defined(__FenneX__VideoPlayer__) */

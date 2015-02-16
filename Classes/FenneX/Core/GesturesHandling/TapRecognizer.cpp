@@ -78,7 +78,7 @@ void TapRecognizer::onTouchEnded(Touch *touch, Event *pEvent)
        && (TIME - touchStart.at(touch->getID())) < 2.0
        && Scene::touchPosition(touch).getDistance(touchInitialPosition.at(touch->getID())) < 50 * RESOLUTION_MULTIPLIER)
     {
-        CCNotificationCenter::sharedNotificationCenter()->postNotification("TapRecognized", DcreateP(touch, Screate("Touch"), NULL));
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("TapRecognized", DcreateP(touch, Screate("Touch"), NULL));
     }
     touchStart.erase(touch->getID());
     touchInitialPosition.erase(touch->getID());

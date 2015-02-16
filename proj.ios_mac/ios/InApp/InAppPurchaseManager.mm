@@ -122,14 +122,14 @@ static InAppPurchaseManager* _sharedManager = nil;
     [productsRequest release];
     productsRequest = nil;
     
-    CCNotificationCenter::sharedNotificationCenter()->postNotification(invalid ? "FailFetchProductsInfos" : "ProductsInfosFetched");
+    Director::getInstance()->getEventDispatcher()->dispatchCustomEvent(invalid ? "FailFetchProductsInfos" : "ProductsInfosFetched");
 }
 
 - (void)request:(SKRequest *)request didFailWithError:(NSError *)error
 {
     [productsRequest release];
     productsRequest = nil;
-    CCNotificationCenter::sharedNotificationCenter()->postNotification("FailFetchProductsInfos");
+    Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("FailFetchProductsInfos");
 }
 
 - (void)recordTransaction:(SKPaymentTransaction *)transaction {   
@@ -145,7 +145,7 @@ static InAppPurchaseManager* _sharedManager = nil;
 	NSLog(@"Product purchased : %@", transaction.payment.productIdentifier);
     NSString* number = [transaction.payment.productIdentifier substringFromSet:[NSCharacterSet decimalDigitCharacterSet]
                                                            options:NSBackwardsSearch|NSAnchoredSearch];
-    CCNotificationCenter::sharedNotificationCenter()->postNotification("ProductPurchased", DcreateP(ScreateF("%s", [transaction.payment.productIdentifier UTF8String]), Screate("ProductID"), Icreate([number intValue]), Screate("Number"), NULL));
+    Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ProductPurchased", DcreateP(ScreateF("%s", [transaction.payment.productIdentifier UTF8String]), Screate("ProductID"), Icreate([number intValue]), Screate("Number"), NULL));
     //[[NSNotificationCenter defaultCenter] postNotificationName:@"ProductPurchased" object:transaction.payment.productIdentifier];
     [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
 	
@@ -158,7 +158,7 @@ static InAppPurchaseManager* _sharedManager = nil;
     [self recordTransaction: transaction];
 	NSLog(@"Product restored : %@", transaction.originalTransaction.payment.productIdentifier);
     
-    CCNotificationCenter::sharedNotificationCenter()->postNotification("ProductRestored", DcreateP(ScreateF("%s", [transaction.payment.productIdentifier UTF8String]), Screate("ProductID"), NULL));
+    Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ProductRestored", DcreateP(ScreateF("%s", [transaction.payment.productIdentifier UTF8String]), Screate("ProductID"), NULL));
     //[[NSNotificationCenter defaultCenter] postNotificationName:@"ProductRestored" object:transaction.originalTransaction.payment.productIdentifier];
     [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
 	
@@ -170,14 +170,14 @@ static InAppPurchaseManager* _sharedManager = nil;
     {
 		//[[NSNotificationCenter defaultCenter] postNotificationName:@"ErrorTransactionFailure" object:self userInfo:[NSDictionary dictionaryWithObject:transaction.error.localizedDescription forKey:@"Description"]];
         
-        CCNotificationCenter::sharedNotificationCenter()->postNotification("ErrorTransactionFailure", DcreateP(ScreateF("%s", [transaction.payment.productIdentifier UTF8String]), Screate("ProductID"), NULL));
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ErrorTransactionFailure", DcreateP(ScreateF("%s", [transaction.payment.productIdentifier UTF8String]), Screate("ProductID"), NULL));
         NSLog(@"Transaction error: %@, code : %d", transaction.error.localizedDescription, transaction.error.code);
     }
 	else 
 	{
 		//[[NSNotificationCenter defaultCenter] postNotificationName:@"PayementCanceledTransactionFailure" object:self userInfo:nil];
         
-        CCNotificationCenter::sharedNotificationCenter()->postNotification("PayementCanceledTransactionFailure", DcreateP(ScreateF("%s", [transaction.payment.productIdentifier UTF8String]), Screate("ProductID"), NULL));
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("PayementCanceledTransactionFailure", DcreateP(ScreateF("%s", [transaction.payment.productIdentifier UTF8String]), Screate("ProductID"), NULL));
 	}
 	
     [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
@@ -219,7 +219,7 @@ static InAppPurchaseManager* _sharedManager = nil;
             if (!isConnected())
             {
                 //[[NSNotificationCenter defaultCenter] postNotificationName:@"NoConnectionTransactionFailure" object:self userInfo:nil];
-                CCNotificationCenter::sharedNotificationCenter()->postNotification("NoConnectionTransactionFailure", DcreateP(ScreateF("%s", [productIdentifier UTF8String]), Screate("ProductID"), NULL));
+                Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("NoConnectionTransactionFailure", DcreateP(ScreateF("%s", [productIdentifier UTF8String]), Screate("ProductID"), NULL));
             }
             else
             {
@@ -230,7 +230,7 @@ static InAppPurchaseManager* _sharedManager = nil;
         else
         {
             //[[NSNotificationCenter defaultCenter] postNotificationName:@"CantPayTransactionFailure" object:self userInfo:nil];
-            CCNotificationCenter::sharedNotificationCenter()->postNotification("CantPayTransactionFailure", DcreateP(ScreateF("%s", [productIdentifier UTF8String]), Screate("ProductID"), NULL));
+            Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("CantPayTransactionFailure", DcreateP(ScreateF("%s", [productIdentifier UTF8String]), Screate("ProductID"), NULL));
         }
 	}
     else
@@ -238,7 +238,7 @@ static InAppPurchaseManager* _sharedManager = nil;
         NSLog(@"Invalid product identifier");
 		//[[NSNotificationCenter defaultCenter] postNotificationName:@"ErrorTransactionFailure" object:self userInfo:[NSDictionary dictionaryWithObject:@"Internal error" forKey:@"Description"]];
         
-        CCNotificationCenter::sharedNotificationCenter()->postNotification("ErrorTransactionFailure", DcreateP(ScreateF("%s", [productIdentifier UTF8String]), Screate("ProductID"), NULL));
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ErrorTransactionFailure", DcreateP(ScreateF("%s", [productIdentifier UTF8String]), Screate("ProductID"), NULL));
     }
 }
 

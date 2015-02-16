@@ -49,9 +49,9 @@ bool isCameraAvailable();
 static inline void notifyImagePicked(const char* name, const char* identifier)
 {
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
-    performNotificationAfterDelay("ImagePicked", DcreateP(Screate(name), Screate("Name"), Screate(identifier), Screate("Identifier"), NULL), 0.001);
+    DelayedDispatcher::eventAfterDelay("ImagePicked", DcreateP(Screate(name), Screate("Name"), Screate(identifier), Screate("Identifier"), NULL), 0.001);
 #else
-    CCNotificationCenter::sharedNotificationCenter()->postNotification("ImagePicked", DcreateP(Screate(name), Screate("Name"), Screate(identifier), Screate("Identifier"), NULL));
+    Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ImagePicked", DcreateP(Screate(name), Screate("Name"), Screate(identifier), Screate("Identifier"), NULL) );
 #endif
 }
 #endif
