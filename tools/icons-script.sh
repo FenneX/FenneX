@@ -4,8 +4,8 @@
 # The names of iOS and Android icons must be : AppName-logo-android.png and AppName-logo-ios.png
 # 
 # The destination folder must respect the following structure :
-# - iOS -> AppName/projects/project.ios/icons
-# - Android -> AppName/projects/project.android/res/drawable-...
+# - iOS -> AppName/proj.ios/icons
+# - Android -> AppName/proj.android/res/drawable-...
 #
 #
 
@@ -28,11 +28,11 @@ if [ ! `convert --version | grep "not found"` ]; then
 		ICONPATH=$2
 
 		if [ "${PROJECTPATH:${#PROJECTPATH}-1}" != "/" ]; then
-			PROCESICONPATH="$PROJECTPATH/"
+			PROCESSICONPATH="$PROJECTPATH/"
 		fi
 
 		if [ "${ICONPATH:${#ICONPATH}-1}" != "/" ]; then
-			PROCESICONPATH="$ICONPATH/"
+			PROCESSICONPATH="$ICONPATH/"
 		fi
 
 		if [ ! -d $PROJECTPATH ]; then
@@ -45,7 +45,7 @@ if [ ! `convert --version | grep "not found"` ]; then
 			exit 1
 		fi
 
-		if [ -d "${PROJECTPATH}projects/proj.ios/icons/"]; then
+		if [ -d "${PROJECTPATH}proj.ios/icons/" ]; then
 			ICONDIR="Icons/"
 		fi
 
@@ -66,6 +66,8 @@ if [ ! `convert --version | grep "not found"` ]; then
 			
 			OS=`echo $filename | cut -d'-' -f3`
 			APP=`echo $filename | cut -d'-' -f1`
+			
+			echo "OS: $OS App: $APP";
 		  	
 		  	echo "[INFO]Checking operating system"
 		  	if [ $OS == "android" ]; then
@@ -74,19 +76,19 @@ if [ ! `convert --version | grep "not found"` ]; then
 		  		echo "[INFO]Checking ${f} size"
 		  		if [ $RESULT == "1024x1024" ]; then
 		  			echo "[OK]Size checked"
-		  			convert ${f} -resize 72x72 "${PROJECTPATH}projects/proj.android/res/drawable-hdpi/icon.png"
-		  			convert ${f} -resize 32x32 "${PROJECTPATH}projects/proj.android/res/drawable-ldpi/icon.png"
-		  			convert ${f} -resize 48x48 "${PROJECTPATH}projects/proj.android/res/drawable-mdpi/icon.png"
-		  			convert ${f} -resize 96x96 "${PROJECTPATH}projects/proj.android/res/drawable-xhdpi/icon.png"
-		  			convert ${f} -resize 144x144 "${PROJECTPATH}projects/proj.android/res/drawable-xxhdpi/icon.png"
-		  			convert ${f} -resize 192x192 "${PROJECTPATH}projects/proj.android/res/drawable-xxxhdpi/icon.png"
+		  			convert ${f} -resize 72x72 "${PROJECTPATH}proj.android/res/drawable-hdpi/icon.png"
+		  			convert ${f} -resize 32x32 "${PROJECTPATH}proj.android/res/drawable-ldpi/icon.png"
+		  			convert ${f} -resize 48x48 "${PROJECTPATH}proj.android/res/drawable-mdpi/icon.png"
+		  			convert ${f} -resize 96x96 "${PROJECTPATH}proj.android/res/drawable-xhdpi/icon.png"
+		  			convert ${f} -resize 144x144 "${PROJECTPATH}proj.android/res/drawable-xxhdpi/icon.png"
+		  			convert ${f} -resize 192x192 "${PROJECTPATH}proj.android/res/drawable-xxxhdpi/icon.png"
 
-		  			TOCOMMIT+=("projects/proj.android/res/drawable-hdpi/icon.png")
-		  			TOCOMMIT+=("projects/proj.android/res/drawable-ldpi/icon.png")
-		  			TOCOMMIT+=("projects/proj.android/res/drawable-mdpi/icon.png")
-		  			TOCOMMIT+=("projects/proj.android/res/drawable-xhdpi/icon.png")
-		  			TOCOMMIT+=("projects/proj.android/res/drawable-xxhdpi/icon.png")
-		  			TOCOMMIT+=("projects/proj.android/res/drawable-xxxhdpi/icon.png")
+		  			TOCOMMIT+=("proj.android/res/drawable-hdpi/icon.png")
+		  			TOCOMMIT+=("proj.android/res/drawable-ldpi/icon.png")
+		  			TOCOMMIT+=("proj.android/res/drawable-mdpi/icon.png")
+		  			TOCOMMIT+=("proj.android/res/drawable-xhdpi/icon.png")
+		  			TOCOMMIT+=("proj.android/res/drawable-xxhdpi/icon.png")
+		  			TOCOMMIT+=("proj.android/res/drawable-xxxhdpi/icon.png")
 
 		  			convert ${f} -resize 512x512 "${ICONPATH}Store/${APP}-PlayStore.png"
 		  		else
@@ -103,33 +105,33 @@ if [ ! `convert --version | grep "not found"` ]; then
 		  			echo "[INFO]Checking ${f} alpha channel"
 		  			if [ $CHANNEL == "srgb" ]; then
 		  				echo "[OK]Alpha channel checked"
-			  			convert ${f} -resize 29x29 "${PROJECTPATH}projects/proj.ios/${ICONDIR}Icon-29.png"
-			  			convert ${f} -resize 32x32 "${PROJECTPATH}projects/proj.ios/${ICONDIR}Icon-32.png"
-			  			convert ${f} -resize 48x48 "${PROJECTPATH}projects/proj.ios/${ICONDIR}Icon-48.png"
-			  			convert ${f} -resize 57x57 "${PROJECTPATH}projects/proj.ios/${ICONDIR}Icon-57.png"
-			  			convert ${f} -resize 58x58 "${PROJECTPATH}projects/proj.ios/${ICONDIR}Icon-58.png"
-			  			convert ${f} -resize 72x72 "${PROJECTPATH}projects/proj.ios/${ICONDIR}Icon-72.png"
-			  			convert ${f} -resize 76x76 "${PROJECTPATH}projects/proj.ios/${ICONDIR}Icon-76.png"
-			  			convert ${f} -resize 96x96 "${PROJECTPATH}projects/proj.ios/${ICONDIR}Icon-96.png"
-			  			convert ${f} -resize 100x100 "${PROJECTPATH}projects/proj.ios/${ICONDIR}Icon-100.png"
-			  			convert ${f} -resize 114x114 "${PROJECTPATH}projects/proj.ios/${ICONDIR}Icon-114.png"
-			  			convert ${f} -resize 120x120 "${PROJECTPATH}projects/proj.ios/${ICONDIR}Icon-120.png"
-			  			convert ${f} -resize 144x144 "${PROJECTPATH}projects/proj.ios/${ICONDIR}Icon-144.png"
-			  			convert ${f} -resize 152x152 "${PROJECTPATH}projects/proj.ios/${ICONDIR}Icon-152.png"
+			  			convert ${f} -resize 29x29 "${PROJECTPATH}proj.ios/${ICONDIR}Icon-29.png"
+			  			convert ${f} -resize 32x32 "${PROJECTPATH}proj.ios/${ICONDIR}Icon-32.png"
+			  			convert ${f} -resize 48x48 "${PROJECTPATH}proj.ios/${ICONDIR}Icon-48.png"
+			  			convert ${f} -resize 57x57 "${PROJECTPATH}proj.ios/${ICONDIR}Icon-57.png"
+			  			convert ${f} -resize 58x58 "${PROJECTPATH}proj.ios/${ICONDIR}Icon-58.png"
+			  			convert ${f} -resize 72x72 "${PROJECTPATH}proj.ios/${ICONDIR}Icon-72.png"
+			  			convert ${f} -resize 76x76 "${PROJECTPATH}proj.ios/${ICONDIR}Icon-76.png"
+			  			convert ${f} -resize 96x96 "${PROJECTPATH}proj.ios/${ICONDIR}Icon-96.png"
+			  			convert ${f} -resize 100x100 "${PROJECTPATH}proj.ios/${ICONDIR}Icon-100.png"
+			  			convert ${f} -resize 114x114 "${PROJECTPATH}proj.ios/${ICONDIR}Icon-114.png"
+			  			convert ${f} -resize 120x120 "${PROJECTPATH}proj.ios/${ICONDIR}Icon-120.png"
+			  			convert ${f} -resize 144x144 "${PROJECTPATH}proj.ios/${ICONDIR}Icon-144.png"
+			  			convert ${f} -resize 152x152 "${PROJECTPATH}proj.ios/${ICONDIR}Icon-152.png"
 			  			
-			  			TOCOMMIT+=("projects/proj.ios/${ICONDIR}Icon-29.png")
-			  			TOCOMMIT+=("projects/proj.ios/${ICONDIR}Icon-32.png")
-			  			TOCOMMIT+=("projects/proj.ios/${ICONDIR}Icon-48.png")
-			  			TOCOMMIT+=("projects/proj.ios/${ICONDIR}Icon-57.png")
-			  			TOCOMMIT+=("projects/proj.ios/${ICONDIR}Icon-58.png")
-			  			TOCOMMIT+=("projects/proj.ios/${ICONDIR}Icon-72.png")
-			  			TOCOMMIT+=("projects/proj.ios/${ICONDIR}Icon-76.png")
-			  			TOCOMMIT+=("projects/proj.ios/${ICONDIR}Icon-96.png")
-			  			TOCOMMIT+=("projects/proj.ios/${ICONDIR}Icon-100.png")
-			  			TOCOMMIT+=("projects/proj.ios/${ICONDIR}Icon-114.png")
-			  			TOCOMMIT+=("projects/proj.ios/${ICONDIR}Icon-120.png")
-			  			TOCOMMIT+=("projects/proj.ios/${ICONDIR}Icon-144.png")
-			  			TOCOMMIT+=("projects/proj.ios/${ICONDIR}Icon-152.png")
+			  			TOCOMMIT+=("proj.ios/${ICONDIR}Icon-29.png")
+			  			TOCOMMIT+=("proj.ios/${ICONDIR}Icon-32.png")
+			  			TOCOMMIT+=("proj.ios/${ICONDIR}Icon-48.png")
+			  			TOCOMMIT+=("proj.ios/${ICONDIR}Icon-57.png")
+			  			TOCOMMIT+=("proj.ios/${ICONDIR}Icon-58.png")
+			  			TOCOMMIT+=("proj.ios/${ICONDIR}Icon-72.png")
+			  			TOCOMMIT+=("proj.ios/${ICONDIR}Icon-76.png")
+			  			TOCOMMIT+=("proj.ios/${ICONDIR}Icon-96.png")
+			  			TOCOMMIT+=("proj.ios/${ICONDIR}Icon-100.png")
+			  			TOCOMMIT+=("proj.ios/${ICONDIR}Icon-114.png")
+			  			TOCOMMIT+=("proj.ios/${ICONDIR}Icon-120.png")
+			  			TOCOMMIT+=("proj.ios/${ICONDIR}Icon-144.png")
+			  			TOCOMMIT+=("proj.ios/${ICONDIR}Icon-152.png")
 
 		  				convert ${f} -resize 1024x1024 "${ICONPATH}Store/${APP}-AppleStore.png"
 			  		else
