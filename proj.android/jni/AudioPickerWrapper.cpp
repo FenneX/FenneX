@@ -47,22 +47,6 @@ bool pickSound(const char* promptText, const char* saveName, const char* identif
     return result;
 }
 
-void notifySoundPicked(const char* name, const char* identifier)
-{
-	CCLOG("Notifying sound picked");
-	CCNotificationCenter::sharedNotificationCenter()->postNotification("SoundPicked", DcreateP(Screate(name),
-	    																Screate("Name"), Screate(identifier),
-	    																Screate("Identifier"), NULL));
-}
-
-void notifySoundEncoded(const char* name, const char* identifier)
-{
-	CCLOG("Notifying sound encoded");
-	CCNotificationCenter::sharedNotificationCenter()->postNotification("SoundEncoded", DcreateP(Screate(name),
-		    																Screate("Name"), Screate(identifier),
-		    																Screate("Identifier"), NULL));
-}
-
 const char* audioPickerCurrentExport()
 {
 	//TODO : not strictly necessary on Android, since it's close to instant

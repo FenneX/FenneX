@@ -32,11 +32,19 @@ USING_NS_FENNEX;
 //check if it's a supported platform
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 bool pickSound(const char* promptText, const char* saveName, const char* identifier);
-void notifySoundPicked(const char* name, const char* identifier);
-void notifySoundEncoded(const char* name, const char* identifier);
 bool isAudioPickerExporting();
 const char* audioPickerCurrentExport();
 void stopAudioPickerExport();
 #endif
+
+static inline void notifySoundPicked(const char* name, const char* identifier)
+{
+    Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("SoundPicked", DcreateP(Screate(name), Screate("Name"), Screate(identifier), Screate("Identifier"), NULL) );
+}
+
+static inline void notifySoundEncoded(const char* name, const char* identifier)
+{
+    Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("SoundEncoded", DcreateP(Screate(name), Screate("Name"), Screate(identifier), Screate("Identifier"), NULL) );
+}
 
 #endif
