@@ -77,7 +77,6 @@ public class Cocos2dxHelper {
 
     private static boolean sInited = false;
     public static void init(final Activity activity) {
-        if (!sInited) {
             final ApplicationInfo applicationInfo = activity.getApplicationInfo();
             
             Cocos2dxHelper.sCocos2dxHelperListener = (Cocos2dxHelperListener)activity;
@@ -96,8 +95,6 @@ public class Cocos2dxHelper {
             sActivity = activity;
 
             sInited = true;
-
-        }
     }
     
     public static Activity getActivity() {
