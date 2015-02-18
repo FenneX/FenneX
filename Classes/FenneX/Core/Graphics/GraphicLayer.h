@@ -178,7 +178,7 @@ public:
     CC_DEPRECATED_ATTRIBUTE void destroyObjects(CCArray* array); //use next method instead
     void destroyObjects(Vector<RawObject*> array);
     
-    //Convenience method for performSelector method. Will check the type before passing.
+    //Convenience method for DelayedDispatcher::funcAfterDelay method. Will check the type before passing.
     void destroyObjectEvent(EventCustom* event);
     void destroyObjectsEvent(EventCustom* event);
     
