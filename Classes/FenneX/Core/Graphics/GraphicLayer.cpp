@@ -1355,7 +1355,7 @@ void GraphicLayer::destroyObjects(Vector<RawObject*> array)
 
 void GraphicLayer::destroyObjectEvent(EventCustom* event)
 {
-    if(event->getUserData() != NULL)
+    if(event != NULL && event->getUserData() != NULL)
     {
         if(isKindOfClass((Ref*)event->getUserData(), RawObject))
         {
@@ -1371,7 +1371,7 @@ void GraphicLayer::destroyObjectEvent(EventCustom* event)
 }
 void GraphicLayer::destroyObjectsEvent(EventCustom* event)
 {
-    if(event->getUserData() != NULL)
+    if(event != NULL && event->getUserData() != NULL)
     {
         if(isKindOfClass((Ref*)event->getUserData(), CCArray))
         {
