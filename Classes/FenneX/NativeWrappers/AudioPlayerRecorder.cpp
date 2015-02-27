@@ -173,7 +173,7 @@ void AudioPlayerRecorder::setPath(std::string value)
     if(path.compare(value) != 0)
     {
 #if VERBOSE_AUDIO
-        if(value != NULL)
+        if(value.length() > 0)
         {
             CCLOG("Changing audio path to : %s", value.c_str());
         }
