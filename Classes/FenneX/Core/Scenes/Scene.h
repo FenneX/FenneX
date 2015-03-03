@@ -42,8 +42,8 @@ class Scene : public Pausable, public Layer
 {
     CC_SYNTHESIZE(SceneName, sceneName, SceneName);
     CC_SYNTHESIZE_READONLY(cocos2d::Scene*, delegate, CocosScene);
-    CC_SYNTHESIZE_READONLY(std::vector<Pausable*>, updateList, UpdateList);
-    CC_SYNTHESIZE_READONLY(Vector<GenericRecognizer*>, touchReceiversList, TouchReceiversList);
+    CC_SYNTHESIZE_READONLY_PASS_BY_REF(std::vector<Pausable*>, updateList, UpdateList);
+    CC_SYNTHESIZE_READONLY_PASS_BY_REF(Vector<GenericRecognizer*>, touchReceiversList, TouchReceiversList);
     //TODO : add touchlinker
     CC_SYNTHESIZE_READONLY(float, currentTime, CurrentTime);
     CC_SYNTHESIZE_READONLY(CCDictionary*, parameters, Parameters);

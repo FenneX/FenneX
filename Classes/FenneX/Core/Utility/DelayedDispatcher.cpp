@@ -29,6 +29,7 @@
 NS_FENNEX_BEGIN
 
 static DelayedDispatcher* temporaryInstance = NULL;
+static SceneName temporaryInstanceScene = None;
 static EventListenerCustom* temporaryListener = NULL;
 
 void DelayedDispatcher::eventAfterDelay(std::string eventName, Ref* userData, float delay)
@@ -98,11 +99,13 @@ void DelayedDispatcher::update(float deltaTime)
 
 DelayedDispatcher* DelayedDispatcher::getInstance()
 {
+    //A DelayedDispatcher must be linked to a scene to keep old behavior (delayed funcs/events don't last more than the scene they were created on)
     if(SceneSwitcher::sharedSwitcher()->getCurrentScene() == NULL)
     {
-        if(temporaryInstance != NULL) return temporaryInstance;
+        if(temporaryInstance != NULL && temporaryInstanceScene == None) return temporaryInstance;
         //Hack around the fact that DelayedDispatcher can be called during Scene init: create a temporaryInstance that will be added to the Scene when the switch ends
         temporaryInstance = new DelayedDispatcher();
+        temporaryInstanceScene = None;
         temporaryListener = Director::getInstance()->getEventDispatcher()->addCustomEventListener("SceneSwitched", [](EventCustom*)
                                                                               {
                                                                                   SceneSwitcher::sharedSwitcher()->getCurrentScene()->addUpdatable(temporaryInstance);
@@ -113,17 +116,22 @@ DelayedDispatcher* DelayedDispatcher::getInstance()
                                                                               });
         return temporaryInstance;
     }
-    std::vector<Pausable*> candidates = SceneSwitcher::sharedSwitcher()->getCurrentScene()->getUpdateList();
+    const std::vector<Pausable*>& candidates = SceneSwitcher::sharedSwitcher()->getCurrentScene()->getUpdateList();
     for(Pausable* candidate : candidates)
     {
         if(isKindOfClass(candidate, DelayedDispatcher))
         {
-            return dynamic_cast<DelayedDispatcher*>(candidate);
+            temporaryInstance = NULL;
+            return (DelayedDispatcher*)candidate;
         }
     }
+    //Hack around the fact the addUpdatable is not instant, it is necessary to avoid recreating several DelayedDispatcher until it's accessible using getUpdateList
+    if(temporaryInstance != NULL && temporaryInstanceScene == SceneSwitcher::sharedSwitcher()->getCurrentSceneName()) return temporaryInstance;
     DelayedDispatcher* newInstance = new DelayedDispatcher();
     SceneSwitcher::sharedSwitcher()->getCurrentScene()->addUpdatable(newInstance);
     newInstance->release();
+    temporaryInstance = newInstance;
+    temporaryInstanceScene = SceneSwitcher::sharedSwitcher()->getCurrentSceneName();
     return newInstance;
 }
 
