@@ -226,6 +226,12 @@ LOCAL_STATIC_LIBRARIES += cocos_jpeg_static
 
 LOCAL_WHOLE_STATIC_LIBRARIES := cocos2dxandroid_static
 
+#for adding cpufeatures
+LOCAL_WHOLE_STATIC_LIBRARIES += cpufeatures
+ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
+    LOCAL_CFLAGS := -DHAVE_NEON=1
+endif
+
 # define the macro to compile through support/zip_support/ioapi.c
 LOCAL_CFLAGS   :=  -DUSE_FILE32API
 LOCAL_CPPFLAGS := -Wno-deprecated-declarations -Wno-extern-c-compat
@@ -273,3 +279,5 @@ $(call import-module,Box2D)
 $(call import-module,curl/prebuilt/android)
 $(call import-module,websockets/prebuilt/android)
 $(call import-module,flatbuffers)
+$(call import-module, android/cpufeatures)
+
