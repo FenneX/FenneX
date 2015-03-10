@@ -17,8 +17,6 @@ import org.videolan.libvlc.LibVlcUtil;
 import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaList;
 
-import org.cocos2dx.lib.Cocos2dxActivity;
-
 import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.database.Cursor;

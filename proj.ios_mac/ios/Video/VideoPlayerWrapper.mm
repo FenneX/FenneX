@@ -30,7 +30,9 @@
 
 VideoPlayer::VideoPlayer(std::string file, CCPoint position, CCSize size, bool front, bool loop)
 {
-    float scaleFactor = [[CCEAGLView sharedEGLView] contentScaleFactor];
+    cocos2d::GLView *glview = cocos2d::Director::getInstance()->getOpenGLView();
+    CCEAGLView *eaglview = (CCEAGLView*) glview->getEAGLView();
+    float scaleFactor = [eaglview contentScaleFactor];
     delegate = [[VideoPlayerImplIOS alloc] initWithPlayFile:[NSString stringWithUTF8String:file.c_str()]
                                                    position:CGPointMake(position.x / scaleFactor,
                                                                         position.y / scaleFactor)
@@ -104,7 +106,7 @@ void VideoPlayer::setPosition(float position)
 std::string VideoPlayer::getThumbnail(const std::string& path)
 {
     NSString* thumbnailPath = [VideoPlayerImplIOS getThumbnail:[NSString stringWithUTF8String:path.c_str()]];
-    return thumbnailPath != nil ? [thumbnailPath UTF8String] : NULL;
+    return thumbnailPath != nil ? [thumbnailPath UTF8String] : "";
 }
 
 bool VideoPlayer::videoExists(const std::string& file)

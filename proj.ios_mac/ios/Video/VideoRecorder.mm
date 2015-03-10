@@ -37,7 +37,9 @@
 {
 	UIInterfaceOrientation orientation = ((UIViewController*)[AppController sharedController].viewController).interfaceOrientation;
 	if(UIInterfaceOrientationIsLandscape(orientation) && orientation != currentOrientation)
-	{
+    {
+        CGAffineTransform rotateTransform = CGAffineTransformMakeRotation(orientation == UIInterfaceOrientationLandscapeLeft ? M_PI_2 : -M_PI_2);
+        [self.previewLayer setAffineTransform:rotateTransform];
 		currentOrientation = orientation;
         [self updateFrame];
 	}
@@ -46,8 +48,7 @@
 - (void) updateFrame
 {
     CGRect bounds = [[UIScreen mainScreen] bounds];
-    [self.previewLayer setPosition:CGPointMake((currentOrientation != UIInterfaceOrientationLandscapeLeft ? _position.y : bounds.size.width - _position.y),
-                                               (currentOrientation == UIInterfaceOrientationLandscapeLeft ? _position.x : bounds.size.height - _position.x))];
+    [self.previewLayer setPosition:CGPointMake(_position.x, bounds.size.height - _position.y)];
 }
 
 @end
@@ -159,7 +160,7 @@ static VideoRecorder* _sharedRecorder = nil;
             [CaptureSession addOutput:MovieFileOutput];
         
         //SET THE CONNECTION PROPERTIES (output properties)
-        [self cameraSetOutputProperties];			//(We call a method as it also has to be done after changing camera)
+        [self cameraSetOutputProperties:VideoDevice];			//(We call a method as it also has to be done after changing camera)
         
         
         
@@ -210,7 +211,7 @@ static VideoRecorder* _sharedRecorder = nil;
 
 
 //********** CAMERA SET OUTPUT PROPERTIES **********
-- (void) cameraSetOutputProperties
+- (void) cameraSetOutputProperties:(AVCaptureDevice*)device
 {
 	//SET THE CONNECTION PROPERTIES (output properties)
 	AVCaptureConnection *CaptureConnection = [MovieFileOutput connectionWithMediaType:AVMediaTypeVideo];
@@ -221,18 +222,33 @@ static VideoRecorder* _sharedRecorder = nil;
 		AVCaptureVideoOrientation orientation = AVCaptureVideoOrientationLandscapeRight;		//<<<<<SET VIDEO ORIENTATION IF LANDSCAPE
 		[CaptureConnection setVideoOrientation:orientation];
 	}
-	
-	//Set frame rate (if requried)
-	CMTimeShow(CaptureConnection.videoMinFrameDuration);
-	CMTimeShow(CaptureConnection.videoMaxFrameDuration);
-	
-	if (CaptureConnection.supportsVideoMinFrameDuration)
-		CaptureConnection.videoMinFrameDuration = CMTimeMake(1, CAPTURE_FRAMES_PER_SECOND);
-	if (CaptureConnection.supportsVideoMaxFrameDuration)
-		CaptureConnection.videoMaxFrameDuration = CMTimeMake(1, CAPTURE_FRAMES_PER_SECOND);
-	
-	CMTimeShow(CaptureConnection.videoMinFrameDuration);
-	CMTimeShow(CaptureConnection.videoMaxFrameDuration);
+    
+	//Set frame rate (if required)
+    NSLog(@"Initial min and max frame duration");
+	CMTimeShow(device.activeVideoMinFrameDuration);
+	CMTimeShow(device.activeVideoMaxFrameDuration);
+    
+    AVCaptureDeviceFormat *bestFormat = nil;
+    AVFrameRateRange *bestFrameRateRange = nil;
+    for ( AVCaptureDeviceFormat *format in [device formats] ) {
+        for ( AVFrameRateRange *range in format.videoSupportedFrameRateRanges ) {
+            if ( range.maxFrameRate > bestFrameRateRange.maxFrameRate ) {
+                bestFormat = format;
+                bestFrameRateRange = range;
+            }
+        }
+    }
+    if ( bestFormat ) {
+        if ( [device lockForConfiguration:NULL] == YES ) {
+            device.activeFormat = bestFormat;
+            device.activeVideoMinFrameDuration = bestFrameRateRange.minFrameDuration;
+            device.activeVideoMaxFrameDuration = bestFrameRateRange.minFrameDuration;
+            [device unlockForConfiguration];
+        }
+    }
+    NSLog(@"Device set to best frame duration: (min/max)");
+    CMTimeShow(device.activeVideoMinFrameDuration);
+    CMTimeShow(device.activeVideoMaxFrameDuration);
 }
 
 //********** GET CAMERA IN SPECIFIED POSITION IF IT EXISTS **********
@@ -252,7 +268,9 @@ static VideoRecorder* _sharedRecorder = nil;
 - (void) setPreviewPosition:(CGPoint)position size:(CGSize)size
 {
     _position = position;
-    float scale = [[CCEAGLView sharedEGLView] contentScaleFactor];
+    cocos2d::GLView *glview = cocos2d::Director::getInstance()->getOpenGLView();
+    CCEAGLView *eaglview = (CCEAGLView*) glview->getEAGLView();
+    float scale = [eaglview contentScaleFactor];
     _position = CGPointMake(_position.x / scale, _position.y / scale);
     [self.previewLayer setBounds:CGRectMake(0, 0, size.height / scale, size.width / scale)];
     [self updateFrame];
@@ -361,13 +379,17 @@ static VideoRecorder* _sharedRecorder = nil;
 		//AVCaptureDeviceInput *videoInput = [self videoInput];
 		AVCaptureDeviceInput *NewVideoInput = nil;
 		AVCaptureDevicePosition position = [[VideoInputDevice device] position];
+        
+        AVCaptureDevice *VideoDevice = nil;
 		if (position == AVCaptureDevicePositionBack)
 		{
-			NewVideoInput = [[AVCaptureDeviceInput alloc] initWithDevice:[self cameraWithPosition:AVCaptureDevicePositionFront] error:&error];
+            VideoDevice = [self cameraWithPosition:AVCaptureDevicePositionFront];
+			NewVideoInput = [[AVCaptureDeviceInput alloc] initWithDevice:VideoDevice error:&error];
 		}
 		else if (position == AVCaptureDevicePositionFront)
-		{
-			NewVideoInput = [[AVCaptureDeviceInput alloc] initWithDevice:[self cameraWithPosition:AVCaptureDevicePositionBack] error:&error];
+        {
+            VideoDevice = [self cameraWithPosition:AVCaptureDevicePositionFront];
+			NewVideoInput = [[AVCaptureDeviceInput alloc] initWithDevice:VideoDevice error:&error];
 		}
         
 		if (NewVideoInput != nil)
@@ -385,7 +407,7 @@ static VideoRecorder* _sharedRecorder = nil;
 			}
 			
 			//Set the connection properties again
-			[self cameraSetOutputProperties];
+            [self cameraSetOutputProperties:VideoDevice];
 			
 			
 			[CaptureSession commitConfiguration];

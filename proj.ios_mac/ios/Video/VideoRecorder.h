@@ -40,7 +40,7 @@
 @property (readonly) BOOL isRecording;
 @property (retain) AVCaptureVideoPreviewLayer *previewLayer;
 
-- (void) cameraSetOutputProperties;
+- (void) cameraSetOutputProperties:(AVCaptureDevice*)device;
 - (AVCaptureDevice *) cameraWithPosition:(AVCaptureDevicePosition)position;
 - (void) setPreviewPosition:(CGPoint)position size:(CGSize)size;
 - (void) startPreview;
