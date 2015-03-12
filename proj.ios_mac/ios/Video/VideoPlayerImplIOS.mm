@@ -45,13 +45,13 @@ USING_NS_FENNEX;
         {
             CGRect bounds = [[UIScreen mainScreen] bounds];
             float scale = 0;
-            if(_size.width / bounds.size.height > _size.height / bounds.size.width)
+            if(_size.height / bounds.size.height > _size.width / bounds.size.width)
             {
-                scale = bounds.size.height / _size.width;
+                scale = bounds.size.height / _size.height;
             }
             else
             {
-                scale = bounds.size.width / _size.height;
+                scale = bounds.size.width / _size.width;
             }
             transform = CGAffineTransformScale(transform, scale, scale);
         }
@@ -238,16 +238,16 @@ USING_NS_FENNEX;
         }
         
         CGPoint newCenter = fullscreen ? CGPointMake(bounds.size.width / 2, bounds.size.height/2) :
-                                        CGPointMake((currentOrientation == UIInterfaceOrientationLandscapeRight ? _position.y : bounds.size.width - _position.y),
-                                           (currentOrientation == UIInterfaceOrientationLandscapeLeft ? _position.x : bounds.size.height - _position.x));
+                                         CGPointMake((currentOrientation == UIInterfaceOrientationLandscapeLeft ? _position.x : bounds.size.width - _position.x),
+                                                     bounds.size.height - _position.y);
         float scale = 0;
-        if(_size.width / bounds.size.height > _size.height / bounds.size.width)
+        if(_size.height / bounds.size.height > _size.width / bounds.size.width)
         {
-            scale = fullscreen ? bounds.size.height / _size.width : _size.width / bounds.size.height;
+            scale = fullscreen ? bounds.size.height / _size.height : _size.height / bounds.size.height;
         }
         else
         {
-            scale = fullscreen ? bounds.size.width / _size.height : _size.height / bounds.size.width;
+            scale = fullscreen ? bounds.size.width / _size.width : _size.width / bounds.size.width;
         }
         
         [UIView animateWithDuration: 0.5
