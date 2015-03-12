@@ -71,6 +71,7 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 	private static boolean isPrepared = false;
 	private static boolean shouldLoop;
 	private static boolean videoEnded; //Video ended is there because restart is different than play for LibVLC
+	private static float lastPlaybackRate; //Playback rate must be kept between sessions (when restarting video)
 	
 	public static void setUseVLC(boolean use)
 	{
@@ -113,6 +114,7 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 	
 	static void initVideoPlayer(String file, float x, float y, float height, float width, boolean front, boolean loop)
 	{
+		lastPlaybackRate = 1.0f;
 		path = file;
 		toFront = front;
 		localX = x;
@@ -262,7 +264,8 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 			try {
 				if(videoEnded)
 				{
-					LibVlcUtil.getLibVlcInstance().playIndex(0);					
+					LibVlcUtil.getLibVlcInstance().playIndex(0);	
+					setPlaybackRate(lastPlaybackRate);
 				}
 				else
 				{
@@ -334,12 +337,17 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 	{
 		if(useVLC)
 		{
+			if(videoEnded)
+			{
+				return lastPlaybackRate;
+			}
 			try {
 				return LibVlcUtil.getLibVlcInstance().getRate();
 			} catch (LibVlcException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			return lastPlaybackRate;
 		}
 		Log.e(TAG, "getPlaybackRate is only implemented for LibVLC");
 		return 1;
@@ -355,6 +363,7 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			lastPlaybackRate = rate;
 			return;
 		}
 		Log.e(TAG, "setPlaybackRate is only implemented for LibVLC");
@@ -530,7 +539,8 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 	
 	public static boolean videoExists(String path)
 	{
-		return getFile(path) != null;
+		File videoFile = getFile(path);
+		return videoFile != null && videoFile.exists() && videoFile.canRead();
 	}
 	
 	public static File getFile(String path)
