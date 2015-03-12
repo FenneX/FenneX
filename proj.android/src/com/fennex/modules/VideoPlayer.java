@@ -4,10 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 import org.videolan.libvlc.EventHandler;
 import org.videolan.libvlc.IVideoPlayer;
@@ -541,7 +537,7 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 	{
 		Uri localURI = NativeUtility.getMainActivity().getUriFromFileName(path);
 		File localFile = null;
-		final String[] storageDict = getStorageDirectories();
+		final String[] storageDict = VideoPicker.getStorageDirectories();
 		//First check the most common path, then check all storage directories
 		boolean startWithStorageDict = path.startsWith(Environment.getExternalStorageDirectory().toString());
 		for(int i = 0; i < storageDict.length && !startWithStorageDict; i++)
@@ -720,58 +716,4 @@ public class VideoPlayer extends Handler implements IVideoPlayer
             vlc.detachSurface();
         }
     };
-
-
-    public static String[] getStorageDirectories()
-    {
-        String[] dirs = null;
-        BufferedReader bufReader = null;
-        try {
-            bufReader = new BufferedReader(new FileReader("/proc/mounts"));
-            ArrayList<String> list = new ArrayList<String>();
-            list.add(Environment.getExternalStorageDirectory().getPath());
-            String line;
-            while((line = bufReader.readLine()) != null) {
-                if(line.contains("vfat") || line.contains("exfat") ||
-                        line.contains("/mnt") || line.contains("/Removable")) {
-                    StringTokenizer tokens = new StringTokenizer(line, " ");
-                    String s = tokens.nextToken();
-                    s = tokens.nextToken(); // Take the second token, i.e. mount point
-
-                    if (list.contains(s))
-                        continue;
-
-                    if (line.contains("/dev/block/vold")) {
-                        if (!line.startsWith("tmpfs") &&
-                                !line.startsWith("/dev/mapper") &&
-                                !s.startsWith("/mnt/secure") &&
-                                !s.startsWith("/mnt/shell") &&
-                                !s.startsWith("/mnt/asec") &&
-                                !s.startsWith("/mnt/obb")
-                                ) {
-                            list.add(s);
-                        }
-                    }
-                }
-            }
-
-            dirs = new String[list.size()];
-            for (int i = 0; i < list.size(); i++) {
-                dirs[i] = list.get(i);
-            }
-        }
-        catch (FileNotFoundException e) {}
-        catch (IOException e) {}
-        finally {
-            if (bufReader != null) {
-                try {
-                    bufReader.close();
-                }
-                catch (IOException e) {}
-            }
-        }
-        return dirs;
-    }
 }
-
-
