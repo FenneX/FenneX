@@ -111,6 +111,7 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 	//Is used by VideoPicker when doing getAllVideos
 	public native static void notifyVideoDurationAvailable(String path, float duration);
 	public native static void notifyVideoEnded(String path);
+    public native static void notifyVideoError(String path);
 	
 	static void initVideoPlayer(String file, float x, float y, float height, float width, boolean front, boolean loop)
 	{
@@ -210,6 +211,11 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 						public boolean onError(MediaPlayer mp, int what,
 								int extra) {
 							Log.e(TAG, "VideoView error : " + what + ", " + extra);
+                            NativeUtility.getMainActivity().runOnGLThread(new Runnable() {
+                                public void run() {
+                                    notifyVideoError(path);
+                                }
+                            });
 							return false;
 						}
     				});
@@ -653,6 +659,24 @@ public class VideoPlayer extends Handler implements IVideoPlayer
     			}
     		});
     	}
+        //Consider a video that ends with less than 1 second as corrupted
+        else if(event == EventHandler.MediaPlayerEncounteredError
+                || (event == EventHandler.MediaPlayerEndReached && getDuration() < 1))
+        {
+            try {
+                LibVLC vlc = LibVlcUtil.getLibVlcInstance();
+                videoEnded = true;
+                NativeUtility.getMainActivity().runOnGLThread(new Runnable()
+                {
+                    public void run()
+                    {
+                        notifyVideoError(path);
+                    }
+                });
+            } catch (LibVlcException e) {
+                e.printStackTrace();
+            }
+        }
     	else if(event == EventHandler.MediaPlayerEndReached)
     	{
             try {

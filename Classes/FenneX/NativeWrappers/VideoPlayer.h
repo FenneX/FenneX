@@ -81,6 +81,11 @@ static inline void notifyVideoEnded(const char* path)
     DelayedDispatcher::eventAfterDelay("VideoEnded", DcreateP(Screate(path), Screate("Path"), NULL), 0.01);
 }
 
+static inline void notifyVideoError(const char* path)
+{
+    DelayedDispatcher::eventAfterDelay("VideoError", DcreateP(Screate(path), Screate("Path"), NULL), 0.01);
+}
+
 static inline void notifyVideoExists(const char* path)
 {
     DelayedDispatcher::eventAfterDelay("VideoExists", DcreateP(Screate(path), Screate("Path"), NULL), 0.01);

@@ -87,7 +87,7 @@ USING_NS_FENNEX;
     }
     else if (reason == MPMovieFinishReasonPlaybackError)
     {
-        NSLog(@"Error when trying to play video");
+        notifyVideoError([path UTF8String]);
     }
     else if (reason == MPMovieFinishReasonUserExited)
     {

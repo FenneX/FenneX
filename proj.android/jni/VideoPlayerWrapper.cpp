@@ -205,4 +205,13 @@ extern "C"
 		}
 		env->ReleaseStringUTFChars(path, pathC);
 	}
+	void Java_com_fennex_modules_VideoPlayer_notifyVideoError(JNIEnv* env, jobject thiz, jstring path)
+	{
+		const char* pathC = env->GetStringUTFChars(path, 0);
+		if(pathC != NULL)
+		{
+			notifyVideoError(pathC);
+		}
+		env->ReleaseStringUTFChars(path, pathC);
+	}
 }
