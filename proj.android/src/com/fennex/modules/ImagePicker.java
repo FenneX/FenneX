@@ -120,6 +120,7 @@ public class ImagePicker implements ActivityResultResponder
                         else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {  rotation = 270; }
                         original = BitmapFactory.decodeFile(file.getAbsolutePath());
                         original = rotateImage(original, rotation);
+                        insertPhotoIntoGallery(original);
                         //Clean file
                         file.delete();
                     }
@@ -285,17 +286,21 @@ public class ImagePicker implements ActivityResultResponder
         }
         return Bitmap.createScaledBitmap(b, (int) (b.getWidth() * factorToUse), (int) (b.getHeight() * factorToUse), true);  
     }
-    
+
     public void insertPhotoIntoGallery(Intent data)
+    {
+        insertPhotoIntoGallery((Bitmap) data.getParcelableExtra("data"));
+    }
+    
+    public void insertPhotoIntoGallery(Bitmap image)
     {
         File fi = new File(storageDirectory, "photo.png");
         fi.setReadable(true, false);
-        Bitmap original = data.getParcelableExtra("data");
 		FileOutputStream stream;
 		try {
 			stream = new FileOutputStream(fi);
 			/* Write bitmap to file using JPEG or PNG and 80% quality hint for JPEG. */
-			original.compress(CompressFormat.PNG, 100, stream);
+			image.compress(CompressFormat.PNG, 100, stream);
 			stream.close();
 		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();
