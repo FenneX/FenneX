@@ -488,7 +488,7 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 	
 	public static String getThumbnail(String path)
 	{
-		File videoFile = getFile(path);
+        File videoFile = getFile(path);
 		if(videoFile == null)
 		{
 			return null;
@@ -522,9 +522,14 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 		        retriever.setDataSource(videoFile.getAbsolutePath());
 		        int timeInSeconds = 1;
 		        thumb = retriever.getFrameAtTime(timeInSeconds * 1000000,
-		                    MediaMetadataRetriever.OPTION_CLOSEST_SYNC); 
-				thumb.compress(CompressFormat.PNG, 80, streamThumbnail);
-				thumb.recycle(); //ensure the image is freed;
+		                    MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+                if(thumb != null) {
+                    thumb.compress(CompressFormat.PNG, 80, streamThumbnail);
+                    thumb.recycle(); //ensure the image is freed;
+                }
+                else {
+                    thumbPath = null;
+                }
 		    } catch (Exception ex) {
 		        Log.i(TAG, "MediaMetadataRetriever got exception:" + ex);
 		        thumbPath = null;

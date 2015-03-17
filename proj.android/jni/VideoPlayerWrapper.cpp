@@ -163,7 +163,7 @@ std::string VideoPlayer::getThumbnail(const std::string& path)
 	minfo.env->DeleteLocalRef(stringArg);
     minfo.env->DeleteLocalRef(minfo.classID);
 
-	if(result == NULL) return NULL;
+	if(result == NULL) return "";
 
 	const char *nativeResult = minfo.env->GetStringUTFChars(result, 0);
 	std::string thumbnailPath = std::string(nativeResult);
