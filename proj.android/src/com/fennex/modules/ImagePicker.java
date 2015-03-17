@@ -120,7 +120,13 @@ public class ImagePicker implements ActivityResultResponder
                         else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {  rotation = 270; }
                         original = BitmapFactory.decodeFile(file.getAbsolutePath());
                         original = rotateImage(original, rotation);
-                        insertPhotoIntoGallery(original);
+                        final Bitmap saveToGallery = original.copy(original.getConfig(), true);
+                        new Thread() {
+                            public void run() {
+                                insertPhotoIntoGallery(saveToGallery);
+                                saveToGallery.recycle();
+                            }
+                        }.start();
                         //Clean file
                         file.delete();
                     }
