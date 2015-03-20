@@ -216,7 +216,7 @@ Ref* loadObjectFromFile(const char* name, bool resource)
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     if(resource)
     {
-        ssize_t bufferSize = 0;
+        long bufferSize = 0;
         //Load file from apk
         charbuffer = FileUtils::getInstance()->getFileData(name,"r", &bufferSize);
     }

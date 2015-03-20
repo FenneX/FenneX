@@ -49,7 +49,7 @@ void DelayedDispatcher::funcAfterDelay(std::function<void(cocos2d::EventCustom*)
 bool DelayedDispatcher::cancelEvents(std::string eventName)
 {
     DelayedDispatcher* instance = getInstance();
-    int before = instance->events.size();
+    long before = instance->events.size();
     if(before == 0) return false;
     instance->events.erase(std::remove_if(instance->events.begin(), instance->events.end(), [&](const EventTuple& tuple) { return std::get<1>(tuple) == eventName; }), instance->events.end());
     return before != instance->events.size();
@@ -58,7 +58,7 @@ bool DelayedDispatcher::cancelEvents(std::string eventName)
 bool DelayedDispatcher::cancelFuncs(std::string eventName)
 {
     DelayedDispatcher* instance = getInstance();
-    int before = instance->funcs.size();
+    long before = instance->funcs.size();
     if(before == 0) return false;
     instance->funcs.erase(std::remove_if(instance->funcs.begin(), instance->funcs.end(), [&](const FuncTuple& tuple) { return std::get<3>(tuple) == eventName; }), instance->funcs.end());
     return before != instance->funcs.size();

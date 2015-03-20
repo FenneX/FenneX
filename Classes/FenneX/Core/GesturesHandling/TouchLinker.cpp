@@ -132,7 +132,7 @@ Vector<Ref*> TouchLinker::allObjects()
     return objects;
 }
 
-int TouchLinker::count()
+long TouchLinker::count()
 {
     return touches.size();
 }

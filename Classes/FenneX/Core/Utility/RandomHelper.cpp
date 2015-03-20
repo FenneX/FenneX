@@ -90,7 +90,7 @@ void randomWithoutRetake(CCArray* array, int count, int max)
 	int actualCount = max != -1 ? (count > max ? max : count) : count;
     if(max == -1)
     {
-        max = array->count();
+        max = (int)array->count();
     }
     CCAssert(max >= actualCount, "Can't do a random without a valid max (>= count)");
 	for(int i = 0; i < actualCount; i++)

@@ -127,7 +127,7 @@ std::vector<std::pair<std::string, std::string>> getConversions()
     char separator[20];
     char lowerCase[20];
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-    ssize_t bufferSize = 0;
+    long bufferSize = 0;
     //Load file from apk
     const char* charbuffer = reinterpret_cast<const char*>(FileUtils::getInstance()->getFileData("letters_conversion.txt", "r", &bufferSize));
     if (charbuffer) {
@@ -167,7 +167,7 @@ CCString* upperCaseString(CCString* text)
     std::string to;
     for(int i = 0; i < from.length(); i+= utf8_chsize(&from[i]))
     {
-        int charLength = utf8_chsize(&from[i]);
+        long charLength = utf8_chsize(&from[i]);
         std::string charString = from.substr(i, charLength);
         int conversionIndex = 0;
         while(conversionIndex < conversions.size() && conversions[conversionIndex].second != charString)
@@ -197,18 +197,18 @@ bool stringEndsWith(const char *str, const char *suffix)
 {
     if (!str || !suffix)
         return 0;
-    size_t lenstr = strlen(str);
-    size_t lensuffix = strlen(suffix);
+    long lenstr = strlen(str);
+    long lensuffix = strlen(suffix);
     if (lensuffix >  lenstr)
         return 0;
     return strncmp(str + lenstr - lensuffix, suffix, lensuffix) == 0;
 }
 
 //comes from http://www.zedwood.com/article/cpp-utf-8-mb_substr-function
-std::string utf8_substr(const std::string& str, size_t start, size_t leng)
+std::string utf8_substr(const std::string& str, long start, long leng)
 {
     if (leng==0) { return ""; }
-    size_t c, i, ix, q, min=std::string::npos, max=std::string::npos;
+    long c, i, ix, q, min=std::string::npos, max=std::string::npos;
     for (q=0, i=0, ix=str.length(); i < ix; i++, q++)
     {
         if (q==start){ min=i; }
@@ -229,7 +229,7 @@ std::string utf8_substr(const std::string& str, size_t start, size_t leng)
 }
 
 //comes from strutil 1.5 https://code.google.com/p/strutil/
-size_t utf8_chsize( const char* source )
+long utf8_chsize( const char* source )
 {
     const unsigned ch = (unsigned char)*source;
     if ( ch < 192 )
@@ -246,10 +246,10 @@ size_t utf8_chsize( const char* source )
         return 6;
 }
 
-size_t utf8_len( const std::string& s )
+long utf8_len( const std::string& s )
 {
     const char* it = s.c_str();
-    size_t n = 0;
+    long n = 0;
     
     while ( *it )
     {

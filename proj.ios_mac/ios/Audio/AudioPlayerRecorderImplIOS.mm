@@ -51,7 +51,7 @@
 #if VERBOSE_AUDIO
 	else
 	{
-		int errorCode = CFSwapInt32HostToBig ([error code]);
+		int errorCode = CFSwapInt32HostToBig ((uint32_t)[error code]);
 		NSLog(@"Error with recording : %@ [%4.4s])" , [error localizedDescription], (char*)&errorCode);
 	}
 #endif

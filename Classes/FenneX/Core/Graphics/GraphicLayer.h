@@ -182,7 +182,7 @@ public:
     void destroyObjectEvent(EventCustom* event);
     void destroyObjectsEvent(EventCustom* event);
     
-    int count() { return storedObjects->count(); }
+    long count() { return storedObjects->count(); }
     
     void clear();
     

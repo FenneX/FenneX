@@ -249,7 +249,7 @@ void InertiaGenerator::stopInertia(Ref* obj)
 {
     if(obj != NULL && inertiaTargets.contains(obj))
     {
-        int index = inertiaTargets.getIndex(obj);
+        long index = inertiaTargets.getIndex(obj);
         inertiaParameters.erase(index);
         inertiaTargets.erase(index);
         Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("InertiaEnded", DcreateP(obj, Screate("Target"), NULL));

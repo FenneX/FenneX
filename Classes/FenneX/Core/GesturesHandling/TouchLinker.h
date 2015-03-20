@@ -53,7 +53,7 @@ public:
     Vector<Touch*> allTouches();
     //return all objects, without duplicate
     Vector<Ref*> allObjects();
-    int count();
+    long count();
 protected:
     Map<int, Ref*> touchLinker;
     Vector<Touch*> touches;

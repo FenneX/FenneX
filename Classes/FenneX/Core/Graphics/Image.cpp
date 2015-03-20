@@ -118,7 +118,7 @@ loadingImageFile(""),
 isLoadingTexture(false)
 {
     imageFile = Director::getInstance()->getTextureCache()->getKeyForTexture(node->getTexture());
-    size_t extensionPos = imageFile.rfind(".png");
+    long extensionPos = imageFile.rfind(".png");
     if(extensionPos != std::string::npos)
     {
         imageFile = imageFile.substr(0, extensionPos);
@@ -133,7 +133,7 @@ isLoadingTexture(false)
     {
         imageFile = imageFile.substr(0, extensionPos);
     }
-    size_t slashPos = imageFile.rfind('/');
+    long slashPos = imageFile.rfind('/');
     if(slashPos != std::string::npos)
     {
         imageFile = imageFile.substr(slashPos+1);

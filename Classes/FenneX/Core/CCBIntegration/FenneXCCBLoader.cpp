@@ -375,7 +375,7 @@ void linkInputLabels()
                 {
                     CCString* linkTo = (CCString*)child->getEventInfos()->objectForKey("LinkTo");
                     CCArray* matchs = layer->allObjectsWithName(linkTo);
-                    for(int j = 0; j < matchs->count(); j++)
+                    for(long j = 0; j < matchs->count(); j++)
                     {
                         RawObject* match = (RawObject*)matchs->objectAtIndex(j);
                         if(isKindOfClass(match, LabelTTF))

@@ -139,12 +139,12 @@ loadingValue("")
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
     //ios doesn't like full path and ttf extension
     std::string fontFileWithoutTTF = fontFile->getCString();
-    int extensionPos = fontFileWithoutTTF.find_last_of(".ttf");
+    long extensionPos = fontFileWithoutTTF.find_last_of(".ttf");
     if(extensionPos != std::string::npos)
     {
         fontFileWithoutTTF = fontFileWithoutTTF.substr(0, extensionPos - 3);
     }
-    int slashPos = fontFileWithoutTTF.find_last_of('/');
+    long slashPos = fontFileWithoutTTF.find_last_of('/');
     if(slashPos != std::string::npos)
     {
         fontFileWithoutTTF = fontFileWithoutTTF.substr(slashPos+1);
@@ -219,8 +219,8 @@ void LabelTTF::adjustLabel()
         
         //Used by CutEnd to perform a binary search (optimization because Label::updateTexture is slow on Android)
         //If you run into performance issues, you should also cache the CutEnd results
-        int end = utf8_len(original);
-        int start = fitInside || fitType != CutEnd ? end : 0; //If it already fit, bypass the while
+        size_t end = utf8_len(original);
+        long start = fitInside || fitType != CutEnd ? end : 0; //If it already fit, bypass the while
         
         while((fitType != CutEnd && !fitInside)
               || end - start > 1) //There is one character precision (it may cut one more character than necessary)
@@ -239,7 +239,7 @@ void LabelTTF::adjustLabel()
             else if(fitType == CutEnd)
             {
                 std::string value = delegate->getString();
-                int middle = start + ((end - start) / 2);
+                long middle = start + ((end - start) / 2);
                 value = utf8_substr(original, 0, middle);
                 CCAssert(value.length() != 0, "Invalid UTF8 string");
                 delegate->setString(value.c_str());

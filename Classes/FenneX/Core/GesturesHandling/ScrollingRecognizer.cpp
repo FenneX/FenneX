@@ -77,7 +77,7 @@ void ScrollingRecognizer::onTouchEnded(Touch *touch, Event *pEvent)
         CCArray* touchesConvert = Acreate();
         for(Touch* touch : touches) touchesConvert->addObject(touch);
         CCDictionary* arguments = DcreateP(Pcreate(offset), Screate("Offset"),
-                                           Icreate(touches.size()), Screate("TouchesCount"),
+                                           Icreate((int)touches.size()), Screate("TouchesCount"),
                                            Pcreate(currentPosition), Screate("Position"),
                                            Fcreate(TIME - lastScrollingNotificationTime), Screate("DeltaTime"),
                                            touchesConvert, Screate("Touches"),
@@ -114,7 +114,7 @@ void ScrollingRecognizer::update(float delta)
                 CCArray* touchesConvert = Acreate();
                 for(Touch* touch : touches) touchesConvert->addObject(touch);
                 CCDictionary* arguments = DcreateP(Pcreate(offset), Screate("Offset"),
-                                                   Icreate(touches.size()), Screate("TouchesCount"),
+                                                   Icreate((int)touches.size()), Screate("TouchesCount"),
                                                    Pcreate(currentPosition), Screate("Position"),
                                                    Fcreate(TIME - lastScrollingNotificationTime), Screate("DeltaTime"),
                                                    touchesConvert, Screate("Touches"),
