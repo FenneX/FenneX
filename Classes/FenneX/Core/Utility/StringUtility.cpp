@@ -127,7 +127,7 @@ std::vector<std::pair<std::string, std::string>> getConversions()
     char separator[20];
     char lowerCase[20];
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-    long bufferSize = 0;
+    ssize_t bufferSize = 0;
     //Load file from apk
     const char* charbuffer = reinterpret_cast<const char*>(FileUtils::getInstance()->getFileData("letters_conversion.txt", "r", &bufferSize));
     if (charbuffer) {
