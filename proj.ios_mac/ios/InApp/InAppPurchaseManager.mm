@@ -171,7 +171,7 @@ static InAppPurchaseManager* _sharedManager = nil;
 		//[[NSNotificationCenter defaultCenter] postNotificationName:@"ErrorTransactionFailure" object:self userInfo:[NSDictionary dictionaryWithObject:transaction.error.localizedDescription forKey:@"Description"]];
         
         Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ErrorTransactionFailure", DcreateP(ScreateF("%s", [transaction.payment.productIdentifier UTF8String]), Screate("ProductID"), NULL));
-        NSLog(@"Transaction error: %@, code : %d", transaction.error.localizedDescription, transaction.error.code);
+        NSLog(@"Transaction error: %@, code: %ld", transaction.error.localizedDescription, (long)transaction.error.code);
     }
 	else 
 	{

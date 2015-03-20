@@ -30,7 +30,6 @@ void TouchLinker::recordTouch(Touch* touch)
 {
     if(!touches.contains(touch))
     {
-        Ref* obj;
         bool shouldAdd = true;
         for(Touch* otherTouch : touches)
         {
