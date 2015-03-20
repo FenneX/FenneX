@@ -86,6 +86,9 @@ void DelayedDispatcher::update(float deltaTime)
         if(std::get<0>(tuple) < 0)
         {
             cocos2d::EventCustom* event = EventCustom::create(std::get<3>(tuple), std::get<2>(tuple));
+#if VERBOSE_GENERAL_INFO
+            CCLOG("Launching event %s", std::get<3>(tuple).c_str());
+#endif
             std::get<1>(tuple)(event);
             IFEXIST(std::get<2>(tuple))->release();
         }
