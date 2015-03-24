@@ -46,8 +46,8 @@ Node* LabelTTF::getNode()
 
 void LabelTTF::setDimensions(Size dimensions)
 {
-    adjustLabel();
     realDimensions = dimensions;
+    adjustLabel();
 }
 
 Size LabelTTF::getDimensions()
