@@ -32,6 +32,7 @@ import java.io.InputStream;
 
 
 import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -314,7 +315,28 @@ public class ImagePicker implements ActivityResultResponder
 			e.printStackTrace();
 		}
         try {
-        	uriOfSavedPhoto = Uri.parse(android.provider.MediaStore.Images.Media.insertImage(NativeUtility.getMainActivity().getContentResolver(), fi.getAbsolutePath(), null, null));
+            ContentResolver cr = NativeUtility.getMainActivity().getContentResolver();
+            String filePath = fi.getAbsolutePath();
+            String uri = "";
+            int i = 0;
+            while(uri.isEmpty() && i<10)
+            {
+                try
+                {
+                    i++;
+                    uri = android.provider.MediaStore.Images.Media.insertImage(cr, filePath, null, null);
+                }
+                catch(NullPointerException e2)
+                {
+                    Log.i(TAG, "create thumbnail failed : insertImage throw nullPointerException, bitmap decode returned null for file " + filePath);
+                    e2.printStackTrace();
+                }
+
+            }
+            if(!uri.isEmpty())
+            {
+                uriOfSavedPhoto = Uri.parse(uri);
+            }
             if (!fi.delete()) {
                 Log.i(TAG, "Failed to delete " + fi);
             }
