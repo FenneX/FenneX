@@ -39,6 +39,7 @@ typedef std::tuple<float, std::function<void(cocos2d::EventCustom*)>, cocos2d::R
 class DelayedDispatcher : public cocos2d::Ref, public Pausable
 {
 public:
+    ~DelayedDispatcher();
     static void eventAfterDelay(std::string eventName, Ref* userData, float delay);
     static void funcAfterDelay(std::function<void(cocos2d::EventCustom*)> func, Ref* userData, float delay, std::string eventName="");
     //Return true if at least one was cancelled

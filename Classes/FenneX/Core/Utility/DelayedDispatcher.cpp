@@ -32,6 +32,13 @@ static DelayedDispatcher* temporaryInstance = NULL;
 static SceneName temporaryInstanceScene = None;
 static EventListenerCustom* temporaryListener = NULL;
 
+
+DelayedDispatcher::~DelayedDispatcher()
+{
+    temporaryInstance = NULL;
+    temporaryInstanceScene = None;
+}
+
 void DelayedDispatcher::eventAfterDelay(std::string eventName, Ref* userData, float delay)
 {
     DelayedDispatcher* instance = getInstance();
