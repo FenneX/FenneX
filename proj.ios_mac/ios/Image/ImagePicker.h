@@ -25,7 +25,7 @@
 #import <UIKit/UIKit.h>
 
 
-@interface ImagePicker : NSObject <UINavigationControllerDelegate, UIImagePickerControllerDelegate>
+@interface ImagePicker : NSObject <UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIPopoverControllerDelegate>
 {
     UIImagePickerController* controller;
     NSString* saveName;

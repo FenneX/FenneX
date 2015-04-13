@@ -50,6 +50,7 @@ bool pickImageFrom(const char* saveName, bool useCamera, int width, int height, 
         if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad && !useCamera)
         {
             UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:[ImagePicker sharedPicker].controller];
+            [popover setDelegate:[ImagePicker sharedPicker]];
             //Tested on iPad retina and not retina, will show the popover on the bottom right corner with an Arrow Up.
             CGRect rect = CGRectMake(0, 0, 2048, 250);
             if(UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation]))
@@ -239,6 +240,10 @@ static ImagePicker* _sharedPicker = nil;
         NSLog(@"Problem : picked a media which is not an image");
     }
     [self imagePickerControllerDidCancel:picker];
+}
+
+- (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController {
+    [self imagePickerControllerDidCancel:controller];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
