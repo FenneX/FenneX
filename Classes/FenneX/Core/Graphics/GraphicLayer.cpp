@@ -1150,6 +1150,7 @@ RawObject* GraphicLayer::duplicateObject(RawObject* otherObject)
         ((Label*)obj->getNode())->setColor(((Label*)otherLabel->getNode())->getColor());
         ((LabelTTF*)obj)->setFitType(otherLabel->getFitType());
         ((LabelTTF*)obj)->setFontSize(((LabelTTF*)otherObject)->getFontSize());
+        ((Label*)obj->getNode())->setSystemFontName(((Label*)otherObject->getNode())->getSystemFontName());
     }
     else if(isKindOfClass(otherObject, Panel))
     {
