@@ -37,8 +37,6 @@ import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.auticiel.puzzle.R;
-
 public class AudioPicker implements ActivityResultResponder{
 private static final String TAG = "AudioPicker";
 private static final int MUSIC_LIBRARY = 30;
@@ -73,7 +71,7 @@ private static volatile AudioPicker instance = null;
     {
         if(isPending)
         {
-            Toast.makeText(NativeUtility.getMainActivity(), R.string.too_much_app, Toast.LENGTH_LONG).show();
+            Toast.makeText(NativeUtility.getMainActivity(), TOO_MUCH_APP, Toast.LENGTH_LONG).show();
             isPending = false;
         }
         instance = null;
