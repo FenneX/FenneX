@@ -431,7 +431,7 @@ void Scene::addUpdatable(Pausable* obj)
 void Scene::removeUpdatable(Pausable* obj)
 {
     if(obj != NULL
-       && std::find(updateList.begin(), updateList.end(), obj) == updateList.end()
+       && std::find(updateList.begin(), updateList.end(), obj) != updateList.end()
        && std::find(updatablesToRemove.begin(), updatablesToRemove.end(), obj) == updatablesToRemove.end())
     {
         updatablesToRemove.push_back(obj);
