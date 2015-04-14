@@ -36,4 +36,5 @@ public interface ActivityObserver
 	public static final int RESTART = 6;
 	public static final int DESTROY = 7;
 	public void onStateChanged(int state);
+    public void destroy();
 }

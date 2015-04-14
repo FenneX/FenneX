@@ -29,4 +29,5 @@ import android.content.Intent;
 public interface ActivityResultResponder 
 {
 	public boolean onActivityResult(int requestCode, int resultCode, Intent data);
+    public void destroy();
 }

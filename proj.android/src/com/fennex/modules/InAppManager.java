@@ -89,7 +89,12 @@ public class InAppManager implements ActivityResultResponder
         }
 		return instance;
 	}
-    
+
+    public void destroy()
+    {
+        instance = null;
+    }
+
     public static void initialize()
     {
     	InAppManager.getInstance(); //ensure the instance is created

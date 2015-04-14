@@ -209,10 +209,15 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 	@Override
 	public void onDestroy()
 	{
+        for(ActivityResultResponder responder : responders)
+        {
+            responder.destroy();
+        }
 		super.onDestroy();
 		for(ActivityObserver observer : observers)
 		{
 			observer.onStateChanged(ActivityObserver.DESTROY);
+            observer.destroy();
 		}
 	}
 
