@@ -111,7 +111,7 @@ public class TTS implements TextToSpeech.OnInitListener
 	{
 		isInit = true;
 		available = status == TextToSpeech.SUCCESS;
-		if(available)
+		if(available && preinitQueue != null && engine != null)
 		{	
 			for(String s : preinitQueue)
 			{	
