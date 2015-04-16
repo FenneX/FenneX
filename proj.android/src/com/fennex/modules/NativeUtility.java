@@ -101,6 +101,13 @@ public class NativeUtility
         Log.d(TAG, "returning app package identifier : " + packageName);
         return packageName;
     }
+
+    public static String getUniqueIdentifierByContext(Context context)
+    {
+        String packageName = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);;
+        Log.d(TAG, "returning app package identifier : " + packageName);
+        return packageName;
+    }
     
     public static boolean isPhone()
     {
