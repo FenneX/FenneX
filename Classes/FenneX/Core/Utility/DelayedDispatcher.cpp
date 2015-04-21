@@ -73,32 +73,46 @@ bool DelayedDispatcher::cancelFuncs(std::string eventName)
 
 void DelayedDispatcher::update(float deltaTime)
 {
+    //Use a separate vector for calling, as called events can modify this vector
+    std::vector<EventTuple> eventsToCall;
     for(EventTuple& tuple : events)
     {
         std::get<0>(tuple) -= deltaTime;
         if(std::get<0>(tuple) < 0)
         {
-            Director::getInstance()->getEventDispatcher()->dispatchCustomEvent(std::get<1>(tuple), std::get<2>(tuple));
-            IFEXIST(std::get<2>(tuple))->release();
+            eventsToCall.push_back(tuple);
         }
+    }
+    for(EventTuple& tuple : eventsToCall)
+    {
+#if VERBOSE_GENERAL_INFO
+        CCLOG("Launching event %s", std::get<1>(tuple).c_str());
+#endif
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent(std::get<1>(tuple), std::get<2>(tuple));
+        IFEXIST(std::get<2>(tuple))->release();
     }
     if(events.size() > 0)
     {
         events.erase(std::remove_if(events.begin(), events.end(), [](const EventTuple& tuple) { return std::get<0>(tuple) < 0; }), events.end());
     }
-    
+    //Use a separate vector for calling, as called func can modify this vector
+    std::vector<FuncTuple> funcsToCall;
     for(FuncTuple& tuple : funcs)
     {
         std::get<0>(tuple) -= deltaTime;
         if(std::get<0>(tuple) < 0)
         {
-            cocos2d::EventCustom* event = EventCustom::create(std::get<3>(tuple), std::get<2>(tuple));
-#if VERBOSE_GENERAL_INFO
-            CCLOG("Launching event %s", std::get<3>(tuple).c_str());
-#endif
-            std::get<1>(tuple)(event);
-            IFEXIST(std::get<2>(tuple))->release();
+            funcsToCall.push_back(tuple);
         }
+    }
+    for(FuncTuple& tuple : funcsToCall)
+    {
+        cocos2d::EventCustom* event = EventCustom::create(std::get<3>(tuple), std::get<2>(tuple));
+#if VERBOSE_GENERAL_INFO
+            CCLOG("Launching func named %s", std::get<3>(tuple).c_str());
+#endif
+        std::get<1>(tuple)(event);
+        IFEXIST(std::get<2>(tuple))->release();
     }
     if(funcs.size() > 0)
     {
