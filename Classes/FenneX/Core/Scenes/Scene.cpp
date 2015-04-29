@@ -364,6 +364,10 @@ void Scene::switchButton(Image* obj, bool state, Touch* touch)
         {
             linker->linkTouch(touch, obj);
         }
+        else
+        {
+            obj->removeEventInfo("_OriginalImageFile");
+        }
     }
     else
     {
