@@ -215,7 +215,7 @@ void LabelTTF::adjustLabel()
         Size size = delegate->getContentSize();
         
         //Add a 5% margin for fitInside comparison since the algorithm underneath is not exact ....
-        bool fitInside = (size.height * scaleY <= realDimensions.height * 1.05 || (fitType == CutEnd && lineHeight >= size.height)) && size.width * scaleX <= realDimensions.width;
+        bool fitInside = (size.height * scaleY <= realDimensions.height * 1.05 || (fitType == CutEnd && lineHeight >= size.height)) && size.width * scaleX <= realDimensions.width * 1.05;
         
         //Used by CutEnd to perform a binary search (optimization because Label::updateTexture is slow on Android)
         //If you run into performance issues, you should also cache the CutEnd results
@@ -244,7 +244,8 @@ void LabelTTF::adjustLabel()
                 CCAssert(value.length() != 0, "Invalid UTF8 string");
                 delegate->setString(value.c_str());
                 size = delegate->getContentSize();
-                fitInside = (size.height * scaleY <= realDimensions.height * 1.05 || lineHeight >= size.height) && size.width * scaleX <= realDimensions.width;
+                //the 1.05 multiplier is there to avoid rounding issues
+                fitInside = (size.height * scaleY <= realDimensions.height * 1.05 || lineHeight >= size.height) && size.width * scaleX <= realDimensions.width * 1.05;
                 if(fitInside)
                     start = middle;
                 else
