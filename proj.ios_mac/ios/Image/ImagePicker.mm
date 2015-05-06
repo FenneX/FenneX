@@ -35,13 +35,13 @@ USING_NS_FENNEX;
 bool pickImageFrom(const char* saveName, bool useCamera, int width, int height, const char* identifier, bool rescale, float thumbnailScale)
 {
     CCDirector::sharedDirector()->stopAnimation();
-    [[ImagePicker sharedPicker] initController];
     [ImagePicker sharedPicker].saveName = [NSString stringWithFormat:@"%s", saveName];
     [ImagePicker sharedPicker].identifier = [NSString stringWithFormat:@"%s", identifier];
     [ImagePicker sharedPicker].width = width;
     [ImagePicker sharedPicker].height = height;
     [ImagePicker sharedPicker].thumbnailScale = thumbnailScale;
     [ImagePicker sharedPicker].rescale = rescale;
+    [[ImagePicker sharedPicker] initController];
     NSLog(@"Picking image %s", saveName);
     
     [[ImagePicker sharedPicker] setSourceType:useCamera ? UIImagePickerControllerSourceTypeCamera : UIImagePickerControllerSourceTypePhotoLibrary];
