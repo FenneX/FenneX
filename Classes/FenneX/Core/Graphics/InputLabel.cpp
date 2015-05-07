@@ -141,6 +141,10 @@ InputLabel::InputLabel(ui::Scale9Sprite* sprite)
             delegate->setFontName(input->getFontName()->getCString());
             delegate->setFontSize(input->getFontSize());
         }
+        else if(input->getFontSize() > 0 || input->getFontName() != NULL)
+        {
+            CCLOG("WARNING, you cannot use font size or font name alone, you need both of them on an InputLabel");
+        }
         originalInfos = input;
     }
 }
