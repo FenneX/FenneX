@@ -257,6 +257,10 @@ void Scene::stop()
     
     delegate->removeChild(this, false);
     delegate->removeChild(Director::getInstance()->getNotificationNode(), false);
+    
+    //Clean Renderer because commands may rely on a Node, which was removed after the update, but before the render, which causes a crash
+    //For example, without this command, updating a RenderTexture during the same update will crash during SceneSwitch
+    Director::getInstance()->getRenderer()->clean();
 }
 
 //TODO : requires GraphicLayer and TouchLinker
