@@ -23,24 +23,30 @@
  ****************************************************************************///
 
 #include "TTSWrapper.h"
+#import "TTS.h"
 
 void initTTS()
 {
-    
+    [TTS sharedTTS];
 }
 
 bool speakText(std::vector<std::string> text, int speechID)
 {
-    notifyTTSDone(speechID);
-    return false;
+    NSMutableArray* nsText = [NSMutableArray array];
+    for(std::string t : text)
+    {
+        [nsText addObject:[NSString stringWithUTF8String:t.c_str()]];
+    }
+    [[TTS sharedTTS] speakText:nsText callbackID:speechID];
+    return true;
 }
 
 void stopSpeakText()
 {
-    
+    [[TTS sharedTTS] stopSpeakText];
 }
 
 bool isSpeaking()
 {
-    return false;
+    return [[TTS sharedTTS] isSpeaking];
 }

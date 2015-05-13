@@ -32,10 +32,12 @@ THE SOFTWARE.
 #endif
 USING_NS_FENNEX;
 
+//TTS requires iOS 7.0+, and will work on any Android. It is advised to update TTS Engine on Android
 void initTTS();
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 jobject getInstance();
 #endif
+//SpeechID is currently not properly implemented(will always return last speechID)
 bool speakText(std::vector<std::string> text, int speechID = -1);
 void stopSpeakText();
 bool isSpeaking();
