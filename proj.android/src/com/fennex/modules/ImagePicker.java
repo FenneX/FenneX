@@ -155,8 +155,13 @@ public class ImagePicker implements ActivityResultResponder
                         if(_thumbnailScale > 0) {
                             Bitmap bitmapThumbnail = scaleToFill(bitmap, (int)(_width * _thumbnailScale), (int)(_height * _thumbnailScale));
                             saveBitmap(bitmapThumbnail, NativeUtility.getMainActivity().getFilesDir().getPath() + "/" + _fileName + "-thumbnail.png");
+                            if(bitmapThumbnail != bitmap)
+                            {
+                                bitmapThumbnail.recycle();
+                            }
                         }
                         saveBitmap(bitmap, NativeUtility.getMainActivity().getFilesDir().getPath() + "/" + _fileName + ".png");
+                        bitmap.recycle();
                         NativeUtility.getMainActivity().runOnGLThread(new Runnable() {
                             public void run() {
                                 notifyImagePickedWrap(_fileName, _identifier);
@@ -212,7 +217,6 @@ public class ImagePicker implements ActivityResultResponder
     private static void saveBitmap(Bitmap bitmap, String path) throws IOException {
         FileOutputStream stream = new FileOutputStream(path);
         bitmap.compress(CompressFormat.PNG, 100, stream);
-        bitmap.recycle(); //ensure the image is freed;
         stream.close();
     }
 
