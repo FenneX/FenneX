@@ -1735,6 +1735,8 @@
 		50ED2BE519BEAF7900A0AB90 /* UIEditBoxImpl-win32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50ED2BDE19BEAF7900A0AB90 /* UIEditBoxImpl-win32.cpp */; };
 		50ED2BE619BEAF7900A0AB90 /* UIEditBoxImpl-wp8.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50ED2BDF19BEAF7900A0AB90 /* UIEditBoxImpl-wp8.cpp */; };
 		50ED2BE719BEAF7900A0AB90 /* UIEditBoxImpl-wp8.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50ED2BDF19BEAF7900A0AB90 /* UIEditBoxImpl-wp8.cpp */; };
+		6A2B26C71B03BD5800E5F1BF /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A2B26C51B03BD5800E5F1BF /* libcrypto.a */; };
+		6A2B26C81B03BD5900E5F1BF /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A2B26C61B03BD5800E5F1BF /* libssl.a */; };
 		6AB031F81AF760C60024866C /* TestinCrashHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 6AB031F01AF760C60024866C /* TestinCrashHelper.h */; };
 		6AB031F91AF760C60024866C /* TestinCrashHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6AB031F11AF760C60024866C /* TestinCrashHelper.mm */; };
 		A07A4CAF1783777C0073F6A7 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1551A342158F2AB200E66CFE /* Foundation.framework */; };
@@ -2873,6 +2875,8 @@
 		50FCEB9018C72017004AD434 /* WidgetReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WidgetReader.cpp; sourceTree = "<group>"; };
 		50FCEB9118C72017004AD434 /* WidgetReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WidgetReader.h; sourceTree = "<group>"; };
 		50FCEB9218C72017004AD434 /* WidgetReaderProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WidgetReaderProtocol.h; sourceTree = "<group>"; };
+		6A2B26C51B03BD5800E5F1BF /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcrypto.a; sourceTree = "<group>"; };
+		6A2B26C61B03BD5800E5F1BF /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libssl.a; sourceTree = "<group>"; };
 		6AB031F01AF760C60024866C /* TestinCrashHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestinCrashHelper.h; sourceTree = "<group>"; };
 		6AB031F11AF760C60024866C /* TestinCrashHelper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TestinCrashHelper.mm; sourceTree = "<group>"; };
 		A07A4D641783777C0073F6A7 /* libcocos2d iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libcocos2d iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -3020,10 +3024,12 @@
 			files = (
 				15AE1C1919AAE30900C27E9E /* libwebsockets.a in Frameworks */,
 				15AE1B4A19AAD49000C27E9E /* libcurl.a in Frameworks */,
+				6A2B26C81B03BD5900E5F1BF /* libssl.a in Frameworks */,
 				A07A4CAF1783777C0073F6A7 /* Foundation.framework in Frameworks */,
 				1A570364180BD1120088DEC7 /* libpng.a in Frameworks */,
 				1A570378180BD1B40088DEC7 /* libjpeg.a in Frameworks */,
 				1A5703A4180BD2350088DEC7 /* libtiff.a in Frameworks */,
+				6A2B26C71B03BD5800E5F1BF /* libcrypto.a in Frameworks */,
 				29031E0919BFE8DE00EFA1DF /* libchipmunk.a in Frameworks */,
 				1A5703BB180BD2800088DEC7 /* libwebp.a in Frameworks */,
 				1A57052E180BD3280088DEC7 /* libfreetype.a in Frameworks */,
@@ -3895,6 +3901,8 @@
 		1AAF541B180E3B6A000584C8 /* ios */ = {
 			isa = PBXGroup;
 			children = (
+				6A2B26C51B03BD5800E5F1BF /* libcrypto.a */,
+				6A2B26C61B03BD5800E5F1BF /* libssl.a */,
 				1AAF541C180E3B6A000584C8 /* libcurl.a */,
 			);
 			name = ios;
