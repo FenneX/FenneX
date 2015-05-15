@@ -65,6 +65,6 @@ extern "C"
 	//extension for long name : __Ljava_lang_String_2Ljava_lang_String_2
 	void Java_com_fennex_modules_ImagePicker_notifyImagePickedWrap(JNIEnv* env, jobject thiz, jstring name, jstring identifier)
 	{
-		notifyImagePicked(env->GetStringUTFChars(name, 0), env->GetStringUTFChars(identifier, 0));
+		notifyImagePicked(JniHelper::jstring2string(name), JniHelper::jstring2string(identifier));
 	}
 }

@@ -37,12 +37,12 @@ const char* audioPickerCurrentExport();
 void stopAudioPickerExport();
 #endif
 
-static inline void notifySoundPicked(const char* name, const char* identifier)
+static inline void notifySoundPicked(std::string name, std::string identifier)
 {
     Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("SoundPicked", DcreateP(Screate(name), Screate("Name"), Screate(identifier), Screate("Identifier"), NULL) );
 }
 
-static inline void notifySoundEncoded(const char* name, const char* identifier)
+static inline void notifySoundEncoded(std::string name, std::string identifier)
 {
     Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("SoundEncoded", DcreateP(Screate(name), Screate("Name"), Screate(identifier), Screate("Identifier"), NULL) );
 }

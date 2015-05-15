@@ -71,27 +71,27 @@ private:
     void* delegate;
 };
 
-static inline void notifyVideoDurationAvailable(const char* path, float duration)
+static inline void notifyVideoDurationAvailable(std::string path, float duration)
 {
     DelayedDispatcher::eventAfterDelay("VideoDurationAvailable", DcreateP(Screate(path), Screate("Path"), Fcreate(duration), Screate("Duration"), NULL), 0.01);
 }
 
-static inline void notifyVideoEnded(const char* path)
+static inline void notifyVideoEnded(std::string path)
 {
     DelayedDispatcher::eventAfterDelay("VideoEnded", DcreateP(Screate(path), Screate("Path"), NULL), 0.01);
 }
 
-static inline void notifyVideoError(const char* path)
+static inline void notifyVideoError(std::string path)
 {
     DelayedDispatcher::eventAfterDelay("VideoError", DcreateP(Screate(path), Screate("Path"), NULL), 0.01);
 }
 
-static inline void notifyVideoExists(const char* path)
+static inline void notifyVideoExists(std::string path)
 {
     DelayedDispatcher::eventAfterDelay("VideoExists", DcreateP(Screate(path), Screate("Path"), NULL), 0.01);
 }
 
-static inline void notifyVideoRemoved(const char* path)
+static inline void notifyVideoRemoved(std::string path)
 {
     DelayedDispatcher::eventAfterDelay("VideoRemoved", DcreateP(Screate(path), Screate("Path"), NULL), 0.01);
 }

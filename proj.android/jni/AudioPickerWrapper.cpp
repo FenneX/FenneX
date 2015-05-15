@@ -40,10 +40,10 @@ bool pickSound(const char* promptText, const char* saveName, const char* identif
 	jstring jSaveName = minfo.env->NewStringUTF(saveName);
 	jstring jIdentifier = minfo.env->NewStringUTF(identifier);
 	bool result = minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID, jPromptText, jSaveName, jIdentifier);
+    minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(jPromptText);
     minfo.env->DeleteLocalRef(jSaveName);
     minfo.env->DeleteLocalRef(jIdentifier);
-    minfo.env->DeleteLocalRef(minfo.classID);
     return result;
 }
 
@@ -62,6 +62,6 @@ extern "C"
 {
 	void Java_com_fennex_modules_AudioPicker_notifySoundPickedWrap(JNIEnv* env, jobject thiz, jstring name, jstring identifier)
 	{
-		notifySoundPicked(env->GetStringUTFChars(name, 0), env->GetStringUTFChars(identifier, 0));
+		notifySoundPicked(JniHelper::jstring2string(name), JniHelper::jstring2string(identifier));
 	}
 }

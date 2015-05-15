@@ -160,14 +160,11 @@ std::string VideoPlayer::getThumbnail(const std::string& path)
 
 	jstring stringArg = minfo.env->NewStringUTF(path.c_str());
 	jstring result = (jstring)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID, stringArg);
-	minfo.env->DeleteLocalRef(stringArg);
     minfo.env->DeleteLocalRef(minfo.classID);
+	minfo.env->DeleteLocalRef(stringArg);
 
-	if(result == NULL) return "";
-
-	const char *nativeResult = minfo.env->GetStringUTFChars(result, 0);
-	std::string thumbnailPath = std::string(nativeResult);
-	minfo.env->ReleaseStringUTFChars(result, nativeResult);
+    std::string thumbnailPath = JniHelper::jstring2string(result);
+    minfo.env->DeleteLocalRef(result);
 
 	return thumbnailPath;
 }
@@ -176,10 +173,10 @@ bool VideoPlayer::videoExists(const std::string& file)
 {
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"videoExists", "(Ljava/lang/String;)Z"), "Function doesn't exist");
-    minfo.env->DeleteLocalRef(minfo.classID);
 
 	jstring stringArg = minfo.env->NewStringUTF(file.c_str());
 	bool result = minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID, stringArg);
+    minfo.env->DeleteLocalRef(minfo.classID);
 	minfo.env->DeleteLocalRef(stringArg);
 
 	return result;
@@ -189,29 +186,14 @@ extern "C"
 {
 	void Java_com_fennex_modules_VideoPlayer_notifyVideoDurationAvailable(JNIEnv* env, jobject thiz, jstring path, jfloat duration)
 	{
-		const char* pathC = env->GetStringUTFChars(path, 0);
-		if(pathC != NULL)
-		{
-			notifyVideoDurationAvailable(pathC, (float)duration);
-		}
-		env->ReleaseStringUTFChars(path, pathC);
+		notifyVideoDurationAvailable(JniHelper::jstring2string(path), (float)duration);
 	}
 	void Java_com_fennex_modules_VideoPlayer_notifyVideoEnded(JNIEnv* env, jobject thiz, jstring path)
 	{
-		const char* pathC = env->GetStringUTFChars(path, 0);
-		if(pathC != NULL)
-		{
-			notifyVideoEnded(pathC);
-		}
-		env->ReleaseStringUTFChars(path, pathC);
+		notifyVideoEnded(JniHelper::jstring2string(path));
 	}
 	void Java_com_fennex_modules_VideoPlayer_notifyVideoError(JNIEnv* env, jobject thiz, jstring path)
 	{
-		const char* pathC = env->GetStringUTFChars(path, 0);
-		if(pathC != NULL)
-		{
-			notifyVideoError(pathC);
-		}
-		env->ReleaseStringUTFChars(path, pathC);
+		notifyVideoError(JniHelper::jstring2string(path));
 	}
 }

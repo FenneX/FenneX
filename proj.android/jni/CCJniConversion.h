@@ -29,6 +29,7 @@ THE SOFTWARE.
 #include <jni.h>
 #include "platform/android/jni/JniHelper.h"
 
+//Warning: you must DeleteLocalRef the result jobjectArray once it's used
 jobjectArray jobjectArrayFromCCDictionary(JNIEnv *pEnv, cocos2d::CCDictionary * ccDictionary);
 jobjectArray jobjectArrayFromCCArray(JNIEnv *pEnv, cocos2d::CCArray * ccArray);
 

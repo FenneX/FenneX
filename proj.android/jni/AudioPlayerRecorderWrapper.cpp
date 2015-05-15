@@ -78,9 +78,10 @@ void AudioPlayerRecorder::record(const std::string& file, CCObject* linkTo)
         this->setPath(withExtension);
 
     	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"startRecording", "(Ljava/lang/String;)V"), "Function doesn't exist");
-
-    	minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, minfo.env->NewStringUTF(withExtension.c_str()));
+        jstring string0 = minfo.env->NewStringUTF(withExtension.c_str());
+    	minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, string0);
     	minfo.env->DeleteLocalRef(minfo.classID);
+        minfo.env->DeleteLocalRef(string0);
     }
 }
 
@@ -101,8 +102,10 @@ float AudioPlayerRecorder::play(const std::string& file, CCObject* linkTo, bool 
 	if(independent)
 	{
 		CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"playIndependent", "(Ljava/lang/String;)V"), "Function doesn't exist");
-    	minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID,minfo.env->NewStringUTF(file.c_str()));
+        jstring string0 = minfo.env->NewStringUTF(file.c_str());
+    	minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, string0);
     	minfo.env->DeleteLocalRef(minfo.classID);
+        minfo.env->DeleteLocalRef(string0);
 	}
 	else
 	{
@@ -122,8 +125,10 @@ float AudioPlayerRecorder::play(const std::string& file, CCObject* linkTo, bool 
 	        this->setLink(linkTo);
 	        this->setPath(file);
 	        CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"startPlaying", "(Ljava/lang/String;)V"), "Function doesn't exist");
-	        minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID,minfo.env->NewStringUTF(file.c_str()));
+	        jstring string0 = minfo.env->NewStringUTF(file.c_str());
+	        minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, string0);
 	    	minfo.env->DeleteLocalRef(minfo.classID);
+	    	minfo.env->DeleteLocalRef(string0);
 	    }
 	}
 	CCLOG("sound %s duration : %f", file.c_str(), getSoundDuration(file));
@@ -144,8 +149,10 @@ void AudioPlayerRecorder::deleteFile(const std::string& file)
 {
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"deleteFile", "(Ljava/lang/String;)V"), "Function doesn't exist");
-	minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID,minfo.env->NewStringUTF(file.c_str()));
+    jstring string0 = minfo.env->NewStringUTF(file.c_str());
+	minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, string0);
 	minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(string0);
 }
 
 
@@ -211,8 +218,10 @@ float AudioPlayerRecorder::getSoundDuration(std::string file)
 	{
 		CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"getSoundDuration", "(Ljava/lang/String;)F"), "Function doesn't exist");
 
+        jstring string0 = minfo.env->NewStringUTF(file.c_str());
 		float duration = minfo.env->CallStaticFloatMethod(minfo.classID, minfo.methodID, minfo.env->NewStringUTF(file.c_str()));
 		minfo.env->DeleteLocalRef(minfo.classID);
+		minfo.env->DeleteLocalRef(string0);
 		soundsDuration->setObject(Fcreate(duration), file.c_str());
 		saveObjectToFile(soundsDuration, "__SoundsDuration.plist");
 		return duration;
@@ -226,9 +235,10 @@ std::string AudioPlayerRecorder::getSoundsSavePath()
 	CCAssert(JniHelper::getStaticMethodInfo(minfo, "com/fennex/modules/NativeUtility", "getLocalPath", "()Ljava/lang/String;"), "Function doesn't exist");
 
 	jstring directory = (jstring)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID);
-
-	std::string nativeString = minfo.env->GetStringUTFChars(directory, 0);
-    return nativeString;
+    std::string result = JniHelper::jstring2string(directory);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(directory);
+    return result;
 }
 
 void AudioPlayerRecorder::setRecordEnabled(bool enabled)
@@ -267,9 +277,8 @@ CCDictionary* AudioPlayerRecorder::getFileMetadata(const std::string& path)
 	minfo.env->DeleteLocalRef(minfo.classID);
 	if(result != NULL)
 	{
-		const char* nativeString = minfo.env->GetStringUTFChars(result, 0);
-		metadata->setObject(Screate(std::string(nativeString)), "Author");
-		minfo.env->ReleaseStringUTFChars(result, nativeString);
+		metadata->setObject(Screate(JniHelper::jstring2string(result)), "Author");
+		minfo.env->DeleteLocalRef(result);
 	}
 	
 	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"getTitle", "(Ljava/lang/String;)Ljava/lang/String;"), "Function doesn't exist");
@@ -278,9 +287,8 @@ CCDictionary* AudioPlayerRecorder::getFileMetadata(const std::string& path)
 	minfo.env->DeleteLocalRef(minfo.classID);
 	if(result != NULL)
 	{
-		const char* nativeString = minfo.env->GetStringUTFChars(result, 0);
-		metadata->setObject(Screate(std::string(nativeString)), "Title");
-		minfo.env->ReleaseStringUTFChars(result, nativeString);
+		metadata->setObject(Screate(JniHelper::jstring2string(result)), "Title");
+		minfo.env->DeleteLocalRef(result);
 	}
 	
 	minfo.env->DeleteLocalRef(jPath);

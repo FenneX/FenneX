@@ -46,7 +46,7 @@ void Java_org_cocos2dx_socialhandy_FenneX_notifyImagePickedWrapper(JNIEnv* env, 
 bool pickImageFrom(const char* saveName, bool useCamera, int width, int height, const char* identifier, bool rescale = true, float thumbnailScale = -1);
 bool isCameraAvailable();
 
-static inline void notifyImagePicked(const char* name, const char* identifier)
+static inline void notifyImagePicked(std::string name, std::string identifier)
 {
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
     DelayedDispatcher::eventAfterDelay("ImagePicked", DcreateP(Screate(name), Screate("Name"), Screate(identifier), Screate("Identifier"), NULL), 0.001);

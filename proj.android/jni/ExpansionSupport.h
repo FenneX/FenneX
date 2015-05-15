@@ -52,22 +52,22 @@ std::string getExpansionFileFullPath(bool main);
 
 static inline void notifyServiceConnected()
 {
-    performNotificationAfterDelay("DownloadServiceConnected", Dcreate(), 0.01);
+    DelayedDispatcher::eventAfterDelay("DownloadServiceConnected", Dcreate(), 0.01);
 }
 
-static inline void notifyDownloadStateChanged(const char* status, int code)
+static inline void notifyDownloadStateChanged(std::string status, int code)
 {
-    performNotificationAfterDelay("DownloadStateChanged", DcreateP(Screate(status), Screate("Status"), Icreate(code), Screate("Code"), NULL), 0.01);
+    DelayedDispatcher::eventAfterDelay("DownloadStateChanged", DcreateP(Screate(status), Screate("Status"), Icreate(code), Screate("Code"), NULL), 0.01);
 }
 
 static inline void notifyDownloadCompleted()
 {
-    performNotificationAfterDelay("DownloadCompleted", Dcreate(), 0.01);
+    DelayedDispatcher::eventAfterDelay("DownloadCompleted", Dcreate(), 0.01);
 }
 
 static inline void notifyDownloadProgress(float percent, long totalSize)
 {
-    performNotificationAfterDelay("DownloadProgressUpdate", DcreateP(Fcreate(percent), Screate("Percent"), Icreate((int)totalSize), Screate("TotalSize"), NULL), 0.01);
+    DelayedDispatcher::eventAfterDelay("DownloadProgressUpdate", DcreateP(Fcreate(percent), Screate("Percent"), Icreate((int)totalSize), Screate("TotalSize"), NULL), 0.01);
 }
 
 #endif

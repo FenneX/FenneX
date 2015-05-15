@@ -42,16 +42,16 @@ void scheduleNotification(float timeFromNow, const char* alertBody, const char* 
 
 	saveObjectToFile(userInfo, "userInfo.plist");
 
-	jfloat floatArg0 = timeFromNow;
 	jstring stringArg1 = minfo.env->NewStringUTF(alertBody);
 	jstring stringArg2 = minfo.env->NewStringUTF(alertAction);
 	jstring stringArg3 = minfo.env->NewStringUTF(soundName);
 	jobjectArray array = jobjectArrayFromCCDictionary(minfo.env, userInfo);
-	minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, floatArg0, stringArg1, stringArg2, stringArg3, array);
+	minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, (jfloat)timeFromNow, stringArg1, stringArg2, stringArg3, array);
 	minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(stringArg1);
     minfo.env->DeleteLocalRef(stringArg2);
     minfo.env->DeleteLocalRef(stringArg3);
+    minfo.env->DeleteLocalRef(array);
 }
 
 void cancelAllNotifications()
@@ -77,7 +77,7 @@ void notifyNotifClicked(jobjectArray array)
 
 	if(callBackEvent != NULL)
 	{
-		performNotificationAfterDelay(callBackEvent->getCString(), infos, 0.01);
+		DelayedDispatcher::eventAfterDelay(callBackEvent->getCString(), infos, 0.01);
 	}
 
 	notifyDeletePListFiles();

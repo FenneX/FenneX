@@ -59,6 +59,7 @@ jobjectArray jobjectArrayFromCCDictionary(JNIEnv *pEnv, CCDictionary * ccDiction
     jobjectArray result;
         
     result = pEnv->NewObjectArray( 2 * ccDictionary->allKeys()->count(), jStringCls, NULL);
+    pEnv->DeleteLocalRef(jStringCls);
 
 	if(pEnv->ExceptionCheck())
 	{
@@ -107,10 +108,12 @@ jobjectArray jobjectArrayFromCCDictionary(JNIEnv *pEnv, CCDictionary * ccDiction
         CCLOG("%s", ((CCString *)ccDictionary->allKeys()->objectAtIndex(i))->getCString());
 #endif
         pEnv->SetObjectArrayElement(result, i * 2, keyString);
+        pEnv->DeleteLocalRef(keyString);
 #if VERBOSE_JNI_CONVERSION
         CCLOG("%s", objToString->getCString());
 #endif
         pEnv->SetObjectArrayElement(result, i * 2 + 1, objectString);
+        pEnv->DeleteLocalRef(objectString);
 
     }
 #if VERBOSE_JNI_CONVERSION
@@ -143,6 +146,7 @@ jobjectArray jobjectArrayFromCCArray(JNIEnv *pEnv, CCArray * ccArray)
     jobjectArray result;
 
     result = pEnv->NewObjectArray( ccArray->count(), jStringCls, NULL);
+    pEnv->DeleteLocalRef(jStringCls);
 
 	if(pEnv->ExceptionCheck())
 	{
@@ -188,6 +192,7 @@ jobjectArray jobjectArrayFromCCArray(JNIEnv *pEnv, CCArray * ccArray)
         CCLOG("%s", objToString->getCString());
 #endif
         pEnv->SetObjectArrayElement(result, i, objectString);
+        pEnv->DeleteLocalRef(objectString);
     }
 #if VERBOSE_JNI_CONVERSION
     CCLOG("Converted!");
@@ -204,27 +209,27 @@ typedef enum
 	NoType
 }ConvertTypeInfo;
 
-CCObject* CCObjectFromString(const char* string)
+CCObject* CCObjectFromString(std::string string)
 {
 	CCObject* result = NULL;
 	ConvertTypeInfo resolvedType = NoType;
 	bool found = false;
-	if(strlen(string) > 5)
+	if(string.length() > 5)
 	{
 		found = true;
-		if(strncmp(string, "[Str]", 5) == 0)
+		if(strncmp(string.c_str(), "[Str]", 5) == 0)
 		{
 			resolvedType = StringType;
 		}
-		else if(strncmp(string, "[Int]", 5) == 0)
+		else if(strncmp(string.c_str(), "[Int]", 5) == 0)
 		{
 			resolvedType = IntegerType;
 		}
-		else if(strncmp(string, "[Flo]", 5) == 0)
+		else if(strncmp(string.c_str(), "[Flo]", 5) == 0)
 		{
 			resolvedType = FloatType;
 		}
-		else if(strncmp(string, "[Boo]", 5) == 0)
+		else if(strncmp(string.c_str(), "[Boo]", 5) == 0)
 		{
 			resolvedType = BooleanType;
 		}
@@ -234,20 +239,20 @@ CCObject* CCObjectFromString(const char* string)
 		}
 		if(found)
 		{
-			string = std::string(string).substr(5, std::string::npos).c_str();
+			string = string.substr(5, std::string::npos);
 		}
 	}
-	if(resolvedType == BooleanType || (resolvedType == NoType &&  (strcmp(string, "true") == 0 || strcmp(string, "false") == 0)))
+	if(resolvedType == BooleanType || (resolvedType == NoType &&  (string == "true" || string == "false")))
 	{
-		result = Bcreate(strcmp(string, "true") == 0);
+		result = Bcreate(string == "true");
 	}
-	else if(resolvedType == IntegerType || (resolvedType == NoType &&  (atoi(string) != 0 || strcmp(string, "0") == 0)))
+	else if(resolvedType == IntegerType || (resolvedType == NoType &&  (atoi(string.c_str()) != 0 || string == "0")))
 	{
-		result = Icreate(atoi(string));
+		result = Icreate(atoi(string.c_str()));
 	}
-	else if(resolvedType == FloatType || (resolvedType == NoType && atof(string) != 0))
+	else if(resolvedType == FloatType || (resolvedType == NoType && atof(string.c_str()) != 0))
 	{
-		result = Fcreate(atof(string));
+		result = Fcreate(atof(string.c_str()));
 	}
 	else
 	{
@@ -269,7 +274,8 @@ CCDictionary* CCDictionaryFromjobjectArray(JNIEnv *pEnv, jobjectArray array)
 		return NULL;
 	}
 	count = pEnv->GetArrayLength(array);
-	if(count <= 0) {
+	if(count <= 0) 
+	{
 		CCLOG("jobjectArray is empty.");
 		return NULL;
 	}
@@ -279,20 +285,18 @@ CCDictionary* CCDictionaryFromjobjectArray(JNIEnv *pEnv, jobjectArray array)
 		count--;
 	}
 
-	CCDictionary* myArray = new CCDictionary();
-	myArray->autorelease();
-	jboolean flag = false;
+	CCDictionary* myArray = CCDictionary::create();
 
-	for(int i = 0; i < count; i += 2) {
+	for(int i = 0; i < count; i += 2) 
+	{
 		//Run through the array, retrieve each type and set it in a CCDictionary
 		jobject element = pEnv->GetObjectArrayElement(array, i);
-		if(element != NULL) {
-			jstring stringElement = (jstring)element;
-			const char* key = pEnv->GetStringUTFChars(stringElement, &flag);
-
+		if(element != NULL) 
+		{
 			jobject nextObjectElement = pEnv->GetObjectArrayElement(array, i+1);
-			const char* nextElement = pEnv->GetStringUTFChars((jstring)nextObjectElement, &flag);
-			myArray->setObject(CCObjectFromString(nextElement), key);
+			myArray->setObject(CCObjectFromString(JniHelper::jstring2string((jstring)nextObjectElement)), JniHelper::jstring2string((jstring)element));
+            pEnv->DeleteLocalRef(nextObjectElement);
+            pEnv->DeleteLocalRef(element);
 		}
 	}
 #if VERBOSE_JNI_CONVERSION
@@ -327,8 +331,8 @@ CCArray* CCArrayFromjobjectArray(JNIEnv *pEnv, jobjectArray array)
 	{
 		//Run through the array, retrieve each type and set it in a CCArray
 		jobject element = pEnv->GetObjectArrayElement(array, i);
-		const char* string = pEnv->GetStringUTFChars((jstring)element, &flag);
-		myArray->addObject(CCObjectFromString(string));
+		myArray->addObject(CCObjectFromString(JniHelper::jstring2string((jstring)element)));
+        pEnv->DeleteLocalRef(element);
 	}
 #if VERBOSE_JNI_CONVERSION
 	CCLOG("Converted!");

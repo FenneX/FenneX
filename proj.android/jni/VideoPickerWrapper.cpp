@@ -99,34 +99,17 @@ extern "C"
 	//extension for long name : __Ljava_lang_String_2Ljava_lang_String_2
 	void Java_com_fennex_modules_VideoPicker_notifyVideoPickedWrap(JNIEnv* env, jobject thiz, jstring name)
 	{
-		const char* nameC = env->GetStringUTFChars(name, 0);
-		if(nameC != NULL)
-		{
-			notifyVideoPicked(nameC);
-		}
-		env->ReleaseStringUTFChars(name, nameC);
+		notifyVideoPicked(JniHelper::jstring2string(name));
 	}
 
 	void Java_com_fennex_modules_VideoPicker_notifyVideoFound(JNIEnv* env, jobject thiz, jstring name)
 	{
-		const char* nameC = env->GetStringUTFChars(name, 0);
-		if(nameC != NULL)
-		{
-			notifyVideoFound(nameC);
-		}
-		env->ReleaseStringUTFChars(name, nameC);
+		notifyVideoFound(JniHelper::jstring2string(name));
 	}
 
 	void Java_com_fennex_modules_VideoPicker_notifyVideoName(JNIEnv* env, jobject thiz, jstring path, jstring name)
 	{
-		const char* pathC = env->GetStringUTFChars(path, 0);
-		const char* nameC = env->GetStringUTFChars(name, 0);
-		if(nameC != NULL && pathC != NULL)
-		{
-			notifyVideoName(pathC, nameC);
-		}
-		env->ReleaseStringUTFChars(path, pathC);
-		env->ReleaseStringUTFChars(name, nameC);
+		notifyVideoName(JniHelper::jstring2string(path), JniHelper::jstring2string(name));
 	}
 
 	void Java_com_fennex_modules_VideoRecorder_notifyRecordingCancelled(JNIEnv* env, jobject thiz)

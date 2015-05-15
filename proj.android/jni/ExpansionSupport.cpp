@@ -45,11 +45,9 @@ std::string getExpansionFileFullPath(bool main)
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"getExpansionFileFullPath", "(Z)Ljava/lang/String;"), "Function doesn't exist");
 	jstring result = (jstring)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID, (jboolean)main);
+    std::string absolutePath = JniHelper::jstring2string(result);
 	minfo.env->DeleteLocalRef(minfo.classID);
-
-	const char *nativeResult = minfo.env->GetStringUTFChars(result, 0);
-	std::string absolutePath = std::string(nativeResult);
-	minfo.env->ReleaseStringUTFChars(result, nativeResult);
+	minfo.env->DeleteLocalRef(result);
 	return absolutePath;
 }
 
@@ -61,9 +59,8 @@ extern "C"
 	}
 	void Java_com_fennex_modules_ExpansionSupport_notifyDownloadStateChanged(JNIEnv* env, jobject thiz, jstring status, jint code)
 	{
-		const char* statusC = env->GetStringUTFChars(status, 0);
-		notifyDownloadStateChanged(statusC != NULL ? statusC : "", (int) code);
-		env->ReleaseStringUTFChars(status, statusC);
+		std::string statusC = JniHelper::jstring2string(status);
+		notifyDownloadStateChanged(statusC, (int) code);
 	}
 	void Java_com_fennex_modules_ExpansionSupport_notifyDownloadCompleted(JNIEnv* env, jobject thiz)
 	{

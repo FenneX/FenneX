@@ -260,10 +260,11 @@ void AnalyticsWrapper::flurryLogEventWithParameters(const char * eventName, CCDi
     eventNameString += eventName;
 	jstring stringArg0 = minfo.env->NewStringUTF(eventNameString.c_str());
     jstring stringArg2 = minfo.env->NewStringUTF("false");
-
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, stringArg0, jobjectArrayFromCCDictionary(minfo.env, parameters), stringArg2);
+    jobjectArray array = jobjectArrayFromCCDictionary(minfo.env, parameters);
+    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, stringArg0, array, stringArg2);
 	minfo.env->DeleteLocalRef(minfo.classID);
 	minfo.env->DeleteLocalRef(stringArg0);
+	minfo.env->DeleteLocalRef(array);
 	minfo.env->DeleteLocalRef(stringArg2);
 }
 
@@ -302,10 +303,11 @@ void AnalyticsWrapper::flurryLogEventWithParametersTimed(const char * eventName,
     {
         stringArg2 = minfo.env->NewStringUTF("true");
     }
-
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, stringArg0, jobjectArrayFromCCDictionary(minfo.env, parameters), stringArg2);
+    jobjectArray array = jobjectArrayFromCCDictionary(minfo.env, parameters);
+    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, stringArg0, array, stringArg2);
 	minfo.env->DeleteLocalRef(minfo.classID);
 	minfo.env->DeleteLocalRef(stringArg0);
+	minfo.env->DeleteLocalRef(array);
 	minfo.env->DeleteLocalRef(stringArg2);
 }
 

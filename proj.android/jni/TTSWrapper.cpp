@@ -49,6 +49,7 @@ bool isSpeaking()
 	CCAssert(JniHelper::getMethodInfo(minfo,CLASS_NAME,"isSpeaking", "()Z"), "Function doesn't exist");
 	bool result = minfo.env->CallBooleanMethod(instance, minfo.methodID);
     minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(instance);
     return result;
 }
 
@@ -61,22 +62,27 @@ bool speakText(std::vector<std::string> text, int speechID)
 		speechIDStatic = speechID;
 		JniMethodInfo minfo;
 		jobject instance = getInstance();
-		CCAssert(JniHelper::getMethodInfo(minfo,CLASS_NAME,"speakText", "([Ljava/lang/String;)Z"), "Function doesn't exist");
+		CCAssert(JniHelper::getMethodInfo(minfo, CLASS_NAME,"speakText", "([Ljava/lang/String;)Z"), "Function doesn't exist");
+	    minfo.env->DeleteLocalRef(minfo.classID); //Not required, we call the method directly on the instance
 
-		jobjectArray ret= (jobjectArray)minfo.env->NewObjectArray(text.size(),
-				minfo.env->FindClass("java/lang/String"),
-				minfo.env->NewStringUTF("")
-		);
-	    minfo.env->DeleteLocalRef(minfo.classID);
+        jclass jStringCls = minfo.env->FindClass("java/lang/String");
+        jstring string = minfo.env->NewStringUTF("");
+		jobjectArray ret = (jobjectArray)minfo.env->NewObjectArray(text.size(),
+				jStringCls,
+				string);
+        minfo.env->DeleteLocalRef(jStringCls);
+        minfo.env->DeleteLocalRef(string);
 
         for(int i = 0; i < text.size(); i++)
 		{
-			minfo.env->SetObjectArrayElement(ret, i, minfo.env->NewStringUTF(text[i].c_str()));
+            string = minfo.env->NewStringUTF(text[i].c_str());
+			minfo.env->SetObjectArrayElement(ret, i, string);
+            minfo.env->DeleteLocalRef(string);
 		}
 
 		minfo.env->CallBooleanMethod(instance, minfo.methodID, ret);
-		minfo.env->DeleteLocalRef(ret);
 		minfo.env->DeleteLocalRef(instance);
+		minfo.env->DeleteLocalRef(ret);
 	}
 
 	return false;

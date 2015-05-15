@@ -63,17 +63,21 @@ void inAppPurchaseProduct(const char* productID)
 {
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"buyProductIdentifier", "(Ljava/lang/String;)V"), "Function doesn't exist");
-	minfo.env->CallStaticVoidMethod(minfo.classID,minfo.methodID,minfo.env->NewStringUTF(productID));
+    jstring jproductID = minfo.env->NewStringUTF(productID);
+	minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jproductID);
 	minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(jproductID);
 }
 
 void restoreTransaction(const char* productID)
 {
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"restoreTransaction", "(Ljava/lang/String;)V"), "Function doesn't exist");
+    jstring jproductID = minfo.env->NewStringUTF(productID);
     LOGD("calling restore transactions ...");
-	minfo.env->CallStaticVoidMethod(minfo.classID,minfo.methodID,minfo.env->NewStringUTF(productID));
+	minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jproductID);
 	minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(jproductID);
     LOGD("done restoring!");
 }
 
@@ -81,7 +85,7 @@ void releasePayements()
 {
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"release", "()V"), "Function doesn't exist");
-	minfo.env->CallStaticBooleanMethod(minfo.classID,minfo.methodID);
+	minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID);
 	minfo.env->DeleteLocalRef(minfo.classID);
 }
 
@@ -89,8 +93,10 @@ void requestProductsData(CCArray* products)
 {
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"requestProductsData", "([Ljava/lang/String;)V"), "Function doesn't exist");
-	minfo.env->CallStaticVoidMethod(minfo.classID,minfo.methodID,jobjectArrayFromCCArray(minfo.env, products));
+    jobjectArray array = jobjectArrayFromCCArray(minfo.env, products);
+	minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, array);
 	minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(array);
 }
 
 //Cache productsInfos, because they may be erased by another request (for example, buying a product)
@@ -98,10 +104,10 @@ CCDictionary* productsInfos = NULL;
 
 CCDictionary* getProductsInfos()
 {
-	JniMethodInfo minfo,minfo2;
+	JniMethodInfo minfo, minfo2;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"getProductsIds", "()[Ljava/lang/String;"), "Function doesn't exist");
 	CCLOG("Starting getProductsInfos ...");
-	jobjectArray productsIdNative = (jobjectArray)minfo.env->CallStaticObjectMethod(minfo.classID,minfo.methodID);
+	jobjectArray productsIdNative = (jobjectArray)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID);
 	minfo.env->DeleteLocalRef(minfo.classID);
 	CCArray* productsId = CCArrayFromjobjectArray(minfo.env, productsIdNative);
 	minfo.env->DeleteLocalRef(productsIdNative);
@@ -124,39 +130,36 @@ CCDictionary* getProductsInfos()
 			CCLOG("Warning : wrong type of product Id at index %d, will crash", i);
 		}
 		CCLOG("getting product \"%s\" infos", productId->getCString());
-
-		jobjectArray nativeArray = (jobjectArray)minfo2.env->CallStaticObjectMethod(minfo2.classID,minfo2.methodID,minfo2.env->NewStringUTF(productId->getCString()));
+        jstring jproductID = minfo2.env->NewStringUTF(productId->getCString());
+		jobjectArray nativeArray = (jobjectArray)minfo2.env->CallStaticObjectMethod(minfo2.classID, minfo2.methodID, jproductID);
+        minfo2.env->DeleteLocalRef(jproductID);
 
 		CCDictionary* infos = CCDictionaryFromjobjectArray(minfo.env, nativeArray);
 		minfo2.env->DeleteLocalRef(nativeArray);
 		productsInfos->setObject(infos, productId->getCString());
 	}
-	minfo2.env->DeleteLocalRef(minfo.classID);
+	minfo2.env->DeleteLocalRef(minfo2.classID);
 	CCLOG("Returning product infos successfully");
 	return productsInfos;
 }
 
-void notifyInAppEventNative(const char* name, const char* argument)
+void notifyInAppEventNative(std::string name, std::string argument)
 {
-    LOGD("Notifying in app event : %s", name);
-    performNotificationAfterDelay(name, DcreateP(Screate(argument), Screate("ProductID"), NULL), 0.01);
+    LOGD("Notifying in app event : %s", name.c_str());
+    DelayedDispatcher::eventAfterDelay(name, DcreateP(Screate(argument), Screate("ProductID"), NULL), 0.01);
 }
 
 void notifyLicenseStatusNative(bool authorized)
 {
     LOGD("Notifying license status : %s", authorized ? "Authorized" : "Locked");
-    performNotificationAfterDelay("LicenseStatusUpdate", DcreateP(Bcreate(authorized), Screate("Authorized"), NULL), 0.01);
+    DelayedDispatcher::eventAfterDelay("LicenseStatusUpdate", DcreateP(Bcreate(authorized), Screate("Authorized"), NULL), 0.01);
 }
 
 extern "C"
 {
 	void Java_com_fennex_modules_InAppManager_notifyInAppEvent(JNIEnv* envParam, jobject thiz, jstring event, jstring argument)
 	{
-		const char* eventUTF = JniHelper::getEnv()->GetStringUTFChars(event, 0);
-		const char* argumentUTF = JniHelper::getEnv()->GetStringUTFChars(argument, 0);
-		notifyInAppEventNative(eventUTF, argumentUTF);
-		envParam->ReleaseStringUTFChars(event, eventUTF);
-		envParam->ReleaseStringUTFChars(argument, argumentUTF);
+		notifyInAppEventNative(JniHelper::jstring2string(event), JniHelper::jstring2string(argument));
 	}
 	void Java_com_fennex_licensing_LicenseInspector_notifyLicenseStatus(JNIEnv* envParam, jobject thiz, jboolean authorized)
 	{
