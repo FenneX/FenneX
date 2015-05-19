@@ -209,6 +209,7 @@ public:
     CCArray* allObjectsInRect(cocos2d::Rect rect);
     CCArray* allObjectsContainingRect(cocos2d::Rect rect);
     CCArray* allActionnableObjects();
+    CCArray* allObjects(const std::function<bool(RawObject*)>& filter);
     
     CCArray* allVisibleObjectsAtPosition(Vec2 position);
     

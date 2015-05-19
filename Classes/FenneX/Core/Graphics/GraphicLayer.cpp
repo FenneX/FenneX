@@ -1684,6 +1684,20 @@ CCArray* GraphicLayer::allActionnableObjects()
     return result;
 }
 
+CCArray* GraphicLayer::allObjects(const std::function<bool(RawObject*)>& filter)
+{
+    CCArray* result = CCArray::create();
+    for(int i =  storedObjects->count() - 1; i >= 0; i--)
+    {
+        RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
+        if(filter(obj))
+        {
+            result->addObject(obj);
+        }
+    }
+    return result;
+}
+
 bool GraphicLayer::collision(Vec2 position, RawObject* obj)
 {
     return obj->collision(this->getPositionRelativeToObject(position, obj));
