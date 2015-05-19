@@ -103,6 +103,29 @@ void LabelTTF::setFontSize(float size)
     delegate->setTTFConfig(newConfig);*/
 }
 
+void LabelTTF::setFont(std::string filename)
+{
+    
+    fontFile = new CCString(filename);
+    fullFontFile = new CCString(filename);
+    CCString* fontFile = CCString::create(filename);
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+    //ios doesn't like full path and ttf extension
+    std::string fontFileWithoutTTF = fontFile->getCString();
+    long extensionPos = fontFileWithoutTTF.find_last_of(".ttf");
+    if(extensionPos != std::string::npos)
+    {
+        fontFileWithoutTTF = fontFileWithoutTTF.substr(0, extensionPos - 3);
+    }
+    long slashPos = fontFileWithoutTTF.find_last_of('/');
+    if(slashPos != std::string::npos)
+    {
+        fontFileWithoutTTF = fontFileWithoutTTF.substr(slashPos+1);
+    }
+#endif
+    delegate->setSystemFontName(fontFile->getCString());
+}
+
 LabelTTF::LabelTTF() :
 delegate(NULL),
 loadingValue("")

@@ -51,6 +51,7 @@ public:
     const char* getFontFile();
     float getFontSize();
     void setFontSize(float size);
+    void setFont(std::string filename);
     
     virtual Node* getNode();
     
