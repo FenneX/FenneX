@@ -33,7 +33,7 @@
 
 
 //In iOS8, behavior of VideoRecorder was changed. It used to need being rotated for iOS 7 and older, but now it doesn't anymore
-#define IS_IOS8 ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0)
+#define IS_IOS8_OR_NEWER ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0)
 
 @implementation VideoRecorder (Private)
 
@@ -42,7 +42,7 @@
 	UIInterfaceOrientation orientation = ((UIViewController*)[AppController sharedController].viewController).interfaceOrientation;
 	if(UIInterfaceOrientationIsLandscape(orientation) && orientation != currentOrientation)
     {
-	if(IS_IOS8)
+	if(IS_IOS8_OR_NEWER)
 {
         CGAffineTransform rotateTransform = CGAffineTransformMakeRotation(orientation == UIInterfaceOrientationLandscapeLeft ? M_PI_2 : -M_PI_2);
         [self.previewLayer setAffineTransform:rotateTransform];
@@ -55,7 +55,7 @@
 - (void) updateFrame
 {
     CGRect bounds = [[UIScreen mainScreen] bounds];
-if(IS_IOS8)
+if(IS_IOS8_OR_NEWER)
 {
     [self.previewLayer setPosition:CGPointMake(_position.x, bounds.size.height - _position.y)];
 }

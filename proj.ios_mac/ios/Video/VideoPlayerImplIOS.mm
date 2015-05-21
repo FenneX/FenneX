@@ -35,7 +35,7 @@ USING_NS_FENNEX;
 @implementation VideoPlayerImplIOS (Private)
 
 //In iOS8, behavior of VideoPlayer was changed. It used to need being rotated for iOS 7 and older, but now it doesn't anymore
-#define IS_IOS8 ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0)
+#define IS_IOS8_OR_NEWER ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0)
 
 - (void) orientationChanged:(NSNotification*)data
 {
@@ -43,12 +43,12 @@ USING_NS_FENNEX;
 	UIInterfaceOrientation orientation = ((UIViewController*)[AppController sharedController].viewController).interfaceOrientation;
 	if(UIInterfaceOrientationIsLandscape(orientation) && orientation != currentOrientation)
 	{
-        CGAffineTransform transform = IS_IOS8 ? CGAffineTransformIdentity : CGAffineTransformMakeRotation(orientation == UIInterfaceOrientationLandscapeRight ? M_PI / 2 : -M_PI / 2);
+        CGAffineTransform transform = IS_IOS8_OR_NEWER ? CGAffineTransformIdentity : CGAffineTransformMakeRotation(orientation == UIInterfaceOrientationLandscapeRight ? M_PI / 2 : -M_PI / 2);
         if(isFullScreen)
         {
             CGRect bounds = [[UIScreen mainScreen] bounds];
             float scale = 0;
-            if(IS_IOS8)
+            if(IS_IOS8_OR_NEWER)
             {
                 if(_size.height / bounds.size.height > _size.width / bounds.size.width)
                 {
@@ -90,7 +90,7 @@ USING_NS_FENNEX;
     }
     else
     {
-        if(IS_IOS8)
+        if(IS_IOS8_OR_NEWER)
         {
             //Y-axis is inverted
             [player.view setCenter:CGPointMake(_position.x, bounds.size.height - _position.y)];
@@ -264,7 +264,7 @@ USING_NS_FENNEX;
         
         CGPoint newCenter;
         float scale = 0;
-        if(IS_IOS8)
+        if(IS_IOS8_OR_NEWER)
         {
             newCenter = fullscreen ? CGPointMake(bounds.size.width / 2, bounds.size.height/2) :
             CGPointMake((currentOrientation == UIInterfaceOrientationLandscapeLeft ? _position.x : bounds.size.width - _position.x),
