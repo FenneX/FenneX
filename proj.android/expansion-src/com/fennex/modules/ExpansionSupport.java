@@ -313,7 +313,7 @@ public class ExpansionSupport extends DownloaderService implements ActivityObser
     }
     
     @Override
-    publid void destroy()
+    public void destroy()
     {
         if (mDownloaderClientStub != null) 
         {
