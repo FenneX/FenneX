@@ -318,7 +318,6 @@ public class ExpansionSupport extends DownloaderService implements ActivityObser
         if (mDownloaderClientStub != null) 
         {
             mDownloaderClientStub.disconnect(NativeUtility.getMainActivity());
-            mDownloaderClientStub = null
         }
     }
 
