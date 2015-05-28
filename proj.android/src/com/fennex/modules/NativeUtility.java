@@ -125,7 +125,12 @@ public class NativeUtility
         File destinationFile = new File(NativeUtility.getLocalPath() + java.io.File.separator + path);    
     	if(!destinationFile.exists())
     	{
-         	Log.i(TAG, "File doesn't exist, doing the copy");
+            if(path.contains("/"))
+            {
+                File parentFolder = new File(NativeUtility.getLocalPath() + java.io.File.separator + path.substring(0, path.lastIndexOf("/")));
+                parentFolder.mkdirs();
+            }
+         	Log.i(TAG, "File doesn't exist, doing the copy to " + destinationFile.getAbsolutePath());
             AssetManager am = NativeUtility.getMainActivity().getAssets();
             try { 
                 InputStream in = am.open(path);
