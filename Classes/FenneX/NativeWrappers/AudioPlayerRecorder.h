@@ -54,6 +54,15 @@ public:
     static AudioPlayerRecorder* sharedRecorder(void);
     ~AudioPlayerRecorder();
     
+#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+    //On Android, the default implementation use MediaPlayer
+    //You can use LibVLC (which requires a different compilation script and additional files not in FenneX)
+    //LibVLC allow to change PlaybackRate, which is not possible with MediaPlayer
+    //It also support more formats
+    //LibVLC doesn't support reading files from the .apk. Use an uncompressed expansion instead.
+    static void setUseVLC(bool useVLC);
+#endif
+    
     static float getSoundDuration(std::string file);
     static std::string getSoundsSavePath();
     
@@ -90,6 +99,10 @@ public:
     
     //deleteFile requires the full path including the extension
     void deleteFile(const std::string& file);
+    
+    //Must be called before playing a sound. The rate is global for all subsequent play sound
+    float getPlaybackRate();
+    void setPlaybackRate(float rate);
     
     void setNumberOfLoops(int loops);
     

@@ -159,6 +159,16 @@ void AudioPlayerRecorder::deleteFile(const std::string& file)
     [[AudioPlayerRecorderImpl sharedAudio] deleteFile:getNSString(file)];
 }
 
+float AudioPlayerRecorder::getPlaybackRate()
+{
+    return [AudioPlayerRecorderImpl sharedAudio].playbackRate;
+}
+
+void AudioPlayerRecorder::setPlaybackRate(float rate)
+{
+    [AudioPlayerRecorderImpl sharedAudio].playbackRate = rate;
+}
+
 void AudioPlayerRecorder::setNumberOfLoops(int loops)
 {
     [[AudioPlayerRecorderImpl sharedAudio] setNumberOfLoops:loops];

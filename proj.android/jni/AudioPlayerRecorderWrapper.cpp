@@ -34,6 +34,13 @@ USING_NS_FENNEX;
 //Cache sounds duration here because a call to Java getSoundDuration requires a MediaPlayer prepare, which is slow
 CCDictionary* soundsDuration = NULL;
 
+void AudioPlayerRecorder::setUseVLC(bool useVLC)
+{
+	JniMethodInfo minfo;
+	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"setUseVLC", "(Z)V"), "Function doesn't exist");
+	minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, (jboolean)useVLC);
+    minfo.env->DeleteLocalRef(minfo.classID);
+}
 
 void AudioPlayerRecorder::init()
 {
@@ -186,6 +193,23 @@ void AudioPlayerRecorder::fadeVolumeOut()
 	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"fadeVolumeOut", "()V"), "Function doesn't exist");
 	minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID);
 	minfo.env->DeleteLocalRef(minfo.classID);
+}
+
+float AudioPlayerRecorder::getPlaybackRate()
+{
+	JniMethodInfo minfo;
+	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"getPlaybackRate", "()F"), "Function doesn't exist");
+	float result = minfo.env->CallStaticFloatMethod(minfo.classID, minfo.methodID);
+    minfo.env->DeleteLocalRef(minfo.classID);
+	return result;
+}
+
+void AudioPlayerRecorder::setPlaybackRate(float rate)
+{
+	JniMethodInfo minfo;
+	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"setPlaybackRate", "(F)V"), "Function doesn't exist");
+	minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, (jfloat)rate);
+    minfo.env->DeleteLocalRef(minfo.classID);
 }
 
 void AudioPlayerRecorder::setNumberOfLoops(int loops)

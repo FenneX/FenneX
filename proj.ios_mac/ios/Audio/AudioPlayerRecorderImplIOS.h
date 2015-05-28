@@ -37,6 +37,8 @@
 	BOOL nextRecorder; // YES = 1, NO = 2
 	NSError *error;
 	int recordEncoding;
+	float desiredPlaybackRate;
+
 	enum
 	{
 		ENC_AAC = 1,
@@ -54,6 +56,7 @@
 @property (nonatomic, readonly) BOOL canPlay;
 @property (nonatomic, readonly) BOOL isPlaying;
 @property (nonatomic, readonly) float recordingDuration;
+@property (nonatomic) float playbackRate;
 
 + (float) getSoundDuration:(NSString*)file;
 

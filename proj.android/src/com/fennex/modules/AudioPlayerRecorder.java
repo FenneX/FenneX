@@ -24,6 +24,7 @@ THE SOFTWARE.
 
 package com.fennex.modules;
 
+import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 import android.content.pm.PackageManager;
@@ -35,6 +36,13 @@ import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.media.MediaRecorder;
 import android.media.MediaPlayer;
+
+import org.videolan.libvlc.LibVLC;
+import org.videolan.libvlc.LibVlcException;
+import org.videolan.libvlc.LibVlcUtil;
+import org.videolan.libvlc.Media;
+import org.videolan.libvlc.MediaList;
+
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -42,7 +50,7 @@ import java.io.IOException;
 
 
 public class AudioPlayerRecorder {
-    private static final String LOG_TAG = "AudioPlayerRecorder";
+    private static final String TAG = "AudioPlayerRecorder";
 
     private static MediaRecorder mRecorder = null;
     private static MediaPlayer   mPlayer = null;
@@ -51,59 +59,110 @@ public class AudioPlayerRecorder {
     private static float volume = 1;
     private static String[] audioTypes = {"mp3", "3gp", "flac", "ogg", "wav"};
     private static int repeatTimes = 0;
+
+    public static boolean useVLC = false;
+    private static float desiredPlaybackRate; //Playback rate must be kept between sessions (when restarting video)
     
     public static native void notifyPlayingSoundEnded();
-    
+
+    public static void setUseVLC(boolean use)
+    {
+        if(mPlayer != null)
+        {
+            Log.e(TAG, "Can't change AudioPlayer VLC/MediaPlayer mode after starting it");
+            return;
+        }
+        if(use && !useVLC)
+        { //If the app crash here, check that libvlc is properly compiled using compile.sh
+            try
+            {
+                System.loadLibrary("vlcjni");
+                Log.i(TAG, "LibVLC loaded");
+
+                LibVlcUtil.getLibVlcInstance().init(NativeUtility.getMainActivity());
+            }
+            catch(Exception e)
+            {
+                Log.e(TAG, "Exception while loading vlcjni, it's probably not compiled for the current architecture. Falling back to MediaPlayer");
+                e.printStackTrace();
+                useVLC = false;
+            }
+        }
+        useVLC = use;
+    }
+
+
     public static boolean isPlaying()
     {
-    	Log.d(LOG_TAG, "returning isPlaying");
-    	return mPlayer != null && mPlayer.isPlaying();
+    	Log.d(TAG, "returning isPlaying");
+        if(useVLC) {
+            try {
+                return LibVlcUtil.getLibVlcInstance().isPlaying();
+            } catch (LibVlcException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            return mPlayer != null && mPlayer.isPlaying();
+        }
+        return false;
     }
     
     public static boolean isRecording()
     {
-    	Log.d(LOG_TAG, "returning isRecording");
+    	Log.d(TAG, "returning isRecording");
     	return mRecorder != null;
     }
 
     public static void startPlaying(String fileName) 
     {
     	repeatTimes = 0;
-        mPlayer = new MediaPlayer();
-        mPlayer.setOnErrorListener(new OnErrorListener() {
-            public boolean onError(MediaPlayer mp, int what, int extra) {
-                Log.e(LOG_TAG, "Error with MediaPlayer, stopping it. What : " 
-            + (what == MediaPlayer.MEDIA_ERROR_UNKNOWN ? "Unknown" : "Server died")
-            + ", extra : "
-            + (extra == MediaPlayer.MEDIA_ERROR_IO ? "IO Error" : 
-            	extra == MediaPlayer.MEDIA_ERROR_UNSUPPORTED ? "Unsupported" : 
-            		extra == MediaPlayer.MEDIA_ERROR_MALFORMED ? "Malformed" :
-            			"Timed out"));
-                AudioPlayerRecorder.stopPlaying();
-                return true;
+        if(useVLC) {
+            LibVLC vlc = null;
+            try {
+                vlc = LibVlcUtil.getLibVlcInstance();
+            } catch (LibVlcException e) {
+                e.printStackTrace();
             }
-        });
-        mPlayer.setOnPreparedListener(new OnPreparedListener() {
-            public void onPrepared(MediaPlayer mp) {
-                mp.start();
-                Log.i(LOG_TAG, "MediaPlayer started");
-            }
-        });
-        mPlayer.setOnCompletionListener(new OnCompletionListener() {
-            public void onCompletion(MediaPlayer mp) {
-            	if(!mp.isLooping() && repeatTimes > 0)
-            	{
-            		mp.start();
-            		repeatTimes--;
-            	}
-            	else
-            	{
-            		notifyPlayingSoundEnded();
-            	}
-            }
-        });
-        
-        currentFile = startMediaPlayer(mPlayer, fileName, true, true);
+            currentFile = startVLCPlayer(vlc, fileName, true);
+        }
+        else {
+            mPlayer = new MediaPlayer();
+            mPlayer.setOnErrorListener(new OnErrorListener() {
+                public boolean onError(MediaPlayer mp, int what, int extra) {
+                    Log.e(TAG, "Error with MediaPlayer, stopping it. What : "
+                            + (what == MediaPlayer.MEDIA_ERROR_UNKNOWN ? "Unknown" : "Server died")
+                            + ", extra : "
+                            + (extra == MediaPlayer.MEDIA_ERROR_IO ? "IO Error" :
+                            extra == MediaPlayer.MEDIA_ERROR_UNSUPPORTED ? "Unsupported" :
+                                    extra == MediaPlayer.MEDIA_ERROR_MALFORMED ? "Malformed" :
+                                            "Timed out"));
+                    AudioPlayerRecorder.stopPlaying();
+                    return true;
+                }
+            });
+            mPlayer.setOnPreparedListener(new OnPreparedListener() {
+                public void onPrepared(MediaPlayer mp) {
+                    mp.start();
+                    Log.i(TAG, "MediaPlayer started");
+                }
+            });
+            mPlayer.setOnCompletionListener(new OnCompletionListener() {
+                public void onCompletion(MediaPlayer mp) {
+                    if(!mp.isLooping() && repeatTimes > 0)
+                    {
+                        mp.start();
+                        repeatTimes--;
+                    }
+                    else
+                    {
+                        notifyPlayingSoundEnded();
+                    }
+                }
+            });
+
+            currentFile = startMediaPlayer(mPlayer, fileName, true, true);
+        }
         if(currentFile == null)
         {
         	mPlayer = null;
@@ -116,7 +175,7 @@ public class AudioPlayerRecorder {
         MediaPlayer tmpPlayer = new MediaPlayer();
         tmpPlayer.setOnErrorListener(new OnErrorListener() {
             public boolean onError(MediaPlayer mp, int what, int extra) {
-                Log.e(LOG_TAG, "Error with MediaPlayer (getSoundDuration), stopping it. What : " 
+                Log.e(TAG, "Error with MediaPlayer (getSoundDuration), stopping it. What : "
             + (what == MediaPlayer.MEDIA_ERROR_UNKNOWN ? "Unknown" : "Server died")
             + ", extra : "
             + (extra == MediaPlayer.MEDIA_ERROR_IO ? "IO Error" : 
@@ -130,14 +189,14 @@ public class AudioPlayerRecorder {
         tmpPlayer.setOnPreparedListener(new OnPreparedListener() {
             public void onPrepared(MediaPlayer mp) {
                 mp.start();
-                Log.i(LOG_TAG, "Independent MediaPlayer started");
+                Log.i(TAG, "Independent MediaPlayer started");
             }
         });
         tmpPlayer.setOnCompletionListener(new OnCompletionListener() {
             public void onCompletion(MediaPlayer mp) {
                 mp.reset();
                 mp.release();
-                Log.i(LOG_TAG, "Independent MediaPlayer finished");
+                Log.i(TAG, "Independent MediaPlayer finished");
             }
         });
         
@@ -152,7 +211,7 @@ public class AudioPlayerRecorder {
     	if(getFileExtension(file) == null) relativeName += ".mp3";
     	String fullName = NativeUtility.getLocalPath() + "/" + relativeName;
     	
-    	Log.d(LOG_TAG, "start MediaPlayer from local : " + fullName);
+    	Log.d(TAG, "start MediaPlayer from local : " + fullName);
         File target = new File(fullName);
         //Try to load from local path
         if(target != null && target.exists())
@@ -175,14 +234,14 @@ public class AudioPlayerRecorder {
             	{
                 	fullName = null;
             	}
-                Log.e(LOG_TAG, "prepare() from local failed, exception : " + e.getLocalizedMessage());
+                Log.e(TAG, "prepare() from local failed, exception : " + e.getLocalizedMessage());
             }
         }
         //try to load from package using assets
         else
         {
             AssetManager am = NativeUtility.getMainActivity().getAssets();
-        	Log.d(LOG_TAG, "start MediaPlayer from resources : " + relativeName);
+        	Log.d(TAG, "start MediaPlayer from resources : " + relativeName);
             try 
             {
                 AssetFileDescriptor descriptor = am.openFd(relativeName);
@@ -198,14 +257,82 @@ public class AudioPlayerRecorder {
                 }
                 else
                 {
-                    Log.e(LOG_TAG, "No sound file matching : " + currentFile);
+                    Log.e(TAG, "No sound file matching : " + currentFile);
                 	fullName = null;
                 }
             } 
             catch (IOException e) 
             {
             	fullName = null;
-                Log.e(LOG_TAG, "prepare() failed from resources, exception : " + e.getLocalizedMessage());
+                Log.e(TAG, "prepare() failed from resources, exception : " + e.getLocalizedMessage());
+            }
+        }
+        return fullName;
+    }
+
+
+    private static String startVLCPlayer(LibVLC player, String file, boolean isMain)
+    {
+        //try to load from data
+        String relativeName = file;
+        if(getFileExtension(file) == null) relativeName += ".mp3";
+        String fullName = NativeUtility.getLocalPath() + java.io.File.separator + relativeName;
+
+        //Use Environment.getExternalStorageDirectory().toString() ?
+        Log.d(TAG, "start MediaPlayer from local : " + fullName);
+        File target = new File(fullName);
+        //Try to load from local path
+        if(target != null && target.exists())
+        {
+            try
+            {
+                FileInputStream stream = new FileInputStream(target);
+                if(isMain)
+                    input = stream;
+
+                MediaList list = player.getPrimaryMediaList();
+                list.clear();
+                //EventHandler.getInstance().addHandler(getInstance());
+                //list.getEventHandler().addHandler(getInstance());
+                Media m = new Media(player, LibVLC.PathToURI(fullName));
+                list.add(m);
+                player.setMediaList(list);
+                player.playIndex(0);
+                setPlaybackRate(desiredPlaybackRate);
+            }
+            catch (IOException e)
+            {
+                if(isMain)
+                {
+                    fullName = null;
+                }
+                Log.e(TAG, "prepare() from local failed, exception : " + e.getLocalizedMessage());
+            }
+        }
+        //try to load from package using assets
+        else
+        {
+            AssetManager am = NativeUtility.getMainActivity().getAssets();
+            Log.d(TAG, "start MediaPlayer from resources : " + relativeName);
+            try
+            {
+                AssetFileDescriptor descriptor = am.openFd(relativeName);
+                FileDescriptor fileDesc = descriptor.getFileDescriptor();
+                if(fileDesc.valid())
+                {
+                    NativeUtility.copyResourceFileToLocal(relativeName);
+                    startVLCPlayer(player, relativeName, isMain);
+                }
+                else
+                {
+                    Log.e(TAG, "No sound file matching : " + currentFile);
+                    fullName = null;
+                }
+            }
+            catch (IOException e)
+            {
+                fullName = null;
+                Log.e(TAG, "prepare() failed from resources, exception : " + e.getLocalizedMessage());
             }
         }
         return fullName;
@@ -213,8 +340,17 @@ public class AudioPlayerRecorder {
     
     public static void stopPlaying() 
     {
-    	Log.d(LOG_TAG, "stop playing");
-    	if(mPlayer != null)
+    	Log.d(TAG, "stop playing");
+        if(useVLC)
+        {
+            try {
+                LibVLC vlc = LibVlcUtil.getLibVlcInstance();
+                vlc.stop();
+            } catch (LibVlcException e) {
+                e.printStackTrace();
+            }
+        }
+        else if(mPlayer != null)
     	{
     		mPlayer.stop();
             mPlayer.release();
@@ -234,7 +370,7 @@ public class AudioPlayerRecorder {
     public static void startRecording(String fileName) 
     {
     	currentFile = NativeUtility.getLocalPath() + "/" + fileName;
-    	Log.d(LOG_TAG, "start recording : " + currentFile);
+    	Log.d(TAG, "start recording : " + currentFile);
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
@@ -249,7 +385,7 @@ public class AudioPlayerRecorder {
         } 
         catch (IOException e) 
         {
-            Log.e(LOG_TAG, "prepare() failed");
+            Log.e(TAG, "prepare() failed");
         }
 
         mRecorder.start();
@@ -257,7 +393,7 @@ public class AudioPlayerRecorder {
 
     public static void stopRecording() 
     {
-    	Log.d(LOG_TAG, "stop recording");
+    	Log.d(TAG, "stop recording");
         mRecorder.stop();
         mRecorder.release();
         mRecorder = null;
@@ -269,7 +405,7 @@ public class AudioPlayerRecorder {
     	File file = new File(currentFile);
     	if(!file.delete())
     	{
-    		Log.e(LOG_TAG, "Couldn't delete file : " + currentFile);
+    		Log.e(TAG, "Couldn't delete file : " + currentFile);
     	}
     }
     
@@ -277,8 +413,34 @@ public class AudioPlayerRecorder {
     {
     	final float speed = 0.010f;
 
-    	Log.d(LOG_TAG, "fade volume out");
-    	if(mPlayer != null)
+    	Log.d(TAG, "fade volume out");
+        if(useVLC)
+        {
+            new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        LibVLC vlc = LibVlcUtil.getLibVlcInstance();
+                        int originalVolume = vlc.getVolume();
+                        while(volume >= 0 && vlc.isPlaying())
+                        {
+                            volume -= speed;
+                            vlc.setVolume((int)(volume * originalVolume));
+                            try {
+                                Thread.sleep(25);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        vlc.stop();
+                        vlc.setVolume(originalVolume);
+                        volume = 1;
+                    } catch (LibVlcException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        }
+    	else if(mPlayer != null)
     	{
     		new Thread(new Runnable() {
     	        public void run() {
@@ -298,9 +460,40 @@ public class AudioPlayerRecorder {
     	    }).start();
     	}
     }
+
+    public static float getPlaybackRate()
+    {
+        if(useVLC)
+        {
+            return desiredPlaybackRate;
+        }
+        Log.e(TAG, "getPlaybackRate is only implemented for LibVLC");
+        return 1;
+    }
+
+    public static void setPlaybackRate(float rate)
+    {
+        if(useVLC)
+        {
+            try {
+                LibVlcUtil.getLibVlcInstance().setRate(rate);
+            } catch (LibVlcException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            desiredPlaybackRate = rate;
+            return;
+        }
+        Log.e(TAG, "setPlaybackRate is only implemented for LibVLC");
+    }
     
     static void setNumberOfLoops(int loops)
     {
+        if(useVLC)
+        {
+            Log.e(TAG, "setNumberOfLoops is only implemented for MediaPlayer");
+            return;
+        }
 		if(mPlayer != null)
 		{
 			mPlayer.setLooping(loops < 0);
@@ -313,25 +506,51 @@ public class AudioPlayerRecorder {
 
     public static void play()
     {
-    	Log.d(LOG_TAG, "play music");
-    	if(mPlayer != null)
+    	Log.d(TAG, "play music");
+        if(useVLC) {
+            try {
+                LibVlcUtil.getLibVlcInstance().play();
+            } catch (LibVlcException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    	else if(mPlayer != null)
     			mPlayer.start();
     }
 
     public static void pause()
     {
-    	Log.d(LOG_TAG, "pause music");
-    	if(mPlayer != null)
+    	Log.d(TAG, "pause music");
+        if(useVLC) {
+            try {
+                LibVlcUtil.getLibVlcInstance().pause();
+            } catch (LibVlcException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    	else if(mPlayer != null)
     		if(mPlayer.isPlaying())
     			mPlayer.pause();
     }
     
     public static void restart()
     {
-    	Log.d(LOG_TAG, "restart music");
+    	Log.d(TAG, "restart music");
     	//stopPlaying();
     	//startPlaying(file);
-    	if(mPlayer != null)
+
+        if(useVLC) {
+            try {
+                LibVlcUtil.getLibVlcInstance().stop();
+                LibVlcUtil.getLibVlcInstance().playIndex(0);
+            } catch (LibVlcException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        else if(mPlayer != null)
     		mPlayer.seekTo(0);
     }
     
@@ -340,7 +559,7 @@ public class AudioPlayerRecorder {
         MediaPlayer tmpPlayer = new MediaPlayer();
         tmpPlayer.setOnErrorListener(new OnErrorListener() {
             public boolean onError(MediaPlayer mp, int what, int extra) {
-                Log.e(LOG_TAG, "Error with MediaPlayer (getSoundDuration), stopping it. What : " 
+                Log.e(TAG, "Error with MediaPlayer (getSoundDuration), stopping it. What : "
             + (what == MediaPlayer.MEDIA_ERROR_UNKNOWN ? "Unknown" : "Server died")
             + ", extra : "
             + (extra == MediaPlayer.MEDIA_ERROR_IO ? "IO Error" : 
@@ -410,7 +629,7 @@ public class AudioPlayerRecorder {
             } 
             catch (IOException e) 
             {
-                Log.e(LOG_TAG, "MediaMetadataRetriever from local failed, exception : " + e.getLocalizedMessage());
+                Log.e(TAG, "MediaMetadataRetriever from local failed, exception : " + e.getLocalizedMessage());
             }
         }
         //try to load from package using assets
@@ -428,12 +647,12 @@ public class AudioPlayerRecorder {
                 }
                 else
                 {
-                    Log.e(LOG_TAG, "No sound file matching : " + currentFile);
+                    Log.e(TAG, "No sound file matching : " + currentFile);
                 }
             } 
             catch (IOException e) 
             {
-                Log.e(LOG_TAG, "MediaMetadataRetriever failed from resources, exception : " + e.getLocalizedMessage());
+                Log.e(TAG, "MediaMetadataRetriever failed from resources, exception : " + e.getLocalizedMessage());
             }
         }
         return retriever;
