@@ -271,19 +271,19 @@ Ref* loadObjectFromFile(const char* name, bool resource)
 
 void deleteFile(const char* name)
 {
-    const char* path = getLocalPath(name).c_str();
+    std::string path = getLocalPath(name);
 #if VERBOSE_SAVE_PLIST
-    int result = unlink(path);
+    int result = unlink(path.c_str());
     if(result == 0)
     {
-        CCLOG("file %s removed successfully", path);
+        CCLOG("file %s removed successfully", path.c_str());
     }
     else
     {
-        CCLOG("Problem removing file %s, error : %d", path, errno);
+        CCLOG("Problem removing file %s, error : %d", path.c_str(), errno);
     }
 #else
-    unlink(path);
+    unlink(path.c_str());
 #endif
 }
 NS_FENNEX_END
