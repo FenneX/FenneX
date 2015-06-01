@@ -153,6 +153,7 @@ static AudioPlayerRecorderImpl* _sharedAudio = nil;
         audioPlayer = nil;
         
         desiredPlaybackRate = 1;
+        desiredLoops = 0;
 		error = nil;
         
         [self setRecordEnabled:NO];
@@ -315,6 +316,12 @@ static AudioPlayerRecorderImpl* _sharedAudio = nil;
 	if(audioPlayer != nil)
 	{
         audioPlayer.currentTime = startTime;
+        if(desiredLoops > 0)
+        {
+            //iOS BUG: according to documentation, we shouldn't do the "+ 1".
+            audioPlayer.numberOfLoops = desiredLoops + 1;
+            desiredLoops = 0;
+        }
         if(desiredPlaybackRate != 1)
         {
             audioPlayer.enableRate = YES;
@@ -339,10 +346,7 @@ static AudioPlayerRecorderImpl* _sharedAudio = nil;
 
 - (void) setNumberOfLoops:(int)loops
 {
-    if(audioPlayer != nil)
-    {
-        audioPlayer.numberOfLoops = loops;
-    }
+    desiredLoops = loops;
 }
 
 - (float) playIndependentFile:(NSString*)file
@@ -375,7 +379,12 @@ static AudioPlayerRecorderImpl* _sharedAudio = nil;
     if(player != nil)
     {
         player.delegate = self;
-        player.numberOfLoops = 0;
+        if(desiredLoops > 0)
+        {
+            //iOS BUG: according to documentation, we shouldn't do the "+ 1".
+            player.numberOfLoops = desiredLoops + 1;
+            desiredLoops = 0;
+        }
         if(desiredPlaybackRate != 1)
         {
             player.enableRate = YES;
@@ -425,6 +434,12 @@ static AudioPlayerRecorderImpl* _sharedAudio = nil;
 
 - (void) play
 {
+    if(desiredLoops > 0)
+    {
+        //iOS BUG: according to documentation, we shouldn't do the "+ 1".
+        audioPlayer.numberOfLoops = desiredLoops + 1;
+        desiredLoops = 0;
+    }
     if(desiredPlaybackRate != 1)
     {
         audioPlayer.enableRate = YES;

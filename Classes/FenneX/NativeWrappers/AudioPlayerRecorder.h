@@ -104,6 +104,7 @@ public:
     float getPlaybackRate();
     void setPlaybackRate(float rate);
     
+    //Must be called before playing a sound. The number of loops is reset at each play sound
     void setNumberOfLoops(int loops);
     
     /* Get the file metadata, if available :

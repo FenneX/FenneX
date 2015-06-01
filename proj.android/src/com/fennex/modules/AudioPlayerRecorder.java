@@ -25,6 +25,8 @@ THE SOFTWARE.
 package com.fennex.modules;
 
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 import android.content.pm.PackageManager;
@@ -37,6 +39,7 @@ import android.media.MediaPlayer.OnPreparedListener;
 import android.media.MediaRecorder;
 import android.media.MediaPlayer;
 
+import org.videolan.libvlc.EventHandler;
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.LibVlcException;
 import org.videolan.libvlc.LibVlcUtil;
@@ -49,7 +52,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 
-public class AudioPlayerRecorder {
+public class AudioPlayerRecorder extends Handler {
     private static final String TAG = "AudioPlayerRecorder";
 
     private static MediaRecorder mRecorder = null;
@@ -64,6 +67,15 @@ public class AudioPlayerRecorder {
     private static float desiredPlaybackRate; //Playback rate must be kept between sessions (when restarting video)
     
     public static native void notifyPlayingSoundEnded();
+    private static AudioPlayerRecorder instance = null;
+    public static AudioPlayerRecorder getInstance()
+    {
+        if(instance == null)
+        {
+            instance = new AudioPlayerRecorder();
+        }
+        return instance;
+    }
 
     public static void setUseVLC(boolean use)
     {
@@ -116,7 +128,6 @@ public class AudioPlayerRecorder {
 
     public static void startPlaying(String fileName) 
     {
-    	repeatTimes = 0;
         if(useVLC) {
             LibVLC vlc = null;
             try {
@@ -269,32 +280,29 @@ public class AudioPlayerRecorder {
         }
         return fullName;
     }
-
-
-    private static String startVLCPlayer(LibVLC player, String file, boolean isMain)
+    private static class StartVLCRunnable implements Runnable
     {
-        //try to load from data
-        String relativeName = file;
-        if(getFileExtension(file) == null) relativeName += ".mp3";
-        String fullName = NativeUtility.getLocalPath() + java.io.File.separator + relativeName;
+        private LibVLC player;
+        private String fullName;
+        private boolean isMain;
+        public StartVLCRunnable(LibVLC _player, String _fullName, boolean _isMain) {
+            this.player = _player;
+            this.fullName = _fullName;
+            this.isMain = _isMain;
+        }
 
-        //Use Environment.getExternalStorageDirectory().toString() ?
-        Log.d(TAG, "start MediaPlayer from local : " + fullName);
-        File target = new File(fullName);
-        //Try to load from local path
-        if(target != null && target.exists())
-        {
+        public void run() {
             try
             {
+                File target = new File(fullName);
                 FileInputStream stream = new FileInputStream(target);
-                if(isMain)
-                    input = stream;
-
+                if(isMain) input = stream;
                 MediaList list = player.getPrimaryMediaList();
                 list.clear();
-                //EventHandler.getInstance().addHandler(getInstance());
-                //list.getEventHandler().addHandler(getInstance());
                 Media m = new Media(player, LibVLC.PathToURI(fullName));
+                //Native crash for no good reason, as if the instance is invalid (it has been init by LibVLC before)
+                EventHandler.getInstance().addHandler(getInstance());
+                list.getEventHandler().addHandler(getInstance());
                 list.add(m);
                 player.setMediaList(list);
                 player.playIndex(0);
@@ -309,6 +317,25 @@ public class AudioPlayerRecorder {
                 Log.e(TAG, "prepare() from local failed, exception : " + e.getLocalizedMessage());
             }
         }
+    }
+
+    private static String startVLCPlayer(LibVLC player, String file, boolean isMain)
+    {
+        //try to load from data
+        String relativeName = file;
+        if(getFileExtension(file) == null) relativeName += ".mp3";
+        String fullName = NativeUtility.getLocalPath() + java.io.File.separator + relativeName;
+
+        //Use Environment.getExternalStorageDirectory().toString() ?
+        Log.d(TAG, "start MediaPlayer from local : " + fullName);
+        File target = new File(fullName);
+        //Try to load from local path
+        if(target != null && target.exists())
+        {
+            //We have to implement a runnable to pass data, and because EventHandler can only be accessed on UI Thread
+            StartVLCRunnable runnable = new StartVLCRunnable(player, fullName, isMain);
+            NativeUtility.getMainActivity().runOnUiThread(runnable);
+        }
         //try to load from package using assets
         else
         {
@@ -316,6 +343,7 @@ public class AudioPlayerRecorder {
             Log.d(TAG, "start MediaPlayer from resources : " + relativeName);
             try
             {
+                //VLC can't read directly from package. Copy the file to files and read it from there
                 AssetFileDescriptor descriptor = am.openFd(relativeName);
                 FileDescriptor fileDesc = descriptor.getFileDescriptor();
                 if(fileDesc.valid())
@@ -489,19 +517,11 @@ public class AudioPlayerRecorder {
     
     static void setNumberOfLoops(int loops)
     {
-        if(useVLC)
-        {
-            Log.e(TAG, "setNumberOfLoops is only implemented for MediaPlayer");
-            return;
-        }
 		if(mPlayer != null)
 		{
 			mPlayer.setLooping(loops < 0);
 		}
-    	if(loops >= 0)
-    	{
-    		repeatTimes = loops;
-    	}
+    	repeatTimes = loops;
     }
 
     public static void play()
@@ -510,6 +530,7 @@ public class AudioPlayerRecorder {
         if(useVLC) {
             try {
                 LibVlcUtil.getLibVlcInstance().play();
+                setPlaybackRate(desiredPlaybackRate);
             } catch (LibVlcException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -666,5 +687,56 @@ public class AudioPlayerRecorder {
     public static String getTitle(String file)
     {
         return getMetadata(file).extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+    }
+
+    @Override
+    public void handleMessage(Message msg)
+    {
+        int event = msg.getData().getInt("event", -1);
+        if(event == EventHandler.MediaPlayerEncounteredError)
+        {
+            NativeUtility.getMainActivity().runOnGLThread(new Runnable()
+            {
+                public void run()
+                {
+                    notifyPlayingSoundEnded();
+                }
+            });
+        }
+        else if(event == EventHandler.MediaPlayerEndReached)
+        {
+            try {
+                LibVLC vlc = LibVlcUtil.getLibVlcInstance();
+                if(repeatTimes != 0)
+                {
+                    vlc.playIndex(0);
+                    setPlaybackRate(desiredPlaybackRate);
+                    if(repeatTimes > 0) repeatTimes--;
+                }
+                else
+                {
+                    NativeUtility.getMainActivity().runOnGLThread(new Runnable()
+                    {
+                        public void run()
+                        {
+                            notifyPlayingSoundEnded();
+                        }
+                    });
+                }
+            } catch (LibVlcException e) {
+                e.printStackTrace();
+            }
+        }
+        else if(event == EventHandler.HardwareAccelerationError)
+        {
+            Log.i(TAG, "Hardware Acceleration Error, disabling hardware acceleration");
+            try {
+                LibVLC vlc = LibVlcUtil.getLibVlcInstance();
+                vlc.setHardwareAcceleration(0);
+                vlc.playIndex(0);
+            } catch (LibVlcException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
