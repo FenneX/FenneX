@@ -38,7 +38,6 @@
 	NSError *error;
 	int recordEncoding;
 	float desiredPlaybackRate;
-    int desiredLoops;
     
 	enum
 	{

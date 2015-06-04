@@ -116,6 +116,7 @@ float AudioPlayerRecorder::play(const std::string& file, CCObject* linkTo, bool 
 	}
 	else
 	{
+	    interruptLoop = true;
 	    if(linkTo == link && this->isPlaying())
 	    {
 	        this->stopPlaying();
@@ -144,6 +145,7 @@ float AudioPlayerRecorder::play(const std::string& file, CCObject* linkTo, bool 
 
 void AudioPlayerRecorder::stopPlaying(EventCustom* event)
 {
+	interruptLoop = true;
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"stopPlaying", "()V"), "Function doesn't exist");
 	minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID);
@@ -173,6 +175,7 @@ void AudioPlayerRecorder::play()
 
 void AudioPlayerRecorder::pause()
 {
+	interruptLoop = true;
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"pause", "()V"), "Function doesn't exist");
 	minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID);
@@ -181,6 +184,7 @@ void AudioPlayerRecorder::pause()
 
 void AudioPlayerRecorder::restart()
 {
+	interruptLoop = true;
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"restart", "()V"), "Function doesn't exist");
 	minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID);
@@ -210,14 +214,6 @@ void AudioPlayerRecorder::setPlaybackRate(float rate)
 	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"setPlaybackRate", "(F)V"), "Function doesn't exist");
 	minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, (jfloat)rate);
     minfo.env->DeleteLocalRef(minfo.classID);
-}
-
-void AudioPlayerRecorder::setNumberOfLoops(int loops)
-{
-	JniMethodInfo minfo;
-	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"setNumberOfLoops", "(I)V"), "Function doesn't exist");
-	minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, (jint)loops);
-	minfo.env->DeleteLocalRef(minfo.classID);
 }
 
 float AudioPlayerRecorder::getSoundDuration(std::string file)

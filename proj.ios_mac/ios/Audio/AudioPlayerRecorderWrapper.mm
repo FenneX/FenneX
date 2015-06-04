@@ -102,6 +102,7 @@ float AudioPlayerRecorder::play(const std::string& file, CCObject* linkTo, bool 
     }
     else
     {
+        interruptLoop = true;
         if(linkTo == link && this->isPlaying())
         {
             this->stopPlaying();
@@ -127,6 +128,7 @@ float AudioPlayerRecorder::play(const std::string& file, CCObject* linkTo, bool 
 
 void AudioPlayerRecorder::stopPlaying(EventCustom* event)
 {
+    interruptLoop = true;
     [[AudioPlayerRecorderImpl sharedAudio] stopPlaying];
     link = NULL; //don't call setLink to avoid infinite recursion
     this->setPath("");
@@ -146,11 +148,13 @@ void AudioPlayerRecorder::play()
 
 void AudioPlayerRecorder::pause()
 {
+    interruptLoop = true;
     [[AudioPlayerRecorderImpl sharedAudio] pause];    
 }
 
 void AudioPlayerRecorder::restart()
 {
+    interruptLoop = true;
     [[AudioPlayerRecorderImpl sharedAudio] restart];    
 }
 
@@ -167,11 +171,6 @@ float AudioPlayerRecorder::getPlaybackRate()
 void AudioPlayerRecorder::setPlaybackRate(float rate)
 {
     [AudioPlayerRecorderImpl sharedAudio].playbackRate = rate;
-}
-
-void AudioPlayerRecorder::setNumberOfLoops(int loops)
-{
-    [[AudioPlayerRecorderImpl sharedAudio] setNumberOfLoops:loops];
 }
 
 CCDictionary* AudioPlayerRecorder::getFileMetadata(const std::string& path)

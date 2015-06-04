@@ -104,8 +104,12 @@ public:
     float getPlaybackRate();
     void setPlaybackRate(float rate);
     
-    //Must be called before playing a sound. The number of loops is reset at each play sound
-    void setNumberOfLoops(int loops);
+    //The number of loops is reset at each play sound, and can be called before or after play
+    //Set loops to -1 to have infinite looping
+    void setNumberOfLoops(int loops, float pauseBetween = 0);
+    
+    //FOR INTERNAL USE
+    void onSoundEnded();
     
     /* Get the file metadata, if available :
         - Author (CCString)
@@ -125,12 +129,21 @@ protected:
     
     Ref* noLinkObject; //If a sound have no link, it is linked to this object so that everything works well
     Vector<EventListenerCustom*> listeners;
+    
+    //The number of remaining loops. Usually 0 for single play, otherwise -1 for infinite, or positive indicating the number remaining after current one
+    int loops;
+    
+    //The seconds of pause between loops. Any negative value is the same as 0
+    float pauseBetween;
+    
+    //Internal flag to signal to the looping mechanism with pause that the current play has been interrupted during the pause, and must not be played. It can be interrupted by an non-independant play, pause, restart or stopPlaying methods
+    bool interruptLoop;
 };
 #endif
 
 static inline void notifyPlayingSoundEnded()
 {
-    DelayedDispatcher::eventAfterDelay("PlayingSoundEnded", Dcreate(), 0.01);
+    AudioPlayerRecorder::sharedRecorder()->onSoundEnded();
 }
 
 #endif

@@ -61,7 +61,6 @@ public class AudioPlayerRecorder extends Handler {
     private static String currentFile = null;
     private static float volume = 1;
     private static String[] audioTypes = {"mp3", "3gp", "flac", "ogg", "wav"};
-    private static int repeatTimes = 0;
 
     public static boolean useVLC = false;
     private static float desiredPlaybackRate; //Playback rate must be kept between sessions (when restarting video)
@@ -160,15 +159,7 @@ public class AudioPlayerRecorder extends Handler {
             });
             mPlayer.setOnCompletionListener(new OnCompletionListener() {
                 public void onCompletion(MediaPlayer mp) {
-                    if(!mp.isLooping() && repeatTimes > 0)
-                    {
-                        mp.start();
-                        repeatTimes--;
-                    }
-                    else
-                    {
-                        notifyPlayingSoundEnded();
-                    }
+                    notifyPlayingSoundEnded();
                 }
             });
 
@@ -514,15 +505,6 @@ public class AudioPlayerRecorder extends Handler {
         }
         Log.e(TAG, "setPlaybackRate is only implemented for LibVLC");
     }
-    
-    static void setNumberOfLoops(int loops)
-    {
-		if(mPlayer != null)
-		{
-			mPlayer.setLooping(loops < 0);
-		}
-    	repeatTimes = loops;
-    }
 
     public static void play()
     {
@@ -566,13 +548,18 @@ public class AudioPlayerRecorder extends Handler {
             try {
                 LibVlcUtil.getLibVlcInstance().stop();
                 LibVlcUtil.getLibVlcInstance().playIndex(0);
+                setPlaybackRate(desiredPlaybackRate);
             } catch (LibVlcException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
-        else if(mPlayer != null)
-    		mPlayer.seekTo(0);
+        else if(mPlayer != null) {
+            mPlayer.seekTo(0);
+            if(!isPlaying()) {
+                play();
+            }
+        }
     }
     
     public static float getSoundDuration(String fileName)
@@ -705,27 +692,13 @@ public class AudioPlayerRecorder extends Handler {
         }
         else if(event == EventHandler.MediaPlayerEndReached)
         {
-            try {
-                LibVLC vlc = LibVlcUtil.getLibVlcInstance();
-                if(repeatTimes != 0)
+            NativeUtility.getMainActivity().runOnGLThread(new Runnable()
+            {
+                public void run()
                 {
-                    vlc.playIndex(0);
-                    setPlaybackRate(desiredPlaybackRate);
-                    if(repeatTimes > 0) repeatTimes--;
+                    notifyPlayingSoundEnded();
                 }
-                else
-                {
-                    NativeUtility.getMainActivity().runOnGLThread(new Runnable()
-                    {
-                        public void run()
-                        {
-                            notifyPlayingSoundEnded();
-                        }
-                    });
-                }
-            } catch (LibVlcException e) {
-                e.printStackTrace();
-            }
+            });
         }
         else if(event == EventHandler.HardwareAccelerationError)
         {
@@ -734,6 +707,7 @@ public class AudioPlayerRecorder extends Handler {
                 LibVLC vlc = LibVlcUtil.getLibVlcInstance();
                 vlc.setHardwareAcceleration(0);
                 vlc.playIndex(0);
+                setPlaybackRate(desiredPlaybackRate);
             } catch (LibVlcException e) {
                 e.printStackTrace();
             }
