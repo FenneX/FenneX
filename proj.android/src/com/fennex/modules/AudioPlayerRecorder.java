@@ -371,7 +371,11 @@ public class AudioPlayerRecorder extends Handler {
         }
         else if(mPlayer != null)
     	{
-    		mPlayer.stop();
+            if(mPlayer.isPlaying())
+            {
+                mPlayer.stop();
+            }
+
             mPlayer.release();
             if(input != null)
             {
@@ -473,7 +477,10 @@ public class AudioPlayerRecorder extends Handler {
 							e.printStackTrace();
 						}
     	    		}
-    	        	mPlayer.stop();
+                    if(mPlayer.isPlaying())
+                    {
+                        mPlayer.stop();
+                    }
     	        	volume = 1;
     	        }
     	    }).start();
