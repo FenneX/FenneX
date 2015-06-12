@@ -44,6 +44,15 @@ bool isPhone()
     return result;
 }
 
+void discardSplashScreen()
+{
+	JniMethodInfo minfo;
+	CCAssert(JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "discardSplashScreen", "()V"), "Function doesn't exist");
+
+	minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID);
+    minfo.env->DeleteLocalRef(minfo.classID);
+}
+
 std::string getLocalPath(const char* name)
 {
 	JniMethodInfo minfo;

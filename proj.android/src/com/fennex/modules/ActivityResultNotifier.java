@@ -28,6 +28,7 @@ import java.util.ArrayList;
 
 import org.cocos2dx.lib.Cocos2dxActivity;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,6 +41,7 @@ import android.widget.FrameLayout;
  */
 public abstract class ActivityResultNotifier extends Cocos2dxActivity implements MainActivityUtility
 {
+    protected Dialog splashDialog;
 	private ArrayList<ActivityResultResponder> responders;
 	private ArrayList<ActivityObserver> observers;
 	private boolean active = false;
@@ -53,6 +55,10 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+        if(getSplashScreenLayout() != -1) {
+            splashDialog = new SplashDialog(this, getSplashScreenLayout());
+            splashDialog.show();
+        }
 		super.onCreate(savedInstanceState);
     	NativeUtility.setMainActivity(this);
 		for(ActivityObserver observer : observers)
@@ -60,6 +66,14 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 			observer.onStateChanged(ActivityObserver.CREATE);
 		}
 	}
+
+    public void discardSplashDialog()
+    {
+        if(splashDialog != null) {
+            splashDialog.cancel();
+            splashDialog = null;
+        }
+    }
 	
 	@Override
 	public void addResponder(ActivityResultResponder responder) {

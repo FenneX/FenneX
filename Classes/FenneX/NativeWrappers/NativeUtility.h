@@ -16,6 +16,12 @@
 NS_FENNEX_BEGIN
 
 bool isPhone();
+
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+void discardSplashScreen();
+#endif
+
 std::string getLocalPath(const char* name);
 
 //Use AppName if you need to actually show it. Use package identifier if you need to save files for example, as it does not contain special characters

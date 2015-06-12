@@ -74,6 +74,11 @@ public class NativeUtility
 		return mainActivity;
 	}
 
+    public static void discardSplashScreen()
+    {
+        getMainActivity().discardSplashDialog();
+    }
+
     public static String getLocalPath()
     {
     	String localPath = getMainActivity().getFilesDir().getPath();
