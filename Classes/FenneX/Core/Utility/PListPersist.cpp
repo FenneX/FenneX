@@ -212,13 +212,13 @@ Ref* loadObjectFromFile(const char* name, bool resource)
 #if VERBOSE_LOAD_PLIST
     CCLOG("local path : %s", getLocalPath(name).c_str());
 #endif
-    unsigned char * charbuffer = NULL;
+    std::string charbuffer = "";
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     if(resource)
     {
         ssize_t bufferSize = 0;
         //Load file from apk
-        charbuffer = FileUtils::getInstance()->getFileData(name,"r", &bufferSize);
+        charbuffer = FileUtils::getInstance()->getStringFromFile(name);
     }
     std::string path = resource ? "" : getLocalPath(name);
 #else
@@ -229,10 +229,10 @@ Ref* loadObjectFromFile(const char* name, bool resource)
 #endif
     xml_parse_result parse_result;
     //If the file inside the apk doesn't exist, we load the local file.
-    if(charbuffer == NULL)
+    if(charbuffer.empty())
         parse_result = doc.load_file(path.c_str());
     else
-        parse_result = doc.load((char*)charbuffer);
+        parse_result = doc.load(charbuffer.c_str());
 #if VERBOSE_LOAD_PLIST
     CCLOG("parse result : %d", parse_result.status);
 #endif
