@@ -45,6 +45,7 @@ import android.media.ToneGenerator;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Vibrator;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
@@ -77,6 +78,11 @@ public class NativeUtility
     public static void discardSplashScreen()
     {
         getMainActivity().discardSplashDialog();
+    }
+
+    public static String getPublicPath()
+    {
+        return Environment.getExternalStorageDirectory().getAbsolutePath();
     }
 
     public static String getLocalPath()

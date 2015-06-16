@@ -40,6 +40,11 @@ bool isPhone()
     return [[UIDevice currentDevice] userInterfaceIdiom] != UIUserInterfaceIdiomPad;
 }
 
+std::string getPublicPath(const char* name)
+{
+    return std::string(getenv("HOME"))+"/Documents/"+name;
+}
+
 std::string getLocalPath(const char* name)
 {
     return std::string(getenv("HOME"))+"/Documents/"+name;

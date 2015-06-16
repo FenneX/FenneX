@@ -53,6 +53,19 @@ void discardSplashScreen()
     minfo.env->DeleteLocalRef(minfo.classID);
 }
 
+std::string getPublicPath(const char* name)
+{
+	JniMethodInfo minfo;
+	CCAssert(JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "getPublicPath", "()Ljava/lang/String;"), "Function doesn't exist");
+
+	jstring directory = (jstring)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID);
+
+    std::string path = JniHelper::jstring2string(directory) + "/" + name;
+	minfo.env->DeleteLocalRef(directory);
+	minfo.env->DeleteLocalRef(minfo.classID);
+	return path;
+}
+
 std::string getLocalPath(const char* name)
 {
 	JniMethodInfo minfo;

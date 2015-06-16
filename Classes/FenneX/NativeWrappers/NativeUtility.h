@@ -22,6 +22,12 @@ bool isPhone();
 void discardSplashScreen();
 #endif
 
+/* Return a public writable path on Android. On iOS, it is the same as getLocalPath
+ */
+std::string getPublicPath(const char* name);
+
+/* Return a local (inside the app) writable path.
+ */
 std::string getLocalPath(const char* name);
 
 //Use AppName if you need to actually show it. Use package identifier if you need to save files for example, as it does not contain special characters
