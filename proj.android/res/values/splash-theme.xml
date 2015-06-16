@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="white">#FFFFFFFF</color>
+    <style name="SplashTheme" parent="android:style/Theme.NoTitleBar.Fullscreen">
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowBackground">@color/white</item>
+    </style>
+</resources>
