@@ -61,8 +61,8 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-        if(getSplashScreenLayout() != -1) {
-            splashDialog = new SplashDialog(this, getSplashScreenLayout());
+        if(getSplashScreenLayout() != -1 && getSplashScreenImageID() != -1) {
+            splashDialog = new SplashDialog(this, getSplashScreenLayout(), getSplashScreenImageID());
             splashDialog.show();
             launchTime = SystemClock.elapsedRealtime();
         }

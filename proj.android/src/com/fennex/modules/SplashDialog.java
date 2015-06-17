@@ -3,29 +3,32 @@ package com.fennex.modules;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
+import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 
 /**
  * Created by Fradow on 12/06/15.
  */
 public class SplashDialog extends Dialog {
     private int activityID;
+    private int splashID;
     private Context context;
-    public SplashDialog(Context context, int activity) {
+    public SplashDialog(Context context, int activity, int splashImageID) {
         super(context, android.R.style.Theme_NoTitleBar_Fullscreen);
-        activityID = activity;
         this.context = context;
+        activityID = activity;
+        splashID = splashImageID;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LayoutInflater inflator=getLayoutInflater();
-        View view=inflator.inflate(activityID, null, false);
-        view.startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in));
-        setContentView(view);
+        setContentView(activityID);
+        //Fade in only the image, so the background is the right color
+        ImageView image = (ImageView)findViewById(splashID);
+        Animation myFadeInAnimation = AnimationUtils.loadAnimation(context, android.R.anim.fade_in);
+        image.startAnimation(myFadeInAnimation);
         setCancelable(false);
     }
 

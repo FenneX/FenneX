@@ -44,4 +44,6 @@ public interface MainActivityUtility
 
     //Return the ID of the splash screen layout, or -1 for no splash screen
     public int getSplashScreenLayout();
+    //Return the ID of the splash screen image, or -1 for no splash screen
+    public int getSplashScreenImageID();
 }
