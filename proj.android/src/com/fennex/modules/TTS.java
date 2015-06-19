@@ -107,12 +107,10 @@ public class TTS implements TextToSpeech.OnInitListener
 	}
 
 	@Override
-	public void onInit(int status) 
-	{
+	public void onInit(int status) {
 		isInit = true;
 		available = status == TextToSpeech.SUCCESS;
-		if(available && preinitQueue != null && engine != null)
-		{	
+		if(available && preinitQueue != null && engine != null) {
 			for(String s : preinitQueue)
 			{	
 				if(s == preinitQueue.get(preinitQueue.size()-1))
@@ -142,10 +140,8 @@ public class TTS implements TextToSpeech.OnInitListener
 		onTTSEnd();
 	}
 	
-	public boolean speakText(String[] text)
-	{
-		if(isInit && available)
-		{			
+	public boolean speakText(String[] text) {
+		if(isInit && available && engine != null) {
 			for(String item : text)
 			{
 
@@ -176,15 +172,15 @@ public class TTS implements TextToSpeech.OnInitListener
 		return false;
 	}
 	
-	public boolean isSpeaking()
-	{
-		return engine.isSpeaking();
+	public boolean isSpeaking() {
+		if(isInit && available && engine != null) {
+            return engine.isSpeaking();
+        }
+        return false;
 	}
 	
-	public void stopSpeakText()
-	{
-		if(isInit && available)
-		{
+	public void stopSpeakText() {
+		if(isInit && available && engine != null) {
 			engine.stop();
 		}
 	}
