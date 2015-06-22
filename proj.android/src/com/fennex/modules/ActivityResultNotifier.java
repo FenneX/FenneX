@@ -225,6 +225,10 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 	@Override
 	public void onStop()
 	{
+        if(splashDialog != null) {
+            splashDialog.cancel();
+            splashDialog = null;
+        }
 		super.onStop();
 		active = false;
 		for(ActivityObserver observer : observers)
@@ -246,6 +250,10 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 	@Override
 	public void onDestroy()
 	{
+        if(splashDialog != null) {
+            splashDialog.cancel();
+            splashDialog = null;
+        }
         for(ActivityResultResponder responder : responders)
         {
             responder.destroy();
