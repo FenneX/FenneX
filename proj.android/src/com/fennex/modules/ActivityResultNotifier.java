@@ -49,8 +49,9 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 	private boolean active = false;
 	public boolean isActive() { return active; }
 
-    //The minimum duration is the fade_in duration, default to 500, try to load from config
-    private long splashMinDuration = 500;
+    //The minimum duration is the fade_in duration, default to 500, try to load from config, plus a flat time after anim
+    final private long SPLASH_DURATION_AFTER_ANIM = 500;
+    private long splashMinDuration = 500 + SPLASH_DURATION_AFTER_ANIM;
     private long launchTime = 0;
 	
 	public ActivityResultNotifier()
@@ -67,7 +68,7 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
             launchTime = SystemClock.elapsedRealtime();
         }
 		super.onCreate(savedInstanceState);
-        splashMinDuration = getResources().getInteger(android.R.integer.config_longAnimTime);
+        splashMinDuration = getResources().getInteger(android.R.integer.config_longAnimTime) + SPLASH_DURATION_AFTER_ANIM;
     	NativeUtility.setMainActivity(this);
 		for(ActivityObserver observer : observers)
 		{
