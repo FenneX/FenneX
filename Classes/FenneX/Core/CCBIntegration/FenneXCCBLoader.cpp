@@ -183,12 +183,12 @@ Panel* loadCCBFromFileToFenneX(const char* file, const char* inPanel, int zIndex
             node->setScaleY(node->getScaleY()*usedScale);
             Node* parentNode = node;
             
-            for(auto node : node->getChildren())
+            for(auto nodeChild : node->getChildren())
             {
                 //Depth 1 is a special case too, because nodes don't have to be moved and the scale is not calculated the same way
-                if(isKindOfClass(node, Label))
+                if(isKindOfClass(nodeChild, Label))
                 {
-                    Label* label = (Label*)node;
+                    Label* label = (Label*)nodeChild;
                     label->setScale(label->getScale() / parentNode->getScale());
                     label->setSystemFontSize(label->getSystemFontSize() * parentNode->getScale());
                     /*TTFConfig newConfig = label->getTTFConfig();
@@ -198,34 +198,34 @@ Panel* loadCCBFromFileToFenneX(const char* file, const char* inPanel, int zIndex
                     CCLOG("label font : %s, size : %f, scale : %f, parent node scale : %f, dimensions : %f, %f, depth 1", label->getSystemFontName().c_str(), label->getSystemFontSize(), label->getScale(), parentNode->getScale(), label->getDimensions().width, label->getDimensions().height);
 #endif
                 }
-                else if(isKindOfClass(node, CustomInput))
+                else if(isKindOfClass(nodeChild, CustomInput))
                 {
                     //input->setFontSize((float)input->getFontSize() / usedScale);
                     //input->setPreferredSize(Size(input->getPreferredSize().width / usedScale, input->getPreferredSize().height / usedScale));
                     //input->setFontSize((float)input->getFontSize() * parentNode->getScale());
 #if VERBOSE_LOAD_CCB
-                    CustomInput* input = (CustomInput*)node;
+                    CustomInput* input = (CustomInput*)nodeChild;
                     CCLOG("input font size : %d, parent node scale : %f, dimensions : %f, %f, depth 1", input->getFontSize() , parentNode->getScale(), input->getPreferredSize().width, input->getPreferredSize().height);
 #endif
                 }
-                else if(isKindOfClass(node, Sprite))
+                else if(isKindOfClass(nodeChild, Sprite))
                 {
-                    node->setScaleX(node->getScaleX() / usedScale);
-                    node->setScaleY(node->getScaleY() / usedScale);
+                    nodeChild->setScaleX(nodeChild->getScaleX() / usedScale);
+                    nodeChild->setScaleY(nodeChild->getScaleY() / usedScale);
                 }
-                else if(isKindOfClass(node, ui::Scale9Sprite))
+                else if(isKindOfClass(nodeChild, ui::Scale9Sprite))
                 {
-                    node->setScaleX(node->getScaleX() / usedScale);
-                    node->setScaleY(node->getScaleY() / usedScale);
-                    node->setContentSize(SizeMult(node->getContentSize(), usedScale));
+                    nodeChild->setScaleX(nodeChild->getScaleX() / usedScale);
+                    nodeChild->setScaleY(nodeChild->getScaleY() / usedScale);
+                    nodeChild->setContentSize(SizeMult(nodeChild->getContentSize(), usedScale));
                 }
-                else if(!node->getChildren().empty())//Panel
+                else if(!nodeChild->getChildren().empty())//Panel
                 {
-                    node->setScaleX(node->getScaleX() / usedScale);
-                    node->setScaleY(node->getScaleY() / usedScale);
-                    node->setContentSize(SizeMult(node->getContentSize(), usedScale));
+                    nodeChild->setScaleX(nodeChild->getScaleX() / usedScale);
+                    nodeChild->setScaleY(nodeChild->getScaleY() / usedScale);
+                    nodeChild->setContentSize(SizeMult(nodeChild->getContentSize(), usedScale));
                     //For depth 2 and more, the algorithm is the same
-                    resizeChildren(parentNode, node, usedScale, 2);
+                    resizeChildren(parentNode, nodeChild, usedScale, 2);
                 }
             }
         }
