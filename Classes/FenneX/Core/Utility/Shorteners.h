@@ -33,7 +33,7 @@ THE SOFTWARE.
 USING_NS_CC;
 
 NS_FENNEX_BEGIN
-#define isKindOfClass(obj,class) (dynamic_cast<class*>(obj) != NULL)
+#define isKindOfClass(obj,class) (dynamic_cast<class*>((Ref*)obj) != NULL)
 
 //Compensate for scale factor for image picked by user
 #define AUTO_SCALE (Fcreate(Director::getInstance()->getContentScaleFactor() ))
