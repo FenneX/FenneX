@@ -30,6 +30,8 @@ THE SOFTWARE.
 #include "FenneXMacros.h"
 #include "TMPPoint.h"
 #include "DelayedDispatcher.h"
+#include <string>
+#include <sstream>
 USING_NS_CC;
 
 NS_FENNEX_BEGIN
@@ -117,6 +119,15 @@ static inline float getTimeDifferenceMS(timeval& start, timeval& end)
     return ((((end.tv_sec - start.tv_sec)*1000.0f
              +end.tv_usec) - start.tv_usec) / 1000.0f);
 }
+
+//std::to_string isn't always defined on Android, use this method as a replacement.
+template < typename T > std::string to_string( const T& n )
+{
+    std::ostringstream stm;
+    stm << n ;
+    return stm.str();
+}
+
 /*
 class Shorteners : public Ref
 {
