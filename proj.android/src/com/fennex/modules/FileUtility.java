@@ -38,7 +38,8 @@ public class FileUtility {
         }
         return instance;
     }
-    static boolean lockFile(String filename) {
+
+    public static boolean lockFile(String filename) {
         boolean result = true;
         try {
             File fileBase = new File(filename);
@@ -56,7 +57,7 @@ public class FileUtility {
         return result;
     }
 
-    static String getLockedFileContents(String filename)
+    public static String getLockedFileContents(String filename)
     {
         RandomAccessFile file = getInstance().currentFiles.get(filename);
         if(file == null) return null;
@@ -72,7 +73,7 @@ public class FileUtility {
         return content;
     }
 
-    static boolean writeLockedFile(String filename, String content)
+    public static boolean writeLockedFile(String filename, String content)
     {
         RandomAccessFile file = getInstance().currentFiles.get(filename);
         if(file == null) return false;
@@ -90,7 +91,7 @@ public class FileUtility {
         return result;
     }
 
-    static void unlockFile(String filename) {
+    public static void unlockFile(String filename) {
         FileLock lock = getInstance().currentLocks.get(filename);
         RandomAccessFile file = getInstance().currentFiles.get(filename);
         Log.i("FileUtility", "Lock is: " + (lock.isValid() ? "valid" : "invalid"));
