@@ -269,6 +269,7 @@ static AudioPlayerRecorderImpl* _sharedAudio = nil;
 	if(audioPlayer)
 	{
 		[audioPlayer stop];
+        [audioPlayer setDelegate:nil];
 		[audioPlayer release];
         audioPlayer = nil;
 	}
@@ -446,6 +447,7 @@ static AudioPlayerRecorderImpl* _sharedAudio = nil;
     }
     else if(player != audioPlayer)
     {
+        [audioPlayer setDelegate:nil];
         [player autorelease];
     }
 }
