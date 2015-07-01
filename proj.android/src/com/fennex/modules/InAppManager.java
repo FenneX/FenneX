@@ -175,14 +175,18 @@ public class InAppManager implements ActivityResultResponder
 		        else 
 		        {
 		        	Purchase premiumPurchase = mInventory.getPurchase(productID);
+                    //Purchase state = 0 means purchased. 1 is canceled (allow to re-buy), 2 is refunded (allow to re-buy)
 		            if(premiumPurchase != null && verifyDeveloperPayload(premiumPurchase) && premiumPurchase.getPurchaseState() == 0)
 		            {
 		            	Log.d(TAG, "Restoring product");
 		                getInstance().notifyInAppEvent("ProductRestored", productID);
 		                return;
 		            }
-		            else
-		            	getInstance().notifyInAppEvent("ErrorTransactionFailure", productID);
+		            else if(premiumPurchase == null) {
+                        Log.d(TAG, "Error, product ID does not exist");
+                        getInstance().notifyInAppEvent("ErrorTransactionFailure", productID);
+                        return;
+                    }
 		        }
 		        if (mHelper != null) 
 		        	mHelper.flagEndAsync();
