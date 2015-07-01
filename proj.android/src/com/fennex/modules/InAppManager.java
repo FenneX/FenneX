@@ -182,11 +182,6 @@ public class InAppManager implements ActivityResultResponder
 		                getInstance().notifyInAppEvent("ProductRestored", productID);
 		                return;
 		            }
-		            else if(premiumPurchase == null) {
-                        Log.d(TAG, "Error, product ID does not exist");
-                        getInstance().notifyInAppEvent("ErrorTransactionFailure", productID);
-                        return;
-                    }
 		        }
 		        if (mHelper != null) 
 		        	mHelper.flagEndAsync();
