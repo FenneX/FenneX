@@ -453,7 +453,11 @@ public class InAppManager implements ActivityResultResponder
 		            	if(NativeUtility.getMainActivity().isConsumable(purchase.getSku()))
 		            	{
 		                	Log.d(TAG, "Purchase successful, consuming it, sku : " + purchase.getSku());
-		            		mHelper.consumeAsync(purchase, mConsumeFinishedListener);
+                            NativeUtility.getMainActivity().runOnUiThread(new Runnable() {
+                                public void run() {
+                                    mHelper.consumeAsync(purchase, mConsumeFinishedListener);
+                                }
+                            });
 		            	}
 		            	else
 		            	{
