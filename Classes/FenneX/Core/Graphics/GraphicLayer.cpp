@@ -1869,7 +1869,7 @@ bool GraphicLayer::touchAtPosition(Vec2 position, bool event)
     for(int i =  storedObjects->count() - 1; i >= 0; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
-        CCLOG("obj name: %s", obj->getName());
+        CCLOG("obj name: %s", obj->getName().c_str());
     }
 #endif
     for(int i =  storedObjects->count() - 1; i >= 0; i--)
