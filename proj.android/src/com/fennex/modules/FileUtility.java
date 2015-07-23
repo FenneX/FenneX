@@ -94,8 +94,8 @@ public class FileUtility {
     public static void unlockFile(String filename) {
         FileLock lock = getInstance().currentLocks.get(filename);
         RandomAccessFile file = getInstance().currentFiles.get(filename);
-        Log.i("FileUtility", "Lock is: " + (lock.isValid() ? "valid" : "invalid"));
         if(lock != null) {
+            if(!lock.isValid()) Log.i("FileUtility", "Lock is invalid for file : "+ filename);
             try {
                 lock.release();
                 file.close();
