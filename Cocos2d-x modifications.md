@@ -52,3 +52,4 @@ Cocos2d-x V3.3 Modifications
 * cocos2d/cocos/ui/UIEditBox/UIEditBoxImpl-android.cpp => change editBoxCallbackFunc to test back if it's a cancell key 
 * cocos2d/cocos/base/CCEventCustom.h/cpp => add EventCustom::create
 * cocos2d/cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHelper.java remove if (!sInited) condition in init procedure
+* cocos2d/external/unzip.h => change include to "platform/CCPlatformConfig.h"
