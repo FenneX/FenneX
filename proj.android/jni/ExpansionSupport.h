@@ -55,9 +55,9 @@ static inline void notifyServiceConnected()
     DelayedDispatcher::eventAfterDelay("DownloadServiceConnected", Dcreate(), 0.01);
 }
 
-static inline void notifyDownloadStateChanged(std::string status, int code)
+static inline void notifyDownloadStateChanged(std::string status, int code, std::string translationKey)
 {
-    DelayedDispatcher::eventAfterDelay("DownloadStateChanged", DcreateP(Screate(status), Screate("Status"), Icreate(code), Screate("Code"), NULL), 0.01);
+    DelayedDispatcher::eventAfterDelay("DownloadStateChanged", DcreateP(Screate(status), Screate("Status"), Icreate(code), Screate("Code"), Screate(translationKey), Screate("TranslationKey"), NULL), 0.01);
 }
 
 static inline void notifyDownloadCompleted()

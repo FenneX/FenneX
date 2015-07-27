@@ -97,7 +97,7 @@ public class ExpansionSupport extends DownloaderService implements ActivityObser
 	 * - 5 => notifyDownloadCompleted
 	 * - 7 => pausedByRequest => not implemented yet
 	 */
-	private native void notifyDownloadStateChanged(String status, int code); 
+	private native void notifyDownloadStateChanged(String status, int code, String translationKey);
 	
 	private native void notifyDownloadCompleted();
 	
@@ -336,20 +336,20 @@ public class ExpansionSupport extends DownloaderService implements ActivityObser
 		switch (newState)
 		{
 		case IDownloaderClient.STATE_IDLE:
-			notifyDownloadStateChanged("", -1);
+			notifyDownloadStateChanged("", -1, "");
 			break;
 	    case IDownloaderClient.STATE_FETCHING_URL:
 	    case IDownloaderClient.STATE_CONNECTING:
-			notifyDownloadStateChanged("Récupération des informations de téléchargement en cours ...", 1);
+			notifyDownloadStateChanged("Récupération des informations de téléchargement en cours ...", 1, "AC_Expansion_Infos");
 			break;
 	    case IDownloaderClient.STATE_DOWNLOADING:
-			notifyDownloadStateChanged("Téléchargement du contenu additionnel de l'application ...", 2);
+			notifyDownloadStateChanged("Téléchargement du contenu additionnel de l'application ...", 2, "AC_Expansion_Download");
 			break;
 	    case IDownloaderClient.STATE_COMPLETED:
 	    	notifyDownloadCompleted();
 			break;
 	    case IDownloaderClient.STATE_PAUSED_BY_REQUEST:
-			notifyDownloadStateChanged("", -1);
+			notifyDownloadStateChanged("", -1, "");
 			//We don't want to go into the details of those states yet, just draw a generic "no connexion"
 	    case IDownloaderClient.STATE_PAUSED_NETWORK_UNAVAILABLE:
 	    case IDownloaderClient.STATE_PAUSED_WIFI_DISABLED_NEED_CELLULAR_PERMISSION:
@@ -357,24 +357,24 @@ public class ExpansionSupport extends DownloaderService implements ActivityObser
 	    case IDownloaderClient.STATE_PAUSED_WIFI_DISABLED:
 	    case IDownloaderClient.STATE_PAUSED_NEED_WIFI:
 	    case IDownloaderClient.STATE_PAUSED_ROAMING:
-			notifyDownloadStateChanged("Aucune connexion réseau disponible, merci de réessayer après vous être connecté.", 3);
+			notifyDownloadStateChanged("Aucune connexion réseau disponible, merci de réessayer après vous être connecté.", 3, "AC_Expansion_NoConnexion");
 			break;
 	    case IDownloaderClient.STATE_PAUSED_NETWORK_SETUP_FAILURE:
 	    case IDownloaderClient.STATE_FAILED_FETCHING_URL:
-			notifyDownloadStateChanged("Un problème c'est produit pendant la récupération des informations de téléchargement, merci de réessayer plus tard", 5);
+			notifyDownloadStateChanged("Un problème c'est produit pendant la récupération des informations de téléchargement, merci de réessayer plus tard", 5, "AC_Expansion_ProblemInfos");
 			break;
 	    case IDownloaderClient.STATE_PAUSED_SDCARD_UNAVAILABLE:
-			notifyDownloadStateChanged("L'espace de stockage externe n'est pas disponible.", 4);
+			notifyDownloadStateChanged("L'espace de stockage externe n'est pas disponible.", 4, "AC_Expansion_StorageNotFound");
 			break;
 	    case IDownloaderClient.STATE_FAILED_UNLICENSED:
-			notifyDownloadStateChanged("Un problème c'est produit. Merci de ré-installer l'application depuis Google Play.", 5);
+			notifyDownloadStateChanged("Un problème c'est produit. Merci de ré-installer l'application depuis Google Play.", 5, "AC_Expansion_Reinstall");
 			break;
 	    case IDownloaderClient.STATE_FAILED_SDCARD_FULL:
-			notifyDownloadStateChanged("L'espace de stockage externe est plein. Merci de libérer de l'espace et réessayer.", 4);
+			notifyDownloadStateChanged("L'espace de stockage externe est plein. Merci de libérer de l'espace et réessayer.", 4, "AC_Expansion_StorageFull");
 			break;
 	    case IDownloaderClient.STATE_FAILED_CANCELED:
 	    case IDownloaderClient.STATE_FAILED:
-			notifyDownloadStateChanged("Un problème c'est produit. Merci de réessayer ultérieurement.", 5);
+			notifyDownloadStateChanged("Un problème c'est produit. Merci de réessayer ultérieurement.", 5, "AC_Expansion_Problem");
 			break;
 		}	
 	}
