@@ -76,6 +76,32 @@ void RawObject::setScaleY(const float newScale)
     this->getNode()->setScaleY(newScale);
 }
 
+void RawObject::setOpacity(GLubyte opacity)
+{
+    this->getNode()->setOpacity(opacity);
+}
+
+GLubyte RawObject::getOpacity()
+{
+    return this->getNode()->getOpacity();
+}
+
+void RawObject::setOpacityRecursive(GLubyte opacity)
+{
+    if(isKindOfClass(this, Panel))
+    {
+        for(int i = 0; i < ((Panel*)this)->getChildren()->count(); i++)
+        {
+            RawObject* target = (RawObject*)((Panel*)this)->getChildren()->objectAtIndex(i);
+            target->setOpacityRecursive(opacity);
+        }
+    }
+    else
+    {
+        this->getNode()->setOpacity(opacity);
+    }
+}
+
 CCDictionary* RawObject::getEventInfos()
 {
     CCDictionary* infos = CCDictionary::createWithDictionary(eventInfos);
@@ -104,7 +130,6 @@ void RawObject::addEventInfos(CCDictionary* infos)
         }
     }
 }
-
 
 void RawObject::removeEventInfo(std::string key)
 {

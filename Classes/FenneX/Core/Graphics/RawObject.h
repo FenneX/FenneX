@@ -55,6 +55,9 @@ public:
     void setScaleX(const float newScale);
     const float getScaleY();
     void setScaleY(const float newScale);
+    void setOpacity(GLubyte opacity);
+    GLubyte getOpacity();
+    void setOpacityRecursive(GLubyte opacity);
     
     CCDictionary* getEventInfos();//Warning : the returned CCDictionary is copied, changes will not affect RawObject
     //Will not copy Sender automatically. Do it manually if required
