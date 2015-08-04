@@ -318,25 +318,22 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 		NativeUtility.getMainActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				if(base != null && videoView != null)
-				{
-					if(useVLC)
-					{
+				if (base != null && videoView != null) {
+					if (useVLC) {
 						try {
 							LibVlcUtil.getLibVlcInstance().stop();
 						} catch (LibVlcException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-					}
-					else
-					{
-						((VideoView)videoView).stopPlayback();
+					} else {
+						((VideoView) videoView).stopPlayback();
 					}
 					base.removeAllViews();
 					mainFrame.removeView(base);
 				}
-			}});
+			}
+		});
 	}
 
 	public static float getPlaybackRate()
@@ -546,6 +543,16 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 			thumbPath = null;
 		}
 		return thumbPath;
+	}
+
+	public static boolean isValidVideo(String path)
+	{
+		int dotIndex = path.lastIndexOf(".");
+		if (dotIndex != -1) {
+			String fileExt = path.substring(dotIndex);
+			return videoExists(path) && Media.VIDEO_EXTENSIONS.contains(fileExt);
+		}
+		return false;
 	}
 	
 	public static boolean videoExists(String path)

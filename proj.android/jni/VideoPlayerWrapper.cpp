@@ -169,6 +169,19 @@ std::string VideoPlayer::getThumbnail(const std::string& path)
 	return thumbnailPath;
 }
 
+bool VideoPlayer::isValidVideo(const std::string& filePath)
+{
+	JniMethodInfo minfo;
+	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"isValidVideo", "(Ljava/lang/String;)Z"), "Function doesn't exist");
+
+	jstring stringArg = minfo.env->NewStringUTF(filePath.c_str());
+	bool result = minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID, stringArg);
+	minfo.env->DeleteLocalRef(minfo.classID);
+	minfo.env->DeleteLocalRef(stringArg);
+
+	return result;
+}
+
 bool VideoPlayer::videoExists(const std::string& file)
 {
 	JniMethodInfo minfo;

@@ -63,6 +63,9 @@ public:
     //May return NULL if there was a problem generating the thumbnail
     static std::string getThumbnail(const std::string& path);
     
+    //TODO : Add iOS implementation
+    static bool isValidVideo(const std::string& filePath);
+    
     //On iOS, always returns true for external videos and will notify VideoExists/VideoRemoved with a CCDictionary containing Path key with a CCString
     //For trimmed video (picked from library) on iOS and all video on Android, directly return the right value
     static bool videoExists(const std::string& file);

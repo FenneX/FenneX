@@ -109,6 +109,11 @@ std::string VideoPlayer::getThumbnail(const std::string& path)
     return thumbnailPath != nil ? [thumbnailPath UTF8String] : "";
 }
 
+bool VideoPlayer::isValidVideo(const std::string& filePath)
+{
+    return true;
+}
+
 bool VideoPlayer::videoExists(const std::string& file)
 {
     return [VideoPlayerImplIOS videoExists:[NSString stringWithUTF8String:file.c_str()]];
