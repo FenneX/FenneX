@@ -114,4 +114,15 @@ public class FileUtility {
         
         fileOrDirectory.delete();
     }
+
+    public static String[] getFilesInFolder(String folderPath)
+    {
+        File dir = new File(folderPath);
+        String[] files = new String[]{};
+        if(dir.exists() && dir.isDirectory())
+        {
+            files = dir.list();
+        }
+        return files;
+    }
 }

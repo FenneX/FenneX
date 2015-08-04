@@ -79,11 +79,33 @@ bool writeLockedFile(std::string filename, std::string content)
 void unlockFile(std::string filename)
 {
 	JniMethodInfo minfo;
-	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"unlockFile", "(Ljava/lang/String;)V"), "Function doesn't exist");
+	CCAssert(JniHelper::getStaticMethodInfo(minfo, CLASS_NAME,"unlockFile", "(Ljava/lang/String;)V"), "Function doesn't exist");
 	jstring jFilename = minfo.env->NewStringUTF(filename.c_str());
 	minfo.env->CallStaticVoidMethod(minfo.classID,
 									minfo.methodID,
 									jFilename);
     minfo.env->DeleteLocalRef(minfo.classID);
 	minfo.env->DeleteLocalRef(jFilename);
+}
+
+std::vector<std::string> getFilesInFolder(std::string folderPath)
+{
+	JniMethodInfo minfo;
+	CCAssert(JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "getFilesInFolder", "(Ljava/lang/String;)[Ljava/lang/String;"), "Function doesn't exist");
+	jstring jFolderPath = minfo.env->NewStringUTF(folderPath.c_str());
+	jobjectArray dataArray = (jobjectArray)minfo.env->CallStaticObjectMethod(minfo.classID,
+																			 minfo.methodID,
+																			 jFolderPath);
+	minfo.env->DeleteLocalRef(minfo.classID);
+	minfo.env->DeleteLocalRef(jFolderPath);
+	std::vector<std::string> info;
+	jsize count = count = minfo.env->GetArrayLength(dataArray);
+	for(int i = 0;i < count; i++) {
+		//Run through the array, retrieve each type and set it in a CCArray
+		jobject element = minfo.env->GetObjectArrayElement(dataArray, i);
+		info.push_back(JniHelper::jstring2string((jstring)element));
+		minfo.env->DeleteLocalRef(element);
+	}
+	minfo.env->DeleteLocalRef(dataArray);
+	return info;
 }

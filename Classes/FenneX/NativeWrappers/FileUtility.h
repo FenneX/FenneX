@@ -10,6 +10,7 @@
 #define ClassIt_FileUtility_h
 
 #include <string>
+#include <vector>
 
 /*Locking a file is useful on Android to lock a file to be sure other apps do not use it at the same time.
  Warning: it is NOT a way to lock file from other process in the same app.
@@ -27,5 +28,8 @@ bool writeLockedFile(std::string filename, std::string content);
 
 //Unlock a previously locked file
 void unlockFile(std::string filename);
+
+// Return all files from a folder in Android. Doesn't do anything on iOS, just return an empty vector.
+std::vector<std::string> getFilesInFolder(std::string folderPath);
 
 #endif

@@ -27,3 +27,9 @@ bool writeLockedFile(std::string filename, std::string content)
 void unlockFile(std::string filename)
 {
 }
+
+std::vector<std::string> getFilesInFolder(std::string folderPath)
+{
+    std::vector<std::string> newVector;
+    return newVector;
+}
