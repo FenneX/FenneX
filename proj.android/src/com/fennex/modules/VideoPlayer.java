@@ -30,6 +30,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.FrameLayout;
@@ -228,7 +229,8 @@ public class VideoPlayer extends Handler implements IVideoPlayer
     				video.setVideoURI(uri);
             		FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
             				VideoPlayer.isFullScreen ? (int) VideoPlayer.widthScreen : (int) VideoPlayer.localWidth, 
-            				VideoPlayer.isFullScreen ? (int) VideoPlayer.heightScreen : (int) VideoPlayer.localHeight);
+            				VideoPlayer.isFullScreen ? (int) VideoPlayer.heightScreen : (int) VideoPlayer.localHeight,
+							Gravity.CENTER);
             		lp.leftMargin = (int)(VideoPlayer.isFullScreen ? 0 : widthScreen - localX - (localWidth / 2) + 0.5);
             		lp.topMargin = (int)(VideoPlayer.isFullScreen ? 0 : heightScreen - localY - (localHeight / 2) + 0.5);
             		video.setLayoutParams(lp);
