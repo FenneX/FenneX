@@ -176,7 +176,7 @@ void launchYoutube()
     openUrl("http://www.youtube.fr/");
 }
 
-bool isPackageInstalled(std::string packageName)
+bool isPackageInstalled(const std::string& packageName)
 {
     return false;
 }
