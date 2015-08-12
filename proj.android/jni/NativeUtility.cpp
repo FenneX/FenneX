@@ -268,7 +268,7 @@ void launchYoutube()
     minfo.env->DeleteLocalRef(minfo.classID);
 }
 
-bool isPackageInstalled(std::string packageId)
+bool isPackageInstalled(const std::string& packageId)
 {
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "isPackageInstalled", "(Ljava/lang/String;)Z"), "Function doesn't exist");

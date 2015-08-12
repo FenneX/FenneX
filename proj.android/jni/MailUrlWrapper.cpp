@@ -63,7 +63,7 @@ void sendMail(const std::string& address, const std::string& subject, const std:
 	minfo.env->DeleteLocalRef(jmessage);
 }
 
-void sendBackgroundMail(const std::string& from, std::string& password, std::string& to, std::string& subject, std::string& message)
+void sendBackgroundMail(const std::string& from, const std::string& password, const std::string& to, const std::string& subject, const std::string& message)
 {
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "sendBackgroundMail", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V"), "Function doesn't exist");
