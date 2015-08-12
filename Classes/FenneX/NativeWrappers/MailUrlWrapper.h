@@ -25,13 +25,13 @@ THE SOFTWARE.
 #ifndef FenneX_MailUrlWrapper_h
 #define FenneX_MailUrlWrapper_h
 
-void openUrl(const char* url);
-void sendMail(const char* address, const char* subject, const char* message, const char* attachmentPlist = NULL);
+void openUrl(const std::string& url);
+void sendMail(const std::string& address, const std::string& subject, const std::string& message, const std::string& attachmentPlist = "");
 
 /*Only available on Android. It will only print a Log on iOS
  On Android, requires javamail-android jar files (mail, activation, additional).
  Get them from: https://code.google.com/p/javamail-android/downloads/list
 */
-void sendBackgroundMail(std::string from, std::string password, std::string to, std::string subject, std::string message);
+void sendBackgroundMail(const std::string& from, const std::string& password, const std::string& to, const std::string& subject, const std::string& message);
 
 #endif

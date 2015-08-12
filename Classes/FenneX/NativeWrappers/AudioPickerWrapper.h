@@ -31,9 +31,9 @@ USING_NS_FENNEX;
 
 //check if it's a supported platform
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-bool pickSound(const char* promptText, const char* saveName, const char* identifier);
+bool pickSound(const std::string& promptText, const std::string& saveName, const std::string& identifier);
 bool isAudioPickerExporting();
-const char* audioPickerCurrentExport();
+std::string audioPickerCurrentExport();
 void stopAudioPickerExport();
 #endif
 

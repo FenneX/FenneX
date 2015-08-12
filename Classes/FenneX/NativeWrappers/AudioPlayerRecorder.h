@@ -63,7 +63,7 @@ public:
     static void setUseVLC(bool useVLC);
 #endif
     
-    static float getSoundDuration(std::string file);
+    static float getSoundDuration(const std::string& file);
     static std::string getSoundsSavePath();
     
     //By default, recording is disabled (to avoid prompting for microphone on iOS)
@@ -87,9 +87,9 @@ public:
     bool isRecording();
     bool isPlaying();
     
-    void record(const std::string&  file, Ref* linkTo);
+    void record(const std::string& file, Ref* linkTo);
     void stopRecording();
-    float play(const std::string&  file, Ref* linkTo, bool independent = false); //return the duration of the file
+    float play(const std::string& file, Ref* linkTo, bool independent = false); //return the duration of the file
     void stopPlaying(EventCustom* event = NULL);
     void fadeVolumeOut();
     
@@ -123,7 +123,7 @@ protected:
     void init();
     Ref* link; //the object that required the record/play
     std::string path; //the current path being recorded/played
-    void setPath(std::string value);
+    void setPath(const std::string& value);
     void setLink(Ref* value);
     bool recordEnabled;
     

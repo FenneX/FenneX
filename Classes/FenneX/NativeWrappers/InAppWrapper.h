@@ -52,8 +52,8 @@ void initializePayements();
  */
 
 //Big difference between iOS and Android : iOS handle consumable/not consumable, whereas Android do not, you have to manually consume consumable, and never consume not consumables
-void inAppPurchaseProduct(const char* productID);
-void restoreTransaction(const char* productID);
+void inAppPurchaseProduct(const std::string& productID);
+void restoreTransaction(const std::string& productID);
 
 //should be done when the app exit for proper cleanup. Note : required for Android, not for iOS
 void releasePayements();

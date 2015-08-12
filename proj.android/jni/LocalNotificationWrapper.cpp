@@ -35,16 +35,16 @@ USING_NS_FENNEX;
 
 #define  CLASS_NAME "com/fennex/modules/LocalNotification"
 
-void scheduleNotification(float timeFromNow, const char* alertBody, const char* alertAction, const char* soundName, CCDictionary* userInfo)
+void scheduleNotification(float timeFromNow, const std::string& alertBody, const std::string& alertAction, const std::string& soundName, CCDictionary* userInfo)
 {
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"scheduleNotification", "(FLjava/lang/String;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)V"),"Function doesn't exist");
 
 	saveObjectToFile(userInfo, "userInfo.plist");
 
-	jstring stringArg1 = minfo.env->NewStringUTF(alertBody);
-	jstring stringArg2 = minfo.env->NewStringUTF(alertAction);
-	jstring stringArg3 = minfo.env->NewStringUTF(soundName);
+	jstring stringArg1 = minfo.env->NewStringUTF(alertBody.c_str());
+	jstring stringArg2 = minfo.env->NewStringUTF(alertAction.c_str());
+	jstring stringArg3 = minfo.env->NewStringUTF(soundName.c_str());
 	jobjectArray array = jobjectArrayFromCCDictionary(minfo.env, userInfo);
 	minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, (jfloat)timeFromNow, stringArg1, stringArg2, stringArg3, array);
 	minfo.env->DeleteLocalRef(minfo.classID);

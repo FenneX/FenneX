@@ -35,14 +35,14 @@
 USING_NS_CC;
 USING_NS_FENNEX;
 
-bool pickSound(const char* promptText, const char* saveName, const char* identifier)
+bool pickSound(const std::string& promptText, const std::string& saveName, const std::string& identifier)
 {
 #if !(TARGET_IPHONE_SIMULATOR)
     [[AudioPicker sharedPicker] initController];
-    [AudioPicker sharedPicker].controller.prompt = [NSString stringWithCString:promptText encoding:NSUTF8StringEncoding];
-    [AudioPicker sharedPicker].saveName = [NSString stringWithFormat:@"%s.m4a", saveName];
-    [AudioPicker sharedPicker].identifier = [NSString stringWithFormat:@"%s", identifier];
-    NSLog(@"Picking sound %s", saveName);
+    [AudioPicker sharedPicker].controller.prompt = [NSString stringWithCString:promptText.c_str() encoding:NSUTF8StringEncoding];
+    [AudioPicker sharedPicker].saveName = [NSString stringWithFormat:@"%s.m4a", saveName.c_str()];
+    [AudioPicker sharedPicker].identifier = [NSString stringWithFormat:@"%s", identifier.c_str()];
+    NSLog(@"Picking sound %s", saveName.c_str());
     if([AppController sharedController] != NULL)
     {
         [[AppController sharedController].viewController presentModalViewController:[AudioPicker sharedPicker].controller animated:YES];
@@ -50,7 +50,7 @@ bool pickSound(const char* promptText, const char* saveName, const char* identif
     }
     return false;
 #else
-    NSLog(@"Can't pick sound %s, simulator doesn't support it", saveName);
+    NSLog(@"Can't pick sound %s, simulator doesn't support it", saveName.c_str());
     return false;
 #endif
 }
@@ -60,7 +60,7 @@ bool isAudioPickerExporting()
     return [AudioPicker sharedPicker].isExporting;
 }
 
-const char* audioPickerCurrentExport()
+std::string audioPickerCurrentExport()
 {
     return isAudioPickerExporting() ? [[AudioPicker sharedPicker].saveName UTF8String] : NULL;
 }

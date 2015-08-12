@@ -33,7 +33,7 @@ USING_NS_CC;
 
 //Warning : only sound in bundle are supported
 //include CallbackEvent in the userInfo to have an event if the user do the action
-void scheduleNotification(float timeFromNow, const char* alertBody, const char* alertAction, const char* soundName, CCDictionary* userInfo);
+void scheduleNotification(float timeFromNow, const std::string& alertBody, const std::string& alertAction, const std::string& soundName, CCDictionary* userInfo);
 
 void cancelAllNotifications();
 

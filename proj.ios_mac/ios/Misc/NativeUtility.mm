@@ -40,12 +40,12 @@ bool isPhone()
     return [[UIDevice currentDevice] userInterfaceIdiom] != UIUserInterfaceIdiomPad;
 }
 
-std::string getPublicPath(const char* name)
+std::string getPublicPath(const std::string& name)
 {
     return std::string(getenv("HOME"))+"/Documents/"+name;
 }
 
-std::string getLocalPath(const char* name)
+std::string getLocalPath(const std::string& name)
 {
     return std::string(getenv("HOME"))+"/Documents/"+name;
 }
@@ -91,7 +91,7 @@ void preventIdleTimerSleep(bool prevent)
 }
 
 //will format the date in short format (example : 9/8/2010) according user local
-const char* formatDate(time_t date)
+std::string formatDate(time_t date)
 {
     NSDate *nsdate = [NSDate dateWithTimeIntervalSince1970:date];//"yyyy/MM/dd"
     NSDateFormatter *formatter = [[[NSDateFormatter alloc] init] autorelease];
@@ -101,7 +101,7 @@ const char* formatDate(time_t date)
     [formatter setTimeStyle:NSDateFormatterNoStyle];
     
     NSString *result = [formatter stringForObjectValue:nsdate];
-    return [result UTF8String];
+    return std::string([result UTF8String]);
 }
 
 float getDeviceVolume()

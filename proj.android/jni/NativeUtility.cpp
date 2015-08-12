@@ -53,7 +53,7 @@ void discardSplashScreen()
     minfo.env->DeleteLocalRef(minfo.classID);
 }
 
-std::string getPublicPath(const char* name)
+std::string getPublicPath(const std::string& name)
 {
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "getPublicPath", "()Ljava/lang/String;"), "Function doesn't exist");
@@ -66,7 +66,7 @@ std::string getPublicPath(const char* name)
 	return path;
 }
 
-std::string getLocalPath(const char* name)
+std::string getLocalPath(const std::string& name)
 {
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "getLocalPath", "()Ljava/lang/String;"), "Function doesn't exist");
@@ -114,11 +114,11 @@ std::string getUniqueIdentifier()
     return identifier;
 }
 
-void copyResourceFileToLocal(const char* path)
+void copyResourceFileToLocal(const std::string& path)
 {
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "copyResourceFileToLocal", "(Ljava/lang/String;)V"), "Function doesn't exist");
-    jstring jpath = minfo.env->NewStringUTF(path);
+    jstring jpath = minfo.env->NewStringUTF(path.c_str());
 	minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jpath);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(jpath);
@@ -167,12 +167,12 @@ void runGarbageCollector()
     minfo.env->DeleteLocalRef(minfo.classID);
 }
 
-const char * formatDate(time_t date)
+std::string formatDate(time_t date)
 {
 	tm* t = localtime(&date);
 	//We add 1 to to the month because it seems that january is 0, etc.
 	//TODO : use a native method to format according user locales
-	return ScreateF("%i/%i/%i", t->tm_mday, t->tm_mon+1, t->tm_year-100)->getCString();
+    return std::to_string(t->tm_mday) + "/" + std::to_string(t->tm_mon+1) + "/" + std::to_string(t->tm_year-100);
 }
 
 float getDeviceVolume()

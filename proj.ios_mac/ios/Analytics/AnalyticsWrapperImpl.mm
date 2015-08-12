@@ -32,9 +32,9 @@
 #import "GAIDictionaryBuilder.h"
 
 //Start and get agent methods
-void AnalyticsWrapper::GAStartSession(const char * apiKey)
+void AnalyticsWrapper::GAStartSession(const std::string& apiKey)
 {
-    [[GAI sharedInstance] trackerWithTrackingId:[NSString stringWithFormat:@"%s", apiKey]];
+    [[GAI sharedInstance] trackerWithTrackingId:[NSString stringWithFormat:@"%s", apiKey.c_str()]];
     if(!sharedInstance()->appVersion.empty())
     {
         GASetAppVersion(sharedInstance()->appVersion.c_str());
@@ -42,24 +42,24 @@ void AnalyticsWrapper::GAStartSession(const char * apiKey)
     }
 }
 
-const char * AnalyticsWrapper::GAGetGAAgentVersion()
+std::string AnalyticsWrapper::GAGetGAAgentVersion()
 {
     return [kGAIVersion UTF8String];
 }
 
-void AnalyticsWrapper::flurryStartSession(const char * apiKey) {
-    [Flurry startSession:[AnalyticXStringUtil nsstringFromCString:apiKey]];
+void AnalyticsWrapper::flurryStartSession(const std::string& apiKey) {
+    [Flurry startSession:[AnalyticXStringUtil nsstringFromCString:apiKey.c_str()]];
 }
 
-const char * AnalyticsWrapper::flurryGetFlurryAgentVersion() {
+std::string AnalyticsWrapper::flurryGetFlurryAgentVersion() {
     NSString *versionString = [Flurry getFlurryAgentVersion];
     return [AnalyticXStringUtil cstringFromNSString:versionString];
 }
 
 //GA methods
-void AnalyticsWrapper::GASetAppVersion(const char * version)
+void AnalyticsWrapper::GASetAppVersion(const std::string& version)
 {
-    [[[GAI sharedInstance] defaultTracker] set:kGAIAppVersion value:[NSString stringWithFormat:@"%s", version]];
+    [[[GAI sharedInstance] defaultTracker] set:kGAIAppVersion value:[NSString stringWithFormat:@"%s", version.c_str()]];
 }
 
 void AnalyticsWrapper::GASetSecureTransportEnabled(bool value)
@@ -77,18 +77,18 @@ void AnalyticsWrapper::GASetTrackExceptionsEnabled(bool value)
     [GAI sharedInstance].trackUncaughtExceptions = value;
 }
 
-void AnalyticsWrapper::GALogPageView(const char* pageName)
+void AnalyticsWrapper::GALogPageView(const std::string& pageName)
 {
-    [[[GAI sharedInstance] defaultTracker] set:kGAIScreenName value:[NSString stringWithFormat:@"%s", pageName]];
+    [[[GAI sharedInstance] defaultTracker] set:kGAIScreenName value:[NSString stringWithFormat:@"%s", pageName.c_str()]];
     [[[GAI sharedInstance] defaultTracker] send:[[GAIDictionaryBuilder createAppView]  build]];
 }
 
-void AnalyticsWrapper::GALogEvent(const char * eventName, const char* label, int value)
+void AnalyticsWrapper::GALogEvent(const std::string& eventName, const std::string& label, int value)
 {
     [[[GAI sharedInstance] defaultTracker]
      send:[[[GAIDictionaryBuilder createEventWithCategory:[NSString stringWithFormat:@"%s", !sharedInstance()->lastPageName.empty() ? sharedInstance()->lastPageName.c_str() : "NoScene"]
-                                                   action:[NSString stringWithFormat:@"%s", eventName]
-                                                    label:label != NULL ? [NSString stringWithFormat:@"%s", label] : NULL
+                                                   action:[NSString stringWithFormat:@"%s", eventName.c_str()]
+                                                    label:!label.empty() ? [NSString stringWithFormat:@"%s", label.c_str()] : NULL
                                                     value:[NSNumber numberWithInt:value]]
             set:@"start" forKey:kGAISessionControl]
            build]];
@@ -101,8 +101,8 @@ void AnalyticsWrapper::GAEndSession()
 
 
 //Flurry methods
-void AnalyticsWrapper::flurrySetAppVersion(const char * version) {
-    NSString *versionString = [AnalyticXStringUtil nsstringFromCString:version];
+void AnalyticsWrapper::flurrySetAppVersion(const std::string& version) {
+    NSString *versionString = [AnalyticXStringUtil nsstringFromCString:version.c_str()];
     [Flurry setAppVersion:versionString];
 }
 
@@ -118,25 +118,25 @@ void AnalyticsWrapper::flurryLogPageView() {
     [Flurry logPageView];
 }
 
-void AnalyticsWrapper::flurryLogEvent(const char * eventName) {
-    [Flurry logEvent:[AnalyticXStringUtil nsstringFromCString:eventName]];
+void AnalyticsWrapper::flurryLogEvent(const std::string& eventName) {
+    [Flurry logEvent:[AnalyticXStringUtil nsstringFromCString:eventName.c_str()]];
 }
 
-void AnalyticsWrapper::flurryLogEventWithParameters(const char * eventName, cocos2d::CCDictionary * parameters) {
+void AnalyticsWrapper::flurryLogEventWithParameters(const std::string& eventName, cocos2d::CCDictionary * parameters) {
     
-    [Flurry logEvent:[AnalyticXStringUtil nsstringFromCString:eventName] withParameters:[AnalyticXStringUtil nsDictionaryFromCCDictionary:parameters]];
+    [Flurry logEvent:[AnalyticXStringUtil nsstringFromCString:eventName.c_str()] withParameters:[AnalyticXStringUtil nsDictionaryFromCCDictionary:parameters]];
 }
 
-void AnalyticsWrapper::flurryLogEventTimed(const char * eventName, bool timed) {
-    [Flurry logEvent:[AnalyticXStringUtil nsstringFromCString:eventName] timed:timed];
+void AnalyticsWrapper::flurryLogEventTimed(const std::string& eventName, bool timed) {
+    [Flurry logEvent:[AnalyticXStringUtil nsstringFromCString:eventName.c_str()] timed:timed];
 }
 
-void AnalyticsWrapper::flurryLogEventWithParametersTimed(const char * eventName, cocos2d::CCDictionary * parameters, bool timed) {
-    [Flurry logEvent:[AnalyticXStringUtil nsstringFromCString:eventName] withParameters:[AnalyticXStringUtil nsDictionaryFromCCDictionary:parameters] timed:timed];
+void AnalyticsWrapper::flurryLogEventWithParametersTimed(const std::string& eventName, cocos2d::CCDictionary * parameters, bool timed) {
+    [Flurry logEvent:[AnalyticXStringUtil nsstringFromCString:eventName.c_str()] withParameters:[AnalyticXStringUtil nsDictionaryFromCCDictionary:parameters] timed:timed];
 }
 
-void AnalyticsWrapper::flurryEndTimedEventWithParameters(const char * eventName, cocos2d::CCDictionary * parameters) {
-    [Flurry endTimedEvent:[AnalyticXStringUtil nsstringFromCString:eventName] withParameters:[AnalyticXStringUtil nsDictionaryFromCCDictionary:parameters]];
+void AnalyticsWrapper::flurryEndTimedEventWithParameters(const std::string& eventName, cocos2d::CCDictionary * parameters) {
+    [Flurry endTimedEvent:[AnalyticXStringUtil nsstringFromCString:eventName.c_str()] withParameters:[AnalyticXStringUtil nsDictionaryFromCCDictionary:parameters]];
 }
 void AnalyticsWrapper::flurryEndSession() {
     //Android only

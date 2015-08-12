@@ -26,19 +26,19 @@
 #import "NSCCConverter.h"
 #import <UIKit/UIKit.h>
 
-void scheduleNotification(float timeFromNow, const char* alertBody, const char* alertAction, const char* soundName, CCDictionary* userInfo)
+void scheduleNotification(float timeFromNow, const std::string& alertBody, const std::string& alertAction, const std::string& soundName, CCDictionary* userInfo)
 {
     UILocalNotification* notif = [UILocalNotification new];
     notif.fireDate = [NSDate dateWithTimeIntervalSinceNow:timeFromNow];
-    notif.alertBody = alertBody != NULL ? [NSString stringWithCString:alertBody encoding:NSUTF8StringEncoding] : nil;
-    notif.alertAction = alertAction != NULL ? [NSString stringWithCString:alertAction encoding:NSUTF8StringEncoding] : nil;
+    notif.alertBody = !alertBody.empty() ? [NSString stringWithCString:alertBody.c_str() encoding:NSUTF8StringEncoding] : nil;
+    notif.alertAction = !alertAction.empty() ? [NSString stringWithCString:alertAction.c_str() encoding:NSUTF8StringEncoding] : nil;
     notif.userInfo = [NSCCConverter nsDictionaryFromCCDictionary:userInfo];
-    if(soundName != NULL)
+    if(!soundName.empty())
     {
-        if([[NSBundle mainBundle] pathForResource:[[NSString stringWithCString:soundName encoding:NSUTF8StringEncoding]stringByDeletingPathExtension] ofType:@"mp3"] != NULL)
+        if([[NSBundle mainBundle] pathForResource:[[NSString stringWithCString:soundName.c_str() encoding:NSUTF8StringEncoding]stringByDeletingPathExtension] ofType:@"mp3"] != NULL)
         {
             
-            notif.soundName = [NSString stringWithCString:soundName encoding:NSUTF8StringEncoding];
+            notif.soundName = [NSString stringWithCString:soundName.c_str() encoding:NSUTF8StringEncoding];
         }
         else
         {

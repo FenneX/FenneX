@@ -31,7 +31,7 @@ NSString* getNSString(std::string path)
     return [NSString stringWithFormat:@"%s", path.c_str()];
 }
 
-float AudioPlayerRecorder::getSoundDuration(std::string file)
+float AudioPlayerRecorder::getSoundDuration(const std::string& file)
 {
     return [AudioPlayerRecorderImpl getSoundDuration:[NSString stringWithUTF8String:file.c_str()]];
 }

@@ -26,14 +26,14 @@
 #include <string>
 #include "AppController.h"
 
-void openUrl(const char* url)
+void openUrl(const std::string& url)
 {
     [[UIApplication sharedApplication] openURL:
-     [NSURL URLWithString:[[NSString stringWithFormat:@"%s", url] stringByAddingPercentEscapesUsingEncoding:
+     [NSURL URLWithString:[[NSString stringWithFormat:@"%s", url.c_str()] stringByAddingPercentEscapesUsingEncoding:
                            NSUTF8StringEncoding]]];
 }
 
-void sendMail(const char* address, const char* subject, const char* message, const char* attachmentPlist)
+void sendMail(const std::string& address, const std::string& subject, const std::string& message, const std::string& attachmentPlist)
 {
     /* OLD alternate method to send a mail using mailto (which goes outside of the app)
     if(attachmentPlist == NULL)
@@ -47,11 +47,11 @@ void sendMail(const char* address, const char* subject, const char* message, con
     }
     else
     {*/
-    [[AppController sharedController] sendMail:[NSString stringWithUTF8String:address] subject:[NSString stringWithUTF8String:subject] message:[NSString stringWithUTF8String:message] attachment:attachmentPlist != NULL ? [NSString stringWithUTF8String:attachmentPlist] : NULL];
+    [[AppController sharedController] sendMail:[NSString stringWithUTF8String:address.c_str()] subject:[NSString stringWithUTF8String:subject.c_str()] message:[NSString stringWithUTF8String:message.c_str()] attachment:!attachmentPlist.empty() ? [NSString stringWithUTF8String:attachmentPlist.c_str()] : NULL];
     //}
 }
 
-void sendBackgroundMail(std::string from, std::string password, std::string to, std::string subject, std::string message)
+void sendBackgroundMail(const std::string& from, const std::string& password, const std::string& to, const std::string& subject, const std::string& message)
 {
     NSLog(@"Send Background Mail not implemented on iOS. Requested mail:\nFrom: %s\nTo: %s\nSubject: %s\n%s", from.c_str(), to.c_str(), subject.c_str(), message.c_str());
 }

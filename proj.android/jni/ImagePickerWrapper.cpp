@@ -30,12 +30,12 @@ THE SOFTWARE.
 
 USING_NS_FENNEX;
 
-bool pickImageFrom(const char* saveName, bool useCamera, int width, int height, const char* identifier, bool rescale, float thumbnailScale)
+bool pickImageFrom(const std::string& saveName, bool useCamera, int width, int height, const std::string& identifier, bool rescale, float thumbnailScale)
 {
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"pickImageFrom", "(Ljava/lang/String;ZIILjava/lang/String;FZ)Z"), "Function doesn't exist");
-	jstring jSaveName = minfo.env->NewStringUTF(saveName);
-	jstring jIdentifier = minfo.env->NewStringUTF(identifier);
+	jstring jSaveName = minfo.env->NewStringUTF(saveName.c_str());
+	jstring jIdentifier = minfo.env->NewStringUTF(identifier.c_str());
 	bool result = minfo.env->CallStaticBooleanMethod(minfo.classID,
 													 minfo.methodID,
 													 jSaveName,

@@ -24,11 +24,11 @@ void discardSplashScreen();
 
 /* Return a public writable path on Android. On iOS, it is the same as getLocalPath
  */
-std::string getPublicPath(const char* name);
+std::string getPublicPath(const std::string& name);
 
 /* Return a local (inside the app) writable path.
  */
-std::string getLocalPath(const char* name);
+std::string getLocalPath(const std::string& name);
 
 //Use AppName if you need to actually show it. Use package identifier if you need to save files for example, as it does not contain special characters
 std::string getAppName();
@@ -40,9 +40,8 @@ std::string getPackageIdentifier();
  */
 std::string getUniqueIdentifier();
 
-
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-void copyResourceFileToLocal(const char* path);
+void copyResourceFileToLocal(const std::string& path);
 #endif
 
 
@@ -63,7 +62,7 @@ void runGarbageCollector();
 #endif
 
 //will format the date in short format (example : 9/8/2010) according user local
-const char* formatDate(time_t date);
+std::string formatDate(time_t date);
 
 //Return a float between 0.0 (muted) and 1.0 (full volume)
 float getDeviceVolume();
@@ -99,7 +98,7 @@ bool openSystemSettings();
 void launchYoutube();
 
 //Return if a package is installed on android, return false on iOS
-bool isPackageInstalled(std::string packageName);
+bool isPackageInstalled(const std::string& packageName);
 
 //On iOS, those notifications will automatically start being thrown after getDeviceVolume has been called for the first time
 //On Android, they are always on

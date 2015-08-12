@@ -35,13 +35,13 @@ void initializePayements()
     [InAppPurchaseManager sharedManager];
 }
 
-void inAppPurchaseProduct(const char* productID)
+void inAppPurchaseProduct(const std::string& productID)
 {
-    [[InAppPurchaseManager sharedManager] buyProductIdentifier:[NSString stringWithFormat:@"%s", productID]];
+    [[InAppPurchaseManager sharedManager] buyProductIdentifier:[NSString stringWithFormat:@"%s", productID.c_str()]];
 }
 
 
-void restoreTransaction(const char* productID)
+void restoreTransaction(const std::string& productID)
 {
     [[InAppPurchaseManager sharedManager] restoreTransactions];
 }

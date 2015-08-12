@@ -216,7 +216,7 @@ void AudioPlayerRecorder::setPlaybackRate(float rate)
     minfo.env->DeleteLocalRef(minfo.classID);
 }
 
-float AudioPlayerRecorder::getSoundDuration(std::string file)
+float AudioPlayerRecorder::getSoundDuration(const std::string& file)
 {
 	JniMethodInfo minfo;
 

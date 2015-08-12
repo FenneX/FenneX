@@ -36,29 +36,29 @@ class AnalyticsWrapper
 public:
     static void init();
     //Start methods and agent version, specific to the platform since the token is different
-    static void GAStartSession(const char * apiKey);
-    static const char * GAGetGAAgentVersion();
-    static void flurryStartSession(const char * apiKey);
-    static const char * flurryGetFlurryAgentVersion();
+    static void GAStartSession(const std::string& apiKey);
+    static std::string GAGetGAAgentVersion();
+    static void flurryStartSession(const std::string& apiKey);
+    static std::string flurryGetFlurryAgentVersion();
     
     //Common methods
     //Call those methods before start session of each tracker
-    static void setAppVersion(const char * version);
+    static void setAppVersion(const std::string& version);
     
     //Call those methods after start session of each tracker
     static void setDebugLogEnabled(bool value);
     static void setSecureTransportEnabled(bool value);
     
     //Common usage methods
-    static void logPageView(const char* pageName); //log a timed scene event + pageview in flurry, pageview in GA
-    static void logEvent(const char* eventName, const char* label = NULL, int value = 0); // log eventName - Scene in Flurry, log eventName with the Scene as a category in GA
+    static void logPageView(const std::string& pageName); //log a timed scene event + pageview in flurry, pageview in GA
+    static void logEvent(const std::string& eventName, const std::string& label = "", int value = 0); // log eventName - Scene in Flurry, log eventName with the Scene as a category in GA
     static void endSession();
     
 private:
     //GA only methods
     
     //GA tracker methods (require start session)
-    static void GASetAppVersion(const char * version);
+    static void GASetAppVersion(const std::string& version);
     static void GASetSecureTransportEnabled(bool value);
     
     //GA shared methods (can be called before start session)
@@ -66,25 +66,25 @@ private:
     static void GASetTrackExceptionsEnabled(bool value);
     
     //Common usage methods
-    static void GALogPageView(const char* pageName);
-    static void GALogEvent(const char * eventName, const char* label = NULL, int value = 0); //The category is the current scene
+    static void GALogPageView(const std::string& pageName);
+    static void GALogEvent(const std::string& eventName, const std::string& label = "", int value = 0); //The category is the current scene
     static void GAEndSession();
     
     //Flurry only methods
-    static void flurrySetAppVersion(const char * version);
+    static void flurrySetAppVersion(const std::string& version);
     static void flurrySetDebugLogEnabled(bool value);// default is NO
     static void flurrySetSecureTransportEnabled(bool value);// set data to be sent over SSL, default is NO
     
     
     //Common usage methods
     static void flurryLogPageView(); //Only count the number on Flurry, the time and name is tracked via timed events
-    static void flurryLogEvent(const char * eventName);
-    static void flurryLogEventWithParameters(const char * eventName, cocos2d::CCDictionary * parameters);
+    static void flurryLogEvent(const std::string& eventName);
+    static void flurryLogEventWithParameters(const std::string& eventName, cocos2d::CCDictionary * parameters);
     
     //Required to keep track of time on scenes
-    static void flurryLogEventTimed(const char * eventName, bool timed);
-    static void flurryLogEventWithParametersTimed(const char * eventName, cocos2d::CCDictionary * parameters, bool timed);//On Android, the *parameters* will be ignored
-    static void flurryEndTimedEventWithParameters(const char * eventName, cocos2d::CCDictionary * parameters); // non-nil parameters will update the parameters
+    static void flurryLogEventTimed(const std::string& eventName, bool timed);
+    static void flurryLogEventWithParametersTimed(const std::string& eventName, cocos2d::CCDictionary * parameters, bool timed);//On Android, the *parameters* will be ignored
+    static void flurryEndTimedEventWithParameters(const std::string& eventName, cocos2d::CCDictionary * parameters); // non-nil parameters will update the parameters
     
     static void flurryEndSession();
     

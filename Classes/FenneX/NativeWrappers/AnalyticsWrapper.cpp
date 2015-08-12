@@ -44,10 +44,10 @@ void AnalyticsWrapper::init()
     sharedInstance()->appVersion = "";
 }
 
-void AnalyticsWrapper::setAppVersion(const char * version)
+void AnalyticsWrapper::setAppVersion(const std::string& version)
 {
     flurrySetAppVersion(version);
-    sharedInstance()->appVersion = std::string(version);
+    sharedInstance()->appVersion = version;
 }
 
 void AnalyticsWrapper::setDebugLogEnabled(bool value)
@@ -62,23 +62,23 @@ void AnalyticsWrapper::setSecureTransportEnabled(bool value)
     flurrySetSecureTransportEnabled(value);
 }
 
-void AnalyticsWrapper::logPageView(const char* pageName)
+void AnalyticsWrapper::logPageView(const std::string& pageName)
 {
     if(!sharedInstance()->lastPageName.empty())
     {
-        flurryEndTimedEventWithParameters(ScreateF("Scene: %s", sharedInstance()->lastPageName.c_str())->getCString(), NULL);
+        flurryEndTimedEventWithParameters("Scene: " + sharedInstance()->lastPageName, NULL);
     }
-    flurryLogEventTimed(ScreateF("Scene: %s", pageName)->getCString(), true);
+    flurryLogEventTimed("Scene: " + pageName, true);
     flurryLogPageView();
     GALogPageView(pageName);
     sharedInstance()->lastPageName = pageName;
 }
 
-void AnalyticsWrapper::logEvent(const char* eventName, const char* label, int value)
+void AnalyticsWrapper::logEvent(const std::string& eventName, const std::string& label, int value)
 {
     GALogEvent(eventName, label, value);
-    const char* fullFlurryName = ScreateF("%s - %s", eventName, !sharedInstance()->lastPageName.empty()? sharedInstance()->lastPageName.c_str() : "NoScene")->getCString();
-    if(label == NULL)
+    std::string fullFlurryName = eventName + " - " + (!sharedInstance()->lastPageName.empty()? sharedInstance()->lastPageName : "NoScene");
+    if(label.empty())
     {
         flurryLogEvent(fullFlurryName);
     }

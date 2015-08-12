@@ -1926,7 +1926,7 @@ bool GraphicLayer::touchObject(RawObject* obj, bool event, Vec2 position)
                     trackingInfo = (CCString*) obj->getEventInfos()->objectForKey(trackingInfo->getCString());
                 }
                 CCString* trackingLabel = (CCString*) obj->getEventInfos()->objectForKey("TrackingLabel");
-                AnalyticsWrapper::logEvent(trackingName->getCString(), trackingInfo != NULL ? trackingInfo->getCString() : trackingLabel != NULL ? trackingLabel->getCString() : NULL);
+                AnalyticsWrapper::logEvent(trackingName->_string, trackingInfo != NULL ? trackingInfo->getCString() : trackingLabel != NULL ? trackingLabel->_string : "");
             }
         }
         else if(!obj->getHelp().empty() && obj->getHelp()[0] != '\0')

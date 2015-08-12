@@ -208,7 +208,7 @@ void AudioPlayerRecorder::onSoundEnded()
     }
 }
 
-void AudioPlayerRecorder::setPath(std::string value)
+void AudioPlayerRecorder::setPath(const std::string& value)
 {
     if(path.compare(value) != 0)
     {

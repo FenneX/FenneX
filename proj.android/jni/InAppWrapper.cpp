@@ -59,21 +59,21 @@ void initializePayements()
 	}
 }
 
-void inAppPurchaseProduct(const char* productID)
+void inAppPurchaseProduct(const std::string& productID)
 {
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"buyProductIdentifier", "(Ljava/lang/String;)V"), "Function doesn't exist");
-    jstring jproductID = minfo.env->NewStringUTF(productID);
+    jstring jproductID = minfo.env->NewStringUTF(productID.c_str());
 	minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jproductID);
 	minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(jproductID);
 }
 
-void restoreTransaction(const char* productID)
+void restoreTransaction(const std::string& productID)
 {
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"restoreTransaction", "(Ljava/lang/String;)V"), "Function doesn't exist");
-    jstring jproductID = minfo.env->NewStringUTF(productID);
+    jstring jproductID = minfo.env->NewStringUTF(productID.c_str());
     LOGD("calling restore transactions ...");
 	minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jproductID);
 	minfo.env->DeleteLocalRef(minfo.classID);
