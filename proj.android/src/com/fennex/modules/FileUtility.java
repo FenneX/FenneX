@@ -42,6 +42,11 @@ public class FileUtility {
     public static boolean lockFile(String filename) {
         boolean result = true;
         try {
+            //Create parent directories recursively
+            if(filename.lastIndexOf("/") != -1) {
+                File directory = new File(filename.substring(0, filename.lastIndexOf("/") + 1));
+                directory.mkdirs();
+            }
             File fileBase = new File(filename);
             RandomAccessFile file = new RandomAccessFile(fileBase, "rwd");
             FileLock lock = file.getChannel().lock();
