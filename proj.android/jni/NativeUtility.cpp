@@ -66,16 +66,22 @@ std::string getPublicPath(const std::string& name)
 	return path;
 }
 
+//Since we use this method VERY often, cache the result instead of doing a JNI Call every time
+std::string localPathCache = "";
+
 std::string getLocalPath(const std::string& name)
 {
-	JniMethodInfo minfo;
-	CCAssert(JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "getLocalPath", "()Ljava/lang/String;"), "Function doesn't exist");
+    if(localPathCache.length() == 0)
+    {
+    	JniMethodInfo minfo;
+    	CCAssert(JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "getLocalPath", "()Ljava/lang/String;"), "Function doesn't exist");
 
-	jstring directory = (jstring)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID);
-	std::string path = JniHelper::jstring2string(directory) + "/" + name;
-	minfo.env->DeleteLocalRef(minfo.classID);
-	minfo.env->DeleteLocalRef(directory);
-	return path;
+    	jstring directory = (jstring)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID);
+        localPathCache = JniHelper::jstring2string(directory);
+    	minfo.env->DeleteLocalRef(minfo.classID);
+    	minfo.env->DeleteLocalRef(directory);
+    }
+    return = localPathCache + "/" + name;
 }
 
 std::string getAppName()
