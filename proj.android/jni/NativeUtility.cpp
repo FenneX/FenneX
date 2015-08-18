@@ -81,7 +81,7 @@ std::string getLocalPath(const std::string& name)
     	minfo.env->DeleteLocalRef(minfo.classID);
     	minfo.env->DeleteLocalRef(directory);
     }
-    return = localPathCache + "/" + name;
+    return localPathCache + "/" + name;
 }
 
 std::string getAppName()
