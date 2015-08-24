@@ -1,11 +1,16 @@
 package com.fennex.modules;
 
+import android.content.res.AssetManager;
 import android.os.Environment;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
@@ -129,5 +134,58 @@ public class FileUtility {
             files = dir.list();
         }
         return files;
+    }
+
+    public static void deleteFile(String filename)
+    {
+        unlockFile(filename);
+        File file = new File(filename);
+        if(!file.delete())
+        {
+            Log.i("FileUtility", "Could not delete file : " + filename);
+        }
+    }
+
+    public static boolean moveFileToLocalDirectory(String path)
+    {
+        String filename = path.substring(path.lastIndexOf("/"));
+        File destinationFile = new File(NativeUtility.getLocalPath() + java.io.File.separator + filename);
+
+        if(!destinationFile.exists())
+        {
+            InputStream in = null;
+            OutputStream out = null;
+            try
+            {
+                in = new FileInputStream(path);
+                out = new FileOutputStream(NativeUtility.getLocalPath() + java.io.File.separator + filename);
+                byte[] buffer = new byte[1024];
+                int read;
+                while ((read = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, read);
+                }
+                in.close();
+                in = null;
+
+                // write the output file
+                out.flush();
+                out.close();
+                out = null;
+
+                // delete the original file
+                new File(path).delete();
+            }
+            catch(Exception e)
+            {
+                Log.i("FileUtility", "Could not move file : " + filename);
+                e.printStackTrace();
+                return false;
+            }
+        }
+        else
+        {
+            Log.i("FileUtility", "didn't copied" + filename + ", already exist");
+        }
+        return true;
     }
 }

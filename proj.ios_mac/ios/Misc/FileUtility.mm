@@ -5,9 +5,9 @@
 //  Created by François Dupayrat on 16/06/15.
 //
 //
+#import "NSFileManager+ApplicationSupport.h"
 
 #include "FileUtility.h"
-
 
 bool lockFile(std::string filename)
 {
@@ -32,4 +32,10 @@ std::vector<std::string> getFilesInFolder(std::string folderPath)
 {
     std::vector<std::string> newVector;
     return newVector;
+}
+
+void deleteFile(std::string filePath)
+{
+    NSString* path = [[[NSFileManager defaultManager] applicationSupportDirectory] stringByAppendingPathComponent:[NSString stringWithFormat:@"%s", filePath.c_str()]];
+    [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
 }

@@ -109,3 +109,28 @@ std::vector<std::string> getFilesInFolder(std::string folderPath)
 	minfo.env->DeleteLocalRef(dataArray);
 	return info;
 }
+
+void deleteFile(std::string filename)
+{
+	JniMethodInfo minfo;
+	CCAssert(JniHelper::getStaticMethodInfo(minfo, CLASS_NAME,"deleteFile", "(Ljava/lang/String;)V"), "Function doesn't exist");
+	jstring jFilename = minfo.env->NewStringUTF(filename.c_str());
+	minfo.env->CallStaticVoidMethod(minfo.classID,
+									minfo.methodID,
+									jFilename);
+	minfo.env->DeleteLocalRef(minfo.classID);
+	minfo.env->DeleteLocalRef(jFilename);
+}
+
+bool moveFileToLocalDirectory(std::string path)
+{
+	JniMethodInfo minfo;
+	CCAssert(JniHelper::getStaticMethodInfo(minfo, CLASS_NAME,"moveFileToLocalDirectory", "(Ljava/lang/String;)Z"), "Function doesn't exist");
+	jstring jPath = minfo.env->NewStringUTF(path.c_str());
+	bool result = minfo.env->CallStaticBooleanMethod(minfo.classID,
+													 minfo.methodID,
+													 jPath);
+	minfo.env->DeleteLocalRef(minfo.classID);
+	minfo.env->DeleteLocalRef(jPath);
+	return result;
+}
