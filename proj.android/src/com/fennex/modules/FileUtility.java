@@ -185,6 +185,16 @@ public class FileUtility {
         else
         {
             Log.i("FileUtility", "didn't copied" + filename + ", already exist");
+            try
+            {
+                // delete the original file
+                new File(path).delete();
+            }
+            catch(Exception e)
+            {
+                Log.i("FileUtility", "Couldn't delete file :"+ path);
+                e.printStackTrace();
+            }
         }
         return true;
     }
