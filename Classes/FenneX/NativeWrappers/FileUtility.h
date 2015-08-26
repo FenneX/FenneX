@@ -35,8 +35,9 @@ std::vector<std::string> getFilesInFolder(std::string folderPath);
 // Delete the file. Need a complete path. Not quite tested on iOS
 void deleteFile(std::string filename);
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+// Move a file from an absolute path to the local Directory
+// Return true if it succeed and false otherwise (if the file doesn't exist for exemple)
+// Empty implementation in iOS
 bool moveFileToLocalDirectory(std::string path);
-#endif
 
 #endif

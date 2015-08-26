@@ -39,3 +39,8 @@ void deleteFile(std::string filePath)
     NSString* path = [[[NSFileManager defaultManager] applicationSupportDirectory] stringByAppendingPathComponent:[NSString stringWithFormat:@"%s", filePath.c_str()]];
     [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
 }
+
+bool moveFileToLocalDirectory(std::string path)
+{
+    return true;
+}
