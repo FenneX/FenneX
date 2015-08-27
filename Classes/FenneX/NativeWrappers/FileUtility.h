@@ -35,9 +35,10 @@ std::vector<std::string> getFilesInFolder(std::string folderPath);
 // Delete the file. Need a complete path. Not quite tested on iOS
 void deleteFile(std::string filename);
 
-// Move a file from an absolute path to the local Directory
+// Move a file from an absolute path to the local Directory (it will remove the original)
+// If the destination already exists, it will not be copied again, but the original will still be removed. It is considered a success.
 // Return true if it succeed and false otherwise (if the file doesn't exist for exemple)
-// Empty implementation in iOS
+// Empty implementation in iOS because there is no global shared disk space
 bool moveFileToLocalDirectory(std::string path);
 
 #endif
