@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************///
 
+#include "Logs.h"
 #include "LocalNotificationWrapper.h"
 #include <jni.h>
 #include "platform/android/jni/JniHelper.h"
@@ -29,7 +30,6 @@ THE SOFTWARE.
 #include "PListPersist.h"
 #include "FenneX.h"
 #include <android/log.h>
-#include "Logs.h"
 
 USING_NS_FENNEX;
 
