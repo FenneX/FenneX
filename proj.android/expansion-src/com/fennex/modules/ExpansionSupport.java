@@ -361,20 +361,20 @@ public class ExpansionSupport extends DownloaderService implements ActivityObser
 			break;
 	    case IDownloaderClient.STATE_PAUSED_NETWORK_SETUP_FAILURE:
 	    case IDownloaderClient.STATE_FAILED_FETCHING_URL:
-			notifyDownloadStateChanged("Un problème c'est produit pendant la récupération des informations de téléchargement, merci de réessayer plus tard", 5, "AC_Expansion_ProblemInfos");
+			notifyDownloadStateChanged("Un problème s'est produit pendant la récupération des informations de téléchargement, merci de réessayer plus tard", 5, "AC_Expansion_ProblemInfos");
 			break;
 	    case IDownloaderClient.STATE_PAUSED_SDCARD_UNAVAILABLE:
 			notifyDownloadStateChanged("L'espace de stockage externe n'est pas disponible.", 4, "AC_Expansion_StorageNotFound");
 			break;
 	    case IDownloaderClient.STATE_FAILED_UNLICENSED:
-			notifyDownloadStateChanged("Un problème c'est produit. Merci de ré-installer l'application depuis Google Play.", 5, "AC_Expansion_Reinstall");
+			notifyDownloadStateChanged("Un problème s'est produit. Merci de ré-installer l'application depuis Google Play.", 5, "AC_Expansion_Reinstall");
 			break;
 	    case IDownloaderClient.STATE_FAILED_SDCARD_FULL:
 			notifyDownloadStateChanged("L'espace de stockage externe est plein. Merci de libérer de l'espace et réessayer.", 4, "AC_Expansion_StorageFull");
 			break;
 	    case IDownloaderClient.STATE_FAILED_CANCELED:
 	    case IDownloaderClient.STATE_FAILED:
-			notifyDownloadStateChanged("Un problème c'est produit. Merci de réessayer ultérieurement.", 5, "AC_Expansion_Problem");
+			notifyDownloadStateChanged("Un problème s'est produit. Merci de réessayer ultérieurement.", 5, "AC_Expansion_Problem");
 			break;
 		}	
 	}
