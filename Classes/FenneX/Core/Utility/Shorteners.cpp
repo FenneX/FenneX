@@ -25,12 +25,12 @@ THE SOFTWARE.
 #include "Shorteners.h"
 
 NS_FENNEX_BEGIN
-CCString* getResourcesPath(const char* file)
+std::string getResourcesPath(const std::string& file)
 {
 #if CC_TARGET_PLATFORM == CC_PLATFORM_IOS
-    return Screate(FileUtils::getInstance()->fullPathForFilename(file));
+    return FileUtils::getInstance()->fullPathForFilename(file);
 #elif CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
-    return ScreateF("assets/%s", file);
+    return "assets/" + file;
 #endif
 }
 

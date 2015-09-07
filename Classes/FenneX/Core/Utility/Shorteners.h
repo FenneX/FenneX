@@ -73,7 +73,7 @@ NS_FENNEX_BEGIN
 #define Acreate CCArray::create
 #define AcreateP createArrayWithParameters
 
-CCString* getResourcesPath(const char* file);
+std::string getResourcesPath(const std::string& file);
 
 cocos2d::Size* sizeCreate(float width = 0, float height = 0);
 //note : keys have to be passed as CCString, unfortunately. Must be NULL terminated
@@ -105,7 +105,7 @@ static inline bool isColorEqual(const Color3B left, const Color3B right)
     return left.r == right.r && left.g == right.g && left.b == right.b;
 }
 
-static inline bool hasEnding (std::string const &fullString, std::string const &ending)
+static inline bool hasEnding (const std::string &fullString, const std::string &ending)
 {
     if (fullString.length() >= ending.length()) {
         return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
@@ -114,7 +114,7 @@ static inline bool hasEnding (std::string const &fullString, std::string const &
     }
 }
 
-static inline float getTimeDifferenceMS(timeval& start, timeval& end)
+static inline float getTimeDifferenceMS(const timeval& start, const timeval& end)
 {
     return ((((end.tv_sec - start.tv_sec)*1000.0f
              +end.tv_usec) - start.tv_usec) / 1000.0f);

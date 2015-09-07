@@ -222,7 +222,7 @@ Ref* loadObjectFromFile(const char* name, bool resource)
     }
     std::string path = resource ? "" : getLocalPath(name);
 #else
-    std::string path = resource ? getResourcesPath(name)->getCString() : getLocalPath(name);
+    std::string path = resource ? getResourcesPath(name) : getLocalPath(name);
 #endif
 #if VERBOSE_LOAD_PLIST
     CCLOG("Loading from path :\n%s", path.c_str());

@@ -140,7 +140,7 @@ std::vector<std::pair<std::string, std::string>> getConversions()
         }
     }
 #else
-    FILE* file = fopen(getResourcesPath("letters_conversion.txt")->getCString(), "r");
+    FILE* file = fopen(getResourcesPath("letters_conversion.txt").c_str(), "r");
     if (file) {
         while (fscanf(file, "%s %s %s", upperCase, separator, lowerCase)!=EOF)
         {
