@@ -45,13 +45,12 @@ SynchronousReleaser* SynchronousReleaser::sharedReleaser(void)
 
 void SynchronousReleaser::init()
 {
-    releasePool = CCArray::createWithCapacity(20);
-    releasePool->retain();
+    releasePool.reserve(32);
 }
 
 SynchronousReleaser::~SynchronousReleaser()
 {
-    releasePool->release();
+    releasePool.clear();
     s_SharedReleaser = NULL;
 }
 
@@ -59,8 +58,7 @@ SynchronousReleaser::~SynchronousReleaser()
 void SynchronousReleaser::emptyReleasePool()
 {
 #if VERBOSE_DEALLOC
-    Ref* obj;
-    CCARRAY_FOREACH(releasePool, obj)
+    for(Ref* obj : releasePool)
     {
         if(obj->getReferenceCount() != 1)
         {
@@ -69,14 +67,14 @@ void SynchronousReleaser::emptyReleasePool()
         }
     }
 #endif
-    releasePool->removeAllObjects();
+    releasePool.clear();
 }
 
 void SynchronousReleaser::addObjectToReleasePool(Ref* obj)
 {
-    if(obj != NULL && !releasePool->containsObject(obj))
+    if(obj != NULL && !releasePool.contains(obj))
     {
-        releasePool->addObject(obj);
+        releasePool.pushBack(obj);
     }
 }
 NS_FENNEX_END

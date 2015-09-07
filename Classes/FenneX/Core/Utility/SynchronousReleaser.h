@@ -43,7 +43,7 @@ public:
     void addObjectToReleasePool(Ref* obj);
 protected:
     void init();
-    CCArray* releasePool;
+    Vector<Ref*> releasePool;
 };
 NS_FENNEX_END
 
