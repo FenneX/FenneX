@@ -35,15 +35,11 @@ THE SOFTWARE.
 USING_NS_CC;
 
 NS_FENNEX_BEGIN
+
+//Warning: it doesn't work well in Fast mode when trying to check for non-cocos class. You should inline the dynamic cast in this case.
 #define isKindOfClass(obj,class) (dynamic_cast<class*>((Ref*)obj) != NULL)
 
-//Compensate for scale factor for image picked by user
-#define AUTO_SCALE (Fcreate(Director::getInstance()->getContentScaleFactor() ))
-
 #define IFEXIST(obj) if(obj != NULL) (obj)
-
-#define REAL_SCALE(obj) (Fcreate(obj \
-* Director::getInstance()->getContentScaleFactor() ))
 
 #define TOINT(obj) (((CCInteger*)obj)->getValue())
 #define TOFLOAT(obj) (((CCFloat*)obj)->getValue())
@@ -79,20 +75,6 @@ cocos2d::Size* sizeCreate(float width = 0, float height = 0);
 //note : keys have to be passed as CCString, unfortunately. Must be NULL terminated
 CCDictionary* createDictionaryWithParameters(Ref* firstObject, ... );
 CCArray* createArrayWithParameters(Ref* firstObject, ... );
-
-//perform a selector after a delay. All pending selector will be cancelled during a scene switch (it's assumed most of them are tied to the current Scene)
-/* Obsolete functions. Please use DelayedDispatcher
- 
- Replaced by DelayedDispatcher::funcAfterDelay (requires to merge first 2 argument into a std::function, and change delay/object order)
-void performSelectorAfterDelay(Ref* target, SEL_CallFuncO selector, float delay, Ref* object = NULL);
- 
- Replaced by DelayedDispatcher::cancelFunc (requires to use std::string as identifiers)
-bool cancelSelector(Ref* target, SEL_CallFuncO selector);
- 
- Replaced by DelayedDispatcher::eventAfterDelay (simple replace)
-void performNotificationAfterDelay(const char* name, Ref* obj, float delay);*/
-
-#define performNotificationAfterDelay DelayedDispatcher::eventAfterDelay
 
 static inline cocos2d::Size
 SizeMult(const cocos2d::Size& v, const float s)
