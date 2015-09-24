@@ -35,6 +35,7 @@ THE SOFTWARE.
 #include "CustomNode.h"
 #include "CustomInput.h"
 #include "CustomLabel.h"
+#include "CustomDropDownList.h"
 
 using namespace cocosbuilder;
 
@@ -108,6 +109,7 @@ Panel* loadCCBFromFileToFenneX(const char* file, const char* inPanel, int zIndex
     nodeLoaderLibrary->registerNodeLoader("CustomNode", CustomNodeLoader::loader());
     nodeLoaderLibrary->registerNodeLoader("CustomInput", CustomInputLoader::loader());
     nodeLoaderLibrary->registerNodeLoader("CustomLabel", CustomLabelLoader::loader());
+    nodeLoaderLibrary->registerNodeLoader("CustomDropDownList", CustomDropDownListLoader::loader());
     CCBReader *ccbReader = new CCBReader(nodeLoaderLibrary);
     
     //IF this one fail, it needs to be silent
@@ -270,7 +272,7 @@ void loadNodeToFenneX(Node* baseNode, Panel* parent)
     {
         Node* node = baseNode->getChildren().at(i);
 #if VERBOSE_LOAD_CCB
-        CCLOG("doing child %d from parent %s ...", i, parent != NULL ? parent->getName() != NULL ? parent->getName() : "Panel" : "base layer");
+        CCLOG("doing child %d from parent %s ...", i, parent != NULL ? parent->getName() != "" ? parent->getName().c_str() : "Panel" : "base layer");
 #endif
         RawObject* result = NULL;
         if(isKindOfClass(node, Label))
@@ -286,6 +288,14 @@ void loadNodeToFenneX(Node* baseNode, Panel* parent)
                 label->setString(translated);
             }
             result = layer->createLabelTTFromLabel(label, parent);
+        }
+        else if(isKindOfClass(node, CustomDropDownList))
+        {
+#if VERBOSE_LOAD_CCB
+            CCLOG("DropDownList");
+#endif
+            Sprite* sprite = (Sprite*)node;
+            result = layer->createDropDownListFromSprite(sprite, parent);
         }
         else if(isKindOfClass(node, Sprite))
         {
@@ -368,7 +378,7 @@ void linkInputLabels()
                     ((ui::EditBox*)child->getNode())->setFontSize(input->getOriginalInfos()->getFontSize());
                 }
             }
-            if(isKindOfClass(child, InputLabel) && child->getEventInfos()->objectForKey("LinkTo") != NULL && isKindOfClass(child->getEventInfos()->objectForKey("LinkTo"), CCString))
+            if((isKindOfClass(child, InputLabel)) && child->getEventInfos()->objectForKey("LinkTo") != NULL && isKindOfClass(child->getEventInfos()->objectForKey("LinkTo"), CCString))
             {
                 InputLabel* input = (InputLabel*)child;
                 if(input->getLinkTo() == NULL)
@@ -381,6 +391,24 @@ void linkInputLabels()
                         if(isKindOfClass(match, LabelTTF))
                         {
                             input->setLinkTo((LabelTTF*)match);
+                            j = matchs->count();
+                        }
+                    }
+                }
+            }
+            else if((isKindOfClass(child, DropDownList)) && child->getEventInfos()->objectForKey("LinkTo") != NULL && isKindOfClass(child->getEventInfos()->objectForKey("LinkTo"), CCString))
+            {
+                DropDownList* dropDownList = (DropDownList*)child;
+                if(dropDownList->getLinkTo() == NULL)
+                {
+                    CCString* linkTo = (CCString*)child->getEventInfos()->objectForKey("LinkTo");
+                    CCArray* matchs = layer->allObjectsWithName(linkTo);
+                    for(long j = 0; j < matchs->count(); j++)
+                    {
+                        RawObject* match = (RawObject*)matchs->objectAtIndex(j);
+                        if(isKindOfClass(match, LabelTTF))
+                        {
+                            dropDownList->setLinkTo((LabelTTF*)match);
                             j = matchs->count();
                         }
                     }

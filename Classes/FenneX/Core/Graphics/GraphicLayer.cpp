@@ -1123,6 +1123,185 @@ Panel* GraphicLayer::createPanelWithNode(const char* name, Node* panelNode, int 
     return panel;
 }
 
+DropDownList* GraphicLayer::createDropDownList(Ref* firstObject, ... )
+{
+    Ref* eachObject;
+    va_list argumentList;
+    bool key = true;
+    Ref* object;
+    if (firstObject)                      // The first argument isn't part of the varargs list,
+    {                                   // so we'll handle it separately.
+        //put all parameters in a Dictionary to access them as key/value pairs
+        CCDictionary* values = CCDictionary::create();
+        object = firstObject;
+        va_start(argumentList, firstObject);          // Start scanning for arguments after firstObject.
+        while ((eachObject = va_arg(argumentList, Ref*)) != NULL) // As many times as we can get an argument of type "id"
+        {
+            if(key)
+            {
+                //keys should be Strings
+                if(!isKindOfClass(eachObject, CCString))
+                {
+#if VERBOSE_WARNING
+                    CCLOG("Warning : not a key, value ignored");
+#endif
+                }
+                else
+                {
+                    CCString* key = (CCString*)eachObject;
+                    values->setObject(object, key->_string);
+                }
+            }
+            else
+            {
+                object = eachObject;
+            }
+            key = !key;
+        }
+        va_end(argumentList);
+        return this->createDropDownList(values);
+    }
+#if VERBOSE_WARNING
+    else
+    {
+        CCLOG("Warning : createDropDownList called with no firstObject");
+    }
+#endif
+    return NULL;
+}
+
+DropDownList* GraphicLayer::createDropDownList(CCDictionary* values)
+{
+    DropDownList* dropDownList = NULL;
+    
+    //try to create an image : each value is checked : if it exists and if it is of the right type
+    //an image should have at least an ImageFile (String) or ImageData and cocosName (String) for texture
+    if((values->objectForKey("SpriteSheetFile") != NULL
+        &&  isKindOfClass(values->objectForKey("SpriteSheetFile"), CCString)
+        && values->objectForKey("Capacity") != NULL
+        &&  isKindOfClass(values->objectForKey("Capacity"), CCInteger)))
+    {
+        Vec2 pos = Vec2(0, 0);
+        if(values->objectForKey("PositionX") != NULL
+           && isKindOfClass(values->objectForKey("PositionX"), CCInteger))
+        {
+            pos.x = ((CCInteger*)values->objectForKey("PositionX"))->getValue();
+        }
+        if(values->objectForKey("PositionY") != NULL
+           && isKindOfClass(values->objectForKey("PositionY"), CCInteger))
+        {
+            pos.y =  ((CCInteger*)values->objectForKey("PositionY"))->getValue();
+        }
+        if(values->objectForKey("Position") != NULL
+           && isKindOfClass(values->objectForKey("Position"), TMPPoint))
+        {
+            pos.x =  ((TMPPoint*)values->objectForKey("Position"))->x;
+            pos.y =  ((TMPPoint*)values->objectForKey("Position"))->y;
+        }
+        if(values->objectForKey("ImageFile") != NULL
+           && isKindOfClass(values->objectForKey("ImageFile"), CCString))
+        {
+#if VERBOSE_LOAD_CCB
+            CCLOG("creating DropDownList %s", ((CCString*)values->objectForKey("ImageFile"))->getCString());
+#endif
+            dropDownList = new DropDownList(((CCString*)values->objectForKey("ImageFile"))->getCString(), pos);
+        }
+        else
+        {
+            dropDownList = new DropDownList(((CCString*)values->objectForKey("SpriteSheetFile"))->getCString(), pos, ((CCInteger*)values->objectForKey("Capacity"))->getValue());
+        }
+        
+        
+        if(dropDownList != NULL)
+        {
+            if(values->objectForKey("Zindex") != NULL && isKindOfClass(values->objectForKey("Zindex"), CCInteger))
+            {
+                this->addObject(dropDownList, ((CCInteger*)values->objectForKey("Zindex"))->getValue());
+            }
+            else
+            {
+                this->addObject(dropDownList);
+            }
+            dropDownList->release();
+            
+            //try to process optional parameters if they exist : Name (String), EventName (String)  Panel (Panel)
+            if(values->objectForKey("Name") != NULL && isKindOfClass(values->objectForKey("Name"), CCString))
+            {
+                dropDownList->setName(((CCString*)values->objectForKey("Name"))->getCString());
+            }
+            if(values->objectForKey("EventName") != NULL && isKindOfClass(values->objectForKey("EventName"), CCString))
+            {
+                dropDownList->setEventName(((CCString*)values->objectForKey("EventName"))->getCString());
+            }
+            if(values->objectForKey("Scale") != NULL && isKindOfClass(values->objectForKey("Scale"), CCFloat))
+            {
+                dropDownList->setScale(((CCFloat*)values->objectForKey("Scale"))->getValue());
+            }
+            if(values->objectForKey("EventInfos") != NULL && isKindOfClass(values->objectForKey("EventInfos"), CCDictionary))
+            {
+                CCDictionary* parameters = (CCDictionary*)values->objectForKey("EventInfos");
+                CCArray* keys = parameters->allKeys();
+                for(int i = 0; i < keys->count(); i++)
+                {
+                    std::string key = ((CCString*)keys->objectAtIndex(i))->_string;
+                    dropDownList->setEventInfo(parameters->objectForKey(key), key);
+                }
+            }
+            
+            if(values->objectForKey("Panel") != NULL && isKindOfClass(values->objectForKey("Panel"), Panel))
+            {
+#if VERBOSE_WARNING
+                if(values->objectForKey("Zindex") != NULL && isKindOfClass(values->objectForKey("Zindex"), CCInteger))
+                {
+                    CCLOG("Warning : try to add image in a Panel with a Zindex : currently, depth is not supported in panels");
+                }
+#endif
+                this->placeObject(dropDownList, (Panel*)values->objectForKey("Panel"));
+            }
+            if(values->objectForKey("Visible") != NULL && isKindOfClass(values->objectForKey("Visible"), CCInteger))
+            {
+                dropDownList->setVisible(((CCInteger*)values->objectForKey("Visible"))->getValue());
+            }
+            if(values->objectForKey("Opacity") != NULL && isKindOfClass(values->objectForKey("Opacity"), CCInteger))
+            {
+                ((Sprite*)dropDownList->getNode())->setOpacity(((CCInteger*)values->objectForKey("Opacity"))->getValue());
+            }
+            if(values->objectForKey("Help") != NULL && isKindOfClass(values->objectForKey("Help"), CCString))
+            {
+                dropDownList->setHelp(((CCString*)values->objectForKey("Help"))->getCString());
+            }
+        }
+    }
+#if VERBOSE_WARNING
+    else
+    {
+        CCLOG("Warning : createDropDownList aborted, incorrect parameter types");
+    }
+#endif
+#if VERBOSE_LOAD_CCB
+    CCLOG("Ended creating DropDownList");
+#endif
+    return dropDownList;
+}
+
+DropDownList* GraphicLayer::createDropDownListFromSprite(Sprite* sprite, Panel* parent)
+{
+    DropDownList* dropDownList = NULL;
+    dropDownList = new DropDownList(sprite);
+    if(dropDownList != NULL)
+    {
+        storedObjects->addObject(dropDownList);
+        if(parent != NULL)
+        {
+            parent->addChild(dropDownList);
+            childParent->setObject(parent, dropDownList->getID());
+        }
+        dropDownList->release();
+    }
+    this->loadBaseNodeAttributes(dynamic_cast<CustomBaseNode*>(sprite), dropDownList);
+    return dropDownList;
+}
+
 RawObject* GraphicLayer::duplicateObject(RawObject* otherObject)
 {
     RawObject* obj = NULL;

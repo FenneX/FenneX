@@ -36,6 +36,7 @@ USING_NS_CC;
 #include "LabelTTF.h"
 #include "Panel.h"
 #include "InputLabel.h"
+#include "DropDownList.h"
 #include "CustomBaseNode.h"
 #include "FenneXMacros.h"
 
@@ -158,6 +159,20 @@ public:
     Panel* createPanelFromNode(Node* cocosNode, Panel* parent);
     //Special case : when you want the panel to be the host for a .ccbi file, the Node is already created
     Panel* createPanelWithNode(const char* name, Node* panelNode, int zOrder = 0);
+    
+    /*Parameters must contain Name (CCString)
+     Optional Parameters :
+     - Position (Vec2) default (0, 0)
+     - Zindex (CCInteger as int) default 0
+     - Name (CCString) default ImageFile or cocosName
+     - EventName (CCString) default nil
+     - Panel (Panel) default nil
+     - EventInfos (CCDictionary) default nothing
+     - Visible (set CCInteger(0) for invisible) default visible
+     */
+    DropDownList* createDropDownList(Ref* firstObject, ... );
+    DropDownList* createDropDownList(CCDictionary* values);
+    DropDownList* createDropDownListFromSprite(Sprite* sprite, Panel* parent);
     
     //Duplicate an object, currently supported : Image (not animated), LabelTTF, Panel (including its children, by recursive call)
     //Apart from specific type infos, copied properties are : Position, Zindex, Panel, Name, EventName, EventInfos, Visible, Scale
