@@ -146,7 +146,17 @@ bool isConnected()
 {
 	JniMethodInfo minfo;
 	CCAssert(JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "isConnected", "()Z"), "Function doesn't exist");
-	return minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID);
+	bool isConnected =  minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    return isConnected;
+}
+
+void openWifiSettings()
+{
+    JniMethodInfo minfo;
+    CCAssert(JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "openWifiSettings", "()V"), "Function doesn't exist");
+    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID);
+    minfo.env->DeleteLocalRef(minfo.classID);
 }
 
 void preventIdleTimerSleep(bool prevent)

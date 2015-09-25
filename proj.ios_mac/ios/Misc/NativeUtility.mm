@@ -85,6 +85,14 @@ bool isConnected()
     return netStatus != NotReachable;
 }
 
+void openWifiSettings()
+{
+    if (&UIApplicationOpenSettingsURLString != NULL)
+    {
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+    }
+}
+
 void preventIdleTimerSleep(bool prevent)
 {
     [UIApplication sharedApplication].idleTimerDisabled = prevent;

@@ -263,6 +263,15 @@ public class NativeUtility
         }
         return false;
     }
+
+    public static void openWifiSettings()
+    {
+        if(getMainActivity() != null)
+        {
+            Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
+            getMainActivity().startActivity(intent);
+        }
+    }
     
     public static void vibrate(int milliseconds)
     {
