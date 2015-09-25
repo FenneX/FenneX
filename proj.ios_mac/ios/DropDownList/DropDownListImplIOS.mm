@@ -81,8 +81,6 @@
 {
     pickerValues = [[NSArray alloc] initWithArray: values];
     [pickerView reloadAllComponents];
-    notifySelectionDone(_identifier, [[NSString stringWithFormat:@"%@",
-                                       [pickerValues objectAtIndex:0]] UTF8String]);
 }
 
 - (void) setIdentifier:(int)identifier

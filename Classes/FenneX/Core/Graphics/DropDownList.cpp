@@ -61,6 +61,24 @@ DropDownList::DropDownList(Sprite* sprite)
 DropDownList::~DropDownList()
 {
     dropList->release();
+    dropList = NULL;
+    for(EventListenerCustom* listener : listeners)
+    {
+        Director::getInstance()->getEventDispatcher()->removeEventListener(listener);
+    }
+    listeners.clear();
+}
+
+std::string DropDownList::getSelectedValue()
+{
+    if(linkTo == NULL || std::find(possibleValues.begin(), possibleValues.end(),  linkTo->getLabelValue()) != possibleValues.end())
+    {
+        return "";
+    }
+    else
+    {
+        return linkTo->getLabelValue();
+    }
 }
 
 void DropDownList::setSelectedValue(EventCustom* event)

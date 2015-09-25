@@ -59,6 +59,7 @@ THE SOFTWARE.
 #include "LayoutHandler.h"
 #include "Panel.h"
 #include "RawObject.h"
+#include "DropDownList.h"
 
 //Scenes
 #include "SceneSwitcher.h"
