@@ -27,12 +27,12 @@ void DropDownListWrapper::setPossibleValues(std::vector<std::string> values)
 {
     if(delegate != NULL)
     {
-        std::vector<NSString*> tempValues;
-        for(int i = 0; i < values.size(); i ++)
+        NSMutableArray *array = [NSMutableArray new];
+        for(std::string value : values)
         {
-            tempValues.push_back([NSString stringWithUTF8String:values[i].c_str()]);
+            [array addObject:[NSString stringWithUTF8String:value.c_str()]];
         }
-        [TYPED_DELEGATE setPossibleValues:[NSArray arrayWithObjects:&tempValues[0] count:tempValues.size()]];
+        [TYPED_DELEGATE setPossibleValues:[array copy]];
     }
 }
 

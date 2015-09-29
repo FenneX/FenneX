@@ -19,8 +19,12 @@ USING_NS_CC;
 #include "DropDownListWrapper.h"
 
 NS_FENNEX_BEGIN
-//Throw a TextAdded event when keyboard is closed and KeyboardOpened when it's opened for this label
-//Note: since V3, the InputLabel must not have an OpenKeyboard event. This is handled by its delegate directly (as a CCControlButton). Otherwise, there will be a bug on Android where the keyboard is opened 2 times
+/**
+ * This class is a wrapper for a UIPickerView in iOS and a Spinner for Android
+ * It need to be initialized with setValues and setTitle
+ * It launch a "DropDownListSelectionDone" event when and element is choosen. The event contain an id refering to the label linked to this list.
+ * It launch a "ShowSelectDropDownList" before the list is shown.
+ **/
 class DropDownList : public Image
 {
     CC_SYNTHESIZE_READONLY(LabelTTF*, linkTo, LinkTo);
