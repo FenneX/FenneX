@@ -111,6 +111,7 @@ InputLabel::InputLabel(ui::Scale9Sprite* sprite)
     delegate->setColor(Color3B::WHITE);
     delegate->setDelegate(this);
     delegate->setOpacity(0);
+    delegate->setInputFlag(ui::EditBox::InputFlag::INITIAL_CAPS_SENTENCE);
     
     //You HAVE to set the contentSize again, because CCControlButton do some weird thing on the UIEditbox content size which makes it work only on 1024x768
     //delegate->setContentSize(sprite->getPreferredSize());
@@ -176,6 +177,7 @@ InputLabel::InputLabel(const char* placeHolder, const char* fontName, int fontSi
     delegate->setInputMode(inputMode);
     numbersOnly = inputMode ==  ui::EditBox::InputMode::DECIMAL;
     delegate->setReturnType(ui::EditBox::KeyboardReturnType::DONE);
+    delegate->setInputFlag(ui::EditBox::InputFlag::INITIAL_CAPS_SENTENCE);
     if(maxChar != -1)
     {
         delegate->setMaxLength(maxChar);
