@@ -22,15 +22,20 @@
         CGFloat screenWidth = screenRect.size.width;
         CGFloat screenHeight = screenRect.size.height;
         
+        UIViewController* rootVC = (UIViewController*)[AppController sharedController].viewController;
+        
         // Take a quarter of a screen in dimension.
-        pickerView = [[UIPickerView alloc] initWithFrame:CGRectMake(screenWidth/2 - screenWidth/4, screenHeight/2, screenWidth/2, screenHeight/2)];
+        pickerView = [[UIPickerView alloc] initWithFrame:CGRectMake(screenWidth/4, screenHeight/2, screenWidth/2, screenHeight/2)];
+        pickerView.center = rootVC.view.superview.center;
+        
         [pickerView setDelegate:self];
         pickerView.dataSource = self;
         pickerView.backgroundColor = [UIColor whiteColor];
         [pickerView setAlpha:0.9f];
         
         // Add Title view
-        titleView = [[UILabel alloc] initWithFrame: CGRectMake(screenWidth/2 - screenWidth/4, screenHeight/2 - rowHeight, screenWidth/2, rowHeight)];
+        titleView = [[UILabel alloc] initWithFrame: CGRectMake(screenWidth/4, screenHeight/2 - rowHeight, screenWidth/2, rowHeight)];
+        titleView.center = CGPointMake(rootVC.view.superview.center.x, rootVC.view.superview.center.y - pickerView.bounds.size.height/2 - rowHeight/2);
         titleView.backgroundColor = [UIColor lightGrayColor];
         titleView.textColor = [UIColor whiteColor];
         [titleView setFont:[UIFont boldSystemFontOfSize:25]];
@@ -42,7 +47,6 @@
         background.backgroundColor = [UIColor blackColor];
         [background setAlpha:0.6f];
         
-        UIViewController* rootVC = (UIViewController*)[AppController sharedController].viewController;
         [rootVC.view.superview addSubview:background];
         [rootVC.view.superview addSubview:titleView];
         [rootVC.view.superview addSubview:pickerView];
