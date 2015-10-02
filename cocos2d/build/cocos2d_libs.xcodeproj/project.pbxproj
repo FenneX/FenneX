@@ -1737,8 +1737,6 @@
 		50ED2BE719BEAF7900A0AB90 /* UIEditBoxImpl-wp8.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50ED2BDF19BEAF7900A0AB90 /* UIEditBoxImpl-wp8.cpp */; };
 		6A2B26C71B03BD5800E5F1BF /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A2B26C51B03BD5800E5F1BF /* libcrypto.a */; };
 		6A2B26C81B03BD5900E5F1BF /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A2B26C61B03BD5800E5F1BF /* libssl.a */; };
-		6AB031F81AF760C60024866C /* TestinCrashHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 6AB031F01AF760C60024866C /* TestinCrashHelper.h */; };
-		6AB031F91AF760C60024866C /* TestinCrashHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6AB031F11AF760C60024866C /* TestinCrashHelper.mm */; };
 		A07A4CAF1783777C0073F6A7 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1551A342158F2AB200E66CFE /* Foundation.framework */; };
 		B2165EEA19921124000BE3E6 /* CCPrimitiveCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B257B45E198A353E00D9A687 /* CCPrimitiveCommand.cpp */; };
 		B217703C1977ECB4009EE11B /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B217703B1977ECB4009EE11B /* IOKit.framework */; };
@@ -2877,8 +2875,6 @@
 		50FCEB9218C72017004AD434 /* WidgetReaderProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WidgetReaderProtocol.h; sourceTree = "<group>"; };
 		6A2B26C51B03BD5800E5F1BF /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcrypto.a; sourceTree = "<group>"; };
 		6A2B26C61B03BD5800E5F1BF /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libssl.a; sourceTree = "<group>"; };
-		6AB031F01AF760C60024866C /* TestinCrashHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestinCrashHelper.h; sourceTree = "<group>"; };
-		6AB031F11AF760C60024866C /* TestinCrashHelper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TestinCrashHelper.mm; sourceTree = "<group>"; };
 		A07A4D641783777C0073F6A7 /* libcocos2d iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libcocos2d iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B217703B1977ECB4009EE11B /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		B217703D1977ECC1009EE11B /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -3491,7 +3487,6 @@
 			children = (
 				382383E11A258FA7002C4610 /* flatbuffers */,
 				1AC026971914068200FA920D /* ConvertUTF */,
-				6AB031E41AF760C60024866C /* crashhelper */,
 				46C02E0418E91123004B7456 /* xxhash */,
 				46A168B21807AF9C005B8026 /* Box2D */,
 				46A1693A1807AFD6005B8026 /* chipmunk */,
@@ -5079,16 +5074,6 @@
 			path = TextReader;
 			sourceTree = "<group>";
 		};
-		6AB031E41AF760C60024866C /* crashhelper */ = {
-			isa = PBXGroup;
-			children = (
-				6AB031F01AF760C60024866C /* TestinCrashHelper.h */,
-				6AB031F11AF760C60024866C /* TestinCrashHelper.mm */,
-			);
-			name = crashhelper;
-			path = ../external/crashhelper;
-			sourceTree = "<group>";
-		};
 		B29594B81926D61F003EEF37 /* 3d */ = {
 			isa = PBXGroup;
 			children = (
@@ -6119,7 +6104,6 @@
 				50ABC0201926664800A911A9 /* CCThread.h in Headers */,
 				15AE1B8519AADA9A00C27E9E /* UITextField.h in Headers */,
 				1A01C69318F57BE800EFE3A6 /* CCDouble.h in Headers */,
-				6AB031F81AF760C60024866C /* TestinCrashHelper.h in Headers */,
 				B29A7E1019EE1B7700872B35 /* SkeletonJson.h in Headers */,
 				15AE184B19AAD30500C27E9E /* Export.h in Headers */,
 				15AE196019AAD35100C27E9E /* CCSpriteFrameCacheHelper.h in Headers */,
@@ -6867,7 +6851,6 @@
 				15AE192B19AAD35100C27E9E /* TriggerObj.cpp in Sources */,
 				15AE198519AAD36400C27E9E /* WidgetReader.cpp in Sources */,
 				15AE1AAA19AAD40300C27E9E /* b2World.cpp in Sources */,
-				6AB031F91AF760C60024866C /* TestinCrashHelper.mm in Sources */,
 				15AE1AB019AAD40300C27E9E /* b2ChainAndPolygonContact.cpp in Sources */,
 				1A5701B2180BCB590088DEC7 /* CCFontFNT.cpp in Sources */,
 				1A5701B6180BCB590088DEC7 /* CCFontFreeType.cpp in Sources */,
@@ -7287,7 +7270,6 @@
 					"$(inherited)",
 					CC_TARGET_OS_IPHONE,
 				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = YES;
 				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
@@ -7313,14 +7295,13 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				EXECUTABLE_PREFIX = "";
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "../cocos/platform/ios/cocos2d-prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					CC_TARGET_OS_IPHONE,
 				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = YES;
 				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;

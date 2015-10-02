@@ -37,7 +37,6 @@
 #import "TestFlight.h"
 #include "NativeUtility.h"
 #include "Shorteners.h"
-#import <TestinAgent/TestinAgent.h>
 
 static AppController* _sharedController = NULL;
 
@@ -128,7 +127,6 @@ void uncaughtExceptionHandler(NSException *exception)
     NSLog(@"Stack Trace: %@", [exception callStackSymbols]);
     // Internal error reporting
     [Flurry logError:@"Uncaught" message:@"Crash!" exception:exception];
-    [TestinAgent reportCustomizedException:exception message:@"Uncaught"];
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
