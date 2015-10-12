@@ -311,7 +311,17 @@ void loadNodeToFenneX(Node* baseNode, Panel* parent)
             CCLOG("input label");
 #endif
             ui::Scale9Sprite* sprite = (ui::Scale9Sprite*)node;
+            
+            CCString* translationKey = isKindOfClass(sprite, CustomBaseNode) ? (CCString*)dynamic_cast<CustomBaseNode*>(sprite)->getParameters()->objectForKey("translationKey") : NULL;
+            std::string placeHolder = isKindOfClass(sprite, CustomInput) ? placeHolder = ((CustomInput*) sprite)->getPlaceHolder()->getCString() : "";
+            
             result = layer->createInputLabelFromScale9Sprite(sprite, parent);
+            
+            const std::string text = Localization::getLocalizedString(translationKey != NULL ? translationKey->getCString() : placeHolder.c_str());
+            if(translationKey == NULL || translationKey->compare(text.c_str()) != 0)
+            {
+                ((InputLabel*) result)->setInitialText(text);
+            }
             i--;
         }
         else if(isKindOfClass(node, ui::Scale9Sprite))
@@ -325,7 +335,7 @@ void loadNodeToFenneX(Node* baseNode, Panel* parent)
         else if(!isKindOfClass(node, ui::EditBox))
         {
 #if VERBOSE_LOAD_CCB
-            CCLOG("panel");
+            CCLOG("Edit Box");
 #endif
             result = layer->createPanelFromNode(node, parent);
         }
@@ -378,25 +388,7 @@ void linkInputLabels()
                     ((ui::EditBox*)child->getNode())->setFontSize(input->getOriginalInfos()->getFontSize());
                 }
             }
-            if((isKindOfClass(child, InputLabel)) && child->getEventInfos()->objectForKey("LinkTo") != NULL && isKindOfClass(child->getEventInfos()->objectForKey("LinkTo"), CCString))
-            {
-                InputLabel* input = (InputLabel*)child;
-                if(input->getLinkTo() == NULL)
-                {
-                    CCString* linkTo = (CCString*)child->getEventInfos()->objectForKey("LinkTo");
-                    CCArray* matchs = layer->allObjectsWithName(linkTo);
-                    for(long j = 0; j < matchs->count(); j++)
-                    {
-                        RawObject* match = (RawObject*)matchs->objectAtIndex(j);
-                        if(isKindOfClass(match, LabelTTF))
-                        {
-                            input->setLinkTo((LabelTTF*)match);
-                            j = matchs->count();
-                        }
-                    }
-                }
-            }
-            else if((isKindOfClass(child, DropDownList)) && child->getEventInfos()->objectForKey("LinkTo") != NULL && isKindOfClass(child->getEventInfos()->objectForKey("LinkTo"), CCString))
+            if((isKindOfClass(child, DropDownList)) && child->getEventInfos()->objectForKey("LinkTo") != NULL && isKindOfClass(child->getEventInfos()->objectForKey("LinkTo"), CCString))
             {
                 DropDownList* dropDownList = (DropDownList*)child;
                 if(dropDownList->getLinkTo() == NULL)
