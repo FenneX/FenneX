@@ -27,13 +27,6 @@ THE SOFTWARE.
 #include "renderer/CCGLProgram.h"
 #include "sha1.h"
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
-#include "platform/winrt/shaders/precompiledshaders.h"
-#elif (CC_TARGET_PLATFORM == CC_PLATFORM_WP8)
-#include "platform/wp8/shaders/precompiledshaders.h"
-#endif
-
-
 using namespace Windows::Graphics::Display;
 using namespace Windows::Storage;
 using namespace Platform;
@@ -192,7 +185,7 @@ bool CCPrecompiledShaders::addProgram(GLuint program, const std::string& id)
     return true;
 }
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT) && defined(WP8_SHADER_COMPILER)
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
 
 void CCPrecompiledShaders::savePrecompiledPrograms(Windows::Storage::StorageFolder^ folder)
 {

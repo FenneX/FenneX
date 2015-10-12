@@ -246,7 +246,7 @@ void DisplayManager::changeDisplayWithIndex(int index, bool force)
     setCurrentDecorativeDisplay(decoDisplay);
 }
 
-void CCDisplayManager::changeDisplayWithName(const std::string& name, bool force)
+void DisplayManager::changeDisplayWithName(const std::string& name, bool force)
 {
     for (int i = 0; i<_decoDisplayList.size(); i++)
     {
@@ -380,7 +380,7 @@ bool DisplayManager::containPoint(Vec2 &point)
          *
          */
 
-        Vec2 outPoint = Vec2(0, 0);
+        Vec2 outPoint;
 
         Sprite *sprite = (Sprite *)_currentDecoDisplay->getDisplay();
         sprite = (Sprite *)sprite->getChildByTag(0);
@@ -398,7 +398,7 @@ bool DisplayManager::containPoint(Vec2 &point)
 
 bool DisplayManager::containPoint(float x, float y)
 {
-    Vec2 p = Vec2(x, y);
+    Vec2 p(x, y);
     return containPoint(p);
 }
 

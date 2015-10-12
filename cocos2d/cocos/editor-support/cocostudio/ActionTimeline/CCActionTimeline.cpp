@@ -24,6 +24,8 @@ THE SOFTWARE.
 
 #include "CCActionTimeline.h"
 
+#include "cocostudio/CCComExtensionData.h"
+
 USING_NS_CC;
 
 NS_TIMELINE_BEGIN
@@ -89,6 +91,18 @@ ActionTimeline::~ActionTimeline()
 bool ActionTimeline::init()
 {
     return true;
+}
+
+void ActionTimeline::play(std::string name, bool loop)
+{
+    if (_animationInfos.find(name) == _animationInfos.end())
+    {
+        CCLOG("Can't find animation info for %s", name.c_str());
+        return;
+    }
+
+    AnimationInfo& index = _animationInfos[name];
+    gotoFrameAndPlay(index.startIndex, index.endIndex, loop);
 }
 
 void ActionTimeline::gotoFrameAndPlay(int startIndex)
@@ -169,7 +183,11 @@ ActionTimeline* ActionTimeline::clone() const
             newAction->addTimeline(newTimeline);
         }
     }
-
+    
+    for( auto info : _animationInfos)
+    {
+        newAction->addAnimationInfo(info.second);
+    }
     return newAction;
 }
 
@@ -181,22 +199,32 @@ void ActionTimeline::step(float delta)
     }
 
     _time += delta * _timeSpeed;
-    _currentFrame = (int)(_time / _frameInternal);
+    const float endtoffset = _time - _endFrame * _frameInternal;
 
-    stepToFrame(_currentFrame);
-
-    if(_time > _endFrame * _frameInternal)
+    if (endtoffset < _frameInternal)
     {
-        if(_lastFrameListener != nullptr)
+        _currentFrame = (int)(_time / _frameInternal);
+        stepToFrame(_currentFrame);
+        if (endtoffset >= 0 && _lastFrameListener != nullptr) // last frame 
             _lastFrameListener();
-
+    }
+    else
+    {
         _playing = _loop;
-        if(!_playing)
+        if (!_playing)
+        {
             _time = _endFrame * _frameInternal;
-        else           
+            if (_currentFrame != _endFrame)
+            {
+                _currentFrame = _endFrame;
+                stepToFrame(_currentFrame);
+                if (_lastFrameListener != nullptr)  // last frame 
+                    _lastFrameListener();
+            }
+        }
+        else
             gotoFrameAndPlay(_startFrame, _endFrame, _loop);
     }
-
 }
 
 typedef std::function<void(Node*)> tCallBack;
@@ -204,7 +232,7 @@ void foreachNodeDescendant(Node* parent, tCallBack callback)
 {
     callback(parent);
 
-    auto children = parent->getChildren();
+    auto& children = parent->getChildren();
     for (auto child : children)
     {
         foreachNodeDescendant(child, callback);
@@ -219,7 +247,7 @@ void ActionTimeline::startWithTarget(Node *target)
     foreachNodeDescendant(target, 
         [this, target](Node* child)
     {
-        ActionTimelineData* data = dynamic_cast<ActionTimelineData*>(child->getUserObject());
+        ComExtensionData* data = dynamic_cast<ComExtensionData*>(child->getComponent("ComExtensionData"));
 
         if(data)
         {
@@ -264,6 +292,39 @@ void ActionTimeline::removeTimeline(Timeline* timeline)
             timeline->setActionTimeline(nullptr);
         }
     }
+}
+
+
+void ActionTimeline::addAnimationInfo(const AnimationInfo& animationInfo)
+{
+    if (_animationInfos.find(animationInfo.name) != _animationInfos.end())
+    {
+        CCLOG("Animation (%s) already exists.", animationInfo.name.c_str());
+        return;
+    }
+
+    _animationInfos[animationInfo.name] = animationInfo;
+}
+
+void ActionTimeline::removeAnimationInfo(std::string animationName)
+{
+    if (_animationInfos.find(animationName) == _animationInfos.end())
+    {
+        CCLOG("AnimationInfo (%s) not exists.", animationName.c_str());
+        return;
+    }
+
+    _animationInfos.erase(animationName);
+}
+
+bool ActionTimeline::IsAnimationInfoExists(const std::string& animationName)
+{
+    return _animationInfos.find(animationName) != _animationInfos.end();
+}
+
+AnimationInfo ActionTimeline::getAnimationInfo(const std::string &animationName)
+{
+    return _animationInfos.find(animationName)->second;
 }
 
 void ActionTimeline::setFrameEventCallFunc(std::function<void(Frame *)> listener)
@@ -314,5 +375,4 @@ void ActionTimeline::stepToFrame(int frameIndex)
         _timelineList.at(i)->stepToFrame(frameIndex);
     }
 }
-
 NS_TIMELINE_END

@@ -29,7 +29,7 @@
 #include <vector>
 #include <thread>
 
-#if (CC_TARGET_PLATFORM != CC_PLATFORM_WIN32) && (CC_TARGET_PLATFORM != CC_PLATFORM_WP8) && (CC_TARGET_PLATFORM != CC_PLATFORM_WINRT)
+#if (CC_TARGET_PLATFORM != CC_PLATFORM_WIN32) && (CC_TARGET_PLATFORM != CC_PLATFORM_WINRT)
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
@@ -85,10 +85,10 @@ struct ProgressMessage
 // Implementation of AssetsManager
 
 AssetsManager::AssetsManager(const char* packageUrl/* =nullptr */, const char* versionFileUrl/* =nullptr */, const char* storagePath/* =nullptr */)
-:  _storagePath(storagePath)
+:  _storagePath(storagePath ? storagePath : "")
 , _version("")
-, _packageUrl(packageUrl)
-, _versionFileUrl(versionFileUrl)
+, _packageUrl(packageUrl ? packageUrl : "")
+, _versionFileUrl(versionFileUrl ? versionFileUrl : "")
 , _downloadedVersion("")
 , _curl(nullptr)
 , _connectionTimeout(0)
@@ -162,7 +162,8 @@ bool AssetsManager::checkUpdate()
     curl_easy_setopt(_curl, CURLOPT_SSL_VERIFYPEER, 0L);
     curl_easy_setopt(_curl, CURLOPT_WRITEFUNCTION, getVersionCode);
     curl_easy_setopt(_curl, CURLOPT_WRITEDATA, &_version);
-    if (_connectionTimeout) curl_easy_setopt(_curl, CURLOPT_CONNECTTIMEOUT, _connectionTimeout);
+    if (_connectionTimeout)
+        curl_easy_setopt(_curl, CURLOPT_CONNECTTIMEOUT, _connectionTimeout);
     curl_easy_setopt(_curl, CURLOPT_NOSIGNAL, 1L);
     curl_easy_setopt(_curl, CURLOPT_LOW_SPEED_LIMIT, LOW_SPEED_LIMIT);
     curl_easy_setopt(_curl, CURLOPT_LOW_SPEED_TIME, LOW_SPEED_TIME);
@@ -180,8 +181,7 @@ bool AssetsManager::checkUpdate()
         return false;
     }
     
-    string recordedVersion = UserDefault::getInstance()->getStringForKey(keyOfVersion().c_str());
-    if (recordedVersion == _version)
+    if (getVersion() == _version)
     {
         Director::getInstance()->getScheduler()->performFunctionInCocosThread([&, this]{
             if (this->_delegate)
@@ -260,9 +260,10 @@ void AssetsManager::update()
     
     // 1. Urls of package and version should be valid;
     // 2. Package should be a zip file.
-    if (_versionFileUrl.size() == 0 ||
-        _packageUrl.size() == 0 ||
-        std::string::npos == _packageUrl.find(".zip"))
+    if (_versionFileUrl.empty()
+        || _packageUrl.empty()
+        || FileUtils::getInstance()->getFileExtension(_packageUrl) != ".zip"
+        )
     {
         CCLOG("no version file url, or no package url, or the package is not a zip file");
         _isDownloading = false;
@@ -359,7 +360,7 @@ bool AssetsManager::uncompress()
             {
                 const string dir=_storagePath+fileNameStr.substr(0,index);
                 
-                FILE *out = fopen(dir.c_str(), "r");
+                FILE *out = fopen(FileUtils::getInstance()->getSuitableFOpen(dir).c_str(), "r");
                 
                 if(!out)
                 {
@@ -398,7 +399,7 @@ bool AssetsManager::uncompress()
             }
             
             // Create a file to store current file.
-            FILE *out = fopen(fullPath.c_str(), "wb");
+            FILE *out = fopen(FileUtils::getInstance()->getSuitableFOpen(fullPath).c_str(), "wb");
             if (! out)
             {
                 CCLOG("can not open destination file %s", fullPath.c_str());
@@ -454,7 +455,7 @@ bool AssetsManager::uncompress()
  */
 bool AssetsManager::createDirectory(const char *path)
 {
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT) || (CC_TARGET_PLATFORM == CC_PLATFORM_WP8)
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
     return FileUtils::getInstance()->createDirectory(_storagePath.c_str());
 #elif (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
     BOOL ret = CreateDirectoryA(path, nullptr);
@@ -496,7 +497,10 @@ static size_t downLoadPackage(void *ptr, size_t size, size_t nmemb, void *userda
 int assetsManagerProgressFunc(void *ptr, double totalToDownload, double nowDownloaded, double totalToUpLoad, double nowUpLoaded)
 {
     static int percent = 0;
-    int tmp = (int)(nowDownloaded / totalToDownload * 100);
+    int tmp = 0;
+    if (totalToDownload > 0) {
+        tmp = (int)(nowDownloaded / totalToDownload * 100);
+    }
     
     if (percent != tmp)
     {
@@ -517,7 +521,7 @@ bool AssetsManager::downLoad()
 {
     // Create a file to save package.
     const string outFileName = _storagePath + TEMP_PACKAGE_FILE_NAME;
-    FILE *fp = fopen(outFileName.c_str(), "wb");
+    FILE *fp = fopen(FileUtils::getInstance()->getSuitableFOpen(outFileName).c_str(), "wb");
     if (! fp)
     {
         Director::getInstance()->getScheduler()->performFunctionInCocosThread([&, this]{
@@ -646,7 +650,7 @@ AssetsManager* AssetsManager::create(const char* packageUrl, const char* version
 void AssetsManager::createStoragePath()
 {
     // Remove downloaded files
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT) || (CC_TARGET_PLATFORM == CC_PLATFORM_WP8)
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
     FileUtils::getInstance()->createDirectory(_storagePath.c_str());
 #elif (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
     if ((GetFileAttributesA(_storagePath.c_str())) == INVALID_FILE_ATTRIBUTES)
@@ -669,7 +673,7 @@ void AssetsManager::destroyStoragePath()
     deleteVersion();
     
     // Remove downloaded files
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT) || (CC_TARGET_PLATFORM == CC_PLATFORM_WP8)
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
     FileUtils::getInstance()->removeDirectory(_storagePath.c_str());
 #elif (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
     string command = "rd /s /q ";

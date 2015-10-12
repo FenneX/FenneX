@@ -25,13 +25,14 @@
 #ifndef __Manifest__
 #define __Manifest__
 
-#include "extensions/ExtensionMacros.h"
-#include "extensions/ExtensionExport.h"
-#include "Downloader.h"
-
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+#include "extensions/ExtensionMacros.h"
+#include "extensions/ExtensionExport.h"
+#include "network/CCDownloader.h"
+
 
 #include "json/document.h"
 
@@ -95,6 +96,10 @@ public:
      */
     const std::string& getVersion() const;
     
+    /** @brief Get the search paths list related to the Manifest.
+     */
+    std::vector<std::string> getSearchPaths() const;
+    
 protected:
     
     /** @brief Constructor for Manifest class
@@ -130,7 +135,7 @@ protected:
     /** @brief Generate resuming download assets list
      * @param units   The download units reference to be modified by the generation result
      */
-    void genResumeAssetsList(Downloader::DownloadUnits *units) const;
+    void genResumeAssetsList(network::DownloadUnits *units) const;
     
     /** @brief Prepend all search paths to the FileUtils.
      */
@@ -159,7 +164,9 @@ protected:
      */
     const std::string& getGroupVersion(const std::string &group) const;
     
-    /** @brief Gets assets.
+    /** 
+     * @brief Gets assets.
+     * @lua NA
      */
     const std::unordered_map<std::string, Asset>& getAssets() const;
     

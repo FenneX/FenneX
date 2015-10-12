@@ -21,7 +21,9 @@ CCMeshVertexIndexData.cpp \
 CCSprite3DMaterial.cpp \
 CCObjLoader.cpp \
 CCSkeleton3D.cpp \
-CCSprite3D.cpp
+CCSprite3D.cpp \
+CCTerrain.cpp \
+CCSkybox.cpp
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/..
 

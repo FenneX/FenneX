@@ -6,8 +6,7 @@
 #include "CCBAnimationManager.h"
 #include "CCNode+CCBRelativePositioning.h"
 
-//Necessary to fix a bug where preferedSize is erased by other modifications on CCScale9Sprite
-#define PROPERTY_PREFEREDSIZE "preferedSize" // TODO Should be "preferredSize". This is a typo in cocos2d-iphone, cocos2d-x and CocosBuilder!
+
 using namespace std;
 using namespace cocos2d;
 using namespace cocos2d::extension;
@@ -42,11 +41,6 @@ void NodeLoader::parseProperties(Node * pNode, Node * pParent, CCBReader * ccbRe
     int numRegularProps = ccbReader->readInt(false);
     int numExturaProps = ccbReader->readInt(false);
     int propertyCount = numRegularProps + numExturaProps;
-    
-    //Due to a bug in CCScale9Sprite (preferredSize is erased when doing other operations),
-    //the preferedSize have to be set last : save it here
-    bool preferedSizeWasSet = false;
-    Size preferedSize;
 
     for(int i = 0; i < propertyCount; i++) {
         bool isExtraProp = (i >= numRegularProps);
@@ -105,11 +99,11 @@ void NodeLoader::parseProperties(Node * pNode, Node * pParent, CCBReader * ccbRe
             __Array *extraPropsNames = static_cast<__Array*>(pNode->getUserObject());
             if (! extraPropsNames)
             {
-                extraPropsNames = Array::create();
+                extraPropsNames = __Array::create();
                 pNode->setUserObject(extraPropsNames);
             }
             
-            extraPropsNames->addObject(String::create(propertyName));
+            extraPropsNames->addObject(__String::create(propertyName));
         }
 
         switch(type) 
@@ -144,11 +138,6 @@ void NodeLoader::parseProperties(Node * pNode, Node * pParent, CCBReader * ccbRe
             case CCBReader::PropertyType::SIZE:
             {
                 Size size = this->parsePropTypeSize(pNode, pParent, ccbReader);
-                if(strcmp(propertyName.c_str(), PROPERTY_PREFEREDSIZE) == 0)
-                {
-                    preferedSizeWasSet = true;
-                    preferedSize = size;
-                }
                 if(setProp) {
                     this->onHandlePropTypeSize(pNode, pParent, propertyName.c_str(), size, ccbReader);
                 }
@@ -372,13 +361,9 @@ void NodeLoader::parseProperties(Node * pNode, Node * pParent, CCBReader * ccbRe
                 break;
             }
             default:
-                ASSERT_FAIL_UNEXPECTED_PROPERTYTYPE(type);
+                ASSERT_FAIL_UNEXPECTED_PROPERTYTYPE(static_cast<int>(type));
                 break;
         }
-    }
-    if(preferedSizeWasSet)
-    {
-        this->onHandlePropTypeSize(pNode, pParent, PROPERTY_PREFEREDSIZE, preferedSize, ccbReader);
     }
 }
 
@@ -983,7 +968,8 @@ Node * NodeLoader::parsePropTypeCCBFile(Node * pNode, Node * pParent, CCBReader 
         auto& ownerCallbackNodes = reader->getOwnerCallbackNodes();
         if (!ownerCallbackNames.empty() && !ownerCallbackNodes.empty())
         {
-            CCASSERT(ownerCallbackNames.size() == ownerCallbackNodes.size(), "");
+            CCASSERT(ownerCallbackNames.size() == ownerCallbackNodes.size(),
+                     "ownerCallbackNames size should equal to ownerCallbackNodes size.");
             ssize_t nCount = ownerCallbackNames.size();
             
             for (ssize_t i = 0 ; i < nCount; i++)
@@ -997,7 +983,8 @@ Node * NodeLoader::parsePropTypeCCBFile(Node * pNode, Node * pParent, CCBReader 
         auto ownerOutletNodes = reader->getOwnerOutletNodes();
         if (!ownerOutletNames.empty() && !ownerOutletNodes.empty())
         {
-            CCASSERT(ownerOutletNames.size() == ownerOutletNodes.size(), "");
+            CCASSERT(ownerOutletNames.size() == ownerOutletNodes.size(),
+                     "ownerOutletNames size should be equal to ownerOutletNodes's size.");
             ssize_t nCount = ownerOutletNames.size();
             
             for (ssize_t i = 0 ; i < nCount; i++)
