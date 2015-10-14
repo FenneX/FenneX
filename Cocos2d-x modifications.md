@@ -55,7 +55,7 @@ Cocos2d-x V3.3 Modifications
 * cocos2d/external/unzip.h => change include to "platform/CCPlatformConfig.h"
 
 
-Cocos2d-x V3.7 Modifications
+Cocos2d-x V3.8.1 Modifications
 ====
 
 * cocos/math/CCGeometry.h => Size now subclass Ref (to allow using it in structures)
