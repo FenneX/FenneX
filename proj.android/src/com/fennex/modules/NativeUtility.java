@@ -68,10 +68,6 @@ public class NativeUtility
 	
 	public static ActivityResultNotifier getMainActivity()
 	{
-		if(mainActivity == null)
-		{
-			Log.w(TAG, "Warning : null main Activity");
-		}
 		return mainActivity;
 	}
 
