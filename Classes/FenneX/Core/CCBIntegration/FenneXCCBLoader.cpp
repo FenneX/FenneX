@@ -313,7 +313,7 @@ void loadNodeToFenneX(Node* baseNode, Panel* parent)
             ui::Scale9Sprite* sprite = (ui::Scale9Sprite*)node;
             
             CCString* translationKey = isKindOfClass(sprite, CustomBaseNode) ? (CCString*)dynamic_cast<CustomBaseNode*>(sprite)->getParameters()->objectForKey("translationKey") : NULL;
-            std::string placeHolder = isKindOfClass(sprite, CustomInput) ? placeHolder = ((CustomInput*) sprite)->getPlaceHolder()->getCString() : "";
+            std::string placeHolder = isKindOfClass(sprite, CustomInput) ? ((CustomInput*) sprite)->getPlaceHolder()->getCString() : "";
             
             result = layer->createInputLabelFromScale9Sprite(sprite, parent);
             
