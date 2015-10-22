@@ -176,7 +176,7 @@ static int processTask(HttpClient* client, HttpRequest* request, NSString* reque
             [nsrequest setValue: @"application/x-www-form-urlencoded" forHTTPHeaderField: @"Content-Type"];
         }
         
-        char* requestDataBuffer = request->getRequestData();
+        const char* requestDataBuffer = request->getRequestData();
         if (nullptr !=  requestDataBuffer && 0 != request->getRequestDataSize())
         {
             NSData *postData = [NSData dataWithBytes:requestDataBuffer length:request->getRequestDataSize()];

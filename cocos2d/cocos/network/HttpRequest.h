@@ -73,6 +73,7 @@ public:
         POST,
         PUT,
         DELETE,
+        POSTFILE,
         UNKNOWN,
     };
     
@@ -166,17 +167,29 @@ public:
      */
     inline void setRequestData(const char* buffer, size_t len)
     {
-        _requestData.assign(buffer, buffer + len);
+        _requestData = buffer;
     };
-    /** 
+    /**
+     * Set the request data of HttpRequest object.
+     *
+     * @param buffer the buffer of request data, it support binary data.
+     * @param len    the size of request data.
+     */
+    inline void setRequestData(const std::string& data)
+    {
+        _requestData = data;
+    };
+    /**
      * Get the request data pointer of HttpRequest object.
      *
      * @return char* the request data pointer.
      */
-    inline char* getRequestData()
+    inline const char* getRequestData()
     {
         if(_requestData.size() != 0)
-            return &(_requestData.front());
+        {
+            return _requestData.c_str();
+        }
 
         return nullptr;
     }
@@ -342,17 +355,29 @@ public:
    		return _headers;
    	}
     
+    inline std::string getFilePath()
+    {
+        return _pFilePath;
+    }
+    
+    void setFilePath(std::string filepath)
+    {
+        _pFilePath = filepath;
+    }
+    
 protected:
     // properties
     Type                        _requestType;    /// kHttpRequestGet, kHttpRequestPost or other enums
     std::string                 _url;            /// target url that this request is sent to
-    std::vector<char>           _requestData;    /// used for POST
+    std::string                 _requestData;    /// used for POST // CHANGED HERE
     std::string                 _tag;            /// user defined tag, to identify different requests in response callback
     Ref*                        _pTarget;        /// callback target of pSelector function
     SEL_HttpResponse            _pSelector;      /// callback function, e.g. MyLayer::onHttpResponse(HttpClient *sender, HttpResponse * response)
     ccHttpRequestCallback       _pCallback;      /// C++11 style callbacks
     void*                       _pUserData;      /// You can add your customed data here 
     std::vector<std::string>    _headers;		      /// custom http headers
+    
+    std::string                 _pFilePath;
 };
 
 }

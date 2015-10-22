@@ -79,4 +79,7 @@ Cocos2d-x V3.8.1 Modifications
 * cocos/ui/UIEditBox.cpp => add editBoxEditingWillBegin to UIEditBoxDelegate
 * cocos2d/extensions/GUI/CCeditBox/CCEditBox.cpp => fix scaling problems for fontSize (not contentSize anymore)
 * Scale9Sprite::updateWithSprite  => comment _preferredSize = size; cause it erase information for some reason.
+* cocos2d/extensions/GUI/CCeditBox/* => Add support for keyboard return type "Next"
+* cocos2d/network/HttpClient/HttpRequest => change _requestData from std::vector<char> to std::string and add inline void setRequestData(const std::string& data)
+* cocos2d/network/* => add POSTFILE request type
 

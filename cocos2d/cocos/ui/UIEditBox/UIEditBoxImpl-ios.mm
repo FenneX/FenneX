@@ -434,6 +434,9 @@ void EditBoxImplIOS::setNativeReturnType(EditBox::KeyboardReturnType returnType)
         case EditBox::KeyboardReturnType::GO:
             _systemControl.textField.returnKeyType = UIReturnKeyGo;
             break;
+        case EditBox::KeyboardReturnType::NEXT:
+            _systemControl.textField.returnKeyType = UIReturnKeyNext;
+            break;
         default:
             _systemControl.textField.returnKeyType = UIReturnKeyDefault;
             break;

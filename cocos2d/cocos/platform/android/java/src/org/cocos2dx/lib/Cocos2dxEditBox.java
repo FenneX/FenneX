@@ -104,6 +104,7 @@ public class Cocos2dxEditBox extends EditText {
     private final int kKeyboardReturnTypeSend = 2;
     private final int kKeyboardReturnTypeSearch = 3;
     private final int kKeyboardReturnTypeGo = 4;
+    private final int kKeyboardReturnTypeNext = 5;
 
     private int mInputFlagConstraints;
     private int mInputModeContraints;
@@ -165,6 +166,9 @@ public class Cocos2dxEditBox extends EditText {
                 break;
             case kKeyboardReturnTypeGo:
                 this.setImeOptions(EditorInfo.IME_ACTION_GO | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+                break;
+            case kKeyboardReturnTypeNext:
+                this.setImeOptions(EditorInfo.IME_ACTION_NEXT | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
                 break;
             default:
                 this.setImeOptions(EditorInfo.IME_ACTION_NONE | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
