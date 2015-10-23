@@ -227,10 +227,9 @@ public class VideoPlayer extends Handler implements IVideoPlayer
     					uri = NativeUtility.getMainActivity().getUriFromFileName(path);
     				Log.i(TAG, "Using URI : " + uri.toString() + ", path : " + uri.getPath());
     				video.setVideoURI(uri);
-            		FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-            				VideoPlayer.isFullScreen ? (int) VideoPlayer.widthScreen : (int) VideoPlayer.localWidth, 
-            				VideoPlayer.isFullScreen ? (int) VideoPlayer.heightScreen : (int) VideoPlayer.localHeight,
-							Gravity.CENTER);
+                    FrameLayout.LayoutParams lp = VideoPlayer.isFullScreen ?
+                                                    new FrameLayout.LayoutParams(VideoPlayer.widthScreen, VideoPlayer.heightScreen, Gravity.CENTER) :
+                                                    new FrameLayout.LayoutParams((int) VideoPlayer.localWidth, (int) VideoPlayer.localHeight);
             		lp.leftMargin = (int)(VideoPlayer.isFullScreen ? 0 : widthScreen - localX - (localWidth / 2) + 0.5);
             		lp.topMargin = (int)(VideoPlayer.isFullScreen ? 0 : heightScreen - localY - (localHeight / 2) + 0.5);
             		video.setLayoutParams(lp);
