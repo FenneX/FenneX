@@ -19,6 +19,7 @@
     NSArray* pickerValues;
     int _identifier;
     CGFloat rowHeight;
+    UIInterfaceOrientation currentOrientation;
 }
 
 - (id) init;
