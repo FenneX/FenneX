@@ -138,6 +138,7 @@ InputLabel::InputLabel(const char* placeHolder, const char* fontName, int fontSi
     textDirty = false;
     originalInfos = NULL;
     name = placeHolder;
+    this->setFontSize(fontSize);
     ui::Scale9Sprite* sprite = ui::Scale9Sprite::create("green_edit.png", Rect(0, 0, 43, 38), Rect(4, 3, 35, 32));
     sprite->setPreferredSize(Size(43, 38));
     sprite->setOpacity(0);
