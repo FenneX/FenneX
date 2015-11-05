@@ -145,6 +145,7 @@ void uncaughtExceptionHandler(NSException *exception)
                                    multiSampling:NO
                                  numberOfSamples:0];
     [eaglView setMultipleTouchEnabled:YES];
+    eaglView.opaque = NO;
     
     // Use RootViewController manage EAGLView
     viewController = [[RootViewController alloc] initWithNibName:nil bundle:nil];
