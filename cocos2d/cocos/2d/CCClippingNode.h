@@ -32,6 +32,7 @@
 #include "platform/CCGL.h"
 #include "renderer/CCGroupCommand.h"
 #include "renderer/CCCustomCommand.h"
+#include "2d/CCActionTween.h"
 
 NS_CC_BEGIN
 /**
@@ -43,7 +44,7 @@ NS_CC_BEGIN
  * The stencil is an other Node that will not be drawn.
  * The clipping is done using the alpha part of the stencil (adjusted with an alphaThreshold).
  */
-class CC_DLL ClippingNode : public Node
+class CC_DLL ClippingNode : public Node, public ActionTweenDelegate
 {
 public:
     /** Creates and initializes a clipping node without a stencil.
