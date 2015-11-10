@@ -42,9 +42,7 @@ include(renderer/CMakeLists.txt)
 include(base/CMakeLists.txt)
 include(deprecated/CMakeLists.txt)
 include(ui/CMakeLists.txt)
-include(network/CMakeLists.txt)
-include(audio/CMakeLists.txt)
-include_directories(audio/include)
+include(network/CMakeLists.txt)-
 include(storage/CMakeLists.txt)
 
 if(BUILD_EDITOR_COCOSBUILDER)
@@ -64,23 +62,41 @@ endif(BUILD_EDITOR_SPINE)
 
 include(../extensions/CMakeLists.txt)
 
-set(COCOS_SRC cocos2d.cpp
-    ${COCOS_2D_SRC}
-    ${COCOS_3D_SRC}
-    ${COCOS_PLATFORM_SRC}
-    ${COCOS_PHYSICS_SRC}
-    ${COCOS_PHYSICS3D_SRC}
-    ${COCOS_MATH_SRC}
-    ${COCOS_NAVMESH_SRC}
-    ${COCOS_RENDERER_SRC}
-    ${COCOS_BASE_SRC}
-    ${COCOS_AUDIO_SRC}
-    ${COCOS_UI_SRC}
-    ${COCOS_DEPRECATED_SRC}
-    ${COCOS_NETWORK_SRC}
-    ${COCOS_EDITOR_SUPPORT_SRC}
-    ${COCOS_EXTENSIONS_SRC}
-    )
+if(MACOSX OR APPLE)
+  set(COCOS_SRC cocos2d.cpp
+      ${COCOS_2D_SRC}
+      ${COCOS_3D_SRC}
+      ${COCOS_PLATFORM_SRC}
+      ${COCOS_PHYSICS_SRC}
+      ${COCOS_PHYSICS3D_SRC}
+      ${COCOS_MATH_SRC}
+      ${COCOS_NAVMESH_SRC}
+      ${COCOS_RENDERER_SRC}
+      ${COCOS_BASE_SRC}
+      ${COCOS_UI_SRC}
+      ${COCOS_DEPRECATED_SRC}
+      ${COCOS_NETWORK_SRC}
+      ${COCOS_EDITOR_SUPPORT_SRC}
+      ${COCOS_EXTENSIONS_SRC}
+      )
+else()
+  set(COCOS_SRC cocos2d.cpp
+        ${COCOS_2D_SRC}
+        ${COCOS_3D_SRC}
+        ${COCOS_PLATFORM_SRC}
+        ${COCOS_PHYSICS_SRC}
+        ${COCOS_PHYSICS3D_SRC}
+        ${COCOS_MATH_SRC}
+        ${COCOS_NAVMESH_SRC}
+        ${COCOS_RENDERER_SRC}
+        ${COCOS_BASE_SRC}
+        ${COCOS_UI_SRC}
+        ${COCOS_DEPRECATED_SRC}
+        ${COCOS_NETWORK_SRC}
+        ${COCOS_EDITOR_SUPPORT_SRC}
+        ${COCOS_EXTENSIONS_SRC}
+        )
+endif()
 
   #todo: provide prebuild versions of the xx libs for all platforms
   include_directories(../external/xxtea)
@@ -106,23 +122,33 @@ elseif(MACOSX OR APPLE)
 
  FIND_LIBRARY(COCOA_LIBRARY Cocoa)
  FIND_LIBRARY(OPENGL_LIBRARY OpenGL )
- FIND_LIBRARY(AUDIOTOOLBOX_LIBRARY AudioToolbox)
  FIND_LIBRARY(OPENAL_LIBRARY OpenAL )
  FIND_LIBRARY(QUARTZCORE_LIBRARY QuartzCore )
  FIND_LIBRARY(APPLICATIONSERVICES_LIBRARY ApplicationServices)
  FIND_LIBRARY(IOKIT_LIBRARY IOKit)
  FIND_LIBRARY(FOUNDATION_LIBRARY Foundation)
 
+if(MACOSX OR APPLE)
   set(PLATFORM_SPECIFIC_LIBS
     ${COCOA_LIBRARY}
     ${OPENGL_LIBRARY}
     ${OPENAL_LIBRARY}
-    ${AUDIOTOOLBOX_LIBRARY}
     ${QUARTZCORE_LIBRARY}
     ${APPLICATIONSERVICES_LIBRARY}
     ${IOKIT_LIBRARY}
     ${FOUNDATION_LIBRARY}
   )
+else()
+  set(PLATFORM_SPECIFIC_LIBS
+    ${COCOA_LIBRARY}
+    ${OPENGL_LIBRARY}
+    ${OPENAL_LIBRARY}
+    ${QUARTZCORE_LIBRARY}
+    ${APPLICATIONSERVICES_LIBRARY}
+    ${IOKIT_LIBRARY}
+    ${FOUNDATION_LIBRARY}
+  )
+endif()
 
 elseif(ANDROID)
   set(PLATFORM_SPECIFIC_LIBS GLESv2 log android)

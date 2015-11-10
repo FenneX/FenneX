@@ -24,7 +24,7 @@ THE SOFTWARE.
 
 #include "cocostudio/CocoStudio.h"
 #include "ui/CocosGUI.h"
-#include "audio/include/SimpleAudioEngine.h"
+//#include "audio/include/SimpleAudioEngine.h"
 #include "base/ObjectFactory.h"
 
 using namespace cocos2d;
@@ -577,7 +577,7 @@ void SceneReader::destroyInstance()
 {
     DictionaryHelper::destroyInstance();
     TriggerMng::destroyInstance();
-    CocosDenshion::SimpleAudioEngine::end();
+    //CocosDenshion::SimpleAudioEngine::end();
     CC_SAFE_DELETE(s_sharedReader);
 }
 
