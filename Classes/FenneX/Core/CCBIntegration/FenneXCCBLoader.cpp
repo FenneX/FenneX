@@ -385,7 +385,7 @@ void linkInputLabels()
                 child->getNode()->setContentSize(child->getNode()->getContentSize());
                 if(input->getOriginalInfos() != NULL)
                 {
-                    ((ui::EditBox*)child->getNode())->setFontSize(input->getOriginalInfos()->getFontSize());
+                    input->setFontSize(input->getOriginalInfos()->getFontSize());
                 }
             }
             if((isKindOfClass(child, DropDownList)) && child->getEventInfos()->objectForKey("LinkTo") != NULL && isKindOfClass(child->getEventInfos()->objectForKey("LinkTo"), CCString))

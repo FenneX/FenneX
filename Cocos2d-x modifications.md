@@ -84,4 +84,5 @@ Cocos2d-x V3.8.1 Modifications
 * cocos2d/network/* => add POSTFILE request type
 * Remove AudioEngine
 * AppController::didFinishLaunchingWithOptions add eaglView.opaque = NO;
+* cocos2d/cocos/ui/UIEditBox/UiEditBox.cpp and UIEditBoxImpl-common.cpp => fix fontSize and contentSize using nodeToWorldTransform correctly
 

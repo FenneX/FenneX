@@ -230,10 +230,7 @@ void EditBox::setFontSize(int fontSize)
     _fontSize = fontSize;
     if (_editBoxImpl != nullptr)
     {
-        //_editBoxImpl->setFont(_fontName.c_str(), _fontSize);
-        //WARNING : this works for iOS, be sure to check on other platforms. Otherwise, the default is the previous line
-        AffineTransform transform = this->nodeToWorldTransform();
-        _editBoxImpl->setFont(_fontName.c_str(), _fontSize * transform.a); //use scaleX
+        _editBoxImpl->setFont(_fontName.c_str(), _fontSize);
     }
 }
 
@@ -271,7 +268,7 @@ void EditBox::setPlaceholderFontName(const char* pFontName)
     _placeholderFontName = pFontName;
     if (_editBoxImpl != nullptr)
     {
-        _editBoxImpl->setPlaceholderFont(pFontName, _fontSize);
+        _editBoxImpl->setPlaceholderFont(pFontName, _placeholderFontSize);
     }
 }
 
@@ -280,10 +277,7 @@ void EditBox::setPlaceholderFontSize(int fontSize)
     _placeholderFontSize = fontSize;
     if (_editBoxImpl != nullptr)
     {
-        //_editBoxImpl->setPlaceholderFont(_placeholderFontName.c_str(), _fontSize);
-        //WARNING : this works for iOS, be sure to check on other platforms. Otherwise, the default is the previous line
-        AffineTransform transform = this->nodeToWorldTransform();
-        _editBoxImpl->setPlaceholderFont(_placeholderFontName.c_str(), _fontSize * transform.a); //use scaleX
+        _editBoxImpl->setPlaceholderFont(_placeholderFontName.c_str(), fontSize);
     }
 }
 
