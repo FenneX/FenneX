@@ -69,6 +69,8 @@ InputLabel::InputLabel() : delegate(NULL)
 {
     isOpened = false;
     originalInfos = NULL;
+    fontSize = -1;
+    fontName = "";
 }
 
 InputLabel::InputLabel(ui::Scale9Sprite* sprite)
@@ -76,6 +78,8 @@ InputLabel::InputLabel(ui::Scale9Sprite* sprite)
     isOpened = false;
     textDirty = false;
     originalInfos = NULL;
+    fontSize = -1;
+    fontName = "";
     name = "CustomInputLabel";
     sprite->retain();
     sprite->removeFromParentAndCleanup(true);
@@ -137,6 +141,8 @@ InputLabel::InputLabel(const char* placeHolder, const char* fontName, int fontSi
     isOpened = false;
     textDirty = false;
     originalInfos = NULL;
+    fontSize = -1;
+    fontName = "";
     name = placeHolder;
     this->setFontSize(fontSize);
     ui::Scale9Sprite* sprite = ui::Scale9Sprite::create("green_edit.png", Rect(0, 0, 43, 38), Rect(4, 3, 35, 32));
@@ -341,6 +347,9 @@ void InputLabel::setInitialText(const std::string& text)
 void InputLabel::setIsPassword()
 {
     delegate->setInputFlag(ui::EditBox::InputFlag::PASSWORD);
+    //Re-apply fontSize and fontName because some devices will happily reset it (Nexus 7 on Android 5.1 for example).
+    setFontSize(fontSize);
+    setFontName(fontName);
 }
 
 int InputLabel::preventKeyboardOpen()
@@ -366,14 +375,26 @@ void InputLabel::releaseAllKeyboardLocks()
 
 void InputLabel::setFontSize(int size)
 {
+    fontSize = size;
     delegate->setFontSize(size);
     delegate->setPlaceholderFontSize(size);
 }
 
-void InputLabel::setFontName(std::string fontName)
+void InputLabel::setFontName(std::string name)
 {
-    delegate->setFontName(fontName.c_str());
-    delegate->setPlaceholderFontName(fontName.c_str());
+    fontName = name;
+    delegate->setFontName(name.c_str());
+    delegate->setPlaceholderFontName(name.c_str());
+}
+
+int InputLabel::getFontSize()
+{
+    return fontSize;
+}
+
+std::string InputLabel::getFontName()
+{
+    return fontName;
 }
 
 NS_FENNEX_END

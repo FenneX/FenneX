@@ -88,7 +88,9 @@ public:
     static void releaseAllKeyboardLocks();
     
     void setFontSize(int size);
-    void setFontName(std::string fontName);
+    void setFontName(std::string name);
+    int getFontSize();
+    std::string getFontName();
 protected:
     ui::EditBox* delegate;
     bool isOpened;
@@ -101,6 +103,9 @@ protected:
      bool textChanged;
      float originalFontSize;*/
     Vector<EventListenerCustom*> listeners;
+    
+    int fontSize;
+    std::string fontName;
 };
 NS_FENNEX_END
 
