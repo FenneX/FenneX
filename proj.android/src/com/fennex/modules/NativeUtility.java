@@ -104,14 +104,14 @@ public class NativeUtility
 
     public static String getUniqueIdentifier()
     {
-        String packageName = Settings.Secure.getString(getMainActivity().getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);;
+        String packageName = Settings.Secure.getString(getMainActivity().getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
         Log.d(TAG, "returning app package identifier : " + packageName);
         return packageName;
     }
 
     public static String getUniqueIdentifierByContext(Context context)
     {
-        String packageName = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);;
+        String packageName = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         Log.d(TAG, "returning app package identifier : " + packageName);
         return packageName;
     }
