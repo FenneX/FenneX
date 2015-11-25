@@ -105,8 +105,8 @@ public class NativeUtility
     public static String getUniqueIdentifier()
     {
         String uniqueIdentifier = Settings.Secure.getString(getMainActivity().getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-        Log.d(TAG, "returning unique identifier : " + uniqueIdentifier));
-        return packageName;
+        Log.d(TAG, "returning unique identifier : " + uniqueIdentifier);
+        return uniqueIdentifier;
     }
 
     public static String getUniqueIdentifierByContext(Context context)
