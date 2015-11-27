@@ -25,7 +25,6 @@ THE SOFTWARE.
 #ifndef __FenneX__SceneSwitcher__
 #define __FenneX__SceneSwitcher__
 
-#include "Logs.h"
 #include "cocos2d.h"
 USING_NS_CC;
 #include "Pausable.h"

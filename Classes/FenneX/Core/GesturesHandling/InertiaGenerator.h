@@ -25,7 +25,6 @@ THE SOFTWARE.
 #ifndef __FenneX__InertiaGenerator__
 #define __FenneX__InertiaGenerator__
 
-#include "Logs.h"
 #include "cocos2d.h"
 #include "Pausable.h"
 #include "FenneXMacros.h"

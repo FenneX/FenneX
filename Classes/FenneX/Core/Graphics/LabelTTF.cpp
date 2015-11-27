@@ -72,8 +72,8 @@ void LabelTTF::setLabelValue(const char* value, bool async)
         }
         else
         {*/
-            delegate->setDimensions(realDimensions.width / this->getScale(), 0);
-            delegate->setString(value);
+        delegate->setDimensions(realDimensions.width / this->getScaleX(), 0);
+        delegate->setString(value);
         //}
         this->adjustLabel();
     }

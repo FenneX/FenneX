@@ -25,7 +25,6 @@ THE SOFTWARE.
 #ifndef __FenneX__CustomObject__
 #define __FenneX__CustomObject__
 
-#include "Logs.h"
 #include "cocos2d.h"
 USING_NS_CC;
 #include "RawObject.h"

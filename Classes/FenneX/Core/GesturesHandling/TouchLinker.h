@@ -25,7 +25,6 @@ THE SOFTWARE.
 #ifndef __FenneX__TouchLinker__
 #define __FenneX__TouchLinker__
 
-#include "Logs.h"
 #include "cocos2d.h"
 #include "FenneXMacros.h"
 USING_NS_CC;

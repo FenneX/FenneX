@@ -24,7 +24,6 @@ THE SOFTWARE.
 
 #include "GraphicLayer.h"
 #include "Shorteners.h"
-#include "Logs.h"
 #include "SynchronousReleaser.h"
 #include "FenneXCCBLoader.h"
 #include "AppMacros.h"

@@ -25,7 +25,6 @@ THE SOFTWARE.
 #ifndef __FenneX__SynchronousReleaser__
 #define __FenneX__SynchronousReleaser__
 
-#include "Logs.h"
 #include "FenneXMacros.h"
 
 #include "cocos2d.h"
