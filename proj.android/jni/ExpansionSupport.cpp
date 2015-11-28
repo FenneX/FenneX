@@ -22,7 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************///
 
-#include "Logs.h"
 #include <jni.h>
 #include "platform/android/jni/JniHelper.h"
 #include "ExpansionSupport.h"

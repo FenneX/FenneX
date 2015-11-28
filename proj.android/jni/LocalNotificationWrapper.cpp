@@ -22,7 +22,6 @@
  THE SOFTWARE.
  ****************************************************************************///
 
-#include "Logs.h"
 #include "LocalNotificationWrapper.h"
 #include <jni.h>
 #include "platform/android/jni/JniHelper.h"

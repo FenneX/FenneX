@@ -22,7 +22,6 @@
  THE SOFTWARE.
  ****************************************************************************///
 
-#include "Logs.h"
 #include "platform/android/jni/JniHelper.h"
 #include "TTSWrapper.h"
 

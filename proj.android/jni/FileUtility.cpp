@@ -22,7 +22,6 @@
  THE SOFTWARE.
  ****************************************************************************///
 
-#include "Logs.h"
 #include "cocos2d.h"
 #include "FenneXCore.h"
 #include "platform/android/jni/JniHelper.h"
