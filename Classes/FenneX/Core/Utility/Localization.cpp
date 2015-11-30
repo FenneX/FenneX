@@ -25,7 +25,6 @@ THE SOFTWARE.
 #include "Localization.h"
 #include "PListPersist.h"
 #include "Shorteners.h"
-#include "Logs.h"
 #include "AppMacros.h"
 #include "NativeUtility.h"
 #include "StringUtility.h"

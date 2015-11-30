@@ -2,7 +2,7 @@
 
 #include "CCBReader.h"
 #include "CCNode+CCBRelativePositioning.h"
-#include "audio/include/SimpleAudioEngine.h"
+//#include "audio/include/SimpleAudioEngine.h"
 #include "CCBSelectorResolver.h"
 
 #include <string>
@@ -609,7 +609,7 @@ ActionInterval* CCBAnimationManager::getEaseAction(ActionInterval *pAction, CCBK
     }
     else
     {
-        log("CCBReader: Unkown easing type %d", easingType);
+        log("CCBReader: Unknown easing type %d", static_cast<int>(easingType));
         return pAction;
     }
 }
@@ -1052,7 +1052,7 @@ CCBSoundEffect* CCBSoundEffect::reverse() const
 
 void CCBSoundEffect::update(float time)
 {
-    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(_soundFile.c_str());
+    //CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(_soundFile.c_str());
 }
 
 

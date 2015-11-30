@@ -1,7 +1,7 @@
 /****************************************************************************
 Copyright (c) 2010      ForzeField Studios S.L. http://forzefield.com
 Copyright (c) 2010-2012 cocos2d-x.org
-Copyright (c) 2013-2014 Chukong Technologies Inc.
+Copyright (c) 2013-2015 Chukong Technologies Inc.
 
 http://www.cocos2d-x.org
 
@@ -23,8 +23,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
+
 #ifndef __CCARRAY_H__
 #define __CCARRAY_H__
+/// @cond DO_NOT_SHOW
 
 #define CC_USE_ARRAY_VECTOR 0
 
@@ -173,7 +175,7 @@ I found that it's not work in C++. So it keep what it's look like in version 1.0
     __arr__++)
 
 #define CCARRAY_FOREACH_REVERSE(__array__, __object__)                                                                  \
-    if ((__array__) && (__array__)->data != NULL && (__array__)->data->num > 0)                                                                      \
+    if ((__array__) && (__array__)->data->num > 0)                                                                      \
     for(Ref** __arr__ = (__array__)->data->arr + (__array__)->data->num-1, **__end__ = (__array__)->data->arr;     \
     __arr__ >= __end__ && (((__object__) = *__arr__) != NULL/* || true*/);                                              \
     __arr__--)
@@ -556,4 +558,5 @@ public:
 
 NS_CC_END
 
+/// @endcond
 #endif // __CCARRAY_H__

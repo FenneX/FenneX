@@ -589,7 +589,6 @@ Ref* __Array::getRandomObject()
 bool __Array::containsObject(Ref* object) const
 {
     if(!data) return false;
-
     return ccArrayContainsObject(data, object);
 }
 
@@ -735,7 +734,7 @@ __Array* __Array::clone() const
 {
     __Array* ret = new __Array();
     ret->autorelease();
-    ret->initWithCapacity(this->data == NULL ? 0 : this->data->num > 0 ? this->data->num : 1);
+    ret->initWithCapacity(this->data->num > 0 ? this->data->num : 1);
 
     Ref* obj = nullptr;
     Ref* tmpObj = nullptr;

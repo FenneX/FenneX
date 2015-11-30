@@ -27,7 +27,6 @@ THE SOFTWARE.
 
 #include "FenneXMacros.h"
 
-#include "Logs.h"
 #include "cocos2d.h"
 
 //CCBIntegration

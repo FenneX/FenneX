@@ -190,7 +190,8 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
     			}
     		});
 		}
-		return super.onKeyUp(keyCode, event);
+		// This is done to handle problem from having a surfaceview (like in VideoPLayer) overriding onKeyDown. ( So we override it again)
+		return org.cocos2dx.lib.Cocos2dxGLSurfaceView.getInstance().onKeyUp(keyCode, event);
 	}
 	
 	

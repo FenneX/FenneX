@@ -25,7 +25,6 @@ THE SOFTWARE.
 #ifndef __FenneX__GenericRecognizer__
 #define __FenneX__GenericRecognizer__
 
-#include "Logs.h"
 #include "cocos2d.h"
 USING_NS_CC;
 #include "TouchLinker.h"

@@ -57,43 +57,29 @@ void InputLabel::setPlaceHolderColor(Color3B color)
 
 void InputLabel::setLabelValue(const char* value)
 {
-    if(linkTo != NULL)
-    {
-        linkTo->setLabelValue(value);
-        if(!linkTo->isVisible() && delegate->isVisible())
-        {
-            delegate->setText(value);
-        }
-    }
-    else
-    {
-        delegate->setText(value);
-    }
+    delegate->setText(value);
 }
 
 const char* InputLabel::getLabelValue()
 {
-    return isPassword && passwordText != NULL ? passwordText->getCString() : linkTo != NULL ? (isUnedited() ? "" : linkTo->getLabelValue()) : delegate->getText();
+    return delegate->getText();
 }
 
 InputLabel::InputLabel() : delegate(NULL)
 {
-    linkTo = NULL;
     isOpened = false;
     originalInfos = NULL;
-    isPassword = false;
-    passwordText = NULL;
+    fontSize = -1;
+    fontName = "";
 }
 
 InputLabel::InputLabel(ui::Scale9Sprite* sprite)
 {
-    linkTo = NULL;
     isOpened = false;
     textDirty = false;
-    initialText = NULL;
     originalInfos = NULL;
-    isPassword = false;
-    passwordText = NULL;
+    fontSize = -1;
+    fontName = "";
     name = "CustomInputLabel";
     sprite->retain();
     sprite->removeFromParentAndCleanup(true);
@@ -112,7 +98,7 @@ InputLabel::InputLabel(ui::Scale9Sprite* sprite)
     delegate->setDelegate(this);
     delegate->setOpacity(0);
     delegate->setInputFlag(ui::EditBox::InputFlag::INITIAL_CAPS_SENTENCE);
-    
+
     //You HAVE to set the contentSize again, because CCControlButton do some weird thing on the UIEditbox content size which makes it work only on 1024x768
     //delegate->setContentSize(sprite->getPreferredSize());
     this->setPosition(position);
@@ -130,7 +116,7 @@ InputLabel::InputLabel(ui::Scale9Sprite* sprite)
         if(input->getPlaceHolder() != NULL)
         {
             delegate->setPlaceHolder(input->getPlaceHolder()->getCString());
-            this->setInitialText(input->getPlaceHolder());
+            this->setInitialText(input->getPlaceHolder()->getCString());
         }
         numbersOnly = input->getNumbersOnly();
         if(input->getMaxChar() != -1)
@@ -139,8 +125,8 @@ InputLabel::InputLabel(ui::Scale9Sprite* sprite)
         }
         if(input->getFontSize() > 0 && input->getFontName() != NULL)
         {
-            delegate->setFontName(input->getFontName()->getCString());
-            delegate->setFontSize(input->getFontSize());
+            this->setFontName(input->getFontName()->getCString());
+            this->setFontSize(input->getFontSize());
         }
         else if(input->getFontSize() > 0 || input->getFontName() != NULL)
         {
@@ -152,13 +138,13 @@ InputLabel::InputLabel(ui::Scale9Sprite* sprite)
 
 InputLabel::InputLabel(const char* placeHolder, const char* fontName, int fontSize, Vec2 location, ui::EditBox::InputMode inputMode, int maxChar, Size dimensions, TextHAlignment format)
 {
-    linkTo = NULL;
     isOpened = false;
     textDirty = false;
     originalInfos = NULL;
-    isPassword = false;
-    passwordText = NULL;
+    fontSize = -1;
+    fontName = "";
     name = placeHolder;
+    this->setFontSize(fontSize);
     ui::Scale9Sprite* sprite = ui::Scale9Sprite::create("green_edit.png", Rect(0, 0, 43, 38), Rect(4, 3, 35, 32));
     sprite->setPreferredSize(Size(43, 38));
     sprite->setOpacity(0);
@@ -166,8 +152,8 @@ InputLabel::InputLabel(const char* placeHolder, const char* fontName, int fontSi
     delegate->retain();
     if(strlen(placeHolder) > 0)
     {
-        CCString* placeholderWithBrackets = ScreateF("<%s>", placeHolder);
-        delegate->setPlaceHolder(placeholderWithBrackets->getCString());
+        std::string placeholderWithBrackets = "<" + std::string(placeHolder) + ">";
+        delegate->setPlaceHolder(placeholderWithBrackets.c_str());
         this->setInitialText(placeholderWithBrackets);
     }
     delegate->setFontColor(Color3B::BLACK);
@@ -196,11 +182,6 @@ InputLabel::~InputLabel()
         isOpened = false; //set the flag before so the TextFieldDetach isn't processed (it's a cancel)
         delegate->detachWithIME();
     }
-    if(initialText != NULL)
-    {
-        initialText->release();
-        initialText = NULL;
-    }
     for(EventListenerCustom* listener : listeners)
     {
         Director::getInstance()->getEventDispatcher()->removeEventListener(listener);
@@ -212,22 +193,10 @@ InputLabel::~InputLabel()
     {
         originalInfos->release();
     }
-    if(passwordText != NULL) passwordText->release();
 #if VERBOSE_DEALLOC
     CCLOG("Dealloc InputLabel %s", name.c_str());
 #endif
 }
-
-
-void InputLabel::setLinkTo(LabelTTF* var)
-{
-    linkTo = var;
-    delegate->setFontColor(((Label*)var->getNode())->getColor());
-    delegate->setPlaceHolder("");
-    delegate->setText("");
-    this->setInitialText(Screate(var->getLabelValue()));
-}
-
 
 void InputLabel::update(float deltaTime)
 {
@@ -294,8 +263,9 @@ void InputLabel::enableInputs(EventCustom* event)
     delegate->setEnabled(true);
 }
 
-void InputLabel::exitBoxEditingWillBegin(ui::EditBox* editBox)
+void InputLabel::editBoxEditingWillBegin(ui::EditBox* editBox)
 {
+    /*
     if(locks.size() == 0 && !isOpened && delegate->isEnabled())
     {
         CCLOG("editing will begin InputLabel");
@@ -311,7 +281,7 @@ void InputLabel::exitBoxEditingWillBegin(ui::EditBox* editBox)
             }
             linkTo->setVisible(false);
         }
-    }
+    }*/
 }
 
 
@@ -343,33 +313,6 @@ void InputLabel::editBoxEditingDidEnd(ui::EditBox* editBox)
     if(isOpened)
     { //on dealloc, the isOpened flag will be false to prevent this code from being executed (could be used for a cancel method too)
         isOpened = false;
-        if(linkTo != NULL)
-        {
-            if(strlen(delegate->getText()) > 0)
-            {
-                if(isPassword)
-                {
-                    IFEXIST(passwordText)->autorelease();
-                    passwordText = new CCString(delegate->getText());
-                    std::string bulletString;
-                    for(int i = 0; i < (int)strlen(delegate->getText()); i++)
-                    {
-                        bulletString.append("●");
-                    }
-                    linkTo->setLabelValue(bulletString.c_str());
-                }
-                else
-                {
-                    linkTo->setLabelValue(delegate->getText());
-                }
-            }
-            else
-            {
-                linkTo->setLabelValue(initialText->getCString());
-            }
-            delegate->setText("");
-            linkTo->setVisible(true);
-        }
         CCDictionary* param = this->getEventInfos();
         param->setObject(Screate(this->getLabelValue()), "Text");
         Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("TextAdded", param);
@@ -393,31 +336,20 @@ void InputLabel::editBoxTextChanged(ui::EditBox* editBox, const std::string& tex
 
 bool InputLabel::isUnedited()
 {
-    const char* compareTo = linkTo != NULL ? linkTo->getLabelValue() : delegate->getText();
-    return (initialText == NULL && strlen(compareTo) == 0) || (initialText != NULL && strcmp(compareTo, initialText->getCString()) == 0);
+    return strlen(delegate->getText()) == 0;
 }
 
-void InputLabel::setInitialText(CCString* text)
+void InputLabel::setInitialText(const std::string& text)
 {
-    if(linkTo != NULL)
-    {
-        linkTo->setLabelValue(text->getCString());
-    }
-    else
-    {
-        delegate->setPlaceHolder(text->getCString());
-    }
-    if(initialText != NULL)
-    {
-        initialText->release();
-    }
-    initialText = new CCString(*text);
+    delegate->setPlaceHolder(text.c_str());
 }
 
 void InputLabel::setIsPassword()
 {
-    isPassword = true;
     delegate->setInputFlag(ui::EditBox::InputFlag::PASSWORD);
+    //Re-apply fontSize and fontName because some devices will happily reset it (Nexus 7 on Android 5.1 for example).
+    setFontSize(fontSize);
+    setFontName(fontName);
 }
 
 int InputLabel::preventKeyboardOpen()
@@ -440,4 +372,29 @@ void InputLabel::releaseAllKeyboardLocks()
 {
     locks.clear();
 }
+
+void InputLabel::setFontSize(int size)
+{
+    fontSize = size;
+    delegate->setFontSize(size);
+    delegate->setPlaceholderFontSize(size);
+}
+
+void InputLabel::setFontName(std::string name)
+{
+    fontName = name;
+    delegate->setFontName(name.c_str());
+    delegate->setPlaceholderFontName(name.c_str());
+}
+
+int InputLabel::getFontSize()
+{
+    return fontSize;
+}
+
+std::string InputLabel::getFontName()
+{
+    return fontName;
+}
+
 NS_FENNEX_END

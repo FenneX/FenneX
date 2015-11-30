@@ -68,10 +68,6 @@ public class NativeUtility
 	
 	public static ActivityResultNotifier getMainActivity()
 	{
-		if(mainActivity == null)
-		{
-			Log.w(TAG, "Warning : null main Activity");
-		}
 		return mainActivity;
 	}
 
@@ -108,16 +104,16 @@ public class NativeUtility
 
     public static String getUniqueIdentifier()
     {
-        String packageName = Settings.Secure.getString(getMainActivity().getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);;
-        Log.d(TAG, "returning app package identifier : " + packageName);
-        return packageName;
+        String uniqueIdentifier = Settings.Secure.getString(getMainActivity().getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+        Log.d(TAG, "returning unique identifier : " + uniqueIdentifier);
+        return uniqueIdentifier;
     }
 
     public static String getUniqueIdentifierByContext(Context context)
     {
-        String packageName = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);;
-        Log.d(TAG, "returning app package identifier : " + packageName);
-        return packageName;
+        String uniqueIdentifier = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        Log.d(TAG, "returning unique identifier : " + uniqueIdentifier);
+        return uniqueIdentifier;
     }
     
     public static boolean isPhone()

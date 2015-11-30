@@ -25,7 +25,6 @@ THE SOFTWARE.
 #ifndef __FenneX__LayoutHandler__
 #define __FenneX__LayoutHandler__
 
-#include "Logs.h"
 #include "cocos2d.h"
 USING_NS_CC;
 #include "GraphicLayer.h"

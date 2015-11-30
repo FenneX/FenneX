@@ -1,14 +1,32 @@
-//
-//  DropDownListImplIOS.m
-//  FenneX
-//
-//  Created by Pierre Bertinet on 21/09/15.
-//
-//
+/****************************************************************************
+Copyright (c) 2013-2014 Auticiel SAS
+
+http://www.fennex.org
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+****************************************************************************///
 
 #import "DropDownListImplIOS.h"
 #import "AppController.h"
 #import "DropDownListWrapper.h"
+
+#define IS_IOS8_OR_NEWER ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0)
 
 @implementation DropDownListImplIOS
 
@@ -22,12 +40,22 @@
         CGFloat screenWidth = screenRect.size.width;
         CGFloat screenHeight = screenRect.size.height;
         
+        currentOrientation = ((UIViewController*)[AppController sharedController].viewController).interfaceOrientation;
+        
         UIViewController* rootVC = (UIViewController*)[AppController sharedController].viewController;
         
         // Take a quarter of a screen in dimension.
-        pickerView = [[UIPickerView alloc] initWithFrame:CGRectMake(screenWidth/4, screenHeight/2, screenWidth/2, screenHeight/2)];
-        pickerView.center = rootVC.view.superview.center;
+        if(!IS_IOS8_OR_NEWER)
+        {
+            pickerView = [[UIPickerView alloc] initWithFrame:CGRectMake(screenWidth/4, screenHeight/2, screenWidth/2, screenHeight/2)];
+            pickerView.transform = CGAffineTransformMakeRotation(((UIViewController*)[AppController sharedController].viewController).interfaceOrientation == UIInterfaceOrientationLandscapeRight ? M_PI / 2 : -M_PI / 2);
+        }
+        else
+        {
+            pickerView = [[UIPickerView alloc] initWithFrame:CGRectMake(screenWidth/4, screenHeight/2, screenWidth/2, screenHeight/4)];
+        }
         
+        pickerView.center = rootVC.view.superview.center;
         [pickerView setDelegate:self];
         pickerView.dataSource = self;
         pickerView.backgroundColor = [UIColor whiteColor];
@@ -35,7 +63,15 @@
         
         // Add Title view
         titleView = [[UILabel alloc] initWithFrame: CGRectMake(screenWidth/4, screenHeight/2 - rowHeight, screenWidth/2, rowHeight)];
-        titleView.center = CGPointMake(rootVC.view.superview.center.x, rootVC.view.superview.center.y - pickerView.bounds.size.height/2 - rowHeight/2);
+        if(IS_IOS8_OR_NEWER)
+        {
+            titleView.center = CGPointMake(rootVC.view.superview.center.x, rootVC.view.superview.center.y - pickerView.bounds.size.height/2 - rowHeight/2);
+        }
+        else
+        {
+            titleView.center = CGPointMake(rootVC.view.superview.center.x  + pickerView.bounds.size.height/2 + rowHeight/2, rootVC.view.superview.center.y);
+            titleView.transform = CGAffineTransformMakeRotation(currentOrientation == UIInterfaceOrientationLandscapeRight ? M_PI / 2 : -M_PI / 2);
+        }
         titleView.backgroundColor = [UIColor lightGrayColor];
         titleView.textColor = [UIColor whiteColor];
         [titleView setFont:[UIFont boldSystemFontOfSize:25]];
@@ -47,6 +83,7 @@
         background.backgroundColor = [UIColor blackColor];
         [background setAlpha:0.6f];
         
+        
         [rootVC.view.superview addSubview:background];
         [rootVC.view.superview addSubview:titleView];
         [rootVC.view.superview addSubview:pickerView];
@@ -57,8 +94,31 @@
         [background addGestureRecognizer:singleTap];
         [self hide];
         _identifier = -1;
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:@"UIDeviceOrientationDidChangeNotification" object:nil];
     }
     return self;
+}
+
+- (void) orientationChanged:(NSNotification*)data
+{ // Just in case
+    if(titleView != nil && pickerView != nil && !IS_IOS8_OR_NEWER)
+    {
+        UIInterfaceOrientation orientation = ((UIViewController*)[AppController sharedController].viewController).interfaceOrientation;
+        if(UIInterfaceOrientationIsLandscape(orientation) && orientation != currentOrientation)
+        {
+            CGAffineTransform transform = IS_IOS8_OR_NEWER ? CGAffineTransformIdentity : CGAffineTransformMakeRotation(orientation == UIInterfaceOrientationLandscapeRight ? M_PI / 2 : -M_PI / 2);
+            
+            [UIView transitionWithView:titleView duration:data == nil ? 0 : 0.5 options:UIViewAnimationOptionTransitionNone
+                            animations:^{titleView.transform = transform;}
+                            completion:NULL];
+            [UIView transitionWithView:pickerView duration:data == nil ? 0 : 0.5 options:UIViewAnimationOptionTransitionNone
+                            animations:^{pickerView.transform = transform;}
+                            completion:NULL];
+            
+            currentOrientation = orientation;
+        }
+    }
 }
 
 - (void) show

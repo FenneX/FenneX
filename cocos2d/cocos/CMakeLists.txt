@@ -35,14 +35,14 @@ include(2d/CMakeLists.txt)
 include(3d/CMakeLists.txt)
 include(platform/CMakeLists.txt)
 include(physics/CMakeLists.txt)
+include(physics3d/CMakeLists.txt)
 include(math/CMakeLists.txt)
+include(navmesh/CMakeLists.txt)
 include(renderer/CMakeLists.txt)
 include(base/CMakeLists.txt)
 include(deprecated/CMakeLists.txt)
 include(ui/CMakeLists.txt)
-include(network/CMakeLists.txt)
-include(audio/CMakeLists.txt)
-include_directories(audio/include)
+include(network/CMakeLists.txt)-
 include(storage/CMakeLists.txt)
 
 if(BUILD_EDITOR_COCOSBUILDER)
@@ -62,26 +62,45 @@ endif(BUILD_EDITOR_SPINE)
 
 include(../extensions/CMakeLists.txt)
 
-set(COCOS_SRC cocos2d.cpp
-    ${COCOS_2D_SRC}
-    ${COCOS_3D_SRC}
-    ${COCOS_PLATFORM_SRC}
-    ${COCOS_PHYSICS_SRC}
-    ${COCOS_MATH_SRC}
-    ${COCOS_RENDERER_SRC}
-    ${COCOS_BASE_SRC}
-    ${COCOS_AUDIO_SRC}
-    ${COCOS_UI_SRC}
-    ${COCOS_DEPRECATED_SRC}
-    ${COCOS_NETWORK_SRC}
-    ${COCOS_EDITOR_SUPPORT_SRC}
-    ${COCOS_EXTENSIONS_SRC}
-    )
+if(MACOSX OR APPLE)
+  set(COCOS_SRC cocos2d.cpp
+      ${COCOS_2D_SRC}
+      ${COCOS_3D_SRC}
+      ${COCOS_PLATFORM_SRC}
+      ${COCOS_PHYSICS_SRC}
+      ${COCOS_PHYSICS3D_SRC}
+      ${COCOS_MATH_SRC}
+      ${COCOS_NAVMESH_SRC}
+      ${COCOS_RENDERER_SRC}
+      ${COCOS_BASE_SRC}
+      ${COCOS_UI_SRC}
+      ${COCOS_DEPRECATED_SRC}
+      ${COCOS_NETWORK_SRC}
+      ${COCOS_EDITOR_SUPPORT_SRC}
+      ${COCOS_EXTENSIONS_SRC}
+      )
+else()
+  set(COCOS_SRC cocos2d.cpp
+        ${COCOS_2D_SRC}
+        ${COCOS_3D_SRC}
+        ${COCOS_PLATFORM_SRC}
+        ${COCOS_PHYSICS_SRC}
+        ${COCOS_PHYSICS3D_SRC}
+        ${COCOS_MATH_SRC}
+        ${COCOS_NAVMESH_SRC}
+        ${COCOS_RENDERER_SRC}
+        ${COCOS_BASE_SRC}
+        ${COCOS_UI_SRC}
+        ${COCOS_DEPRECATED_SRC}
+        ${COCOS_NETWORK_SRC}
+        ${COCOS_EDITOR_SUPPORT_SRC}
+        ${COCOS_EXTENSIONS_SRC}
+        )
+endif()
 
   #todo: provide prebuild versions of the xx libs for all platforms
-  include_directories(
-    ../external/xxhash
-    ../external/xxtea)
+  include_directories(../external/xxtea)
+  include_directories(../external/clipper)
 
 
 add_library(cocos2d ${COCOS_SRC})
@@ -103,23 +122,33 @@ elseif(MACOSX OR APPLE)
 
  FIND_LIBRARY(COCOA_LIBRARY Cocoa)
  FIND_LIBRARY(OPENGL_LIBRARY OpenGL )
- FIND_LIBRARY(AUDIOTOOLBOX_LIBRARY AudioToolbox)
  FIND_LIBRARY(OPENAL_LIBRARY OpenAL )
  FIND_LIBRARY(QUARTZCORE_LIBRARY QuartzCore )
  FIND_LIBRARY(APPLICATIONSERVICES_LIBRARY ApplicationServices)
  FIND_LIBRARY(IOKIT_LIBRARY IOKit)
  FIND_LIBRARY(FOUNDATION_LIBRARY Foundation)
 
+if(MACOSX OR APPLE)
   set(PLATFORM_SPECIFIC_LIBS
     ${COCOA_LIBRARY}
     ${OPENGL_LIBRARY}
     ${OPENAL_LIBRARY}
-    ${AUDIOTOOLBOX_LIBRARY}
     ${QUARTZCORE_LIBRARY}
     ${APPLICATIONSERVICES_LIBRARY}
     ${IOKIT_LIBRARY}
     ${FOUNDATION_LIBRARY}
   )
+else()
+  set(PLATFORM_SPECIFIC_LIBS
+    ${COCOA_LIBRARY}
+    ${OPENGL_LIBRARY}
+    ${OPENAL_LIBRARY}
+    ${QUARTZCORE_LIBRARY}
+    ${APPLICATIONSERVICES_LIBRARY}
+    ${IOKIT_LIBRARY}
+    ${FOUNDATION_LIBRARY}
+  )
+endif()
 
 elseif(ANDROID)
   set(PLATFORM_SPECIFIC_LIBS GLESv2 log android)
@@ -127,11 +156,15 @@ else()
   message( FATAL_ERROR "Unsupported platform, CMake will exit" )
 endif()
 
-foreach(pkg ZLIB MINIZIP JPEG PNG TIFF TinyXML2 FREETYPE WEBSOCKETS CURL FLATBUFFERS)
+foreach(pkg ZLIB MINIZIP JPEG PNG TIFF TinyXML2 FREETYPE WEBSOCKETS CURL FLATBUFFERS XXHASH)
   cocos_use_pkg(cocos2d ${pkg})
 endforeach()
 
-target_link_libraries(cocos2d xxhash ${PLATFORM_SPECIFIC_LIBS})
+if(LINUX)
+  set(glfw_other_linker_flags X11)
+endif(LINUX)
+
+target_link_libraries(cocos2d ${PLATFORM_SPECIFIC_LIBS} ${glfw_other_linker_flags})
 
 if(USE_WEBP)
   add_definitions(-DCC_USE_WEBP=1)
@@ -146,6 +179,14 @@ endif()
 
 if(USE_BOX2D)
   cocos_use_pkg(cocos2d Box2D)
+endif()
+
+if(USE_BULLET)
+  cocos_use_pkg(cocos2d BULLET)
+endif()
+
+if(USE_RECAST)
+  cocos_use_pkg(cocos2d RECAST)
 endif()
 
 set_target_properties(cocos2d

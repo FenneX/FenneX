@@ -23,7 +23,6 @@ THE SOFTWARE.
 ****************************************************************************///
 
 #include "AudioPlayerRecorder.h"
-#include "Logs.h"
 #include "NativeUtility.h"
 
 USING_NS_FENNEX;

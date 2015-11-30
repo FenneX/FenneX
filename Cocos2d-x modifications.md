@@ -53,3 +53,36 @@ Cocos2d-x V3.3 Modifications
 * cocos2d/cocos/base/CCEventCustom.h/cpp => add EventCustom::create
 * cocos2d/cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHelper.java remove if (!sInited) condition in init procedure
 * cocos2d/external/unzip.h => change include to "platform/CCPlatformConfig.h"
+
+
+Cocos2d-x V3.8.1 Modifications
+====
+
+* cocos/math/CCGeometry.h => Size now subclass Ref (to allow using it in structures)
+* cocos/CCDirector -> add setDisplayStatsWithBuild
+* cocos/renderer/CCTextureCache.h/.cpp => add std::string getKeyForTexture(Texture2D* tex) const;
+* cocos/base/CCDirector.h/.cpp => add support for build version via setDisplayStats
+* cocos2d/ui/UIEditBox/UIEditBox.h/.cpp => add closeKeyboard()
+* cocos2d/cocos/base/CCEventCustom.h/cpp => add EventCustom::create
+* cocos2d/external/unzip.h => change include to "platform/CCPlatformConfig.h"
+* cocos/deprecated/CCArray.cpp => add lazy init in addObject, addObjectsFromArray and insertObject to avoid crash
+* cocos/deprecated/CCArray.cpp => secure containsObject, remove*, count, capacity for no data
+* cocos/deprecated/CCArray.h => secure CC_ARRAY_FOREACH to work with no data
+* build/cocos2d_libs.xcodeproj/project.pbxproj => add armv7s architecture
+* cocos/base/ccConfig.h => disable physics, tiff, webp, script binding
+* cocos/Android.mk => disable tiff, webp, chipmunk and cocostudio
+* cocos/Android.mk => add cpu-feature
+* extanstions/android.mk => remove all Particle3D files from LOCAL_SRC_FILES
+* Remove all code between //Enhance comment and "import com.enhance.gameservice.IGameTuningService;" in cocos2d/cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHelper.java
+* cocos2d/cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHelper.java remove if (!sInited) condition in init procedure
+* cocos2d/ui/UIEditBox/UIEditBox.h => add getBackgroundSprite() method
+* cocos/ui/UIEditBox.cpp => add editBoxEditingWillBegin to UIEditBoxDelegate
+* cocos2d/extensions/GUI/CCeditBox/CCEditBox.cpp => fix scaling problems for fontSize (not contentSize anymore)
+* Scale9Sprite::updateWithSprite  => comment _preferredSize = size; cause it erase information for some reason.
+* cocos2d/extensions/GUI/CCeditBox/* => Add support for keyboard return type "Next"
+* cocos2d/network/HttpClient/HttpRequest => change _requestData from std::vector<char> to std::string and add inline void setRequestData(const std::string& data)
+* cocos2d/network/* => add POSTFILE request type
+* Remove AudioEngine
+* AppController::didFinishLaunchingWithOptions add eaglView.opaque = NO;
+* cocos2d/cocos/ui/UIEditBox/UiEditBox.cpp and UIEditBoxImpl-common.cpp => fix fontSize and contentSize using nodeToWorldTransform correctly
+

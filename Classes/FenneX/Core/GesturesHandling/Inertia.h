@@ -25,7 +25,6 @@ THE SOFTWARE.
 #ifndef __FenneX__Inertia__
 #define __FenneX__Inertia__
 
-#include "Logs.h"
 #include "cocos2d.h"
 USING_NS_CC;
 #include "Pausable.h"

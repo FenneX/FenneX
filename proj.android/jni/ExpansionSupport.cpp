@@ -22,7 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************///
 
-#include "Logs.h"
 #include <jni.h>
 #include "platform/android/jni/JniHelper.h"
 #include "ExpansionSupport.h"
@@ -34,7 +33,8 @@ USING_NS_FENNEX;
 bool checkExpansionFiles()
 {
 	JniMethodInfo minfo;
-	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"checkExpansionFiles", "()Z"), "Function doesn't exist");
+	bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"checkExpansionFiles", "()Z");
+	CCAssert(functionExist, "Function doesn't exist");
 	bool result = minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID);
     minfo.env->DeleteLocalRef(minfo.classID);
     return result;
@@ -43,7 +43,8 @@ bool checkExpansionFiles()
 std::string getExpansionFileFullPath(bool main)
 {
 	JniMethodInfo minfo;
-	CCAssert(JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"getExpansionFileFullPath", "(Z)Ljava/lang/String;"), "Function doesn't exist");
+	bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"getExpansionFileFullPath", "(Z)Ljava/lang/String;");
+	CCAssert(functionExist, "Function doesn't exist");
 	jstring result = (jstring)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID, (jboolean)main);
     std::string absolutePath = JniHelper::jstring2string(result);
 	minfo.env->DeleteLocalRef(minfo.classID);

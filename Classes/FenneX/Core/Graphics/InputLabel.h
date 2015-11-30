@@ -25,7 +25,6 @@ THE SOFTWARE.
 #ifndef __FenneX__InputLabel__
 #define __FenneX__InputLabel__
 
-#include "Logs.h"
 #include "cocos2d.h"
 USING_NS_CC;
 #include "RawObject.h"
@@ -39,10 +38,8 @@ NS_FENNEX_BEGIN
 //Note: since V3, the InputLabel must not have an OpenKeyboard event. This is handled by its delegate directly (as a CCControlButton). Otherwise, there will be a bug on Android where the keyboard is opened 2 times
 class InputLabel : public RawObject, public ui::EditBoxDelegate, public IMEDelegate, public InputLabelProtocol
 {
-    CC_SYNTHESIZE_READONLY(LabelTTF*, linkTo, LinkTo);
     CC_SYNTHESIZE_READONLY(CustomInput*, originalInfos, OriginalInfos);
 public:
-    virtual void setLinkTo(LabelTTF* var);
     
     cocos2d::Rect getBoundingBox();
     virtual void setPlaceHolderColor(Color3B color);
@@ -68,7 +65,7 @@ public:
     virtual void closeKeyboard(EventCustom* event);
     virtual void disableInputs(EventCustom* event);
     virtual void enableInputs(EventCustom* event);
-    virtual void exitBoxEditingWillBegin(ui::EditBox* editBox);
+    virtual void editBoxEditingWillBegin(ui::EditBox* editBox);
     virtual void editBoxEditingDidBegin(ui::EditBox* editBox);
     virtual void editBoxReturn(ui::EditBox* editBox);
     virtual void editBoxEditingDidEnd(ui::EditBox* editBox);
@@ -78,7 +75,7 @@ public:
     bool numbersOnly; //false by default
     
     bool isUnedited();
-    void setInitialText(CCString* text);
+    void setInitialText(const std::string& text);
     
     void setIsPassword();
     
@@ -88,20 +85,26 @@ public:
     static void releaseKeyboardLock(int key);
     //Release all locks. It should only be used during a Scene Switch or very particular cases
     static void releaseAllKeyboardLocks();
+    
+    void setFontSize(int size);
+    void setFontName(std::string name);
+    int getFontSize();
+    std::string getFontName();
 protected:
     ui::EditBox* delegate;
     bool isOpened;
     bool textDirty;
-    bool isPassword; //false by default
-    CCString* passwordText; //Since a password doesn't show its text, this field is use to keep the actual String value
     
-    CCString* initialText; //Used to know if the current text is the placeholder
+    std::string initialText; //Used to know if the current text is the placeholder
     /*
      //Used for automatic scaling of font according text
      int maxHeight;
      bool textChanged;
      float originalFontSize;*/
     Vector<EventListenerCustom*> listeners;
+    
+    int fontSize;
+    std::string fontName;
 };
 NS_FENNEX_END
 
