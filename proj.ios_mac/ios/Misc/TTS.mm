@@ -58,7 +58,11 @@ static TTS* _sharedTTS = nil;
         AVSpeechUtterance* utterance = [AVSpeechUtterance speechUtteranceWithString:t];
         //Magical number ... Thanks Apple for changing the speed on iOS 8
         //Default is 0.5 (way too fast), minimum is 0, maximum is 1
-        if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_7_1)
+        if(floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_8_3)
+        {
+            utterance.rate = AVSpeechUtteranceDefaultSpeechRate;
+        }
+        else if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_7_1)
         {
             utterance.rate = 0.15;
         }
