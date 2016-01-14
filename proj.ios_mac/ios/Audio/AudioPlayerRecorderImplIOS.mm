@@ -311,11 +311,12 @@ static AudioPlayerRecorderImpl* _sharedAudio = nil;
     [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
 }
 
-- (float) play:(float)startTime
+- (float) play:(float)startTime volume:(float)volume
 {
 	if(audioPlayer != nil)
 	{
         audioPlayer.currentTime = startTime;
+        audioPlayer.volume = volume;
         if(desiredPlaybackRate != 1)
         {
             audioPlayer.enableRate = YES;
@@ -338,7 +339,7 @@ static AudioPlayerRecorderImpl* _sharedAudio = nil;
     return 0;
 }
 
-- (float) playIndependentFile:(NSString*)file
+- (float) playIndependentFile:(NSString*)file volume:(float)volume
 {
     //try sound in bundle first
     NSURL* url = [[NSBundle mainBundle] URLForResource:[file stringByDeletingPathExtension] withExtension:@"mp3"];
@@ -368,6 +369,7 @@ static AudioPlayerRecorderImpl* _sharedAudio = nil;
     if(player != nil)
     {
         player.delegate = self;
+        player.volume = volume;
         if(desiredPlaybackRate != 1)
         {
             player.enableRate = YES;

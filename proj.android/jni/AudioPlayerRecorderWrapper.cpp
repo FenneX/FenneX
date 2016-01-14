@@ -107,16 +107,16 @@ void AudioPlayerRecorder::stopRecording()
     this->setPath("");
 }
 
-float AudioPlayerRecorder::play(const std::string& file, CCObject* linkTo, bool independent)
+float AudioPlayerRecorder::play(const std::string& file, CCObject* linkTo, bool independent, float volume)
 {
     JniMethodInfo minfo;
     
     if(independent)
     {
-        bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"playIndependent", "(Ljava/lang/String;)V");
+        bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"playIndependent", "(Ljava/lang/String;F)V");
         CCAssert(functionExist, "Function doesn't exist");
         jstring string0 = minfo.env->NewStringUTF(file.c_str());
-        minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, string0);
+        minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, string0, (jfloat)volume);
         minfo.env->DeleteLocalRef(minfo.classID);
         minfo.env->DeleteLocalRef(string0);
     }
@@ -138,10 +138,10 @@ float AudioPlayerRecorder::play(const std::string& file, CCObject* linkTo, bool 
             this->stopPlaying();
             this->setLink(linkTo);
             this->setPath(file);
-            bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"startPlaying", "(Ljava/lang/String;)V");
+            bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"startPlaying", "(Ljava/lang/String;F)V");
             CCAssert(functionExist, "Function doesn't exist");
             jstring string0 = minfo.env->NewStringUTF(file.c_str());
-            minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, string0);
+            minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, string0, (jfloat)volume);
             minfo.env->DeleteLocalRef(minfo.classID);
             minfo.env->DeleteLocalRef(string0);
         }

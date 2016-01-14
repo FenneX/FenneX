@@ -89,7 +89,8 @@ public:
     
     void record(const std::string& file, Ref* linkTo);
     void stopRecording();
-    float play(const std::string& file, Ref* linkTo, bool independent = false); //return the duration of the file
+    // volume is between 0 and 1, 1 is default value. Must be set just after the start of the sound.
+    float play(const std::string& file, Ref* linkTo, bool independent = false, float volume = 1); //return the duration of the file
     void stopPlaying(EventCustom* event = NULL);
     void fadeVolumeOut();
     

@@ -94,11 +94,12 @@ void AudioPlayerRecorder::stopRecording()
     this->setPath("");
 }
 
-float AudioPlayerRecorder::play(const std::string& file, CCObject* linkTo, bool independent)
+float AudioPlayerRecorder::play(const std::string& file, CCObject* linkTo, bool independent, float volume)
 {
     if(independent)
     {
-        return [[AudioPlayerRecorderImpl sharedAudio] playIndependentFile:[NSString stringWithUTF8String:file.c_str()]];
+        return [[AudioPlayerRecorderImpl sharedAudio] playIndependentFile:[NSString stringWithUTF8String:file.c_str()]
+                                                                   volume:volume];
     }
     else
     {
@@ -120,7 +121,8 @@ float AudioPlayerRecorder::play(const std::string& file, CCObject* linkTo, bool 
             this->setLink(linkTo);
             this->setPath(file);
             [[AudioPlayerRecorderImpl sharedAudio] setPlayFile:[NSString stringWithUTF8String:file.c_str()]];
-            return [[AudioPlayerRecorderImpl sharedAudio] play:0];
+            return [[AudioPlayerRecorderImpl sharedAudio] play:0
+                                                        volume:volume];
         }
     }
     return 0;

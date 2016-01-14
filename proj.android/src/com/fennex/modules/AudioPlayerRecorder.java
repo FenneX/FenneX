@@ -125,7 +125,7 @@ public class AudioPlayerRecorder extends Handler {
     	return mRecorder != null;
     }
 
-    public static void startPlaying(String fileName) 
+    public static void startPlaying(String fileName, float newVolume)
     {
         if(useVLC) {
             LibVLC vlc = null;
@@ -134,7 +134,7 @@ public class AudioPlayerRecorder extends Handler {
             } catch (LibVlcException e) {
                 e.printStackTrace();
             }
-            currentFile = startVLCPlayer(vlc, fileName, true);
+            currentFile = startVLCPlayer(vlc, fileName, true, newVolume);
         }
         else {
             mPlayer = new MediaPlayer();
@@ -162,28 +162,28 @@ public class AudioPlayerRecorder extends Handler {
                     notifyPlayingSoundEnded();
                 }
             });
-
-            currentFile = startMediaPlayer(mPlayer, fileName, true, true);
+            currentFile = startMediaPlayer(mPlayer, fileName, true, true, newVolume);
         }
         if(currentFile == null)
         {
         	mPlayer = null;
         	input = null;
         }
+        volume = newVolume;
     }
     
-    public static void playIndependent(String fileName) 
+    public static void playIndependent(String fileName, float newVolume)
     {
         MediaPlayer tmpPlayer = new MediaPlayer();
         tmpPlayer.setOnErrorListener(new OnErrorListener() {
             public boolean onError(MediaPlayer mp, int what, int extra) {
                 Log.e(TAG, "Error with MediaPlayer (getSoundDuration), stopping it. What : "
-            + (what == MediaPlayer.MEDIA_ERROR_UNKNOWN ? "Unknown" : "Server died")
-            + ", extra : "
-            + (extra == MediaPlayer.MEDIA_ERROR_IO ? "IO Error" : 
-            	extra == MediaPlayer.MEDIA_ERROR_UNSUPPORTED ? "Unsupported" : 
-            		extra == MediaPlayer.MEDIA_ERROR_MALFORMED ? "Malformed" :
-            			"Timed out"));
+                        + (what == MediaPlayer.MEDIA_ERROR_UNKNOWN ? "Unknown" : "Server died")
+                        + ", extra : "
+                        + (extra == MediaPlayer.MEDIA_ERROR_IO ? "IO Error" :
+                        extra == MediaPlayer.MEDIA_ERROR_UNSUPPORTED ? "Unsupported" :
+                                extra == MediaPlayer.MEDIA_ERROR_MALFORMED ? "Malformed" :
+                                        "Timed out"));
                 AudioPlayerRecorder.stopPlaying();
                 return true;
             }
@@ -201,13 +201,13 @@ public class AudioPlayerRecorder extends Handler {
                 Log.i(TAG, "Independent MediaPlayer finished");
             }
         });
-        
-        startMediaPlayer(tmpPlayer, fileName, true, false);
+        startMediaPlayer(tmpPlayer, fileName, true, false, newVolume);
     }
     
     //Return the full name of the file
-    private static String startMediaPlayer(MediaPlayer player, String file, boolean asyncPrepare, boolean isMain)
+    private static String startMediaPlayer(MediaPlayer player, String file, boolean asyncPrepare, boolean isMain, float newVolume)
     {
+        player.setVolume(newVolume, newVolume);
     	//try to load from data
     	String relativeName = file;
     	if(getFileExtension(file) == null) relativeName += ".mp3";
@@ -276,10 +276,12 @@ public class AudioPlayerRecorder extends Handler {
         private LibVLC player;
         private String fullName;
         private boolean isMain;
-        public StartVLCRunnable(LibVLC _player, String _fullName, boolean _isMain) {
+        private float volume;
+        public StartVLCRunnable(LibVLC _player, String _fullName, boolean _isMain, float _volume) {
             this.player = _player;
             this.fullName = _fullName;
             this.isMain = _isMain;
+            this.volume = _volume;
         }
 
         public void run() {
@@ -297,6 +299,7 @@ public class AudioPlayerRecorder extends Handler {
                 list.add(m);
                 player.setMediaList(list);
                 player.playIndex(0);
+                player.setVolume((int) (this.volume * 100));
                 setPlaybackRate(desiredPlaybackRate);
             }
             catch (IOException e)
@@ -310,7 +313,7 @@ public class AudioPlayerRecorder extends Handler {
         }
     }
 
-    private static String startVLCPlayer(LibVLC player, String file, boolean isMain)
+    private static String startVLCPlayer(LibVLC player, String file, boolean isMain, float newVolume)
     {
         //try to load from data
         String relativeName = file;
@@ -324,7 +327,7 @@ public class AudioPlayerRecorder extends Handler {
         if(target != null && target.exists())
         {
             //We have to implement a runnable to pass data, and because EventHandler can only be accessed on UI Thread
-            StartVLCRunnable runnable = new StartVLCRunnable(player, fullName, isMain);
+            StartVLCRunnable runnable = new StartVLCRunnable(player, fullName, isMain, newVolume);
             NativeUtility.getMainActivity().runOnUiThread(runnable);
         }
         //try to load from package using assets
@@ -340,7 +343,7 @@ public class AudioPlayerRecorder extends Handler {
                 if(fileDesc.valid())
                 {
                     NativeUtility.copyResourceFileToLocal(relativeName);
-                    startVLCPlayer(player, relativeName, isMain);
+                    startVLCPlayer(player, relativeName, isMain, newVolume);
                 }
                 else
                 {
@@ -359,7 +362,7 @@ public class AudioPlayerRecorder extends Handler {
     
     public static void stopPlaying() 
     {
-    	Log.d(TAG, "stop playing");
+        Log.d(TAG, "stop playing");
         if(useVLC)
         {
             try {
@@ -436,7 +439,7 @@ public class AudioPlayerRecorder extends Handler {
     {
     	final float speed = 0.010f;
 
-    	Log.d(TAG, "fade volume out");
+        Log.d(TAG, "fade volume out");
         if(useVLC)
         {
             new Thread(new Runnable() {
@@ -547,7 +550,7 @@ public class AudioPlayerRecorder extends Handler {
     
     public static void restart()
     {
-    	Log.d(TAG, "restart music");
+        Log.d(TAG, "restart music");
     	//stopPlaying();
     	//startPlaying(file);
 
@@ -586,7 +589,7 @@ public class AudioPlayerRecorder extends Handler {
             }
         });
         
-        String fullName = startMediaPlayer(tmpPlayer, fileName, false, false);
+        String fullName = startMediaPlayer(tmpPlayer, fileName, false, false, 1);
         //Convert to seconds
         float duration = (float) (fullName != null ? (float)tmpPlayer.getDuration() / 1000.0 : 0.0);
         tmpPlayer.reset();
