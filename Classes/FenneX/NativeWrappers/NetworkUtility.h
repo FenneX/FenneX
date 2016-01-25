@@ -37,6 +37,27 @@ bool isConnected();
 // It will go directly to the wifi settings on android
 void openWifiSettings();
 
+
+typedef enum
+{
+    NotImplemented = -1,
+    UnknownError = 1,
+    ServerError = 2,
+    NetworkUnavailable = 3,
+    CannotWrite = 4,
+}DownloadError;
+
+/* Download a file to a specific location. The url must be publicly accessible, and the localPath writable
+ url: full URL, containing the protocol (http/https)
+ localPath: absolute path, must be writable
+ onSuccess: callback when the file is fully downloaded
+ onError: callback when there is an error. The parameter indicates the error type
+ onProgressUpdate: callback when the progress % change. The parameter is a float between 0 and 1 indicating the completion
+ onSizeReceived: callback when we know the total size of the file. The parameter is an int of the total size in bytes
+ Warning: currently not implemented on iOS, will return error NotImplemented all the time
+ */
+void downloadFile(std::string url, std::string localPath, std::function<void()> onSuccess, std::function<void(DownloadError)>onError, std::function<void(float)>onProgressUpdate, std::function<void(int)> onSizeReceived);
+
 NS_FENNEX_END
 
 #endif /* NetworkUtility_h */

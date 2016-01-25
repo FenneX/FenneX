@@ -43,4 +43,10 @@ void openWifiSettings()
     }
 }
 
+
+void downloadFile(std::string url, std::string localPath, std::function<void()> onSuccess, std::function<void(DownloadError)>onError, std::function<void(float)>onProgressUpdate, std::function<void(int)> onSizeReceived)
+{
+    onError(NotImplemented);
+}
+
 NS_FENNEX_END
