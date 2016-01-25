@@ -151,25 +151,6 @@ std::string getLocalLanguage()
     return ret;
 }
 
-bool isConnected()
-{
-    JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "isConnected", "()Z");
-    CCAssert(functionExist, "Function doesn't exist");
-    bool isConnected =  minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID);
-    minfo.env->DeleteLocalRef(minfo.classID);
-    return isConnected;
-}
-
-void openWifiSettings()
-{
-    JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "openWifiSettings", "()V");
-    CCAssert(functionExist, "Function doesn't exist");
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID);
-    minfo.env->DeleteLocalRef(minfo.classID);
-}
-
 void preventIdleTimerSleep(bool prevent)
 {
     JniMethodInfo minfo;

@@ -22,19 +22,41 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************///
 
-#ifndef FenneX_FenneXWrappers_h
-#define FenneX_FenneXWrappers_h
+package com.fennex.modules;
 
-#include "AnalyticsWrapper.h"
-#include "AudioPickerWrapper.h"
-#include "AudioPlayerRecorder.h"
-#include "ImagePickerWrapper.h"
-#include "InAppWrapper.h"
-#include "LocalNotificationWrapper.h"
-#include "MailUrlWrapper.h"
-#include "NativeUtility.h"
-#include "NetworkUtility.h"
-#include "VideoPickerWrapper.h"
-#include "VideoPlayer.h"
+import android.content.Context;
+import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.provider.Settings;
+import android.util.Log;
+ */
+public class NetworkUtility
+{
+    private static final String TAG = "NetworkUtility";
+    public static boolean isConnected()
+    {
+    	ConnectivityManager connectivity = (ConnectivityManager) NativeUtility.getMainActivity().getApplicationContext().
+    			getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivity != null) 
+        {
+            NetworkInfo[] info = connectivity.getAllNetworkInfo();
+            if (info != null) 
+                for (int i = 0; i < info.length; i++) 
+                    if (info[i].getState() == NetworkInfo.State.CONNECTED)
+                    {
+                        return true;
+                    }
+        }
+        return false;
+    }
 
-#endif
+    public static void openWifiSettings()
+    {
+        if(NativeUtility.getMainActivity() != null)
+        {
+            Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
+            NativeUtility.getMainActivity().startActivity(intent);
+        }
+    }
+}

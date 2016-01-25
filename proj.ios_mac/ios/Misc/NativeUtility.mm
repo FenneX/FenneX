@@ -25,7 +25,6 @@
 #include "NativeUtility.h"
 #include "MailUrlWrapper.h"
 #import <UIKit/UIKit.h>
-#import "Reachability.h"
 #import <MediaPlayer/MediaPlayer.h>
 #import "AppController.h"
 #import <AudioToolbox/AudioServices.h>
@@ -76,21 +75,6 @@ std::string getLocalLanguage()
     NSDictionary* temp = [NSLocale componentsFromLocaleIdentifier:currentLanguage];
     NSString * languageCode = [temp objectForKey:NSLocaleLanguageCode];
     return [languageCode UTF8String];
-}
-
-bool isConnected()
-{
-    Reachability *reach = [Reachability reachabilityForInternetConnection];
-    NetworkStatus netStatus = [reach currentReachabilityStatus];
-    return netStatus != NotReachable;
-}
-
-void openWifiSettings()
-{
-    if (&UIApplicationOpenSettingsURLString != NULL)
-    {
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
-    }
 }
 
 void preventIdleTimerSleep(bool prevent)

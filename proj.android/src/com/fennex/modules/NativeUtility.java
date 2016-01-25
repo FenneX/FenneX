@@ -42,8 +42,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Vibrator;
@@ -241,32 +239,6 @@ public class NativeUtility
     	    	 NativeUtility.getMainActivity().getWindow().setBackgroundDrawable(new ColorDrawable((Color.rgb(r, g, b))));
     	     }
     	});
-    }
-    
-    public static boolean isConnected()
-    {
-    	ConnectivityManager connectivity = (ConnectivityManager) NativeUtility.getMainActivity().getApplicationContext().
-    			getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (connectivity != null) 
-        {
-            NetworkInfo[] info = connectivity.getAllNetworkInfo();
-            if (info != null) 
-                for (int i = 0; i < info.length; i++) 
-                    if (info[i].getState() == NetworkInfo.State.CONNECTED)
-                    {
-                        return true;
-                    }
-        }
-        return false;
-    }
-
-    public static void openWifiSettings()
-    {
-        if(getMainActivity() != null)
-        {
-            Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
-            getMainActivity().startActivity(intent);
-        }
     }
     
     public static void vibrate(int milliseconds)

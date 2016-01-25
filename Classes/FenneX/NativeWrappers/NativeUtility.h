@@ -66,12 +66,6 @@ void copyResourceFileToLocal(const std::string& path);
 //iOS version is defined in AppController
 std::string getLocalLanguage();
 
-bool isConnected();
-
-// Will launch settings page for iOS > 8.0 and do nothing before (not possible).
-// It will go directly to the wifi settings on android
-void openWifiSettings();
-
 void preventIdleTimerSleep(bool prevent);
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
