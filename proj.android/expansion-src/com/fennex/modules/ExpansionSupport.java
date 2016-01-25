@@ -213,48 +213,66 @@ public class ExpansionSupport extends DownloaderService implements ActivityObser
     	Log.i(TAG, "Expansion file exists");
         return true;
     }
-    
-    /* return the absolute path of the uncompressed file from the expansion if everything works well
+
+    /* return the relative path of  the expansion if everything works well
      * return null if there is no information about that expansion
-     * return "NOTDOWNLOADED" if the expansion file doesn't exist
+     */
+    public static String getExpansionFileName(boolean main)
+    {
+        String fileName = null;
+        int version = 0;
+        for (XAPKFile xf : xAPKS)
+        {
+            if(xf.mIsMain)
+            {
+                fileName = Helpers.getExpansionAPKFileName(NativeUtility.getMainActivity(), xf.mIsMain, xf.mFileVersion);
+                version = xf.mFileVersion;
+            }
+        }
+        if(fileName == null || version == 0)
+        { //early return because there was an error
+            return fileName;
+        }
+        String packageName = NativeUtility.getMainActivity().getPackageName();
+        //That's the file name, according to the documentation. Pretty complicated if you ask me.
+        return (main ? "main." : "patch.") +
+                version +
+                "." +
+                packageName +
+                ".obb";
+    }
+    /* return the absolute path of the expansion if everything works well
+     * return null if there is no information about that expansion
      */
     public static String getExpansionFileFullPath(boolean main)
     {
-    	//TODO : add a check beforehand : if the file already exists, directly return it instead of trying to read from expansion
+        String packageName = NativeUtility.getMainActivity().getPackageName();
+        return Environment.getExternalStorageDirectory() +
+                "/Android/obb/" +
+                packageName +
+                File.separator + getExpansionFileName(main) ;
+    }
+
+    public static boolean expansionExists(boolean main)
+    {
         String fileName = null;
         int version = 0;
-        for (XAPKFile xf : xAPKS) 
+        for (XAPKFile xf : xAPKS)
         {
-        	if(xf.mIsMain)
-        	{
-        		fileName = Helpers.getExpansionAPKFileName(NativeUtility.getMainActivity(), xf.mIsMain, xf.mFileVersion);
+            if(xf.mIsMain)
+            {
+                fileName = Helpers.getExpansionAPKFileName(NativeUtility.getMainActivity(), xf.mIsMain, xf.mFileVersion);
                 if (!Helpers.doesFileExist(NativeUtility.getMainActivity(), fileName, xf.mFileSize, false))
-                {  
-                	fileName = "NOTDOWNLOADED";
+                {
+                    fileName = "NOTDOWNLOADED";
                 }
                 else
                 {
-                	version = xf.mFileVersion;
+                    version = xf.mFileVersion;
                 }
-        	}
+            }
         }
-        if(fileName == null || version == 0 || fileName.equals(new String("NOTDOWNLAODED")))
-        { //early return because there was an error
-        	return fileName;
-        }
-        String packageName = NativeUtility.getMainActivity().getPackageName();
-        //That's the full path, according to the documentation. Pretty complicated if you ask me.
-        String absolutePath = Environment.getExternalStorageDirectory() + 
-        		"/Android/obb/" + 
-        		packageName + 
-        		File.separator + 
-        		(main ? "main." : "patch.") + 
-        		version + 
-        		"." + 
-        		packageName + 
-        		".obb";
-        
-        return absolutePath;
+        return fileName != null && version != 0 && !fileName.equals(new String("NOTDOWNLAODED"));
     }
 
     /**

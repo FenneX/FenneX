@@ -43,13 +43,26 @@ THE SOFTWARE.
  */
 bool checkExpansionFiles();
 
-/* Uncompress a file in an expansion
+/* Get the expansion file name
+ * main or patch : pass true for main, false for patch expansion
+ * return the file name if everything went correctly
+ * return NULL if the expansion was not declared in the app
+ */
+
+std::string getExpansionFileName(bool main);
+
+/* Get the full path of the expansion
  * main or patch : pass true for main, false for patch expansion
  * return the absolute path of the file if everything went correctly
- * return NULL if there was a problem, "NOTDOWNLOADED" if the expansion is not properly downloaded (in that case, retry checkExpansionFiles)
+ * return NULL if the expansion was not declared in the app
  */
 
 std::string getExpansionFileFullPath(bool main);
+
+/* Get true if the expansion exists and is downloaded, otherwise false
+ * main or patch : pass true for main, false for patch expansion
+ */
+bool expansionExists(bool main);
 
 static inline void notifyServiceConnected()
 {
