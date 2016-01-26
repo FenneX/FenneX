@@ -36,7 +36,7 @@ USING_NS_FENNEX;
 #define  CLASS_NAME "com/fennex/modules/NetworkUtility"
 
 NS_FENNEX_BEGIN
-	
+
 bool isConnected()
 {
     JniMethodInfo minfo;
@@ -73,70 +73,70 @@ void downloadFile(std::string url, std::string localPath, std::function<void()> 
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(jurl);
     minfo.env->DeleteLocalRef(jpath);
-		if(onSuccess) onSuccessCallbacks[nextDownloadID] = onSuccess;
-		if(onError) onErrorCallbacks[nextDownloadID] = onError;
-		if(onProgressUpdate) onProgressCallbacks[nextDownloadID] = onProgressUpdate;
-		if(onSizeReceived) onSizeReceivedCallbacks[nextDownloadID] = onSizeReceived;
-		nextDownloadID++;
+    if(onSuccess) onSuccessCallbacks[nextDownloadID] = onSuccess;
+    if(onError) onErrorCallbacks[nextDownloadID] = onError;
+    if(onProgressUpdate) onProgressCallbacks[nextDownloadID] = onProgressUpdate;
+    if(onSizeReceived) onSizeReceivedCallbacks[nextDownloadID] = onSizeReceived;
+    nextDownloadID++;
 }
 
 void notifySuccess(int downloadID)
 {
-		std::map<int, std::function<void()>>::iterator result = onSuccessCallbacks.find((int)downloadID);
-		if (result != onSuccessCallbacks.end()) 
-		{
-				result->second();
-		}	
+    std::map<int, std::function<void()>>::iterator result = onSuccessCallbacks.find((int)downloadID);
+    if (result != onSuccessCallbacks.end())
+    {
+        result->second();
+    }
 }
 
 void notifyError(int downloadID, int errorCode)
 {
-		std::map<int, std::function<void(DownloadError)>>::iterator result = onErrorCallbacks.find((int)downloadID);
-		if (result != onErrorCallbacks.end()) 
-		{
-				result->second((DownloadError)errorCode);
-		}	
+    std::map<int, std::function<void(DownloadError)>>::iterator result = onErrorCallbacks.find((int)downloadID);
+    if (result != onErrorCallbacks.end())
+    {
+        result->second((DownloadError)errorCode);
+    }
 }
 
 void notifyProgressUpdate(int downloadID, float percent)
 {
-		std::map<int, std::function<void(float)>>::iterator result = onProgressCallbacks.find((int)downloadID);
-		if (result != onProgressCallbacks.end()) 
-		{
-				result->second(percent);
-		}	
+    std::map<int, std::function<void(float)>>::iterator result = onProgressCallbacks.find((int)downloadID);
+    if (result != onProgressCallbacks.end())
+    {
+        result->second(percent);
+    }
 }
 
 void notifyLengthResolved(int downloadID, int length)
 {
-		std::map<int, std::function<void(int)>>::iterator result = onSizeReceivedCallbacks.find((int)downloadID);
-		if (result != onSizeReceivedCallbacks.end()) 
-		{
-				result->second(length);
-		}	
+    std::map<int, std::function<void(int)>>::iterator result = onSizeReceivedCallbacks.find((int)downloadID);
+    if (result != onSizeReceivedCallbacks.end())
+    {
+        result->second(length);
+    }
 }
 
 NS_FENNEX_END
 
 extern "C"
 {
-		void Java_com_fennex_modules_NetworkUtility_notifySuccess(JNIEnv* env, jobject thiz, jint downloadID)
-	  {
-				notifySuccess((int)downloadID);
-	  }
-			
-	  void Java_com_fennex_modules_NetworkUtility_notifyError(JNIEnv* env, jobject thiz, jint downloadID, jint errorCode)
-	  {
-				notifyError((int)downloadID, (int)errorCode);
-	  }
-			
-	  void Java_com_fennex_modules_NetworkUtility_notifyProgressUpdate(JNIEnv* env, jobject thiz, jint downloadID, jfloat percent)
-	  {
-				notifyProgressUpdate((int)downloadID, (float)percent);
-	  }
-			
-	  void Java_com_fennex_modules_NetworkUtility_notifyLengthResolved(JNIEnv* env, jobject thiz, jint downloadID, jint length)
-	  {
-				notifyLengthResolved((int)downloadID, (int)length);
-	  }
+    void Java_com_fennex_modules_NetworkUtility_notifySuccess(JNIEnv* env, jobject thiz, jint downloadID)
+    {
+        notifySuccess((int)downloadID);
+    }
+    
+    void Java_com_fennex_modules_NetworkUtility_notifyError(JNIEnv* env, jobject thiz, jint downloadID, jint errorCode)
+    {
+        notifyError((int)downloadID, (int)errorCode);
+    }
+    
+    void Java_com_fennex_modules_NetworkUtility_notifyProgressUpdate(JNIEnv* env, jobject thiz, jint downloadID, jfloat percent)
+    {
+        notifyProgressUpdate((int)downloadID, (float)percent);
+    }
+    
+    void Java_com_fennex_modules_NetworkUtility_notifyLengthResolved(JNIEnv* env, jobject thiz, jint downloadID, jint length)
+    {
+        notifyLengthResolved((int)downloadID, (int)length);
+    }
 }

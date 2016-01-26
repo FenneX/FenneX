@@ -419,12 +419,12 @@ public class AudioPlayerRecorder extends Handler {
 
     public static void stopRecording() 
     {
-    	Log.d(TAG, "stop recording");
-			if(mRecorder != null) {
-        mRecorder.stop();
-        mRecorder.release();
-        mRecorder = null;	
-			}
+        Log.d(TAG, "stop recording");
+        if(mRecorder != null) {
+            mRecorder.stop();
+            mRecorder.release();
+            mRecorder = null;
+        }
     }
     
     public static void deleteFile(String fileName) 
