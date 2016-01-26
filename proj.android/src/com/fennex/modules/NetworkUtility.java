@@ -81,7 +81,7 @@ public class NetworkUtility
         downloadTask.execute(url);
     }
 
-    private static class DownloadTask extends AsyncTask<String, Float, Integer> implements com.fennex.modules.DownloadTask {
+    private static class DownloadTask extends AsyncTask<String, Float, Integer> {
         private PowerManager.WakeLock mWakeLock;
         private int downloadId;
         private String savePath;
@@ -175,17 +175,6 @@ public class NetworkUtility
             NativeUtility.getMainActivity().runOnGLThread(new Runnable() {
                 public void run() {
                     notifyProgressUpdate(downloadId, progress[progress.length - 1]);
-                }
-            });
-        }
-
-        @Override
-        public void onProgressUpdate(final Float progress) {
-            super.onProgressUpdate(progress);
-            // if we get here, length is known. Only the latest progress is interesting to us
-            NativeUtility.getMainActivity().runOnGLThread(new Runnable() {
-                public void run() {
-                    notifyProgressUpdate(downloadId, progress);
                 }
             });
         }
