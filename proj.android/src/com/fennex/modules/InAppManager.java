@@ -416,10 +416,18 @@ public class InAppManager implements ActivityResultResponder
     			{
 		            if (result.isFailure()) {
 		                Log.e(TAG, "Error purchasing: " + result);
-		                if(result.getResponse() == IabHelper.IABHELPER_USER_CANCELLED)
+						/*If the activity is cancelled, we can't get IabHelper.IABHELPER_USER_CANCELLED, because it hides BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED
+						 We changed IabHelper code directly to show the actuall BILLING response code, so we need to handle all of them
+						 Most of them default to ErrorTransactionFailure
+						 */
+		                if(result.getResponse() == IabHelper.BILLING_RESPONSE_RESULT_USER_CANCELED)
 		                {
 		                	getInstance().notifyInAppEvent("PayementCanceledTransactionFailure", "Failure");
 		                }
+						else if(result.getResponse() == IabHelper.BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED)
+						{
+							getInstance().notifyInAppEvent("ProductRestored", purchase.getSku());
+						}
 		                else if(result.getResponse() == IabHelper.IABHELPER_VERIFICATION_FAILED)
 		                {
 		                	getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload");
