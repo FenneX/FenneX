@@ -43,7 +43,21 @@ void Java_org_cocos2dx_socialhandy_FenneX_notifyImagePickedWrapper(JNIEnv* env, 
 
 //check if it's a supported platform
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-bool pickImageFrom(const std::string& saveName, bool useCamera, int width, int height, const std::string& identifier, bool rescale = true, float thumbnailScale = -1);
+
+typedef enum
+{
+    Camera = 0,
+    PhotoLibrary = 1,
+    FileLibrary = 2,
+}PickOption;
+/**
+ * The PickOption is used to change the picker form.
+ * The Camera launch the camera apps and take a normal picture
+ * The PhotoLibrary launch the galleryApp to pick from it
+ * On iOS, the PhotoLibrary is the same as FileLibrary.
+ * The FileLibrary launch a file explorer app where the name is visible. The user can choose the app, so if it's a custom one, it can potentially return something wrong and not apply the filter.
+ **/
+bool pickImageFrom(const std::string& saveName, PickOption pickOption, int width, int height, const std::string& identifier, bool rescale = true, float thumbnailScale = -1);
 bool isCameraAvailable();
 
 static inline void notifyImagePicked(std::string name, std::string identifier)

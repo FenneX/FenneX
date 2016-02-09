@@ -228,7 +228,7 @@ public class ImagePicker implements ActivityResultResponder
     			NativeUtility.getMainActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
     }
     
-    public static boolean pickImageFrom(String saveName, boolean useCamera, int width, int height, String identifier, float thumbnailScale, boolean rescale)
+    public static boolean pickImageFrom(String saveName, int pickOption, int width, int height, String identifier, float thumbnailScale, boolean rescale)
     {
     	ImagePicker.getInstance(); //ensure the instance is created
     	_fileName = saveName.concat(".png");
@@ -238,7 +238,7 @@ public class ImagePicker implements ActivityResultResponder
         _thumbnailScale = thumbnailScale;
         _rescale = rescale;
     	boolean error = false;
-    	if(useCamera)
+    	if(pickOption == 0)
     	{
     		try
     		{
@@ -261,14 +261,27 @@ public class ImagePicker implements ActivityResultResponder
     	{
     		try
     		{
-    			Intent intent = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-    			intent.setType("image/*");
+                Intent intent;
+                if(pickOption == 1)
+                {
+                    intent = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                }
+                else
+                {
+                    intent = new Intent(Intent.ACTION_GET_CONTENT ,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+                }
+                intent.setType("image/*");
                 isPending = true;
-    			NativeUtility.getMainActivity().startActivityForResult(intent, PICTURE_GALLERY);
+                NativeUtility.getMainActivity().startActivityForResult(intent, PICTURE_GALLERY);
     		}
     		catch(ActivityNotFoundException e)
     		{
-    	    	Log.d(TAG, "intent for image pick from library not found : " + e.getMessage());
+                if(pickOption == 1)
+    	    	    Log.d(TAG, "intent for image pick from Galery not found : " + e.getMessage());
+                else
+                    Log.d(TAG, "intent for image pick from File library not found : " + e.getMessage());
+
     	    	error = true;
     		}
     	}

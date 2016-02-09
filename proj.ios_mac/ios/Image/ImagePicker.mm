@@ -32,7 +32,7 @@
 USING_NS_CC;
 USING_NS_FENNEX;
 
-bool pickImageFrom(const std::string& saveName, bool useCamera, int width, int height, const std::string& identifier, bool rescale, float thumbnailScale)
+bool pickImageFrom(const std::string& saveName, PickOption pickOption, int width, int height, const std::string& identifier, bool rescale, float thumbnailScale)
 {
     CCDirector::sharedDirector()->stopAnimation();
     [ImagePicker sharedPicker].saveName = [NSString stringWithFormat:@"%s", saveName.c_str()];
@@ -44,10 +44,10 @@ bool pickImageFrom(const std::string& saveName, bool useCamera, int width, int h
     [[ImagePicker sharedPicker] initController];
     NSLog(@"Picking image %s", saveName.c_str());
     
-    [[ImagePicker sharedPicker] setSourceType:useCamera ? UIImagePickerControllerSourceTypeCamera : UIImagePickerControllerSourceTypePhotoLibrary];
+    [[ImagePicker sharedPicker] setSourceType:pickOption == PickOption::Camera ? UIImagePickerControllerSourceTypeCamera : UIImagePickerControllerSourceTypePhotoLibrary];
     if([AppController sharedController] != NULL)
     {
-        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad && !useCamera)
+        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad && !(pickOption == PickOption::Camera))
         {
             UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:[ImagePicker sharedPicker].controller];
             [popover setDelegate:[ImagePicker sharedPicker]];
