@@ -24,7 +24,6 @@ THE SOFTWARE.
 
 package com.fennex.modules;
 
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -41,10 +40,7 @@ import android.media.MediaPlayer;
 
 import org.videolan.libvlc.EventHandler;
 import org.videolan.libvlc.LibVLC;
-import org.videolan.libvlc.LibVlcException;
-import org.videolan.libvlc.LibVlcUtil;
 import org.videolan.libvlc.Media;
-import org.videolan.libvlc.MediaList;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -61,6 +57,10 @@ public class AudioPlayerRecorder extends Handler {
     private static String currentFile = null;
     private static float volume = 1;
     private static String[] audioTypes = {"mp3", "3gp", "flac", "ogg", "wav"};
+
+
+    private static LibVLC libVLC = null;
+    private static org.videolan.libvlc.MediaPlayer vlcMediaPlayer = null;
 
     public static boolean useVLC = false;
     private static float desiredPlaybackRate; //Playback rate must be kept between sessions (when restarting video)
@@ -87,10 +87,9 @@ public class AudioPlayerRecorder extends Handler {
         { //If the app crash here, check that libvlc is properly compiled using compile.sh
             try
             {
-                System.loadLibrary("vlcjni");
+                //System.loadLibrary("vlcjni");
+                libVLC = new LibVLC();
                 Log.i(TAG, "LibVLC loaded");
-
-                LibVlcUtil.getLibVlcInstance().init(NativeUtility.getMainActivity());
             }
             catch(Exception e)
             {
@@ -102,21 +101,15 @@ public class AudioPlayerRecorder extends Handler {
         useVLC = use;
     }
 
-
     public static boolean isPlaying()
     {
     	Log.d(TAG, "returning isPlaying");
         if(useVLC) {
-            try {
-                return LibVlcUtil.getLibVlcInstance().isPlaying();
-            } catch (LibVlcException e) {
-                e.printStackTrace();
-            }
+            return vlcMediaPlayer != null && vlcMediaPlayer.isPlaying();
         }
         else {
             return mPlayer != null && mPlayer.isPlaying();
         }
-        return false;
     }
     
     public static boolean isRecording()
@@ -128,13 +121,7 @@ public class AudioPlayerRecorder extends Handler {
     public static void startPlaying(String fileName, float newVolume)
     {
         if(useVLC) {
-            LibVLC vlc = null;
-            try {
-                vlc = LibVlcUtil.getLibVlcInstance();
-            } catch (LibVlcException e) {
-                e.printStackTrace();
-            }
-            currentFile = startVLCPlayer(vlc, fileName, true, newVolume);
+            currentFile = startVLCPlayer(libVLC, fileName, true, newVolume);
         }
         else {
             mPlayer = new MediaPlayer();
@@ -271,6 +258,8 @@ public class AudioPlayerRecorder extends Handler {
         }
         return fullName;
     }
+
+
     private static class StartVLCRunnable implements Runnable
     {
         private LibVLC player;
@@ -290,16 +279,16 @@ public class AudioPlayerRecorder extends Handler {
                 File target = new File(fullName);
                 FileInputStream stream = new FileInputStream(target);
                 if(isMain) input = stream;
-                MediaList list = player.getPrimaryMediaList();
-                list.clear();
-                Media m = new Media(player, LibVLC.PathToURI(fullName));
+                if(vlcMediaPlayer == null)
+                {
+                    vlcMediaPlayer = new org.videolan.libvlc.MediaPlayer(player);
+                }
+                Media m = new Media(player, fullName);
                 //Native crash for no good reason, as if the instance is invalid (it has been init by LibVLC before)
                 EventHandler.getInstance().addHandler(getInstance());
-                list.getEventHandler().addHandler(getInstance());
-                list.add(m);
-                player.setMediaList(list);
-                player.playIndex(0);
-                player.setVolume((int) (this.volume * 100));
+                vlcMediaPlayer.setMedia(m);
+                vlcMediaPlayer.setVolume((int)(volume*100));
+                vlcMediaPlayer.play();
                 setPlaybackRate(desiredPlaybackRate);
             }
             catch (IOException e)
@@ -365,11 +354,12 @@ public class AudioPlayerRecorder extends Handler {
         Log.d(TAG, "stop playing");
         if(useVLC)
         {
-            try {
-                LibVLC vlc = LibVlcUtil.getLibVlcInstance();
-                vlc.stop();
-            } catch (LibVlcException e) {
-                e.printStackTrace();
+            if(vlcMediaPlayer != null) {
+                vlcMediaPlayer.stop();
+            }
+            else
+            {
+                Log.e(TAG, "stop vlcMediaPlayer is Null");
             }
         }
         else if(mPlayer != null)
@@ -393,6 +383,7 @@ public class AudioPlayerRecorder extends Handler {
             mPlayer = null;
     	}
     }
+
     public static void startRecording(String fileName) 
     {
     	currentFile = NativeUtility.getLocalPath() + "/" + fileName;
@@ -446,24 +437,25 @@ public class AudioPlayerRecorder extends Handler {
         {
             new Thread(new Runnable() {
                 public void run() {
-                    try {
-                        LibVLC vlc = LibVlcUtil.getLibVlcInstance();
-                        int originalVolume = vlc.getVolume();
-                        while(volume >= 0 && vlc.isPlaying())
+                    if(vlcMediaPlayer != null)
+                    {
+                        int originalVolume = vlcMediaPlayer.getVolume();
+                        while(volume >= 0 && vlcMediaPlayer.isPlaying())
                         {
                             volume -= speed;
-                            vlc.setVolume((int)(volume * originalVolume));
+                            vlcMediaPlayer.setVolume((int)(volume * originalVolume));
                             try {
                                 Thread.sleep(25);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
                         }
-                        vlc.stop();
-                        vlc.setVolume(originalVolume);
-                        volume = 1;
-                    } catch (LibVlcException e) {
-                        e.printStackTrace();
+                        vlcMediaPlayer.stop();
+                        vlcMediaPlayer.setVolume(originalVolume);
+                    }
+                    else
+                    {
+                        Log.e(TAG, "fadeVolumeOut vlcMediaPlayer is Null");
                     }
                 }
             }).start();
@@ -506,29 +498,27 @@ public class AudioPlayerRecorder extends Handler {
     {
         if(useVLC)
         {
-            try {
-                LibVlcUtil.getLibVlcInstance().setRate(rate);
-            } catch (LibVlcException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            if(vlcMediaPlayer != null) {
+                vlcMediaPlayer.setRate(rate);
+            }
+            else
+            {
+                Log.e(TAG, "setPlaybackRate vlcMediaPlayer is Null");
             }
             desiredPlaybackRate = rate;
-            return;
         }
-        Log.e(TAG, "setPlaybackRate is only implemented for LibVLC");
+        else
+        {
+            Log.e(TAG, "setPlaybackRate is only implemented for LibVLC");
+        }
     }
 
     public static void play()
     {
     	Log.d(TAG, "play music");
         if(useVLC) {
-            try {
-                LibVlcUtil.getLibVlcInstance().play();
-                setPlaybackRate(desiredPlaybackRate);
-            } catch (LibVlcException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            if(vlcMediaPlayer != null)
+                vlcMediaPlayer.play();
         }
     	else if(mPlayer != null)
     			mPlayer.start();
@@ -538,11 +528,13 @@ public class AudioPlayerRecorder extends Handler {
     {
     	Log.d(TAG, "pause music");
         if(useVLC) {
-            try {
-                LibVlcUtil.getLibVlcInstance().pause();
-            } catch (LibVlcException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            if(vlcMediaPlayer != null)
+            {
+                vlcMediaPlayer.pause();
+            }
+            else
+            {
+                Log.e(TAG, "pause vlcMediaPlayer is Null");
             }
         }
     	else if(mPlayer != null)
@@ -557,13 +549,14 @@ public class AudioPlayerRecorder extends Handler {
     	//startPlaying(file);
 
         if(useVLC) {
-            try {
-                LibVlcUtil.getLibVlcInstance().stop();
-                LibVlcUtil.getLibVlcInstance().playIndex(0);
-                setPlaybackRate(desiredPlaybackRate);
-            } catch (LibVlcException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            if(vlcMediaPlayer != null) {
+                vlcMediaPlayer.setTime(0);
+                if(!vlcMediaPlayer.isPlaying())
+                    vlcMediaPlayer.play();
+            }
+            else
+            {
+                Log.e(TAG, "restart vlcMediaPlayer is Null");
             }
         }
         else if(mPlayer != null) {
@@ -716,11 +709,12 @@ public class AudioPlayerRecorder extends Handler {
         {
             Log.i(TAG, "Hardware Acceleration Error, disabling hardware acceleration");
             try {
+                /*
                 LibVLC vlc = LibVlcUtil.getLibVlcInstance();
                 vlc.setHardwareAcceleration(0);
                 vlc.playIndex(0);
-                setPlaybackRate(desiredPlaybackRate);
-            } catch (LibVlcException e) {
+                setPlaybackRate(desiredPlaybackRate);*/
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

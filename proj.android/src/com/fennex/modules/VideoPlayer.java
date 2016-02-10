@@ -4,21 +4,18 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 
-import org.videolan.libvlc.EventHandler;
-import org.videolan.libvlc.IVideoPlayer;
+import org.videolan.libvlc.IVLCVout;
 import org.videolan.libvlc.LibVLC;
-import org.videolan.libvlc.LibVlcException;
-import org.videolan.libvlc.LibVlcUtil;
 import org.videolan.libvlc.Media;
-import org.videolan.libvlc.MediaList;
 
 import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
 import android.graphics.Bitmap.CompressFormat;
 import android.media.MediaMetadataRetriever;
@@ -26,8 +23,6 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
@@ -36,7 +31,7 @@ import android.view.SurfaceView;
 import android.widget.FrameLayout;
 import android.widget.VideoView;
 
-public class VideoPlayer extends Handler implements IVideoPlayer
+public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerationError, Runnable
 {
 	/*
 	 * VideoPlayer implements two ways of displaying a video :
@@ -73,7 +68,11 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 	private static boolean shouldLoop;
 	private static boolean videoEnded; //Video ended is there because restart is different than play for LibVLC
 	private static float lastPlaybackRate; //Playback rate must be kept between sessions (when restarting video)
-	
+	private static org.videolan.libvlc.MediaPlayer vlcMediaPlayer;
+	private static org.videolan.libvlc.LibVLC libVLC;
+
+	private static org.videolan.libvlc.MediaPlayer.EventListener mPlayerListener = new MyPlayerListener(getInstance());
+
 	public static void setUseVLC(boolean use)
 	{
 	    if(videoView != null)
@@ -85,10 +84,8 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 	    { //If the app crash here, check that libvlc is properly compiled using compile.sh
 	    	try
 	    	{
-	    		System.loadLibrary("vlcjni");
+	    		//System.loadLibrary("vlcjni");
 	            Log.i(TAG, "LibVLC loaded");
-	            
-                LibVlcUtil.getLibVlcInstance().init(NativeUtility.getMainActivity());
 	    	}
 	    	catch(Exception e)
 	    	{
@@ -114,7 +111,7 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 	public native static void notifyVideoEnded(String path);
     public native static void notifyVideoError(String path);
 	
-	static void initVideoPlayer(String file, float x, float y, float height, float width, boolean front, boolean loop)
+	public static void initVideoPlayer(String file, float x, float y, float height, float width, boolean front, boolean loop)
 	{
 		lastPlaybackRate = 1.0f;
 		path = file;
@@ -143,26 +140,37 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 				videoEnded = false;
 				if(VideoPlayer.useVLC)
 				{
-                    videoView = new SurfaceView(NativeUtility.getMainActivity());
+					videoView = new SurfaceView(NativeUtility.getMainActivity());
                     SurfaceHolder mSurfaceHolder = videoView.getHolder();
-                    mSurfaceHolder.setFormat(PixelFormat.RGBX_8888);
-                    LibVLC vlc = null;
-                    try {
-                        vlc = LibVlcUtil.getLibVlcInstance();
-                    } catch (LibVlcException e) {
-                        e.printStackTrace();
-                    }
-                    vlc.attachSurface(mSurfaceHolder.getSurface(), VideoPlayer.getInstance());
-                    mSurfaceHolder.addCallback(VideoPlayer.getInstance().mSurfaceCallback);
+					mSurfaceHolder.setFormat(PixelFormat.RGBX_8888);
+					getInstance().releasePlayer();
+					try {
 
-                    MediaList list = vlc.getPrimaryMediaList();
-                    list.clear();
-                    EventHandler.getInstance().addHandler(getInstance());
-    	            list.getEventHandler().addHandler(getInstance());
-                    Media m = new Media(vlc, LibVLC.PathToURI(videoFile.getPath()));
-                    list.add(m);
-                    vlc.setMediaList(list);
-                    vlc.playIndex(0);
+						// Create LibVLC
+						// TODO: make this more robust, and sync with audio demo
+						ArrayList<String> options = new ArrayList<String>();
+						//options.add("--subsdec-encoding <encoding>");
+						options.add("--aout=opensles");
+						options.add("--audio-time-stretch"); // time stretching
+						options.add("-vvv"); // verbosity
+						libVLC = new LibVLC(options);
+						libVLC.setOnHardwareAccelerationError(getInstance());
+						mSurfaceHolder.setKeepScreenOn(true);
+
+						// Create media player
+						vlcMediaPlayer = new org.videolan.libvlc.MediaPlayer(libVLC);
+						vlcMediaPlayer.setEventListener(mPlayerListener);
+
+						// Set up video output
+						final IVLCVout vout = vlcMediaPlayer.getVLCVout();
+						vout.setVideoView(videoView);
+						//vout.setSubtitlesView(mSurfaceSubtitles);
+						vout.addCallback(getInstance());
+						vout.attachViews();
+
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
                     isPrepared = true;
 				}
 				else
@@ -268,19 +276,14 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 		Log.i(TAG, "Play.");
 		if(useVLC)
 		{
-			try {
-				if(videoEnded)
-				{
-					LibVlcUtil.getLibVlcInstance().playIndex(0);	
-					setPlaybackRate(lastPlaybackRate);
-				}
-				else
-				{
-					LibVlcUtil.getLibVlcInstance().play();
-				}
-			} catch (LibVlcException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			Media m = new Media(libVLC, path);
+			if(vlcMediaPlayer != null) {
+				vlcMediaPlayer.setMedia(m);
+				vlcMediaPlayer.play();
+			}
+			else
+			{
+				Log.e(TAG, "stop vlcMediaPlayer is Null");
 			}
 		}
 		else if(isPrepared)
@@ -300,11 +303,13 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 		Log.i(TAG, "Pause.");
 		if(useVLC)
 		{
-			try {
-				LibVlcUtil.getLibVlcInstance().pause();
-			} catch (LibVlcException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if(vlcMediaPlayer != null && vlcMediaPlayer.isPlaying())
+			{
+				vlcMediaPlayer.pause();
+			}
+			else
+			{
+				Log.e(TAG, "pause vlcMediaPlayer is Null or not playing");
 			}
 		}
 		else if(isPrepared)
@@ -321,11 +326,12 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 			public void run() {
 				if (base != null && videoView != null) {
 					if (useVLC) {
-						try {
-							LibVlcUtil.getLibVlcInstance().stop();
-						} catch (LibVlcException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+						if(vlcMediaPlayer != null) {
+							vlcMediaPlayer.pause();
+						}
+						else
+						{
+							Log.e(TAG, "stop vlcMediaPlayer is Null");
 						}
 					} else {
 						((VideoView) videoView).stopPlayback();
@@ -345,11 +351,12 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 			{
 				return lastPlaybackRate;
 			}
-			try {
-				return LibVlcUtil.getLibVlcInstance().getRate();
-			} catch (LibVlcException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if(vlcMediaPlayer != null) {
+				return vlcMediaPlayer.getRate();
+			}
+			else
+			{
+				Log.e(TAG, "getPlaybackRate vlcMediaPlayer is Null");
 			}
 			return lastPlaybackRate;
 		}
@@ -359,13 +366,16 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 
 	public static void setPlaybackRate(float rate)
 	{
+		Log.e(TAG, "TRACKING setPlaybackRate rate incomming");
+		Log.e(TAG, "TRACKING setPlaybackRate rate : " + rate);
 		if(useVLC)
 		{
-			try {
-				LibVlcUtil.getLibVlcInstance().setRate(rate);
-			} catch (LibVlcException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if(vlcMediaPlayer != null) {
+				vlcMediaPlayer.setRate(rate);
+			}
+			else
+			{
+				Log.e(TAG, "setPlaybackRate vlcMediaPlayer is Null");
 			}
 			lastPlaybackRate = rate;
 			return;
@@ -424,11 +434,12 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 		float duration = 0;
 		if(useVLC)
 		{
-			try {
-				duration = LibVlcUtil.getLibVlcInstance().getLength();
-			} catch (LibVlcException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if(vlcMediaPlayer != null) {
+				duration = vlcMediaPlayer.getLength();
+			}
+			else
+			{
+				Log.e(TAG, "getDuration vlcMediaPlayer is Null");
 			}
 		}
 		else if (isPrepared)
@@ -451,11 +462,12 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 		float position = 0;
 		if(useVLC)
 		{
-			try {
-				position = LibVlcUtil.getLibVlcInstance().getTime();
-			} catch (LibVlcException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if(vlcMediaPlayer != null) {
+				position = vlcMediaPlayer.getTime();
+			}
+			else
+			{
+				Log.e(TAG, "getPosition getPosition is Null");
 			}
 		}
 		else
@@ -471,11 +483,12 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 	{
 		if(useVLC)
 		{
-			try {
-				LibVlcUtil.getLibVlcInstance().setTime((long)(position * 1000));
-			} catch (LibVlcException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if(vlcMediaPlayer != null) {
+				position = vlcMediaPlayer.setTime((long)(position * 1000));
+			}
+			else
+			{
+				Log.e(TAG, "setPosition getPosition is Null");
 			}
 		}
 		else
@@ -551,7 +564,7 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 		int dotIndex = path.lastIndexOf(".");
 		if (dotIndex != -1) {
 			String fileExt = path.substring(dotIndex);
-			return videoExists(path) && Media.VIDEO_EXTENSIONS.contains(fileExt);
+			return videoExists(path) && org.videolan.libvlc.util.Extensions.VIDEO.contains(fileExt);
 		}
 		return false;
 	}
@@ -614,153 +627,113 @@ public class VideoPlayer extends Handler implements IVideoPlayer
 		}
 		return localFile;
 	}
-	
-	//LibVLC specific method, implements IVideoPlayer
+
+	public void setSurfaceSize(final int width, final int height, final int visible_width, final int visible_height, int sar_num, int sar_den) {
+		if (width * height == 0)
+			return;
+		currentVideoWidth = width;
+		currentVideoHeight = height;
+		// force surface buffer size
+		NativeUtility.getMainActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				SurfaceHolder mSurfaceHolder = videoView.getHolder();
+				mSurfaceHolder.setFixedSize(width, height);
+
+				// set display size
+				//VideoPlayer.localWidth/Height is the frame maximum size, width/height is the video size
+				//visible_width/height should be ignored, it's how VLC think it should fit
+				float videoWidth = (VideoPlayer.isFullScreen ? VideoPlayer.widthScreen : VideoPlayer.localWidth);
+				float videoHeight = (VideoPlayer.isFullScreen ? VideoPlayer.heightScreen : VideoPlayer.localHeight);
+				float ratioWidth = videoWidth / (float)width;
+				float ratioHeight = videoHeight / (float)height;
+				if(ratioWidth > ratioHeight)
+				{
+					videoWidth = videoWidth / ratioWidth * ratioHeight;
+				}
+				else
+				{
+					videoHeight = videoHeight / ratioHeight * ratioWidth;
+				}
+
+				FrameLayout.LayoutParams lp = (android.widget.FrameLayout.LayoutParams) videoView.getLayoutParams();
+				lp.width  = (int)videoWidth;
+				lp.height = (int)videoHeight;
+				lp.leftMargin = (int)(VideoPlayer.isFullScreen ? widthScreen - videoWidth - (widthScreen-videoWidth)/2 : widthScreen - localX - (videoWidth / 2));
+				lp.topMargin = (int)(VideoPlayer.isFullScreen ? heightScreen - videoHeight - (heightScreen-videoHeight)/2 : heightScreen - localY - (videoHeight / 2));
+				videoView.setLayoutParams(lp);
+				videoView.invalidate();
+			}
+		});
+	}
+
 	@Override
-    public void setSurfaceSize(final int width, final int height, final int visible_width, final int visible_height, int sar_num, int sar_den) {
-        if (width * height == 0)
-            return;
-        currentVideoWidth = width;
-        currentVideoHeight = height;
-        // force surface buffer size
-        NativeUtility.getMainActivity().runOnUiThread(new Runnable() {
-        	@Override
-        	public void run() {
-        		SurfaceHolder mSurfaceHolder = videoView.getHolder();
-        		mSurfaceHolder.setFixedSize(width, height);
-        		
-        		// set display size
-        		//VideoPlayer.localWidth/Height is the frame maximum size, width/height is the video size
-        		//visible_width/height should be ignored, it's how VLC think it should fit
-        		float videoWidth = (VideoPlayer.isFullScreen ? VideoPlayer.widthScreen : VideoPlayer.localWidth);
-        		float videoHeight = (VideoPlayer.isFullScreen ? VideoPlayer.heightScreen : VideoPlayer.localHeight);
-        		float ratioWidth = videoWidth / (float)width;
-        		float ratioHeight = videoHeight / (float)height;
-        		if(ratioWidth > ratioHeight)
-    			{
-        			videoWidth = videoWidth / ratioWidth * ratioHeight;
-    			}
-        		else
-        		{
-        			videoHeight = videoHeight / ratioHeight * ratioWidth;        			
-        		}
-        		
-        		FrameLayout.LayoutParams lp = (android.widget.FrameLayout.LayoutParams) videoView.getLayoutParams();
-        		lp.width  = (int)videoWidth;
-        		lp.height = (int)videoHeight;
-        		lp.leftMargin = (int)(VideoPlayer.isFullScreen ? widthScreen - videoWidth - (widthScreen-videoWidth)/2 : widthScreen - localX - (videoWidth / 2));
-        		lp.topMargin = (int)(VideoPlayer.isFullScreen ? heightScreen - videoHeight - (heightScreen-videoHeight)/2 : heightScreen - localY - (videoHeight / 2));
-        		videoView.setLayoutParams(lp);
-        		videoView.invalidate();
-        	}
-        });
-    }
-    
-    @Override
-    public void handleMessage(Message msg)
-    {
-    	int event = msg.getData().getInt("event", -1);
-    	if(event == EventHandler.MediaPlayerVout)
-    	{
-    		Log.i(TAG, "MediaPlayer playing, duration : " + getDuration());  
+	public void onNewLayout(IVLCVout vlcVout,final int width,final int height, int visibleWidth, int visibleHeight, int sarNum, int sarDen) {
+		if (width * height == 0)
+			return;
 
-    		NativeUtility.getMainActivity().runOnGLThread(new Runnable() 
-    		{
-    			public void run()
-    			{
-    				notifyVideoDurationAvailable(path, getDuration());
-    			}
-    		});
-    	}
-        //Consider a video that ends with less than 1 second as corrupted
-        else if(event == EventHandler.MediaPlayerEncounteredError
-                || (event == EventHandler.MediaPlayerEndReached && getDuration() < 1))
-        {
-            try {
-                LibVLC vlc = LibVlcUtil.getLibVlcInstance();
-                videoEnded = true;
-                NativeUtility.getMainActivity().runOnGLThread(new Runnable()
-                {
-                    public void run()
-                    {
-                        notifyVideoError(path);
-                    }
-                });
-            } catch (LibVlcException e) {
-                e.printStackTrace();
-            }
-        }
-    	else if(event == EventHandler.MediaPlayerEndReached)
-    	{
-            try {
-            	LibVLC vlc = LibVlcUtil.getLibVlcInstance();
-            	if(shouldLoop)
-            	{
-            		vlc.playIndex(0);
-            	}
-            	else
-            	{
-            		videoEnded = true;
-            		NativeUtility.getMainActivity().runOnGLThread(new Runnable() 
-            		{
-            			public void run()
-            			{
-            				notifyVideoEnded(path);
-            			}
-            		});
-            	}
-            } catch (LibVlcException e) {
-                e.printStackTrace();
-            }   		
-    	}
-    	else if(event == EventHandler.HardwareAccelerationError)
-    	{
-    		Log.i(TAG, "Hardware Acceleration Error, disabling hardware acceleration");
-            try {
-                LibVLC vlc = LibVlcUtil.getLibVlcInstance();
-    			vlc.setHardwareAcceleration(0);	
-    			vlc.playIndex(0);
-            } catch (LibVlcException e) {
-                e.printStackTrace();
-            }
-    	}
-    }
-    /**
-     * attach and disattach surface to the lib
-     */
-    private final SurfaceHolder.Callback mSurfaceCallback = new SurfaceHolder.Callback() {
-        @Override
-        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-            if(format == PixelFormat.RGBX_8888)
-                Log.d(TAG, "Pixel format is RGBX_8888");
-            else if(format == PixelFormat.RGB_565)
-                Log.d(TAG, "Pixel format is RGB_565");
-            else if(format == ImageFormat.YV12)
-                Log.d(TAG, "Pixel format is YV12");
-            else
-                Log.d(TAG, "Pixel format is other/unknown");
-            LibVLC vlc = null;
-            try {
-                vlc = LibVlcUtil.getLibVlcInstance();
-            } catch (LibVlcException e) {
-                e.printStackTrace();
-            }
-            vlc.attachSurface(holder.getSurface(), VideoPlayer.getInstance());
-        }
+		currentVideoWidth = width;
+		currentVideoHeight = height;
 
-        @Override
-        public void surfaceCreated(SurfaceHolder holder) {
-        }
+		vlcVout.setVideoView(videoView);
+		vlcVout.attachViews();
+		setSurfaceSize(width, height, visibleWidth, visibleHeight, sarNum, sarDen);
+	}
 
-        @Override
-        public void surfaceDestroyed(SurfaceHolder holder) {
-            LibVLC vlc = null;
-            try {
-                vlc = LibVlcUtil.getLibVlcInstance();
-            } catch (LibVlcException e) {
-                e.printStackTrace();
-            }
-            vlc.detachSurface();
-        }
-    };
+	@Override
+	public void onSurfacesCreated(IVLCVout vlcVout) {
+	}
+
+	@Override
+	public void onSurfacesDestroyed(IVLCVout vlcVout) {
+		this.releasePlayer();
+	}
+
+	@Override
+	public void run() {
+		this.play();
+	}
+
+	private static class MyPlayerListener implements  org.videolan.libvlc.MediaPlayer.EventListener {
+		private WeakReference<VideoPlayer> mOwner;
+
+		public MyPlayerListener(VideoPlayer owner) {
+			mOwner = new WeakReference<VideoPlayer>(owner);
+		}
+
+		@Override
+		public void onEvent(org.videolan.libvlc.MediaPlayer.Event event) {
+			VideoPlayer player = mOwner.get();
+
+			switch(event.type) {
+				case org.videolan.libvlc.MediaPlayer.Event.EndReached:
+					Log.d(TAG, "MediaPlayerEndReached");
+					player.releasePlayer();
+					break;
+				case org.videolan.libvlc.MediaPlayer.Event.Playing:
+				case org.videolan.libvlc.MediaPlayer.Event.Paused:
+				case org.videolan.libvlc.MediaPlayer.Event.Stopped:
+				default:
+					break;
+			}
+		}
+	}
+
+	private void releasePlayer() {
+		if (libVLC == null)
+			return;
+		vlcMediaPlayer.stop();
+		final IVLCVout vout = vlcMediaPlayer.getVLCVout();
+		vout.removeCallback(this);
+		vout.detachViews();
+		libVLC.release();
+		libVLC = null;
+	}
+
+	@Override
+	public void eventHardwareAccelerationError() {
+		// Handle errors with hardware acceleration
+		Log.e(TAG, "Error with hardware acceleration");
+		this.releasePlayer();
+	}
 }

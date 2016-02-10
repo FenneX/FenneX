@@ -7,11 +7,13 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Stack;
 import java.util.StringTokenizer;
-import org.videolan.libvlc.Media;
+
+import org.videolan.libvlc.util.Extensions;
 
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
@@ -373,7 +375,20 @@ public class VideoPicker implements ActivityResultResponder {
         public boolean accept(File f) {
             boolean accepted = false;
             if (!f.isHidden()) {
-                if (f.isDirectory() && !Media.FOLDER_BLACKLIST.contains(f.getPath().toLowerCase(Locale.ENGLISH))) {
+                String[] folder_blacklist = {
+                        "/alarms",
+                        "/notifications",
+                        "/ringtones",
+                        "/media/alarms",
+                        "/media/notifications",
+                        "/media/ringtones",
+                        "/media/audio/alarms",
+                        "/media/audio/notifications",
+                        "/media/audio/ringtones",
+                        "/Android/data/" };
+                HashSet<String> folderBlacklist = new HashSet<String>();
+                folderBlacklist.addAll(Arrays.asList(folder_blacklist));
+                if (f.isDirectory() && !folderBlacklist.contains(f.getPath().toLowerCase(Locale.ENGLISH))) {
                     accepted = true;
                 } else {
                     String fileName = f.getName().toLowerCase(Locale.ENGLISH);
@@ -381,7 +396,7 @@ public class VideoPicker implements ActivityResultResponder {
                     if (dotIndex != -1) {
                         String fileExt = fileName.substring(dotIndex);
                         accepted = //Media.AUDIO_EXTENSIONS.contains(fileExt) || //Logiral doesn't need audio files
-                                   Media.VIDEO_EXTENSIONS.contains(fileExt);
+                                Extensions.VIDEO.contains(fileExt);
                     }
                 }
             }
