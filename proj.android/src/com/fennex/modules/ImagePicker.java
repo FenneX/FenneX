@@ -227,6 +227,20 @@ public class ImagePicker implements ActivityResultResponder
     	return NativeUtility.getMainActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT) ||
     			NativeUtility.getMainActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
     }
+
+    public enum PICK_OPTION {
+        CAMERA(0),
+        PHOTO_LIBRARY(1),
+        FILE_LIBRARY(2);
+
+        private final int value;
+
+        PICK_OPTION(final int newValue) {
+            value = newValue;
+        }
+
+        public int getValue() { return value; }
+    }
     
     public static boolean pickImageFrom(String saveName, int pickOption, int width, int height, String identifier, float thumbnailScale, boolean rescale)
     {
@@ -238,7 +252,7 @@ public class ImagePicker implements ActivityResultResponder
         _thumbnailScale = thumbnailScale;
         _rescale = rescale;
     	boolean error = false;
-    	if(pickOption == 0)
+    	if(pickOption == PICK_OPTION.CAMERA.getValue())
     	{
     		try
     		{
@@ -262,7 +276,7 @@ public class ImagePicker implements ActivityResultResponder
     		try
     		{
                 Intent intent;
-                if(pickOption == 1)
+                if(pickOption == PICK_OPTION.PHOTO_LIBRARY.getValue())
                 {
                     intent = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 }
@@ -277,10 +291,8 @@ public class ImagePicker implements ActivityResultResponder
     		}
     		catch(ActivityNotFoundException e)
     		{
-                if(pickOption == 1)
-    	    	    Log.d(TAG, "intent for image pick from Galery not found : " + e.getMessage());
-                else
-                    Log.d(TAG, "intent for image pick from File library not found : " + e.getMessage());
+                if(pickOption == 1) Log.d(TAG, "intent for image pick from Galery not found : " + e.getMessage());
+                else Log.d(TAG, "intent for image pick from File library not found : " + e.getMessage());
 
     	    	error = true;
     		}
