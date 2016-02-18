@@ -668,9 +668,18 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 
 		currentVideoWidth = width;
 		currentVideoHeight = height;
-
-		vlcVout.setVideoView(videoView);
-		vlcVout.attachViews();
+		if(vlcVout != vlcMediaPlayer.getVLCVout())
+		{
+			try
+			{
+				vlcVout.setVideoView(videoView);
+				vlcVout.attachViews();
+			}
+			catch(IllegalStateException e)
+			{
+				e.printStackTrace();
+			}
+		}
 		setSurfaceSize(width, height, visibleWidth, visibleHeight, sarNum, sarDen);
 	}
 
