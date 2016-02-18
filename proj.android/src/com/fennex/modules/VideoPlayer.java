@@ -84,7 +84,6 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 	    { //If the app crash here, check that libvlc is properly compiled using compile.sh
 	    	try
 	    	{
-	    		//System.loadLibrary("vlcjni");
 	            Log.i(TAG, "LibVLC loaded");
 	    	}
 	    	catch(Exception e)
@@ -149,10 +148,8 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 						// Create LibVLC
 						// TODO: make this more robust, and sync with audio demo
 						ArrayList<String> options = new ArrayList<String>();
-						//options.add("--subsdec-encoding <encoding>");
 						options.add("--aout=opensles");
 						options.add("--audio-time-stretch"); // time stretching
-						options.add("-vvv"); // verbosity
 						libVLC = new LibVLC(options);
 						libVLC.setOnHardwareAccelerationError(getInstance());
 						mSurfaceHolder.setKeepScreenOn(true);
@@ -164,7 +161,6 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 						// Set up video output
 						final IVLCVout vout = vlcMediaPlayer.getVLCVout();
 						vout.setVideoView(videoView);
-						//vout.setSubtitlesView(mSurfaceSubtitles);
 						vout.addCallback(getInstance());
 						vout.attachViews();
 
@@ -366,8 +362,6 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 
 	public static void setPlaybackRate(float rate)
 	{
-		Log.e(TAG, "TRACKING setPlaybackRate rate incomming");
-		Log.e(TAG, "TRACKING setPlaybackRate rate : " + rate);
 		if(useVLC)
 		{
 			if(vlcMediaPlayer != null) {

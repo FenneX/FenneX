@@ -87,7 +87,6 @@ public class AudioPlayerRecorder extends Handler {
         { //If the app crash here, check that libvlc is properly compiled using compile.sh
             try
             {
-                //System.loadLibrary("vlcjni");
                 libVLC = new LibVLC();
                 Log.i(TAG, "LibVLC loaded");
             }
@@ -708,15 +707,6 @@ public class AudioPlayerRecorder extends Handler {
         else if(event == EventHandler.HardwareAccelerationError)
         {
             Log.i(TAG, "Hardware Acceleration Error, disabling hardware acceleration");
-            try {
-                /*
-                LibVLC vlc = LibVlcUtil.getLibVlcInstance();
-                vlc.setHardwareAcceleration(0);
-                vlc.playIndex(0);
-                setPlaybackRate(desiredPlaybackRate);*/
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
     }
 }
