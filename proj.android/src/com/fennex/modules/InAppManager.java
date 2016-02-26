@@ -31,7 +31,10 @@ import com.android.vending.billing.util.Inventory;
 import com.android.vending.billing.util.Purchase;
 import com.android.vending.billing.util.SkuDetails;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -74,6 +77,9 @@ public class InAppManager implements ActivityResultResponder
     private static boolean queryFinished;
     
 	private static volatile InAppManager instance = null;
+
+	private static BroadcastReceiver promoReceiver = null;
+
 	public static InAppManager getInstance()
 	{
         if (instance == null) 
@@ -84,6 +90,14 @@ public class InAppManager implements ActivityResultResponder
                 {
                 	instance = new InAppManager();
         			NativeUtility.getMainActivity().addResponder(instance);
+					promoReceiver = new BroadcastReceiver() {
+						@Override
+						public void onReceive(Context context, Intent intent) {
+							//Relaunch queryInventory workflow to check for new purchases
+							mHelper.queryInventoryAsync(mGotInventoryListener);
+						}
+					};
+					NativeUtility.getMainActivity().registerReceiver(promoReceiver, new IntentFilter("com.android.vending.billing.PURCHASES_UPDATED"));
                 }
             }
         }
