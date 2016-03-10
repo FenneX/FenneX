@@ -49,9 +49,10 @@ public class NetworkUtility
     public native static void notifyProgressUpdate(int downloadID, float percent);
     public native static void notifyLengthResolved(int downloadID, int length);
     private static final String TAG = "NetworkUtility";
-    public static boolean isConnected()
+
+    public static boolean isConnected(Context context)
     {
-        ConnectivityManager connectivity = (ConnectivityManager) NativeUtility.getMainActivity().getApplicationContext().
+        ConnectivityManager connectivity = (ConnectivityManager) context.getApplicationContext().
                 getSystemService(Context.CONNECTIVITY_SERVICE);
         if (connectivity != null)
         {
@@ -64,6 +65,10 @@ public class NetworkUtility
                     }
         }
         return false;
+    }
+    public static boolean isConnected()
+    {
+        return isConnected(NativeUtility.getMainActivity());
     }
 
     public static void openWifiSettings()
