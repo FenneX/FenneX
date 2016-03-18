@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
+import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnUtteranceCompletedListener;
 import android.speech.tts.UtteranceProgressListener;
@@ -41,6 +43,7 @@ public class TTS implements TextToSpeech.OnInitListener
 	private TextToSpeech engine;
 	private boolean isInit;
 	private boolean available;
+	private float desiredRate;
 	private ArrayList<String> preinitQueue;
 	HashMap<String, String> settings;
 	
@@ -66,7 +69,7 @@ public class TTS implements TextToSpeech.OnInitListener
 		engine.setSpeechRate(0.75f);
 		preinitQueue = new ArrayList<String>();
 		settings = new HashMap<String, String>();
-		
+		desiredRate = 1.0f;
 		if(android.os.Build.VERSION.SDK_INT >= 15 )
 		{
 			engine.setOnUtteranceProgressListener(new UtteranceProgressListener()
@@ -178,10 +181,33 @@ public class TTS implements TextToSpeech.OnInitListener
         }
         return false;
 	}
-	
+
 	public void stopSpeakText() {
 		if(isInit && available && engine != null) {
 			engine.stop();
+		}
+	}
+
+	public String getTTSEngineName()
+	{
+		if(engine != null)
+		{
+			return engine.getDefaultEngine();
+		}
+		return "android.tts.engine";
+	}
+
+	public float getTTSPlayRate()
+	{
+		return desiredRate;
+	}
+
+	public void setTTSPlayRate(float rate)
+	{
+		desiredRate = rate;
+		if(engine != null)
+		{
+			engine.setSpeechRate(0.75f * desiredRate);
 		}
 	}
 }

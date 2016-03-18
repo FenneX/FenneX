@@ -50,3 +50,19 @@ bool isSpeaking()
 {
     return [[TTS sharedTTS] isSpeaking];
 }
+
+float getTTSPlayRate()
+{
+    return [TTS sharedTTS].playRate;
+}
+
+void setTTSPlayRate(float rate)
+{
+    [TTS sharedTTS].playRate = rate;
+}
+
+std::string getTTSEngineName()
+{
+    // We don't need anything realy here, because ios tts engine doesn't have a package name like android has
+    return "ios.tts.engine";
+}

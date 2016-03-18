@@ -45,6 +45,7 @@ static TTS* _sharedTTS = nil;
     {
         engine = [[AVSpeechSynthesizer alloc] init];
         [engine setDelegate:self];
+        desiredPlayRate = 1.0;
     }
     return self;
 }
@@ -70,6 +71,7 @@ static TTS* _sharedTTS = nil;
         {
             utterance.rate = 0.3;
         }
+        utterance.rate *= desiredPlayRate;
         [engine speakUtterance:utterance];
         lastUtterance = utterance;
     }
@@ -91,6 +93,17 @@ static TTS* _sharedTTS = nil;
     {
         notifyTTSDone(lastID);
     }
+}
+
+- (float) playRate
+{
+    return desiredPlayRate;
+}
+
+- (void) setPlayRate:(float)rate
+{
+    //We can't modify the rate of a sound while playing it anyway
+    desiredPlayRate = rate;
 }
 
 @end

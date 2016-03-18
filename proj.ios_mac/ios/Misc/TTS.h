@@ -18,7 +18,11 @@
     AVSpeechSynthesizer* engine;
     AVSpeechUtterance* lastUtterance;
     int lastID;
+    float desiredPlayRate;
 }
+
+
+@property (nonatomic) float playRate;
 
 - (void) speakText:(NSArray*)text callbackID:(int)callbackID;
 - (void) stopSpeakText;

@@ -42,6 +42,12 @@ bool speakText(std::vector<std::string> text, int speechID = -1);
 void stopSpeakText();
 bool isSpeaking();
 
+//Must be called before playing a TTS. The rate is global for all subsequent TTS
+float getTTSPlayRate();
+void setTTSPlayRate(float rate);
+
+std::string getTTSEngineName();
+
 static inline void notifyTTSDone(int speechID)
 {
     DelayedDispatcher::eventAfterDelay("TTSDone", DcreateP(Icreate(speechID), Screate("Identifier"), NULL), 0.01);

@@ -101,6 +101,43 @@ void stopSpeakText()
     minfo.env->DeleteLocalRef(minfo.classID);
 }
 
+float getTTSPlayRate()
+{
+    JniMethodInfo minfo;
+    jobject instance = getInstance();
+    bool functionExist = JniHelper::getMethodInfo(minfo,CLASS_NAME,"getTTSPlayRate", "()F");
+    CCAssert(functionExist, "Function doesn't exist");
+    float result = minfo.env->CallFloatMethod(instance, minfo.methodID);
+    minfo.env->DeleteLocalRef(instance);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    return result;
+}
+
+void setTTSPlayRate(float rate)
+{
+    JniMethodInfo minfo;
+    jobject instance = getInstance();
+    bool functionExist = JniHelper::getMethodInfo(minfo,CLASS_NAME,"setTTSPlayRate", "(F)V");
+    CCAssert(functionExist, "Function doesn't exist");
+    minfo.env->CallVoidMethod(instance, minfo.methodID, (jfloat)rate);
+    minfo.env->DeleteLocalRef(instance);
+    minfo.env->DeleteLocalRef(minfo.classID);
+}
+
+std::string getTTSEngineName()
+{
+    JniMethodInfo minfo;
+    jobject instance = getInstance();
+    bool functionExist = JniHelper::getMethodInfo(minfo,CLASS_NAME,"getTTSEngineName", "()Ljava/lang/String;");
+    CCAssert(functionExist, "Function doesn't exist");
+    jstring str = (jstring) minfo.env->CallObjectMethod(instance, minfo.methodID);
+    minfo.env->DeleteLocalRef(instance);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    std::string ret = JniHelper::jstring2string(str);
+    minfo.env->DeleteLocalRef(str);
+    return ret;
+}
+
 extern "C"
 {
     void Java_com_fennex_modules_TTS_onTTSEnd(JNIEnv* env, jobject thiz)
