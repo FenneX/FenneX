@@ -86,14 +86,14 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
                 splashDialog = null;
             }
             else {
-                Log.i("IFeel", "Duration of runnable : " + (splashMinDuration - (currentTime - launchTime)));
+                Log.i("FenneX", "Duration of runnable : " + (splashMinDuration - (currentTime - launchTime)));
                 new Timer().schedule(new TimerTask() {
                     @Override
                     public void run() {
                         splashDialog.discard();
                         splashDialog = null;
                     }
-                }, splashMinDuration - (currentTime - launchTime));
+                }, splashMinDuration - (currentTime - launchTime) + 1);
             }
         }
     }
