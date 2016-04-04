@@ -1365,6 +1365,7 @@ RawObject* GraphicLayer::duplicateObject(RawObject* otherObject)
     obj->addEventInfos(otherObject->getEventInfos());
     obj->setScaleX(otherObject->getScaleX());
     obj->setScaleY(otherObject->getScaleY());
+    obj->getNode()->setRotation(otherObject->getNode()->getRotation());
     
     //Recursively add children for Panel
     if(isKindOfClass(otherObject, Panel))
