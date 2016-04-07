@@ -289,6 +289,16 @@ public class AudioPlayerRecorder extends Handler {
                 vlcMediaPlayer.setVolume((int)(volume*100));
                 vlcMediaPlayer.play();
                 setPlaybackRate(desiredPlaybackRate);
+                vlcMediaPlayer.setEventListener(new org.videolan.libvlc.MediaPlayer.EventListener() {
+                    @Override
+                    public void onEvent(org.videolan.libvlc.MediaPlayer.Event event) {
+                        if(event.type == org.videolan.libvlc.MediaPlayer.Event.EndReached)
+                        {
+                            notifyPlayingSoundEnded();
+                        }
+                    }
+                });
+
             }
             catch (IOException e)
             {
