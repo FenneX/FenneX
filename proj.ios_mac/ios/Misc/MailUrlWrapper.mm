@@ -50,8 +50,3 @@ void sendMail(const std::string& address, const std::string& subject, const std:
     [[AppController sharedController] sendMail:[NSString stringWithUTF8String:address.c_str()] subject:[NSString stringWithUTF8String:subject.c_str()] message:[NSString stringWithUTF8String:message.c_str()] attachment:!attachmentPlist.empty() ? [NSString stringWithUTF8String:attachmentPlist.c_str()] : NULL];
     //}
 }
-
-void sendBackgroundMail(const std::string& from, const std::string& password, const std::string& to, const std::string& subject, const std::string& message)
-{
-    NSLog(@"Send Background Mail not implemented on iOS. Requested mail:\nFrom: %s\nTo: %s\nSubject: %s\n%s", from.c_str(), to.c_str(), subject.c_str(), message.c_str());
-}

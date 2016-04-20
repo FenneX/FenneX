@@ -25,17 +25,17 @@ THE SOFTWARE.
 package com.fennex.modules;
 
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 
 
@@ -59,21 +59,6 @@ public class MailUrlManager {
 	     Intent i = new Intent(Intent.ACTION_VIEW);  
 	     i.setData(Uri.parse(url));
 	     NativeUtility.getMainActivity().startActivity(i);
-    }
-	/*
-	    Requires javamail-android jar files (mail, activation, additional).
-	    Get them from: https://code.google.com/p/javamail-android/downloads/list
-	 */
-	public static void sendBackgroundMail(String from, String password, String to, String object, String message)
-    {
-		Log.d(TAG, "Sending background mail:\nFrom: " + from + "\nTo: " + to + "\nSubject: " + object + "\n" + message);
-
-        try {
-            GmailSender sender = new GmailSender(from, password);
-            sender.sendMail(object, message, from, to);
-        } catch (Exception e) {
-            Log.e("SendMail", e.getMessage(), e);
-        }
     }
 
     public static void sendMail(String address, String object, String message)
