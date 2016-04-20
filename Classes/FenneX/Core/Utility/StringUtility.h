@@ -51,6 +51,11 @@ const char* upperCaseString(const char* text);
 
 bool stringEndsWith(const char *str, const char *suffix);
 
+//Use Percent-encoding as defined in https://en.wikipedia.org/wiki/Percent-encoding
+//Useful to submit forms, since libcurl curl_easy_escape is hard to use
+//Not utf-8 aware, but it should work with utf-8 characters as well
+std::string urlEncode(const std::string& str);
+
 //Do a substring with utf8 aware code
 std::string utf8_substr(const std::string& str, long start, long leng);
 //Get the size of a single character

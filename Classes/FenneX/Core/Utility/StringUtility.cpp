@@ -28,6 +28,9 @@ THE SOFTWARE.
 #include <codecvt>
 #endif
 
+#include <sstream>
+#include <iomanip>
+
 NS_FENNEX_BEGIN
 bool arrayContainsString(CCArray* list, CCString* string)
 {
@@ -201,6 +204,36 @@ bool stringEndsWith(const char *str, const char *suffix)
     if (lensuffix >  lenstr)
         return 0;
     return strncmp(str + lenstr - lensuffix, suffix, lensuffix) == 0;
+}
+
+//Copied from http://stackoverflow.com/questions/154536/encode-decode-urls-in-c
+std::string urlEncode(const std::string& value)
+{
+    std::ostringstream escaped;
+    escaped.fill('0');
+    escaped << std::hex;
+    
+    for (std::string::const_iterator i = value.begin(), n = value.end(); i != n; ++i)
+    {
+        std::string::value_type c = (*i);
+        
+        // Keep alphanumeric and other accepted characters intact, according https://tools.ietf.org/html/rfc3986#section-2.3
+        if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~')
+        {
+            escaped << c;
+            continue;
+        }
+        else
+        {
+            // Any other characters are percent-encoded
+            // If a urlDecode is needed, don't forget that ' ' (space character) can be encoded either as "%20" or "+" (shortcode since it's used a lot)
+            escaped << std::uppercase;
+            escaped << '%' << std::setw(2) << int((unsigned char) c);
+            escaped << std::nouppercase;
+        }
+    }
+    
+    return escaped.str();
 }
 
 //comes from http://www.zedwood.com/article/cpp-utf-8-mb_substr-function
