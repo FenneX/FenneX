@@ -85,4 +85,6 @@ Cocos2d-x V3.8.1 Modifications
 * Remove AudioEngine
 * AppController::didFinishLaunchingWithOptions add eaglView.opaque = NO;
 * cocos2d/cocos/ui/UIEditBox/UiEditBox.cpp and UIEditBoxImpl-common.cpp => fix fontSize and contentSize using nodeToWorldTransform correctly
+* cocos2d/cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHttpURLConnection.java => change setVerifySSL to return a boolean with true when succeed and false otherwise
+* cocos2d/cocos/network/HttpClient-android.cpp => change setVerifySSL to return a boolean with true when succeed and false otherwise
 

@@ -538,10 +538,11 @@ private:
         }
     }
 
-    void setVerifySSL()
+    bool setVerifySSL()
     {
+        // This function was changed by FenneX to return a success boolean
         if(_client->getSSLVerification().empty())
-            return;
+            return true;
 
         std::string fullpath = FileUtils::getInstance()->fullPathForFilename(_client->getSSLVerification());
 
@@ -549,14 +550,16 @@ private:
         if (JniHelper::getStaticMethodInfo(methodInfo,
             "org/cocos2dx/lib/Cocos2dxHttpURLConnection",
             "setVerifySSL",
-            "(Ljava/net/HttpURLConnection;Ljava/lang/String;)V"))
+            "(Ljava/net/HttpURLConnection;Ljava/lang/String;)Z"))
         {
             jstring jstrfullpath = methodInfo.env->NewStringUTF(fullpath.c_str());
-            methodInfo.env->CallStaticVoidMethod(
+            bool result = methodInfo.env->CallStaticBooleanMethod(
                 methodInfo.classID, methodInfo.methodID, _httpURLConnection, jstrfullpath);
             methodInfo.env->DeleteLocalRef(jstrfullpath);
             methodInfo.env->DeleteLocalRef(methodInfo.classID);
+            return result;
         }
+        return false;
     }
 
     bool configure()
@@ -572,10 +575,8 @@ private:
         }
 
         setReadAndConnectTimeout(_client->getTimeoutForRead() * 1000, _client->getTimeoutForConnect() * 1000);
-
-        setVerifySSL();
-
-        return true;
+        // Changed by FenneX
+        return setVerifySSL();
     }
 
     char* getBufferFromJString(jstring jstr, JNIEnv* env)
@@ -644,7 +645,7 @@ void HttpClient::processResponse(HttpResponse* response, char* responseMessage)
     if(!urlConnection.init(request))
     {
         response->setSucceed(false);
-        response->setErrorBuffer("HttpURLConnetcion init failed");
+        response->setErrorBuffer("HttpURLConnection init failed");
         return;
     }
 
