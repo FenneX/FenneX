@@ -82,8 +82,13 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
             final long currentTime = SystemClock.elapsedRealtime();
             //Ensure the splashScreen is longer than the animation
             if(currentTime - launchTime > splashMinDuration) {
-                splashDialog.cancel();
-                splashDialog = null;
+				new Timer().schedule(new TimerTask() {
+					@Override
+					public void run() {
+						splashDialog.cancel();
+						splashDialog = null;
+					}
+				}, 100);
             }
             else {
                 Log.i("FenneX", "Duration of runnable : " + (splashMinDuration - (currentTime - launchTime)));
@@ -93,7 +98,7 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
                         splashDialog.discard();
                         splashDialog = null;
                     }
-                }, splashMinDuration - (currentTime - launchTime) + 1);
+                }, splashMinDuration - (currentTime - launchTime) + 100);
             }
         }
     }
