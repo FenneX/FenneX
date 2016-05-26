@@ -67,7 +67,6 @@ DropDownList::DropDownList(Sprite* sprite)
     isOpened = false;
     initialText = "";
     dropList = new DropDownListWrapper();
-    dropList->retain();
     this->setEventActivated(true);
     this->setEventName("ShowSelectDropDownList");
     listeners.pushBack(Director::getInstance()->getEventDispatcher()->addCustomEventListener("ShowSelectDropDownList", std::bind(&DropDownList::showDropDownList, this)));

@@ -131,13 +131,13 @@ DelayedDispatcher* DelayedDispatcher::getInstance()
         temporaryInstance = new DelayedDispatcher();
         temporaryInstanceScene = None;
         temporaryListener = Director::getInstance()->getEventDispatcher()->addCustomEventListener("SceneSwitched", [](EventCustom*)
-                                                                              {
-                                                                                  SceneSwitcher::sharedSwitcher()->getCurrentScene()->addUpdatable(temporaryInstance);
-                                                                                  temporaryInstance->release();
-                                                                                  Director::getInstance()->getEventDispatcher()->removeEventListener(temporaryListener);
-                                                                                  temporaryListener = NULL;
-                                                                                  temporaryInstance = NULL;
-                                                                              });
+          {
+              SceneSwitcher::sharedSwitcher()->getCurrentScene()->addUpdatable(temporaryInstance);
+              Director::getInstance()->getEventDispatcher()->removeEventListener(temporaryListener);
+              temporaryInstance->release();
+              temporaryListener = NULL;
+              temporaryInstance = NULL;
+          });
         return temporaryInstance;
     }
     const std::vector<Pausable*>& candidates = SceneSwitcher::sharedSwitcher()->getCurrentScene()->getUpdateList();
