@@ -27,6 +27,7 @@
 
 #include <string>
 #include <vector>
+#include "FenneX.h"
 
 /*Locking a file is useful on Android to lock a file to be sure other apps do not use it at the same time.
  Warning: it is NOT a way to lock file from other process in the same app.
@@ -56,5 +57,16 @@ void deleteFile(std::string filename);
 // Return true if it succeed and false otherwise (if the file doesn't exist for exemple)
 // Empty implementation in iOS because there is no global shared disk space
 bool moveFileToLocalDirectory(std::string path);
+
+/**
+ * launch a pick file activity on android. It can be empty
+ * This doesn't launch anything on iOS since ios is not capable of that thing. (you will not receive a "FilePicked" event)
+ **/
+bool pickFile();
+
+static inline void notifyFilePicked(std::string fullPath)
+{
+    DelayedDispatcher::eventAfterDelay("FilePicked", DcreateP(Screate(fullPath), Screate("Path"), NULL), 0.01);
+}
 
 #endif

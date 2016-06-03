@@ -44,3 +44,8 @@ bool moveFileToLocalDirectory(std::string path)
 {
     return true;
 }
+
+bool pickFile()
+{
+    return true;
+}

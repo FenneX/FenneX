@@ -25,6 +25,7 @@
 #include "cocos2d.h"
 #include "FenneXCore.h"
 #include "platform/android/jni/JniHelper.h"
+#include "FileUtility.h"
 
 #define CLASS_NAME "com/fennex/modules/FileUtility"
 USING_NS_CC;
@@ -139,4 +140,24 @@ bool moveFileToLocalDirectory(std::string path)
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(jPath);
     return result;
+}
+
+bool pickFile()
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"pickFile", "()Z");
+    CCAssert(functionExist, "Function doesn't exist");
+    bool result = minfo.env->CallStaticBooleanMethod(minfo.classID,
+                                                     minfo.methodID);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    return result;
+}
+
+extern "C"
+{
+    //extension for long name : __Ljava_lang_String_2Ljava_lang_String_2
+    void Java_com_fennex_modules_FileUtility_notifyFilePicked(JNIEnv* env, jobject thiz, jstring path)
+    {
+        notifyFilePicked(JniHelper::jstring2string(path));
+    }
 }

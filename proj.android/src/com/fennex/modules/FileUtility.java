@@ -1,8 +1,10 @@
 package com.fennex.modules;
 
-import android.content.res.AssetManager;
-import android.os.Environment;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,17 +15,18 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 
 /**
  * Created by Fradow on 10/06/15.
  */
-public class FileUtility {
+public class FileUtility implements ActivityResultResponder {
+    private static final int FILE_PICK = 50;
+    private static final String TAG = "FileUtility";
     HashMap<String, FileLock> currentLocks;
     HashMap<String, RandomAccessFile> currentFiles;
     private static volatile FileUtility instance = null;
+    private static boolean isPending = false;
     private FileUtility() {
         currentLocks = new HashMap<String, FileLock>();
         currentFiles = new HashMap<String, RandomAccessFile>();
@@ -37,11 +40,22 @@ public class FileUtility {
             {
                 if (instance == null)
                 {
-                    instance = new FileUtility ();
+                    instance = new FileUtility();
+                    NativeUtility.getMainActivity().addResponder(instance);
                 }
             }
         }
         return instance;
+    }
+
+    public void destroy()
+    {
+        if(isPending)
+        {
+            Toast.makeText(NativeUtility.getMainActivity(), TOO_MUCH_APP, Toast.LENGTH_LONG).show();
+            isPending = false;
+        }
+        instance = null;
     }
 
     public static boolean lockFile(String filename) {
@@ -198,4 +212,45 @@ public class FileUtility {
         }
         return true;
     }
+
+    public static boolean pickFile()
+    {
+        FileUtility.getInstance(); //ensure the instance is created
+        boolean error = false;
+        try
+        {
+            Intent intent;
+            intent = new Intent(Intent.ACTION_GET_CONTENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+            intent.setType("file/*");
+            isPending = true;
+            NativeUtility.getMainActivity().startActivityForResult(intent, FILE_PICK);
+        }
+        catch(ActivityNotFoundException e)
+        {
+            Log.d(TAG, "intent for image pick from File library not found : " + e.getMessage());
+            error = true;
+        }
+        return error;
+    }
+
+    @Override
+    public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
+        isPending = false;
+        if (requestCode == FILE_PICK) {
+            Log.d(TAG, "intent data: " + data.getDataString());
+            final Uri fileUri = data.getData();
+            NativeUtility.getMainActivity().runOnGLThread(new Runnable()
+            {
+                public void run()
+                {
+                    notifyFilePicked(fileUri.getPath());
+                }
+            });
+            return true;
+        }
+        return false;
+    }
+
+    public native static void notifyFilePicked(String path);
 }
