@@ -85,8 +85,11 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 				new Timer().schedule(new TimerTask() {
 					@Override
 					public void run() {
-						splashDialog.cancel();
-						splashDialog = null;
+						if(splashDialog!= null)
+						{
+							splashDialog.cancel();
+							splashDialog = null;
+						}
 					}
 				}, 100);
             }
@@ -95,8 +98,11 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
                 new Timer().schedule(new TimerTask() {
                     @Override
                     public void run() {
-                        splashDialog.discard();
-                        splashDialog = null;
+						if(splashDialog!= null)
+						{
+							splashDialog.discard();
+							splashDialog = null;
+						}
                     }
                 }, splashMinDuration - (currentTime - launchTime) + 100);
             }
