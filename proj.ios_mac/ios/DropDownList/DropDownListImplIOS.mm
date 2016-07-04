@@ -136,8 +136,10 @@ THE SOFTWARE.
 }
 
 - (void) dealloc {
-    [pickerView dealloc];
-    [pickerValues dealloc];
+    [pickerView release];
+    [pickerValues release];
+    [titleView release];
+    [background release];
     [super dealloc];
 }
 
