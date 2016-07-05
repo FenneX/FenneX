@@ -464,6 +464,10 @@ void Scene::removeTouchreceiver(GenericRecognizer* obj)
     {
         receiversToRemove.pushBack(obj);
     }
+    else if(obj != NULL && receiversToAdd.contains(obj))
+    {
+        receiversToAdd.eraseObject(obj);
+    }
 }
 
 Vec2 Scene::touchPosition(Touch* touch)
