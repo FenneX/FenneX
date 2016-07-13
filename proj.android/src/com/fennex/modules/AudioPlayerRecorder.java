@@ -473,7 +473,7 @@ public class AudioPlayerRecorder extends Handler {
     	{
     		new Thread(new Runnable() {
     	        public void run() {
-    	        	while(volume >= 0 && mPlayer.isPlaying())
+    	        	while(mPlayer != null && volume >= 0 && mPlayer.isPlaying())
     	    		{
     	    			volume -= speed;
     	    			mPlayer.setVolume(volume, volume);
