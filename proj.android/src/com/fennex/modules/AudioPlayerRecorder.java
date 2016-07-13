@@ -473,21 +473,28 @@ public class AudioPlayerRecorder extends Handler {
     	{
     		new Thread(new Runnable() {
     	        public void run() {
-    	        	while(mPlayer != null && volume >= 0 && mPlayer.isPlaying())
-    	    		{
-    	    			volume -= speed;
-    	    			mPlayer.setVolume(volume, volume);
-    	    			try {
-							Thread.sleep(25);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-    	    		}
-                    if(mPlayer.isPlaying())
+                  try
                     {
-                        mPlayer.stop();
+                        while(mPlayer != null && volume >= 0 && mPlayer.isPlaying())
+                        {
+                            volume -= speed;
+                            mPlayer.setVolume(volume, volume);
+                            try {
+                                Thread.sleep(25);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        if(mPlayer.isPlaying())
+                        {
+                            mPlayer.stop();
+                        }
+                        volume = 1;
                     }
-    	        	volume = 1;
+                    catch(java.lang.IllegalStateException e)
+                    {
+                        Log.e(TAG, "mPlayer isn't initialized yet");
+                    }
     	        }
     	    }).start();
     	}
