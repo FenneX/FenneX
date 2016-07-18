@@ -485,7 +485,7 @@ public class AudioPlayerRecorder extends Handler {
                                 e.printStackTrace();
                             }
                         }
-                        if(mPlayer.isPlaying())
+                        if(mPlayer != null && mPlayer.isPlaying())
                         {
                             mPlayer.stop();
                         }
