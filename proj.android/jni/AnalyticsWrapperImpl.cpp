@@ -74,7 +74,7 @@ void AnalyticsWrapper::flurryStartSession(const std::string& apiKey)
     jstring stringArg1 = minfo.env->NewStringUTF(apiKey.c_str());
     jstring stringArg2 = minfo.env->NewStringUTF("false");
     
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, stringArg0, stringArg1, stringArg2);
+    minfo.env->CallStaticIntMethod(minfo.classID, minfo.methodID, stringArg0, stringArg1, stringArg2);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(stringArg0);
     minfo.env->DeleteLocalRef(stringArg1);
@@ -190,7 +190,7 @@ void AnalyticsWrapper::flurrySetAppVersion(const std::string& version)
     jstring stringArg1 = minfo.env->NewStringUTF(version.c_str());
     jstring stringArg2 = minfo.env->NewStringUTF("false");
     
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, stringArg0, stringArg1, stringArg2);
+    minfo.env->CallStaticIntMethod(minfo.classID, minfo.methodID, stringArg0, stringArg1, stringArg2);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(stringArg0);
     minfo.env->DeleteLocalRef(stringArg1);
@@ -206,7 +206,7 @@ void AnalyticsWrapper::flurrySetDebugLogEnabled(bool value)
     jstring stringArg0 = minfo.env->NewStringUTF("flurrySetLogEnabled");
     jstring stringArg1 = minfo.env->NewStringUTF("placeholder");
     jstring stringArg2 = minfo.env->NewStringUTF(value ? "true" : "false");
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, stringArg0, stringArg1, stringArg2);
+    minfo.env->CallStaticIntMethod(minfo.classID, minfo.methodID, stringArg0, stringArg1, stringArg2);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(stringArg0);
     minfo.env->DeleteLocalRef(stringArg1);
@@ -222,7 +222,7 @@ void AnalyticsWrapper::flurrySetSecureTransportEnabled(bool value)
     jstring stringArg0 = minfo.env->NewStringUTF("flurrySetSecureEnabled");
     jstring stringArg1 = minfo.env->NewStringUTF("placeholder");
     jstring stringArg2 = minfo.env->NewStringUTF(value ? "true" : "false");
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, stringArg0, stringArg1, stringArg2);
+    minfo.env->CallStaticIntMethod(minfo.classID, minfo.methodID, stringArg0, stringArg1, stringArg2);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(stringArg0);
     minfo.env->DeleteLocalRef(stringArg1);
@@ -239,7 +239,7 @@ void AnalyticsWrapper::flurryLogPageView()
     jstring stringArg1 = minfo.env->NewStringUTF("placeholder");
     jstring stringArg2 = minfo.env->NewStringUTF("false");
     
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, stringArg0, stringArg1, stringArg2);
+    minfo.env->CallStaticIntMethod(minfo.classID, minfo.methodID, stringArg0, stringArg1, stringArg2);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(stringArg0);
     minfo.env->DeleteLocalRef(stringArg1);
@@ -256,7 +256,7 @@ void AnalyticsWrapper::flurryLogEvent(const std::string& eventName)
     jstring stringArg1 = minfo.env->NewStringUTF(eventName.c_str());
     jstring stringArg2 = minfo.env->NewStringUTF("false");
     
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, stringArg0, stringArg1, stringArg2);
+    minfo.env->CallStaticIntMethod(minfo.classID, minfo.methodID, stringArg0, stringArg1, stringArg2);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(stringArg0);
     minfo.env->DeleteLocalRef(stringArg1);
@@ -274,7 +274,7 @@ void AnalyticsWrapper::flurryLogEventWithParameters(const std::string& eventName
     jstring stringArg0 = minfo.env->NewStringUTF(eventNameString.c_str());
     jstring stringArg2 = minfo.env->NewStringUTF("false");
     jobjectArray array = jobjectArrayFromCCDictionary(minfo.env, parameters);
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, stringArg0, array, stringArg2);
+    minfo.env->CallStaticIntMethod(minfo.classID, minfo.methodID, stringArg0, array, stringArg2);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(stringArg0);
     minfo.env->DeleteLocalRef(array);
@@ -296,7 +296,7 @@ void AnalyticsWrapper::flurryLogEventTimed(const std::string& eventName, bool ti
         stringArg2 = minfo.env->NewStringUTF("true");
     }
     
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, stringArg0, stringArg1, stringArg2);
+    minfo.env->CallStaticIntMethod(minfo.classID, minfo.methodID, stringArg0, stringArg1, stringArg2);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(stringArg0);
     minfo.env->DeleteLocalRef(stringArg1);
@@ -319,7 +319,7 @@ void AnalyticsWrapper::flurryLogEventWithParametersTimed(const std::string& even
         stringArg2 = minfo.env->NewStringUTF("true");
     }
     jobjectArray array = jobjectArrayFromCCDictionary(minfo.env, parameters);
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, stringArg0, array, stringArg2);
+    minfo.env->CallStaticIntMethod(minfo.classID, minfo.methodID, stringArg0, array, stringArg2);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(stringArg0);
     minfo.env->DeleteLocalRef(array);
@@ -336,7 +336,7 @@ void AnalyticsWrapper::flurryEndTimedEventWithParameters(const std::string& even
     jstring stringArg1 = minfo.env->NewStringUTF(eventName.c_str());
     jstring stringArg2 = minfo.env->NewStringUTF("false");
     
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, stringArg0, stringArg1, stringArg2);
+    minfo.env->CallStaticIntMethod(minfo.classID, minfo.methodID, stringArg0, stringArg1, stringArg2);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(stringArg0);
     minfo.env->DeleteLocalRef(stringArg1);
@@ -352,7 +352,7 @@ void AnalyticsWrapper::flurryEndSession()
     jstring stringArg1 = minfo.env->NewStringUTF("placeholder");
     jstring stringArg2 = minfo.env->NewStringUTF("false");
     
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, stringArg0, stringArg1, stringArg2);
+    minfo.env->CallStaticIntMethod(minfo.classID, minfo.methodID, stringArg0, stringArg1, stringArg2);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(stringArg0);
     minfo.env->DeleteLocalRef(stringArg1);
