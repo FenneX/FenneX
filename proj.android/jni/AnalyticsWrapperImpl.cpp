@@ -67,7 +67,7 @@ std::string AnalyticsWrapper::GAGetGAAgentVersion()
 void AnalyticsWrapper::flurryStartSession(const std::string& apiKey)
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"Bridge", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"Bridge", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I");
     CCAssert(functionExist, "Function doesn't exist");
     
     jstring stringArg0 = minfo.env->NewStringUTF("flurryOnStartSession");
@@ -183,7 +183,7 @@ void AnalyticsWrapper::GAEndSession()
 void AnalyticsWrapper::flurrySetAppVersion(const std::string& version)
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"Bridge", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"Bridge", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I");
     CCAssert(functionExist, "Function doesn't exist");
     
     jstring stringArg0 = minfo.env->NewStringUTF("flurrySetAppVersion");
@@ -200,7 +200,7 @@ void AnalyticsWrapper::flurrySetAppVersion(const std::string& version)
 void AnalyticsWrapper::flurrySetDebugLogEnabled(bool value)
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"Bridge", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"Bridge", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I");
     CCAssert(functionExist, "Function doesn't exist");
     
     jstring stringArg0 = minfo.env->NewStringUTF("flurrySetLogEnabled");
@@ -216,7 +216,7 @@ void AnalyticsWrapper::flurrySetDebugLogEnabled(bool value)
 void AnalyticsWrapper::flurrySetSecureTransportEnabled(bool value)
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"Bridge", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"Bridge", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I");
     CCAssert(functionExist, "Function doesn't exist");
     
     jstring stringArg0 = minfo.env->NewStringUTF("flurrySetSecureEnabled");
@@ -232,7 +232,7 @@ void AnalyticsWrapper::flurrySetSecureTransportEnabled(bool value)
 void AnalyticsWrapper::flurryLogPageView()
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"Bridge", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"Bridge", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I");
     CCAssert(functionExist, "Function doesn't exist");
     
     jstring stringArg0 = minfo.env->NewStringUTF("flurryLogPageView");
@@ -249,7 +249,7 @@ void AnalyticsWrapper::flurryLogPageView()
 void AnalyticsWrapper::flurryLogEvent(const std::string& eventName)
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"Bridge", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"Bridge", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I");
     CCAssert(functionExist, "Function doesn't exist");
     
     jstring stringArg0 = minfo.env->NewStringUTF("flurryLogEvent");
@@ -266,7 +266,7 @@ void AnalyticsWrapper::flurryLogEvent(const std::string& eventName)
 void AnalyticsWrapper::flurryLogEventWithParameters(const std::string& eventName, CCDictionary * parameters)
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"Bridge", "(Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;)V");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"Bridge", "(Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;)I");
     CCAssert(functionExist, "Function doesn't exist");
     
     string eventNameString("flurryLogEventWithParameters,");
@@ -284,7 +284,7 @@ void AnalyticsWrapper::flurryLogEventWithParameters(const std::string& eventName
 void AnalyticsWrapper::flurryLogEventTimed(const std::string& eventName, bool timed)
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"Bridge", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"Bridge", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I");
     CCAssert(functionExist, "Function doesn't exist");
     
     jstring stringArg0 = minfo.env->NewStringUTF("flurryLogEventTimed");
@@ -306,7 +306,7 @@ void AnalyticsWrapper::flurryLogEventTimed(const std::string& eventName, bool ti
 void AnalyticsWrapper::flurryLogEventWithParametersTimed(const std::string& eventName, CCDictionary * parameters, bool timed)
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"Bridge", "(Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;)V");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"Bridge", "(Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;)I");
     CCAssert(functionExist, "Function doesn't exist");
     
     string eventNameString("flurryLogEventWithParametersTimed,");
@@ -329,7 +329,7 @@ void AnalyticsWrapper::flurryLogEventWithParametersTimed(const std::string& even
 void AnalyticsWrapper::flurryEndTimedEventWithParameters(const std::string& eventName, CCDictionary * parameters)
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"Bridge", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"Bridge", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I");
     CCAssert(functionExist, "Function doesn't exist");
     
     jstring stringArg0 = minfo.env->NewStringUTF("flurryEndTimedEvent");
@@ -345,7 +345,7 @@ void AnalyticsWrapper::flurryEndTimedEventWithParameters(const std::string& even
 void AnalyticsWrapper::flurryEndSession()
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"Bridge", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"Bridge", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I");
     CCAssert(functionExist, "Function doesn't exist");
     
     jstring stringArg0 = minfo.env->NewStringUTF("flurryOnEndSession");
