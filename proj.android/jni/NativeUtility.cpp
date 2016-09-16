@@ -140,15 +140,7 @@ void copyResourceFileToLocal(const std::string& path)
 
 std::string getLocalLanguage()
 {
-    JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo, "org/cocos2dx/lib/Cocos2dxHelper", "getCurrentLanguage", "()Ljava/lang/String;");
-    CCAssert(functionExist, "Function doesn't exist");
-    
-    jstring str = (jstring)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID);
-    minfo.env->DeleteLocalRef(minfo.classID);
-    std::string ret = JniHelper::jstring2string(str);
-    minfo.env->DeleteLocalRef(str);
-    return ret;
+    return Application::getInstance()->getCurrentLanguageCode();
 }
 
 void preventIdleTimerSleep(bool prevent)
