@@ -41,7 +41,7 @@ public class FileUtility implements ActivityResultResponder {
                 if (instance == null)
                 {
                     instance = new FileUtility();
-                    NativeUtility.getMainActivity().addResponder(instance);
+                    if(NativeUtility.getMainActivity() != null) NativeUtility.getMainActivity().addResponder(instance);
                 }
             }
         }
@@ -237,7 +237,7 @@ public class FileUtility implements ActivityResultResponder {
     @Override
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
         isPending = false;
-        if (requestCode == FILE_PICK) {
+        if (requestCode == FILE_PICK && NativeUtility.getMainActivity() != null) {
             Log.d(TAG, "intent data: " + data.getDataString());
             final Uri fileUri = data.getData();
             NativeUtility.getMainActivity().runOnGLThread(new Runnable()
