@@ -223,6 +223,7 @@ public class AudioPlayerRecorder extends Handler {
                 	fullName = null;
             	}
                 Log.e(TAG, "prepare() from local failed, exception : " + e.getLocalizedMessage());
+                notifyPlayingSoundEnded();
             }
         }
         //try to load from package using assets
@@ -253,6 +254,7 @@ public class AudioPlayerRecorder extends Handler {
             {
             	fullName = null;
                 Log.e(TAG, "prepare() failed from resources, exception : " + e.getLocalizedMessage());
+                notifyPlayingSoundEnded();
             }
         }
         return fullName;
@@ -408,20 +410,28 @@ public class AudioPlayerRecorder extends Handler {
         try 
         {
             mRecorder.prepare();
+            mRecorder.start();
         } 
         catch (IOException e) 
         {
             Log.e(TAG, "prepare() failed");
         }
+        catch(IllegalStateException e)
+        {
+            Log.e(TAG, "start() failed, recorder wasn't ready");
+        }
 
-        mRecorder.start();
     }
 
     public static void stopRecording() 
     {
         Log.d(TAG, "stop recording");
         if(mRecorder != null) {
-            mRecorder.stop();
+            try{
+                mRecorder.stop();
+            }catch(RuntimeException stopException){
+                Log.d(TAG, "stop RuntimeException, nothing got recorded");
+            }
             mRecorder.release();
             mRecorder = null;
         }
