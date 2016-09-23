@@ -294,7 +294,11 @@ public class VideoRecorder extends Activity implements SurfaceHolder.Callback, M
     {
     	if(!recorderStopped)
     	{
-    		recorder.stop();
+			try{
+				recorder.stop();
+			}catch(RuntimeException e){
+				Log.i(TAG, "recorder.stop() failed, not a real issue since the release take care of everything after");
+			}
     	}
         recorder.release();
         recorder = null;

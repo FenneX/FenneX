@@ -274,7 +274,13 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 		if(useVLC)
 		{
 			if(vlcMediaPlayer != null) {
+				if(videoEnded)
+				{
+					Log.i(TAG, "videoEnded, restarting");
+					vlcMediaPlayer.stop();
+				}
 				vlcMediaPlayer.play();
+				videoEnded = false;
 			}
 			else
 			{
@@ -710,11 +716,16 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 			switch(event.type) {
 				case org.videolan.libvlc.MediaPlayer.Event.EndReached:
 					Log.d(TAG, "MediaPlayerEndReached");
+					videoEnded = true;
 					NativeUtility.getMainActivity().runOnGLThread(new Runnable()
 					{
 						public void run()
 						{
 							notifyVideoEnded(path);
+							if(shouldLoop)
+							{
+								play();
+							}
 						}
 					});
 					break;
