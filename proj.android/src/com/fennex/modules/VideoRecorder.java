@@ -144,7 +144,7 @@ public class VideoRecorder extends Activity implements SurfaceHolder.Callback, M
     	//Do the init in case the recording is started directly, without preview
     	init();
     	//If there is a preview, re-use the camera
-    	if(previewRunning)
+    	if(previewRunning && camera != null)
     	{
     		camera.unlock();
     	}
