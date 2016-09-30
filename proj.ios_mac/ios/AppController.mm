@@ -32,7 +32,6 @@
 
 #import "ImagePicker.h"
 #import "FenneX.h"
-#import "Flurry.h"
 #import "AppMacros.h"
 #import "TestFlight.h"
 #include "NativeUtility.h"
@@ -125,8 +124,6 @@ void uncaughtExceptionHandler(NSException *exception)
 {
     NSLog(@"CRASH: %@", exception);
     NSLog(@"Stack Trace: %@", [exception callStackSymbols]);
-    // Internal error reporting
-    [Flurry logError:@"Uncaught" message:@"Crash!" exception:exception];
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions

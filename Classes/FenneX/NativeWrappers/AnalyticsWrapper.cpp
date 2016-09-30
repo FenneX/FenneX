@@ -46,30 +46,21 @@ void AnalyticsWrapper::init()
 
 void AnalyticsWrapper::setAppVersion(const std::string& version)
 {
-    flurrySetAppVersion(version);
     sharedInstance()->appVersion = version;
 }
 
 void AnalyticsWrapper::setDebugLogEnabled(bool value)
 {
     GASetDebugLogEnabled(value);
-    flurrySetDebugLogEnabled(value);
 }
 
 void AnalyticsWrapper::setSecureTransportEnabled(bool value)
 {
     GASetSecureTransportEnabled(value);
-    flurrySetSecureTransportEnabled(value);
 }
 
 void AnalyticsWrapper::logPageView(const std::string& pageName)
 {
-    if(!sharedInstance()->lastPageName.empty())
-    {
-        flurryEndTimedEventWithParameters("Scene: " + sharedInstance()->lastPageName, NULL);
-    }
-    flurryLogEventTimed("Scene: " + pageName, true);
-    flurryLogPageView();
     GALogPageView(pageName);
     sharedInstance()->lastPageName = pageName;
 }
@@ -77,21 +68,9 @@ void AnalyticsWrapper::logPageView(const std::string& pageName)
 void AnalyticsWrapper::logEvent(const std::string& eventName, const std::string& label, int value)
 {
     GALogEvent(eventName, label, value);
-    std::string fullFlurryName = eventName + " - " + (!sharedInstance()->lastPageName.empty()? sharedInstance()->lastPageName : "NoScene");
-    if(label.empty())
-    {
-        flurryLogEvent(fullFlurryName);
-    }
-    else
-    {
-        cocos2d::CCDictionary* param = cocos2d::CCDictionary::create();
-        param->setObject(cocos2d::CCInteger::create(value), label);
-        flurryLogEventWithParameters(fullFlurryName, param);
-    }
 }
 
 void AnalyticsWrapper::endSession()
 {
     GAEndSession();
-    flurryEndSession();
 }
