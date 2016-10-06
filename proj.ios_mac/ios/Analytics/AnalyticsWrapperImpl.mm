@@ -29,6 +29,7 @@
 #import "GAI.h"
 #import "GAIFields.h"
 #import "GAIDictionaryBuilder.h"
+#import "Firebase.h"
 
 //Start and get agent methods
 void AnalyticsWrapper::GAStartSession(const std::string& apiKey)
@@ -89,3 +90,14 @@ void AnalyticsWrapper::GAEndSession()
     [[[GAI sharedInstance] defaultTracker] set:kGAISessionControl value:@"end"];
 }
 
+void AnalyticsWrapper::firebaseLogPageView(const std::string& pageName){
+    firebaseLogEventWithParameters("change_scene", DcreateP(Screate(pageName), Screate("item_name"),NULL));
+}
+
+void AnalyticsWrapper::firebaseLogEvent(const std::string& eventName) {
+    firebaseLogEventWithParameters(eventName, Dcreate());
+}
+
+void AnalyticsWrapper::firebaseLogEventWithParameters(const std::string& eventName, cocos2d::CCDictionary * parameters) {
+    [FIRAnalytics logEventWithName:[AnalyticXStringUtil nsstringFromCString:eventName.c_str()] parameters:[AnalyticXStringUtil nsDictionaryFromCCDictionary:parameters]];
+}

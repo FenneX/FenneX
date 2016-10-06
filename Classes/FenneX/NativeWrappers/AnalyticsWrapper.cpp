@@ -46,6 +46,7 @@ void AnalyticsWrapper::init()
 
 void AnalyticsWrapper::setAppVersion(const std::string& version)
 {
+    // automatic with firebase
     sharedInstance()->appVersion = version;
 }
 
@@ -62,12 +63,24 @@ void AnalyticsWrapper::setSecureTransportEnabled(bool value)
 void AnalyticsWrapper::logPageView(const std::string& pageName)
 {
     GALogPageView(pageName);
+    firebaseLogPageView(pageName);
     sharedInstance()->lastPageName = pageName;
 }
 
 void AnalyticsWrapper::logEvent(const std::string& eventName, const std::string& label, int value)
 {
     GALogEvent(eventName, label, value);
+    std::string fullFlurryName = eventName + " - " + (!sharedInstance()->lastPageName.empty()? sharedInstance()->lastPageName : "NoScene");
+    if(label.empty())
+    {
+        firebaseLogEvent(fullFlurryName);
+    }
+    else
+    {
+        cocos2d::CCDictionary* param = cocos2d::CCDictionary::create();
+        param->setObject(cocos2d::CCInteger::create(value), label);
+        firebaseLogEventWithParameters(fullFlurryName, param);
+    }
 }
 
 void AnalyticsWrapper::endSession()

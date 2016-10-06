@@ -150,3 +150,42 @@ void AnalyticsWrapper::GAEndSession()
     minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID);
     minfo.env->DeleteLocalRef(minfo.classID);
 }
+
+void AnalyticsWrapper::firebaseLogPageView(const std::string& pageName){
+
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"firebaseLogPageView", "(Ljava/lang/String;)V");
+    CCAssert(functionExist, "Function doesn't exist");
+    jstring jPageName = minfo.env->NewStringUTF(pageName.c_str());
+    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jPageName);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(jPageName);
+}
+
+void AnalyticsWrapper::firebaseLogEvent(const std::string& eventName) {
+
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"firebaseLogEvent", "(Ljava/lang/String;)V");
+    CCAssert(functionExist, "Function doesn't exist");
+    jstring jPageName = minfo.env->NewStringUTF(eventName.c_str());
+    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jPageName);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(jPageName);
+}
+
+void AnalyticsWrapper::firebaseLogEventWithParameters(const std::string& eventName, cocos2d::CCDictionary * parameters) {
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"Bridge", "(Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;)V");
+    CCAssert(functionExist, "Function doesn't exist");
+
+    string eventNameString("firebaseLogEventWithParameters,");
+    eventNameString += eventName;
+    jstring stringArg0 = minfo.env->NewStringUTF(eventNameString.c_str());
+    jstring stringArg2 = minfo.env->NewStringUTF("false");
+    jobjectArray array = jobjectArrayFromCCDictionary(minfo.env, parameters);
+    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, stringArg0, array, stringArg2);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(stringArg0);
+    minfo.env->DeleteLocalRef(array);
+    minfo.env->DeleteLocalRef(stringArg2);
+}

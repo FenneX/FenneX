@@ -1,5 +1,6 @@
 package com.fennex.modules;
 
+import android.os.Bundle;
 import android.util.Log;
 
 import com.google.analytics.tracking.android.EasyTracker;
@@ -8,11 +9,14 @@ import com.google.analytics.tracking.android.GoogleAnalytics;
 import com.google.analytics.tracking.android.Logger;
 import com.google.analytics.tracking.android.MapBuilder;
 import com.google.analytics.tracking.android.Tracker;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 /**
  * Created by admin on 30/09/16.
  */
 public class Analytics {
+
+    public static FirebaseAnalytics mFirebaseAnalytics;
 
     /**
      * Google Analytics methods.
@@ -100,5 +104,24 @@ public class Analytics {
             Tracker easyTracker = EasyTracker.getInstance(NativeUtility.getMainActivity());
             easyTracker.set(Fields.USE_SECURE, String.valueOf(value));
         }
+    }
+
+    static public void firebaseLogPageView(String pageName){
+        String [] parameters = {FirebaseAnalytics.Param.ITEM_NAME, pageName};
+        firebaseLogEventWithParameters("change_scene", parameters);
+    }
+
+    static public void firebaseLogEvent(String eventName) {
+        String [] parameters = {};
+        firebaseLogEventWithParameters(eventName, parameters);
+    }
+
+    static public void firebaseLogEventWithParameters(String eventName,  String [] parametersArray) {
+        Bundle bundle = new Bundle();
+        for (int i = 0; i < parametersArray.length / 2; i++) {
+            bundle.putString(parametersArray[2*i], parametersArray[2*i+1]);
+        }
+        Log.i("Firebase Analytics", "Loging event : "+ eventName +" with parameters : "+ parametersArray);
+        mFirebaseAnalytics.logEvent(eventName, bundle);
     }
 }
