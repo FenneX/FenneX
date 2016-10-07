@@ -106,6 +106,10 @@ public class Analytics {
         }
     }
 
+    static public void firebaseSetProperty(String propertyName, String propertyValue){
+        mFirebaseAnalytics.setUserProperty(propertyName, propertyValue);
+    }
+
     static public void firebaseLogPageView(String pageName){
         String [] parameters = {FirebaseAnalytics.Param.ITEM_NAME, pageName};
         firebaseLogEventWithParameters("change_scene", parameters);

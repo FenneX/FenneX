@@ -52,6 +52,7 @@ public:
     static void logEvent(const std::string& eventName, const std::string& label = "", int value = 0); // log eventName - log eventName with the Scene as a category in GA
     static void endSession();
     
+    static void firebaseSetProperty(const std::string& propertyName, const std::string& propertyValue);
 private:
     //GA only methods
     

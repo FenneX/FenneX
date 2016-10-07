@@ -181,6 +181,7 @@ void uncaughtExceptionHandler(NSException *exception)
             DelayedDispatcher::eventAfterDelay([[notif.userInfo objectForKey:@"CallbackEvent"] UTF8String], [NSCCConverter ccDictionaryFromNSDictionary:notif.userInfo], 0.01);
         }
     }
+    [FIRApp configure];
     return YES;
 }
 

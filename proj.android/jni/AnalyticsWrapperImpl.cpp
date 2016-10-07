@@ -151,6 +151,21 @@ void AnalyticsWrapper::GAEndSession()
     minfo.env->DeleteLocalRef(minfo.classID);
 }
 
+void AnalyticsWrapper::firebaseSetProperty(const std::string& propertyName, const std::string& propertyValue)
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"firebaseSetProperty", "(Ljava/lang/String;Ljava/lang/String;)V");
+    CCAssert(functionExist, "Function doesn't exist");
+
+    jstring jPropertyName = minfo.env->NewStringUTF(propertyName.c_str());
+    jstring jPropertyValue = minfo.env->NewStringUTF(propertyValue.c_str());
+
+    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jPropertyName, jPropertyValue);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(jPropertyName);
+    minfo.env->DeleteLocalRef(jPropertyValue);
+}
+
 void AnalyticsWrapper::firebaseLogPageView(const std::string& pageName){
 
     JniMethodInfo minfo;
