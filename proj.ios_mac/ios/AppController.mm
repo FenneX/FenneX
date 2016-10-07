@@ -35,6 +35,7 @@
 #import "AppMacros.h"
 #include "NativeUtility.h"
 #include "Shorteners.h"
+#import "Firebase.h"
 
 static AppController* _sharedController = NULL;
 
@@ -168,7 +169,7 @@ void uncaughtExceptionHandler(NSException *exception)
     // IMPORTANT: Setting the GLView should be done after creating the RootViewController
     cocos2d::GLView *glview = cocos2d::GLViewImpl::createWithEAGLView(eaglView);
     cocos2d::Director::getInstance()->setOpenGLView(glview);
-    
+    [FIRApp configure];
     cocos2d::Application::getInstance()->run();
     
     NSLog(@"app launch");
@@ -181,7 +182,6 @@ void uncaughtExceptionHandler(NSException *exception)
             DelayedDispatcher::eventAfterDelay([[notif.userInfo objectForKey:@"CallbackEvent"] UTF8String], [NSCCConverter ccDictionaryFromNSDictionary:notif.userInfo], 0.01);
         }
     }
-    [FIRApp configure];
     return YES;
 }
 
