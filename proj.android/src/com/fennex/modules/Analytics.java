@@ -126,6 +126,6 @@ public class Analytics {
             bundle.putString(parametersArray[2*i], parametersArray[2*i+1]);
         }
         Log.i("Firebase Analytics", "Loging event : "+ eventName +" with parameters : "+ parametersArray);
-        mFirebaseAnalytics.logEvent(eventName.replace(' ', '_'), bundle);
+        mFirebaseAnalytics.logEvent(eventName.replace(' ', '_').replace('-', '_'), bundle);
     }
 }

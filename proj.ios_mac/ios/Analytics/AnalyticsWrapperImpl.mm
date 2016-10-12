@@ -107,5 +107,6 @@ void AnalyticsWrapper::firebaseLogEventWithParameters(const std::string& eventNa
 {
     std::string event = eventName;
     std::replace(event.begin(), event.end(), ' ', '_');
+    std::replace(event.begin(), event.end(), '-', '_');
     [FIRAnalytics logEventWithName:[AnalyticXStringUtil nsstringFromCString:event.c_str()] parameters:[AnalyticXStringUtil nsDictionaryFromCCDictionary:parameters]];
 }
