@@ -105,5 +105,7 @@ void AnalyticsWrapper::firebaseLogEvent(const std::string& eventName) {
 
 void AnalyticsWrapper::firebaseLogEventWithParameters(const std::string& eventName, cocos2d::CCDictionary * parameters)
 {
-    [FIRAnalytics logEventWithName:[AnalyticXStringUtil nsstringFromCString:eventName.c_str()] parameters:[AnalyticXStringUtil nsDictionaryFromCCDictionary:parameters]];
+    std::string event = eventName;
+    std::replace(event.begin(), event.end(), ' ', '_');
+    [FIRAnalytics logEventWithName:[AnalyticXStringUtil nsstringFromCString:event.c_str()] parameters:[AnalyticXStringUtil nsDictionaryFromCCDictionary:parameters]];
 }

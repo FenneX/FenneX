@@ -190,7 +190,7 @@ void AnalyticsWrapper::firebaseLogEvent(const std::string& eventName) {
 
 void AnalyticsWrapper::firebaseLogEventWithParameters(const std::string& eventName, cocos2d::CCDictionary * parameters) {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"Bridge", "(Ljava/lang/String;[Ljava/lang/String;)V");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"firebaseLogEventWithParameters", "(Ljava/lang/String;[Ljava/lang/String;)V");
     CCAssert(functionExist, "Function doesn't exist");
 
     jstring stringArg0 = minfo.env->NewStringUTF(eventName.c_str());
