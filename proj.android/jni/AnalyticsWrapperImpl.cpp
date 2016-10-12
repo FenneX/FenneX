@@ -190,17 +190,13 @@ void AnalyticsWrapper::firebaseLogEvent(const std::string& eventName) {
 
 void AnalyticsWrapper::firebaseLogEventWithParameters(const std::string& eventName, cocos2d::CCDictionary * parameters) {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"Bridge", "(Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;)V");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"Bridge", "(Ljava/lang/String;[Ljava/lang/String;)V");
     CCAssert(functionExist, "Function doesn't exist");
 
-    string eventNameString("firebaseLogEventWithParameters,");
-    eventNameString += eventName;
-    jstring stringArg0 = minfo.env->NewStringUTF(eventNameString.c_str());
-    jstring stringArg2 = minfo.env->NewStringUTF("false");
+    jstring stringArg0 = minfo.env->NewStringUTF(eventName.c_str());
     jobjectArray array = jobjectArrayFromCCDictionary(minfo.env, parameters);
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, stringArg0, array, stringArg2);
+    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, stringArg0, array);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(stringArg0);
     minfo.env->DeleteLocalRef(array);
-    minfo.env->DeleteLocalRef(stringArg2);
 }
