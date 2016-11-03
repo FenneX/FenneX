@@ -340,7 +340,7 @@ public class InAppManager implements ActivityResultResponder
     
     static void requestProductsData(String [] ids)
     {
-    	List<String> list = new ArrayList<String>();
+    	final List<String> list = new ArrayList<String>();
     	for(String id: ids)
     	{
     		list.add(id);
@@ -348,7 +348,11 @@ public class InAppManager implements ActivityResultResponder
     	if(queryFinished)
     	{
     		queryFinished = false;
-    		mHelper.queryInventoryAsync(true, list, mGotInventoryListener);
+            NativeUtility.getMainActivity().runOnUiThread (new Thread(new Runnable() {
+                    public void run() {
+                        mHelper.queryInventoryAsync(true, list, mGotInventoryListener);
+                    }
+                }));
     	}
     	else
     	{
