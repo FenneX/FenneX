@@ -145,7 +145,7 @@ static InAppPurchaseManager* _sharedManager = nil;
 	NSLog(@"Product purchased : %@", transaction.payment.productIdentifier);
     NSString* number = [transaction.payment.productIdentifier substringFromSet:[NSCharacterSet decimalDigitCharacterSet]
                                                            options:NSBackwardsSearch|NSAnchoredSearch];
-    Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ProductPurchased", DcreateP(ScreateF("%s", [transaction.payment.productIdentifier UTF8String]), Screate("ProductID"), Icreate([number intValue]), Screate("Number"), NULL));
+    Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ProductPurchased", DcreateP(ScreateF("%s", [transaction.payment.productIdentifier UTF8String]), Screate("ProductID"), Icreate([number intValue]), Screate("Number"), Screate([[self getAppleReceipt] UTF8String]), Screate("PurchaseToken"), NULL));
     //[[NSNotificationCenter defaultCenter] postNotificationName:@"ProductPurchased" object:transaction.payment.productIdentifier];
     [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
 	
@@ -158,7 +158,7 @@ static InAppPurchaseManager* _sharedManager = nil;
     [self recordTransaction: transaction];
 	NSLog(@"Product restored : %@", transaction.originalTransaction.payment.productIdentifier);
     
-    Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ProductRestored", DcreateP(ScreateF("%s", [transaction.payment.productIdentifier UTF8String]), Screate("ProductID"), NULL));
+    Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ProductRestored", DcreateP(ScreateF("%s", [transaction.payment.productIdentifier UTF8String]), Screate("ProductID"), Screate([[self getAppleReceipt] UTF8String]), Screate("PurchaseToken"), NULL));
     //[[NSNotificationCenter defaultCenter] postNotificationName:@"ProductRestored" object:transaction.originalTransaction.payment.productIdentifier];
     [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
 	
@@ -170,14 +170,14 @@ static InAppPurchaseManager* _sharedManager = nil;
     {
 		//[[NSNotificationCenter defaultCenter] postNotificationName:@"ErrorTransactionFailure" object:self userInfo:[NSDictionary dictionaryWithObject:transaction.error.localizedDescription forKey:@"Description"]];
         
-        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ErrorTransactionFailure", DcreateP(ScreateF("%s", [transaction.payment.productIdentifier UTF8String]), Screate("ProductID"), NULL));
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ErrorTransactionFailure", DcreateP(ScreateF("%s", [transaction.payment.productIdentifier UTF8String]), Screate("ProductID"), Screate([[self getAppleReceipt] UTF8String]), Screate("PurchaseToken"), NULL));
         NSLog(@"Transaction error: %@, code: %ld", transaction.error.localizedDescription, (long)transaction.error.code);
     }
 	else 
 	{
 		//[[NSNotificationCenter defaultCenter] postNotificationName:@"PayementCanceledTransactionFailure" object:self userInfo:nil];
         
-        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("PayementCanceledTransactionFailure", DcreateP(ScreateF("%s", [transaction.payment.productIdentifier UTF8String]), Screate("ProductID"), NULL));
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("PayementCanceledTransactionFailure", DcreateP(ScreateF("%s", [transaction.payment.productIdentifier UTF8String]), Screate("ProductID"), Screate([[self getAppleReceipt] UTF8String]), Screate("PurchaseToken"), NULL));
 	}
 	
     [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
@@ -250,6 +250,12 @@ static InAppPurchaseManager* _sharedManager = nil;
 - (void) dealloc
 {
 	[super dealloc];
+}
+
+- (NSString*) getAppleReceipt
+{
+    NSData* receipt = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
+    return receipt == NULL ? @"" : [receipt base64EncodedStringWithOptions:0];
 }
 
 @end

@@ -69,7 +69,7 @@ public class InAppManager implements ActivityResultResponder
     
     private static Inventory mInventory = null;
     
-    private native void notifyInAppEvent(String name, String argument);
+    private native void notifyInAppEvent(String name, String argument, String token);
     
     private static String payload = "test";
     
@@ -183,7 +183,7 @@ public class InAppManager implements ActivityResultResponder
 		            Log.d(TAG, "Error : not initialized");
 		            String event = "InAppSystemFailure";
 		            String argument = "NotInitialized";
-		        	getInstance().notifyInAppEvent(event, argument);
+		        	getInstance().notifyInAppEvent(event, argument, "");
 		        	return;
 		        }
 		        else 
@@ -193,7 +193,7 @@ public class InAppManager implements ActivityResultResponder
 		            if(premiumPurchase != null && verifyDeveloperPayload(premiumPurchase) && premiumPurchase.getPurchaseState() == 0)
 		            {
 		            	Log.d(TAG, "Restoring product");
-		                getInstance().notifyInAppEvent("ProductRestored", productID);
+		                getInstance().notifyInAppEvent("ProductRestored", productID, premiumPurchase.getToken());
 		                return;
 		            }
 		        }
@@ -201,8 +201,17 @@ public class InAppManager implements ActivityResultResponder
 		        	mHelper.flagEndAsync();
 		        try
 		        {
-		            mHelper.launchPurchaseFlow(NativeUtility.getMainActivity(), productID, RC_REQUEST, 
-		                    mPurchaseFinishedListener, payload);
+					Purchase purchase = mInventory.getPurchase(productID);
+					if(purchase == null || purchase.getItemType() != IabHelper.ITEM_TYPE_SUBS)
+					{
+						mHelper.launchPurchaseFlow(NativeUtility.getMainActivity(), productID, RC_REQUEST,
+								mPurchaseFinishedListener, payload);
+					}
+					else
+					{
+						mHelper.launchSubscriptionPurchaseFlow(NativeUtility.getMainActivity(), productID, RC_REQUEST,
+								mPurchaseFinishedListener, payload);
+					}
 		        }
 		        catch(IllegalStateException e)
 		        {
@@ -225,7 +234,7 @@ public class InAppManager implements ActivityResultResponder
 		            Log.d(TAG, "Error : not initialized");
 		            String event = "InAppSystemFailure";
 		            String argument = "NotInitialized";
-		        	getInstance().notifyInAppEvent(event, argument);
+		        	getInstance().notifyInAppEvent(event, argument, "");
 		        	return;
 		        }
 		        else 
@@ -234,11 +243,11 @@ public class InAppManager implements ActivityResultResponder
 		            if(premiumPurchase != null && verifyDeveloperPayload(premiumPurchase) && premiumPurchase.getPurchaseState() == 0)
 		            {
 		            	Log.d(TAG, "Restoring product");
-		                getInstance().notifyInAppEvent("ProductRestored", productID);
+		                getInstance().notifyInAppEvent("ProductRestored", productID, premiumPurchase.getToken());
 		                return;
 		            }
 		            else
-		            	getInstance().notifyInAppEvent("ErrorRestoreFailure", productID);
+		            	getInstance().notifyInAppEvent("ErrorRestoreFailure", productID, premiumPurchase == null ? "" : premiumPurchase.getToken());
 		        } 
 			}
 		});
@@ -440,37 +449,37 @@ public class InAppManager implements ActivityResultResponder
 						 */
 		                if(result.getResponse() == IabHelper.BILLING_RESPONSE_RESULT_USER_CANCELED)
 		                {
-		                	getInstance().notifyInAppEvent("PayementCanceledTransactionFailure", "Failure");
+		                	getInstance().notifyInAppEvent("PayementCanceledTransactionFailure", "Failure", purchase.getToken());
 		                }
 						else if(result.getResponse() == IabHelper.BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED)
 						{
-							getInstance().notifyInAppEvent("ProductRestored", purchase.getSku());
+							getInstance().notifyInAppEvent("ProductRestored", purchase.getSku(), purchase.getToken());
 						}
 		                else if(result.getResponse() == IabHelper.IABHELPER_VERIFICATION_FAILED)
 		                {
-		                	getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload");
+		                	getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload", purchase.getToken());
 		                }
 		                else
 		                {
-		                	getInstance().notifyInAppEvent("ErrorTransactionFailure", "Failure");
+		                	getInstance().notifyInAppEvent("ErrorTransactionFailure", "Failure", purchase.getToken());
 		                }
 		                return;
 		            }
 		            if (!verifyDeveloperPayload(purchase)) {
 		                Log.e(TAG,"Error purchasing. Authenticity verification failed.");
-		                getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload");
+		                getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload", purchase.getToken());
 		                return;
 		            }
 		            
 		            if(purchase.getPurchaseState() == 1) //CANCELED
 		            {
-		            	getInstance().notifyInAppEvent("PayementCanceledTransactionFailure", purchase.getSku());
+		            	getInstance().notifyInAppEvent("PayementCanceledTransactionFailure", purchase.getSku(), purchase.getToken());
 		            	Log.d(TAG, "Purchase canceled.");
 		            }
 		            else if(purchase.getPurchaseState() == 2) //REFUNDED
 		            {
 		
-		            	getInstance().notifyInAppEvent("ProductRefunded", purchase.getSku());
+		            	getInstance().notifyInAppEvent("ProductRefunded", purchase.getSku(), purchase.getToken());
 		            	Log.d(TAG, "Purchase refunded.");
 		            }
 		            else //PURCHASED, getPurchaseState should be 0
@@ -487,7 +496,7 @@ public class InAppManager implements ActivityResultResponder
 		            	else
 		            	{
 		                	Log.d(TAG, "Purchase successful, returning it");
-		            		getInstance().notifyInAppEvent("ProductPurchased", purchase.getSku());
+		            		getInstance().notifyInAppEvent("ProductPurchased", purchase.getSku(), purchase.getToken());
 		            	}
 		            }
     			}
@@ -507,37 +516,37 @@ public class InAppManager implements ActivityResultResponder
 		    			Log.e(TAG, "Error consuming: " + result);
 		    			if(result.getResponse() == IabHelper.IABHELPER_USER_CANCELLED)
 		    			{
-		    				getInstance().notifyInAppEvent("PayementCanceledTransactionFailure", "Failure");
+		    				getInstance().notifyInAppEvent("PayementCanceledTransactionFailure", "Failure", purchase.getToken());
 		    			}
 		    			else if(result.getResponse() == IabHelper.IABHELPER_VERIFICATION_FAILED)
 		    			{
-		    				getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload");
+		    				getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload", purchase.getToken());
 		    			}
 		    			else
 		    			{
-		    				getInstance().notifyInAppEvent("ErrorTransactionFailure", "Failure");
+		    				getInstance().notifyInAppEvent("ErrorTransactionFailure", "Failure", purchase.getToken());
 		    			}
 		    			return;
 		    		}
 		    		if (!verifyDeveloperPayload(purchase)) {
 		    			Log.e(TAG,"Error consuming. Authenticity verification failed.");
-		    			getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload");
+		    			getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload", purchase.getToken());
 		    			return;
 		    		}
 		
 		    		if(purchase.getPurchaseState() == 1) //CANCELED
 		    		{
-		    			getInstance().notifyInAppEvent("PayementCanceledTransactionFailure", purchase.getSku());
+		    			getInstance().notifyInAppEvent("PayementCanceledTransactionFailure", purchase.getSku(), purchase.getToken());
 		    			Log.d(TAG, "Consume canceled.");
 		    		}
 		    		else if(purchase.getPurchaseState() == 2) //REFUNDED
 		    		{
-		    			getInstance().notifyInAppEvent("ProductRefunded", purchase.getSku());
+		    			getInstance().notifyInAppEvent("ProductRefunded", purchase.getSku(), purchase.getToken());
 		    			Log.d(TAG, "Consume refunded.");
 		    		}
 		    		else //PURCHASED, getPurchaseState should be 0
 		    		{
-		    			getInstance().notifyInAppEvent("ProductPurchased", purchase.getSku());
+		    			getInstance().notifyInAppEvent("ProductPurchased", purchase.getSku(), purchase.getToken());
 		    			Log.d(TAG, "Consume successful.");
 		    		}
     			}

@@ -39,5 +39,6 @@
 
 - (void)buyProductIdentifier:(NSString *)productIdentifier;
 - (void)restoreTransactions;
+- (NSString*)getAppleReceipt;
 
 @end
