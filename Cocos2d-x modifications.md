@@ -82,6 +82,7 @@ Cocos2d-x V3.8.1 Modifications
 * cocos2d/extensions/GUI/CCeditBox/* => Add support for keyboard return type "Next"
 * cocos2d/network/HttpClient/HttpRequest => change _requestData from std::vector<char> to std::string and add inline void setRequestData(const std::string& data)
 * cocos2d/network/* => add POSTFILE request type
+* cocos2d/network/HttpClient-Apple.mm => remove forced Content-type: application/x-www-form-urlencoded for PUT requests
 * Remove AudioEngine
 * AppController::didFinishLaunchingWithOptions add eaglView.opaque = NO;
 * cocos2d/cocos/ui/UIEditBox/UiEditBox.cpp and UIEditBoxImpl-common.cpp => fix fontSize and contentSize using nodeToWorldTransform correctly
