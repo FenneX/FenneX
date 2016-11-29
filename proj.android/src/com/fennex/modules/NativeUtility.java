@@ -113,6 +113,26 @@ public class NativeUtility
         Log.d(TAG, "returning unique identifier : " + uniqueIdentifier);
         return uniqueIdentifier;
     }
+
+    public static String getDeviceModelIdentifier()
+    {
+        return Build.MODEL;
+    }
+
+    public static String getDeviceModelName()
+    {
+        return Build.DISPLAY;
+    }
+
+    public static String getDeviceVersion()
+    {
+        return Build.VERSION.RELEASE;
+    }
+
+    public static int getDeviceSDK()
+    {
+        return Build.VERSION.SDK_INT;
+    }
     
     public static boolean isPhone()
     {

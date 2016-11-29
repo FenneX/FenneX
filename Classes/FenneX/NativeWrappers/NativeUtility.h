@@ -56,6 +56,18 @@ std::string getPackageIdentifier();
  */
 std::string getUniqueIdentifier();
 
+//Get an identifier for the device model. Should be unique
+std::string getDeviceModelIdentifier();
+
+//Get a name (supposed to be good to show to user, but it's actually not ...)
+std::string getDeviceModelName();
+
+//Get the version for the device, for example 4.4.2
+std::string getDeviceVersion();
+
+//Return Android SDK version or major iOS version
+int getDeviceSDK();
+
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 void copyResourceFileToLocal(const std::string& path);
 #endif
