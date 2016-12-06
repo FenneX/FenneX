@@ -223,14 +223,18 @@ void uncaughtExceptionHandler(NSException *exception)
      Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
      If your application supports background execution, called instead of applicationWillTerminate: when the user quits.
      */
-    cocos2d::CCApplication::sharedApplication()->applicationDidEnterBackground();
+    Application::getInstance()->applicationDidEnterBackground();
+    cocos2d::EventCustom backgroundEvent(EVENT_COME_TO_BACKGROUND);
+    cocos2d::Director::getInstance()->getEventDispatcher()->dispatchEvent(&backgroundEvent);
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
     /*
      Called as part of  transition from the background to the inactive state: here you can undo many of the changes made on entering the background.
      */
-    cocos2d::CCApplication::sharedApplication()->applicationWillEnterForeground();
+    Application::getInstance()->applicationWillEnterForeground();
+    cocos2d::EventCustom foregroundEvent(EVENT_COME_TO_FOREGROUND);
+    cocos2d::Director::getInstance()->getEventDispatcher()->dispatchEvent(&foregroundEvent);
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
