@@ -59,7 +59,7 @@ void restoreTransaction(const std::string& productID);
 void releasePayements();
 
 //Request the products data, to be available for later use
-void requestProductsData(CCArray* products);
+void requestProductsData(std::vector<std::string> products);
 /*
  Return a CCDictionary with each key being a product ID and values being a CCDictionary describing this productID :
  - Title (CCString)

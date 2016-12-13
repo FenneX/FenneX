@@ -51,13 +51,12 @@ void releasePayements()
     
 }
 
-void requestProductsData(CCArray* products)
+void requestProductsData(std::vector<std::string> products)
 {
     NSMutableSet* set = [[NSMutableSet new] autorelease];
-    CCObject* identifier;
-    CCARRAY_FOREACH(products, identifier)
+    for(std::string identifier : products)
     {
-        [set addObject:[NSString stringWithFormat:@"%s", TOCSTRING(identifier)]];
+        [set addObject:[NSString stringWithUTF8String:identifier.c_str()]];
     }
     [[InAppPurchaseManager sharedManager] requestProductsData:set];
 }

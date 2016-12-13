@@ -32,6 +32,7 @@ THE SOFTWARE.
 //Warning: you must DeleteLocalRef the result jobjectArray once it's used
 jobjectArray jobjectArrayFromCCDictionary(JNIEnv *pEnv, cocos2d::CCDictionary * ccDictionary);
 jobjectArray jobjectArrayFromCCArray(JNIEnv *pEnv, cocos2d::CCArray * ccArray);
+jobjectArray jobjectArrayFromStringVector(JNIEnv *pEnv, std::vector<std::string> vector);
 
 /*You can force a specific type with :
  * [Str]

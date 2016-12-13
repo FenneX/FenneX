@@ -93,12 +93,12 @@ void releasePayements()
     minfo.env->DeleteLocalRef(minfo.classID);
 }
 
-void requestProductsData(CCArray* products)
+void requestProductsData(std::vector<std::string> products)
 {
     JniMethodInfo minfo;
     bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"requestProductsData", "([Ljava/lang/String;)V");
     CCAssert(functionExist, "Function doesn't exist");
-    jobjectArray array = jobjectArrayFromCCArray(minfo.env, products);
+    jobjectArray array = jobjectArrayFromStringVector(minfo.env, products);
     minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, array);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(array);

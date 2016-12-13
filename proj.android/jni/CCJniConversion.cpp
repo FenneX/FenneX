@@ -200,6 +200,54 @@ jobjectArray jobjectArrayFromCCArray(JNIEnv *pEnv, CCArray * ccArray)
     return result;
 }
 
+jobjectArray jobjectArrayFromStringVector(JNIEnv *pEnv, std::vector<std::string> vector)
+{
+#if VERBOSE_JNI_CONVERSION
+    CCLOG("converting std::vector<std::string> to native array ....");
+#endif
+    if (vector.size() <= 0) {
+        return NULL;
+    }
+    
+    jclass jStringCls = 0;
+    
+    jStringCls = pEnv->FindClass("java/lang/String");
+    if(pEnv->ExceptionCheck())
+    {
+        pEnv->ExceptionDescribe();
+        CCLOG("crashed when looking for String Class");
+        return NULL;
+    }
+    
+    jobjectArray result;
+    
+    result = pEnv->NewObjectArray( vector.size(), jStringCls, NULL);
+    pEnv->DeleteLocalRef(jStringCls);
+    
+    if(pEnv->ExceptionCheck())
+    {
+        pEnv->ExceptionDescribe();
+        CCLOG("crashed when creating array");
+    }
+    if (result == NULL) {
+        CCLog("failed to create a new jobjectArray");
+        return NULL;
+    }
+    
+    for (std::string str : vector) {
+        jstring objectString = pEnv->NewStringUTF(str.c_str());
+#if VERBOSE_JNI_CONVERSION
+        CCLOG("%s", str.c_str());
+#endif
+        pEnv->SetObjectArrayElement(result, i, objectString);
+        pEnv->DeleteLocalRef(objectString);
+    }
+#if VERBOSE_JNI_CONVERSION
+    CCLOG("Converted!");
+#endif
+    return result;
+}
+
 typedef enum
 {
     IntegerType,
