@@ -42,6 +42,10 @@ public:
     void linkToScene(Scene* target, bool initDisplay = true);
     ~LayoutHandler();
     EventResponder* getResponder();
+    //Those funcs are added for the app lifetime, they will be executed at each scene creation
+    //The first one will be executed only during Scene creation, the second one both during Scene creation and when app resume from background
+    void addInitSceneDisplayFunc(std::function<void(Scene*)> func);
+    void addCatchSceneEventsFunc(std::function<void(Scene*)> func);
 private:
     void init();
     
@@ -52,6 +56,8 @@ private:
     Scene* currentScene;
     EventResponder* responder;
     Vector<EventListenerCustom*> listeners;
+    std::vector<std::function<void(Scene*)>> initSceneDisplayFunctions;
+    std::vector<std::function<void(Scene*)>> catchSceneEventsFunctions;
 };
 NS_FENNEX_END
 

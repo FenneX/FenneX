@@ -44,6 +44,10 @@ LayoutHandler* LayoutHandler::sharedHandler(void)
 void LayoutHandler::init()
 {
     responder = new EventResponder();
+    
+    //Retro-compatibility with existing FenneX Custom code, to be removed to make FenneX a real library
+    addInitSceneDisplayFunc(std::bind(&LayoutHandler::createSceneGraphics, this, std::placeholders::_1));
+    addCatchSceneEventsFunc(std::bind(&LayoutHandler::catchEvents, this, std::placeholders::_1));
 }
 
 LayoutHandler::~LayoutHandler()
@@ -74,8 +78,23 @@ void LayoutHandler::linkToScene(Scene* target, bool initDisplay)
     responder->layer = GraphicLayer::sharedLayer();
     if(initDisplay)
     {
-        this->createSceneGraphics(target);
+        for (std::function<void(Scene*)> func : initSceneDisplayFunctions) {
+            func(target);
+        }
     }
-    this->catchEvents(target);
+    for (std::function<void(Scene*)> func : catchSceneEventsFunctions) {
+        func(target);
+    }
+}
+
+
+void LayoutHandler::addInitSceneDisplayFunc(std::function<void(Scene*)> func)
+{
+    initSceneDisplayFunctions.push_back(func);
+}
+
+void LayoutHandler::addCatchSceneEventsFunc(std::function<void(Scene*)> func)
+{
+    catchSceneEventsFunctions.push_back(func);
 }
 NS_FENNEX_END
