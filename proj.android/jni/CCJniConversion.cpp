@@ -234,6 +234,7 @@ jobjectArray jobjectArrayFromStringVector(JNIEnv *pEnv, std::vector<std::string>
         return NULL;
     }
     
+    int i = 0;
     for (std::string str : vector) {
         jstring objectString = pEnv->NewStringUTF(str.c_str());
 #if VERBOSE_JNI_CONVERSION
@@ -241,6 +242,7 @@ jobjectArray jobjectArrayFromStringVector(JNIEnv *pEnv, std::vector<std::string>
 #endif
         pEnv->SetObjectArrayElement(result, i, objectString);
         pEnv->DeleteLocalRef(objectString);
+        i++;
     }
 #if VERBOSE_JNI_CONVERSION
     CCLOG("Converted!");
