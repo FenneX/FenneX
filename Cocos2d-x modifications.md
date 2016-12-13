@@ -88,4 +88,5 @@ Cocos2d-x V3.8.1 Modifications
 * cocos2d/cocos/ui/UIEditBox/UiEditBox.cpp and UIEditBoxImpl-common.cpp => fix fontSize and contentSize using nodeToWorldTransform correctly
 * cocos2d/cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHttpURLConnection.java => change setVerifySSL to return a boolean with true when succeed and false otherwise
 * cocos2d/cocos/network/HttpClient-android.cpp => change setVerifySSL to return a boolean with true when succeed and false otherwise
+* cocos2D/build/cocos2d_libs.xcodeproj/project.pbxproj => Update to Xcode 8.0 project, inhibit all warnings
 
