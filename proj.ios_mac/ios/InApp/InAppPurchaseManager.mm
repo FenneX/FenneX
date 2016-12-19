@@ -95,7 +95,14 @@ static InAppPurchaseManager* _sharedManager = nil;
 
 - (void)productsRequest:(SKProductsRequest *)request didReceiveResponse:(SKProductsResponse *)response
 {
-    productsInfos = [[NSMutableArray alloc] initWithArray:response.products];
+    if(productsInfos == nil)
+    {
+        productsInfos = [[NSMutableArray alloc] initWithArray:response.products];
+    }
+    else
+    {
+        [productsInfos addObjectsFromArray:response.products];
+    }
     for(SKProduct* product in productsInfos)
     {
         NSLog(@"Product title: %@" , product.localizedTitle);

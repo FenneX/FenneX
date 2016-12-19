@@ -41,6 +41,8 @@ jobjectArray jobjectArrayFromStringVector(JNIEnv *pEnv, std::vector<std::string>
  * [Boo]
  */
 CCDictionary* CCDictionaryFromjobjectArray(JNIEnv *pEnv, jobjectArray array);
+ValueMap MapFromjobjectArray(JNIEnv *pEnv, jobjectArray array);
 CCArray* CCArrayFromjobjectArray(JNIEnv *pEnv, jobjectArray array);
+std::vector<std::string> StringVectorFromjobjectArray(JNIEnv *pEnv, jobjectArray array);
 
 #endif

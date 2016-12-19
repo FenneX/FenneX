@@ -29,6 +29,7 @@
 #import "NSString+RangeOfCharacters.h"
 
 USING_NS_FENNEX;
+USING_NS_CC;
 
 void initializePayements()
 {
@@ -61,27 +62,27 @@ void requestProductsData(std::vector<std::string> products)
     [[InAppPurchaseManager sharedManager] requestProductsData:set];
 }
 
-CCDictionary* getProductsInfos()
+ValueMap getProductsInfos()
 {
     NSArray* nsInfos = [InAppPurchaseManager sharedManager].productsInfos;
     if(nsInfos == nil)
     {
-        return NULL;
+        return ValueMap();
     }
-    CCDictionary* infos = Dcreate();
+    ValueMap infos;
     for(SKProduct* product in nsInfos)
     {
         NSString* number = [product.productIdentifier substringFromSet:[NSCharacterSet decimalDigitCharacterSet]
                                                                options:NSBackwardsSearch|NSAnchoredSearch];
-        infos->setObject(DcreateP(
-                                  Screate([product.localizedTitle UTF8String]), Screate("Title"),
-                                  Screate([product.localizedDescription UTF8String]), Screate("Description"),
-                                  Fcreate([product.price doubleValue]), Screate("Price"),
-                                  Screate([product.productIdentifier UTF8String]), Screate("Identifier"),
-                                  Screate([product.priceAsString UTF8String]), Screate("PriceString"),
-                                  Icreate(number != nil ? [number intValue] : 1), Screate("Number"),
-                                  Screate([[product pricePerUnit:number != nil ? [number intValue] : 1] UTF8String]), Screate("PricePerUnitString"),
-                                  NULL), [product.productIdentifier UTF8String]);
+        infos.insert({[product.productIdentifier UTF8String], Value(ValueMap({
+                {"Title", Value([product.localizedTitle UTF8String])},
+                {"Description", Value([product.localizedDescription UTF8String])},
+                {"Price", Value([product.price doubleValue])},
+                {"Identifier", Value([product.productIdentifier UTF8String])},
+                {"PriceString", Value([product.priceAsString UTF8String])},
+                {"Number", Value(number != nil ? [number intValue] : 1)},
+                {"PricePerUnitString", Value([[product pricePerUnit:number != nil ? [number intValue] : 1] UTF8String])},
+        }))});
     }
     return infos;
 }

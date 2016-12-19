@@ -36,7 +36,8 @@ USING_NS_CC;
 //should be done at the launch of the app, so that it can try to continue existing payements
 void initializePayements();
 
-/* Will throw notifications for success :
+/*
+ Will throw notifications for success :
  - ProductPurchased (iOS, Android) with argument ProductID (CCString corresponding to the one passed to purchaseProduct)
  - ProductRestored (iOS, Android) with argument ProductID (CCString corresponding to the one passed to purchaseProduct)
  - ProductRefunded (Android) with argument ProductID (CCString corresponding to the one passed to purchaseProduct) : client code have to remove corresponding in-app
@@ -58,19 +59,23 @@ void restoreTransaction(const std::string& productID);
 //should be done when the app exit for proper cleanup. Note : required for Android, not for iOS
 void releasePayements();
 
-//Request the products data, to be available for later use
-void requestProductsData(std::vector<std::string> products);
 /*
- Return a CCDictionary with each key being a product ID and values being a CCDictionary describing this productID :
- - Title (CCString)
- - Description (CCString)
- - Price (CCFloat) (will return 0 on Android if the formatter can't recognize it. iOS always have the correct price)
- - Identifier (CCString) (again for convenience)
- - PriceString (CCString) (localized price)
- - PricePerUnitString (CCString) (localized price per unit, it will be equal to Price if the Unit isn't found. The unit should be at the end of the productId)
- - Unit (CCInteger) default to 1 if the Unit isn't found
+ Request the products data, to be available for later use
+ Will throw events "FailFetchProductsInfos" or "ProductsInfosFetched" when receiving response
+ */
+void requestProductsData(std::vector<std::string> products);
+
+/*
+ Return a CCDictionary with each key being a product ID and values being a ValueMap describing this productID :
+ - Title (String)
+ - Description (String)
+ - Price (Double) (will return 0 on Android if the formatter can't recognize it. iOS always have the correct price)
+ - Identifier (String) (again for convenience)
+ - PriceString (String) (localized price)
+ - PricePerUnitString (String) (localized price per unit, it will be equal to Price if the Unit isn't found. The unit should be at the end of the productId)
+ - Unit (Integer) default to 1 if the Unit isn't found
 */
-CCDictionary* getProductsInfos();
+ValueMap getProductsInfos();
 
 /*
 #if CC_TARGET_PLATFORM == CC_PLATFORM_IOS

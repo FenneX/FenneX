@@ -105,9 +105,9 @@ void requestProductsData(std::vector<std::string> products)
 }
 
 //Cache productsInfos, because they may be erased by another request (for example, buying a product)
-CCDictionary* productsInfos = NULL;
+ValueMap productsInfos;
 
-CCDictionary* getProductsInfos()
+ValueMap getProductsInfos()
 {
     JniMethodInfo minfo, minfo2;
     bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"getProductsIds", "()[Ljava/lang/String;");
@@ -115,35 +115,29 @@ CCDictionary* getProductsInfos()
     CCLOG("Starting getProductsInfos ...");
     jobjectArray productsIdNative = (jobjectArray)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID);
     minfo.env->DeleteLocalRef(minfo.classID);
-    CCArray* productsId = CCArrayFromjobjectArray(minfo.env, productsIdNative);
+    std::vector<std::string> productsIds = StringVectorFromjobjectArray(minfo.env, productsIdNative);
     minfo.env->DeleteLocalRef(productsIdNative);
-    if(productsInfos == NULL)
-    {
-        productsInfos = new CCDictionary();
-    }
-    if(productsId == NULL)
-    {
-        return productsInfos;
-    }
     
     functionExist = JniHelper::getStaticMethodInfo(minfo2,CLASS_NAME,"getProductsInfos", "(Ljava/lang/String;)[Ljava/lang/String;");
     CCAssert(functionExist, "Function doesn't exist");
     
-    for(int i = 0; i < productsId->count(); i++)
+    for(std::string productId : productsIds)
     {
-        CCString* productId = (CCString*)productsId->objectAtIndex(i);
-        if(!isKindOfClass(productsId->objectAtIndex(i), CCString))
+        if(productsInfos.find(productId) == productsInfos.end())
         {
-            CCLOG("Warning : wrong type of product Id at index %d, will crash", i);
-        }
-        CCLOG("getting product \"%s\" infos", productId->getCString());
-        jstring jproductID = minfo2.env->NewStringUTF(productId->getCString());
-        jobjectArray nativeArray = (jobjectArray)minfo2.env->CallStaticObjectMethod(minfo2.classID, minfo2.methodID, jproductID);
-        minfo2.env->DeleteLocalRef(jproductID);
+            CCLOG("getting product \"%s\" infos", productId.c_str());
+            jstring jproductID = minfo2.env->NewStringUTF(productId.c_str());
+            jobjectArray nativeArray = (jobjectArray)minfo2.env->CallStaticObjectMethod(minfo2.classID, minfo2.methodID, jproductID);
+            minfo2.env->DeleteLocalRef(jproductID);
         
-        CCDictionary* infos = CCDictionaryFromjobjectArray(minfo.env, nativeArray);
-        minfo2.env->DeleteLocalRef(nativeArray);
-        productsInfos->setObject(infos, productId->getCString());
+            ValueMap infos = MapFromjobjectArray(minfo.env, nativeArray);
+            minfo2.env->DeleteLocalRef(nativeArray);
+            productsInfos.insert({productId, Value(infos) });
+        }
+        else
+        {
+            CCLOG("product \"%s\" infos are already in C++ code", productId.c_str());
+        }
     }
     minfo2.env->DeleteLocalRef(minfo2.classID);
     CCLOG("Returning product infos successfully");
