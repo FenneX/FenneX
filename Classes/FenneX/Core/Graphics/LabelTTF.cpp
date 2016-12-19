@@ -55,7 +55,7 @@ Size LabelTTF::getDimensions()
     return realDimensions;
 }
 
-void LabelTTF::setLabelValue(const char* value, bool async)
+void LabelTTF::setLabelValue(std::string value, bool async)
 {
     if(async && !std::string(value).empty())
     {

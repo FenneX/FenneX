@@ -44,7 +44,7 @@ class LabelTTF : public RawObject
 public:
     cocos2d::Rect getBoundingBox();
     const char* getLabelValue();
-    void setLabelValue(const char* value, bool async = false);
+    void setLabelValue(std::string value, bool async = false);
     
     //will return only the font name
     const char* getFontFile();
