@@ -277,7 +277,7 @@ bool Scene::onTouchBegan(Touch *touch, Event *pEvent)
     //CCLOG("sending to receivers ...");
     for(GenericRecognizer* receiver : touchReceiversList)
     {
-        receiver->onTouchBegan(touch, pEvent);
+        if(!receiversToRemove.contains(receiver)) receiver->onTouchBegan(touch, pEvent);
     }
     //TODO : cancel selection if needed
     numberOfTouches++;
@@ -302,7 +302,7 @@ void Scene::onTouchMoved(Touch *touch, Event *pEvent)
     
     for(GenericRecognizer* receiver : touchReceiversList)
     {
-        receiver->onTouchMoved(touch, pEvent);
+        if(!receiversToRemove.contains(receiver)) receiver->onTouchMoved(touch, pEvent);
     }
     //CCLOG("onTouchMoved ended");
 }
@@ -325,7 +325,7 @@ void Scene::onTouchEnded(Touch *touch, Event *pEvent)
     
     for(GenericRecognizer* receiver : touchReceiversList)
     {
-        receiver->onTouchEnded(touch, pEvent);
+        if(!receiversToRemove.contains(receiver)) receiver->onTouchEnded(touch, pEvent);
     }
     numberOfTouches--;
     linker->removeTouch(touch);
