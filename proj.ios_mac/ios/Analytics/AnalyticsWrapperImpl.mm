@@ -95,18 +95,26 @@ void AnalyticsWrapper::firebaseSetProperty(const std::string& propertyName, cons
     [FIRAnalytics setUserPropertyString:[NSString stringWithFormat:@"%s", propertyValue.c_str()] forName:[NSString stringWithFormat:@"%s", propertyName.c_str()]];
 }
 
-void AnalyticsWrapper::firebaseLogPageView(const std::string& pageName){
-    firebaseLogEventWithParameters("change_scene", DcreateP(Screate(pageName), Screate("item_name"),NULL));
-}
-
-void AnalyticsWrapper::firebaseLogEvent(const std::string& eventName) {
-    firebaseLogEventWithParameters(eventName, Dcreate());
-}
-
-void AnalyticsWrapper::firebaseLogEventWithParameters(const std::string& eventName, cocos2d::CCDictionary * parameters)
+std::string replaceEventChars(const std::string& eventName)
 {
     std::string event = eventName;
     std::replace(event.begin(), event.end(), ' ', '_');
     std::replace(event.begin(), event.end(), '-', '_');
-    [FIRAnalytics logEventWithName:[AnalyticXStringUtil nsstringFromCString:event.c_str()] parameters:[AnalyticXStringUtil nsDictionaryFromCCDictionary:parameters]];
+    return event;
+}
+
+void AnalyticsWrapper::firebaseLogPageView(const std::string& pageName){
+    firebaseLogEventWithParameters("change_scene", "item_name", pageName);
+}
+
+void AnalyticsWrapper::firebaseLogEvent(const std::string& eventName) {
+    std::string event = replaceEventChars(eventName);
+    [FIRAnalytics logEventWithName:[AnalyticXStringUtil nsstringFromCString:event.c_str()] parameters:nil];
+}
+
+void AnalyticsWrapper::firebaseLogEventWithParameters(const std::string& eventName, const std::string& label, const std::string& value)
+{
+    std::string event = replaceEventChars(eventName);
+    NSDictionary* params = [NSDictionary dictionaryWithObject:[AnalyticXStringUtil nsstringFromCString:value.c_str()] forKey:[AnalyticXStringUtil nsstringFromCString:label.c_str()]];
+    [FIRAnalytics logEventWithName:[AnalyticXStringUtil nsstringFromCString:event.c_str()] parameters:params];
 }

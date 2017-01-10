@@ -77,9 +77,7 @@ void AnalyticsWrapper::logEvent(const std::string& eventName, const std::string&
     }
     else
     {
-        cocos2d::CCDictionary* param = cocos2d::CCDictionary::create();
-        param->setObject(cocos2d::CCInteger::create(value), label);
-        firebaseLogEventWithParameters(fullFlurryName, param);
+        firebaseLogEventWithParameters(fullFlurryName, label, std::to_string(value));
     }
 }
 

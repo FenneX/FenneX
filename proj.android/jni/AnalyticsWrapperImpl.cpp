@@ -182,21 +182,23 @@ void AnalyticsWrapper::firebaseLogEvent(const std::string& eventName) {
     JniMethodInfo minfo;
     bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"firebaseLogEvent", "(Ljava/lang/String;)V");
     CCAssert(functionExist, "Function doesn't exist");
-    jstring jPageName = minfo.env->NewStringUTF(eventName.c_str());
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jPageName);
+    jstring jEventName = minfo.env->NewStringUTF(eventName.c_str());
+    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jEventName);
     minfo.env->DeleteLocalRef(minfo.classID);
-    minfo.env->DeleteLocalRef(jPageName);
+    minfo.env->DeleteLocalRef(jEventName);
 }
 
-void AnalyticsWrapper::firebaseLogEventWithParameters(const std::string& eventName, cocos2d::CCDictionary * parameters) {
+void AnalyticsWrapper::firebaseLogEventWithParameters(const std::string& eventName, const std::string& label, const std::string& value) {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"firebaseLogEventWithParameters", "(Ljava/lang/String;[Ljava/lang/String;)V");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"firebaseLogEventWithParameters", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
     CCAssert(functionExist, "Function doesn't exist");
 
-    jstring stringArg0 = minfo.env->NewStringUTF(eventName.c_str());
-    jobjectArray array = jobjectArrayFromCCDictionary(minfo.env, parameters);
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, stringArg0, array);
+    jstring jEventName = minfo.env->NewStringUTF(eventName.c_str());
+    jstring jLabel = minfo.env->NewStringUTF(label.c_str());
+    jstring jValue = minfo.env->NewStringUTF(value.c_str());
+    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jEventName, jLabel, jValue);
     minfo.env->DeleteLocalRef(minfo.classID);
-    minfo.env->DeleteLocalRef(stringArg0);
-    minfo.env->DeleteLocalRef(array);
+    minfo.env->DeleteLocalRef(jEventName);
+    minfo.env->DeleteLocalRef(jLabel);
+    minfo.env->DeleteLocalRef(jValue);
 }

@@ -111,21 +111,16 @@ public class Analytics {
     }
 
     static public void firebaseLogPageView(String pageName){
-        String [] parameters = {FirebaseAnalytics.Param.ITEM_NAME, pageName};
-        firebaseLogEventWithParameters("change_scene", parameters);
+        firebaseLogEventWithParameters("change_scene", FirebaseAnalytics.Param.ITEM_NAME, pageName);
     }
 
     static public void firebaseLogEvent(String eventName) {
-        String [] parameters = {};
-        firebaseLogEventWithParameters(eventName, parameters);
+        mFirebaseAnalytics.logEvent(eventName.replace(' ', '_').replace('-', '_'), new Bundle());
     }
 
-    static public void firebaseLogEventWithParameters(String eventName,  String [] parametersArray) {
+    static public void firebaseLogEventWithParameters(String eventName,  String label, String value) {
         Bundle bundle = new Bundle();
-        for (int i = 0; i < parametersArray.length / 2; i++) {
-            bundle.putString(parametersArray[2*i], parametersArray[2*i+1]);
-        }
-        Log.i("Firebase Analytics", "Loging event : "+ eventName +" with parameters : "+ parametersArray);
+        bundle.putString(label, value);
         mFirebaseAnalytics.logEvent(eventName.replace(' ', '_').replace('-', '_'), bundle);
     }
 }

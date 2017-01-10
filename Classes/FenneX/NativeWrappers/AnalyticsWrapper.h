@@ -72,7 +72,7 @@ private:
     //Common usage methods
     static void firebaseLogPageView(const std::string& pageName);
     static void firebaseLogEvent(const std::string& eventName);
-    static void firebaseLogEventWithParameters(const std::string& eventName, cocos2d::CCDictionary * parameters);
+    static void firebaseLogEventWithParameters(const std::string& eventName, const std::string& label = "", const std::string& value = "");
     
 protected:
     //the variables can't be static, use a shared instance to access them instead

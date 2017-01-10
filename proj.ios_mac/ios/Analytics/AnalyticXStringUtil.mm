@@ -47,56 +47,5 @@ USING_NS_FENNEX;
     
     return [nsstring UTF8String];
 }
-+ (NSDictionary *)nsDictionaryFromCCDictionary:(cocos2d::CCDictionary *)ccDictionary {
-    if (ccDictionary == NULL) {
-        return NULL;
-    } else if (ccDictionary->allKeys() == NULL) {
-        return NULL;
-    } else if (ccDictionary->allKeys()->count() <= 0) {
-        return NULL;
-    }
-    
-    
-    NSMutableDictionary *nsDict = [NSMutableDictionary dictionaryWithCapacity:ccDictionary->allKeys()->count()];
-    
-
-    for (int i = 0; i < ccDictionary->allKeys()->count(); i++) {
-        cocos2d::CCObject* obj = ccDictionary->objectForKey(((cocos2d::CCString *)ccDictionary->allKeys()->objectAtIndex(i))->getCString());
-        NSObject* nsObject;
-        if(isKindOfClass(obj, CCDictionary))
-        {
-            nsObject = @"Dictionary";
-        }
-        else if(isKindOfClass(obj, CCArray))
-        {
-            nsObject = @"Array";
-        }
-        else if (isKindOfClass(obj, CCString))
-        {
-            const char* cstring = ((CCString*)obj)->getCString();
-            nsObject = [[[NSString alloc] initWithBytes:cstring length:strlen(cstring) encoding:NSUTF8StringEncoding] autorelease];
-        }
-        else if (isKindOfClass(obj, CCInteger))
-        {
-            nsObject = [NSString stringWithFormat:@"%d", TOINT(obj)];
-        }
-        else if (isKindOfClass(obj, CCFloat))
-        {
-            nsObject = [NSString stringWithFormat:@"%f", TOFLOAT(obj)];[NSNumber numberWithFloat:TOFLOAT(obj)];
-        }
-        else if (isKindOfClass(obj, CCBool))
-        {
-            nsObject = [NSString stringWithFormat:@"%s", TOBOOL(obj) ? "true" : "false"];
-        }
-        else
-        {
-            nsObject = @"Unknown Object";
-        }
-        [nsDict setValue:nsObject forKey:[AnalyticXStringUtil nsstringFromCString:((cocos2d::CCString *)ccDictionary->allKeys()->objectAtIndex(i))->getCString()]];
-    }
-    
-    return nsDict;
-}
-
 
 @end
