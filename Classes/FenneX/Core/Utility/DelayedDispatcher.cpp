@@ -46,7 +46,7 @@ void DelayedDispatcher::eventAfterDelay(std::string eventName, Ref* userData, fl
     instance->events.push_back(EventTuple(delay, eventName, userData));
 }
 
-void DelayedDispatcher::funcAfterDelay(std::function<void(cocos2d::EventCustom*)> func, Ref* userData, float delay, std::string eventName)
+void DelayedDispatcher::funcAfterDelay(std::function<void(EventCustom*)> func, Ref* userData, float delay, std::string eventName)
 {
     DelayedDispatcher* instance = getInstance();
     IFEXIST(userData)->retain();
@@ -107,7 +107,7 @@ void DelayedDispatcher::update(float deltaTime)
     }
     for(FuncTuple& tuple : funcsToCall)
     {
-        cocos2d::EventCustom* event = EventCustom::create(std::get<3>(tuple), std::get<2>(tuple));
+        EventCustom* event = EventCustom::create(std::get<3>(tuple), std::get<2>(tuple));
 #if VERBOSE_GENERAL_INFO
             CCLOG("Launching func named %s", std::get<3>(tuple).c_str());
 #endif

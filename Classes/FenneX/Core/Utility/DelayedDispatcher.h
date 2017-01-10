@@ -27,16 +27,17 @@
 
 #include "cocos2d.h"
 #include "Pausable.h"
+USING_NS_CC;
 
 NS_FENNEX_BEGIN
 
-typedef std::tuple<float, std::string, cocos2d::Ref*> EventTuple;
-typedef std::tuple<float, std::function<void(cocos2d::EventCustom*)>, cocos2d::Ref*, std::string> FuncTuple;
+typedef std::tuple<float, std::string, Ref*> EventTuple;
+typedef std::tuple<float, std::function<void(cocos2d::EventCustom*)>, Ref*, std::string> FuncTuple;
 
 /* DelayedDispatcher works by attaching itself to current scene and monitoring updates.
  For retro-compatibility, it only works for current scene
  */
-class DelayedDispatcher : public cocos2d::Ref, public Pausable
+class DelayedDispatcher : public Ref, public Pausable
 {
 public:
     ~DelayedDispatcher();
