@@ -39,7 +39,7 @@ using namespace cocosbuilder;
 
 NS_FENNEX_BEGIN
 static float _loadingScale = 1;
-static bool isPhone = false;
+static bool isPhoneLayout = false;
 
 //Don't retain the CCBAnimationManager, because it's troublesome to release them at the right time. Soft references is enough.
 static std::vector<CCBAnimationManager*> animManagers;
@@ -118,7 +118,7 @@ Panel* loadCCBFromFileToFenneX(const char* file, const char* inPanel, int zIndex
     timeval startTime;
     gettimeofday(&startTime, NULL);
 #endif
-    std::string filePath = ScreateF("%s%s.ccbi", file, isPhone ? "-phone" : "")->getCString();
+    std::string filePath = ScreateF("%s%s.ccbi", file, isPhoneLayout ? "-phone" : "")->getCString();
     CCLOG("Filepath : %s", filePath.c_str());
     FileUtils::getInstance()->setPopupNotify(shouldNotify);
     Node* myNode = NULL;
@@ -127,7 +127,7 @@ Panel* loadCCBFromFileToFenneX(const char* file, const char* inPanel, int zIndex
         CCLOG("File exist");
         myNode = ccbReader->readNodeGraphFromFile(filePath.c_str());
     }
-    else if(isPhone)
+    else if(isPhoneLayout)
     {
         myNode = ccbReader->readNodeGraphFromFile(ScreateF("%s.ccbi", file)->getCString());
     }
@@ -420,12 +420,12 @@ float CCBLoaderGetScale()
 
 void CCBLoaderSetPhoneLayout(bool usePhone)
 {
-    isPhone = usePhone;
+    isPhoneLayout = usePhone;
 }
 
 bool CCBLoaderIsPhoneLayout()
 {
-    return isPhone;
+    return isPhoneLayout;
 }
 
 std::vector<CCBAnimationManager*>& getAnimationManagers()
