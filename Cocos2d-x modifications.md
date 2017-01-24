@@ -89,4 +89,5 @@ Cocos2d-x V3.8.1 Modifications
 * cocos2d/cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHttpURLConnection.java => change setVerifySSL to return a boolean with true when succeed and false otherwise
 * cocos2d/cocos/network/HttpClient-android.cpp => change setVerifySSL to return a boolean with true when succeed and false otherwise
 * cocos2D/build/cocos2d_libs.xcodeproj/project.pbxproj => Update to Xcode 8.0 project, inhibit all warnings
+* cocos2d/cocos/network/HttpAsynConnection-apple.m  => Fix crash issue due to a release (backported from cocos2d-x 3.11, commit 200c9fda59f7a5fbece4ba4fa3a3729e38de6998)
 
