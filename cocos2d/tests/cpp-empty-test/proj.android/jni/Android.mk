@@ -20,6 +20,8 @@ LOCAL_CFLAGS += -fexceptions
 LOCAL_WHOLE_STATIC_LIBRARIES := cocos2dx_static
 LOCAL_WHOLE_STATIC_LIBRARIES := cocos_ui_static
 LOCAL_WHOLE_STATIC_LIBRARIES += cocos2dxandroid_static
+LOCAL_WHOLE_STATIC_LIBRARIES += cocosbuilder_static
+LOCAL_WHOLE_STATIC_LIBRARIES += spine_static
 
 include $(BUILD_SHARED_LIBRARY)
 
