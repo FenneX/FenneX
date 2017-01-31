@@ -126,6 +126,9 @@ void launchYoutube();
 //Return if a package is installed on android, return false on iOS
 bool isPackageInstalled(const std::string& packageName);
 
+//Return the version code on Android or -1 if it's not installed, return -1 on iOS
+int getApplicationVersion(const std::string& packageName);
+
 //On iOS, those notifications will automatically start being thrown after getDeviceVolume has been called for the first time
 //On Android, they are always on
 static inline void notifyVolumeChanged()

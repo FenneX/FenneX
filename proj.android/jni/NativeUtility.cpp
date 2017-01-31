@@ -345,6 +345,18 @@ bool isPackageInstalled(const std::string& packageId)
     return result;
 }
 
+int getApplicationVersion(const std::string& packageId)
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "getApplicationVersion", "(Ljava/lang/String;)I");
+    CCAssert(functionExist, "Function doesn't exist");
+    jstring jpackageId = minfo.env->NewStringUTF(packageId.c_str());
+    int result = minfo.env->CallStaticIntMethod(minfo.classID, minfo.methodID, jpackageId);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(jpackageId);
+    return result;
+}
+
 NS_FENNEX_END
 
 extern "C"

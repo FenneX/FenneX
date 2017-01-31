@@ -272,4 +272,9 @@ bool isPackageInstalled(const std::string& packageName)
     return false;
 }
 
+int getApplicationVersion(const std::string& packageName)
+{
+    return -1;
+}
+
 NS_FENNEX_END
