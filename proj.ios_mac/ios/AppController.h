@@ -30,9 +30,11 @@
     UIWindow *window;
     RootViewController    *viewController;
     UIViewController* mailViewController;
+    NSString* openUrl;
 }
 
 @property (nonatomic, readonly) RootViewController* viewController;
+@property (nonatomic, readonly) NSString* openUrl;
 
 - (void) sendMail:(NSString*)address subject:(NSString*)subject message:(NSString*)message attachment:(NSString*)attachment;
 + (AppController*) sharedController;

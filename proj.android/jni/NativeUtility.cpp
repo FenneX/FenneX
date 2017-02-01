@@ -88,6 +88,20 @@ std::string getLocalPath(const std::string& name)
     return localPathCache + "/" + name;
 }
 
+
+std::string getOpenUrl()
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "getOpenUrl", "()Ljava/lang/String;");
+    CCAssert(functionExist, "Function doesn't exist");
+
+    jstring jOpenUrl = (jstring)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID);
+    std::string openUrl = JniHelper::jstring2string(jOpenUrl);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(jOpenUrl);
+    return openUrl;
+}
+
 std::string getAppName()
 {
     JniMethodInfo minfo;
@@ -368,6 +382,10 @@ extern "C"
     void Java_com_fennex_modules_NativeUtility_notifyVolumeChanged(JNIEnv* env, jobject thiz)
     {
         notifyVolumeChanged();
+    }
+    void Java_com_fennex_modules_NativeUtility_notifyUrlOpened(JNIEnv* env, jobject thiz, jstring name)
+    {
+        notifyUrlOpened(JniHelper::jstring2string(name));
     }
 }
 

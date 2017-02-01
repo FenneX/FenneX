@@ -50,6 +50,11 @@ std::string getLocalPath(const std::string& name)
     return std::string(getenv("HOME"))+"/Documents/"+name;
 }
 
+std::string getOpenUrl()
+{
+    return [[AppController sharedController].openUrl UTF8String];
+}
+
 std::string getAppName()
 {
     return [[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"] UTF8String];

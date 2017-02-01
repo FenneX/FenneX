@@ -46,6 +46,11 @@ std::string getPublicPath(const std::string& name);
  */
 std::string getLocalPath(const std::string& name);
 
+/* Return the URL the app was opened with, or an empty string
+ You also get notified with "UrlOpened" event when app is opened with an url during run (not at startup)
+ */
+std::string getOpenUrl();
+
 //Use AppName if you need to actually show it. Use package identifier if you need to save files for example, as it does not contain special characters
 std::string getAppName();
 std::string getPackageIdentifier();
@@ -140,6 +145,11 @@ inline void notifyMemoryWarning(){
 	AppDelegate* delegate = (AppDelegate*)cocos2d::Application::getInstance();
 #warning : maybe this should be async to run on main thread ?
 	delegate->applicationDidReceiveMemoryWarning();
+}
+
+static inline void notifyUrlOpened(std::string url)
+{
+    DelayedDispatcher::eventAfterDelay("UrlOpened", DcreateP(Screate(url.c_str()), Screate("Url"), NULL), 0.01);
 }
 
 NS_FENNEX_END

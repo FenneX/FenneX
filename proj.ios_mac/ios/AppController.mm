@@ -46,6 +46,7 @@ static AppController* _sharedController = NULL;
 
 @synthesize window;
 @synthesize viewController;
+@synthesize openUrl;
 
 // cocos2d application instance
 static AppDelegate s_sharedApplication;
@@ -166,6 +167,14 @@ void uncaughtExceptionHandler(NSException *exception)
     
     [[UIApplication sharedApplication] setStatusBarHidden: YES];
     
+    //Having the openUrl before launching cocos2d-x is important so that C++ code can check for an openUrl on launch without notification
+    openUrl = @"";
+    if([launchOptions objectForKey:UIApplicationLaunchOptionsURLKey] != NULL)
+    {
+        openUrl = [launchOptions objectForKey:UIApplicationLaunchOptionsURLKey];
+    }
+    [openUrl retain];
+    
     // IMPORTANT: Setting the GLView should be done after creating the RootViewController
     cocos2d::GLView *glview = cocos2d::GLViewImpl::createWithEAGLView(eaglView);
     cocos2d::Director::getInstance()->setOpenGLView(glview);
@@ -183,6 +192,17 @@ void uncaughtExceptionHandler(NSException *exception)
         }
     }
     return YES;
+}
+
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
+{
+    if(openUrl)
+    {
+        [openUrl autorelease];
+    }
+    openUrl = [url absoluteString];
+    [openUrl retain];
+    notifyUrlOpened([[url absoluteString] UTF8String]);
 }
 
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification*)notif

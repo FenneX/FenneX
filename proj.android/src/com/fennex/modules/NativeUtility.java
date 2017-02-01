@@ -86,6 +86,18 @@ public class NativeUtility
     	Log.d(TAG, "returning local path : " + localPath);
     	return localPath;
     }
+
+    public static String getOpenUrl()
+    {
+        String openUrl = getMainActivity().getIntent().getDataString();
+        if(openUrl == null)
+        {
+            openUrl = "";
+        }
+        Log.d(TAG, "returning openUrl: " + openUrl);
+        return openUrl;
+    }
+    public static native void notifyUrlOpened(String url);
     
     public static String getAppName()
     {
