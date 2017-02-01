@@ -43,7 +43,7 @@ import android.widget.FrameLayout;
  */
 public abstract class ActivityResultNotifier extends Cocos2dxActivity implements MainActivityUtility
 {
-    protected SplashDialog splashDialog;
+    protected static SplashDialog splashDialog;
 	private ArrayList<ActivityResultResponder> responders;
 	private ArrayList<ActivityObserver> observers;
 	private boolean active = false;
@@ -52,7 +52,7 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
     //The minimum duration is the fade_in duration, default to 500, try to load from config, plus a flat time after anim
     final private long SPLASH_DURATION_AFTER_ANIM = 500;
     private long splashMinDuration = 500 + SPLASH_DURATION_AFTER_ANIM;
-    private long launchTime = 0;
+    private static long launchTime = 0;
 	
 	public ActivityResultNotifier()
 	{
@@ -62,7 +62,7 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-        if(getSplashScreenLayout() != -1 && getSplashScreenImageID() != -1) {
+        if(getSplashScreenLayout() != -1 && getSplashScreenImageID() != -1 && launchTime == 0) {
             splashDialog = new SplashDialog(this, getSplashScreenLayout(), getSplashScreenImageID());
             splashDialog.show();
             launchTime = SystemClock.elapsedRealtime();
