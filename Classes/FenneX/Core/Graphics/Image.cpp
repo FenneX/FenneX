@@ -341,12 +341,6 @@ void Image::textureLoaded(Texture2D* tex)
         loadingImageFile = "";
         isLoadingTexture = false;
     }
-#if VERBOSE_WARNING
-    else
-    {
-        CCLOG("Warning : Problem with asset : %s loaded asynchronously, texture not replaced", loadingImageFile.c_str());
-    }
-#endif
 }
 
 bool Image::isAnimation()
