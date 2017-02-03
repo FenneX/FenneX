@@ -152,16 +152,19 @@ public class ImagePicker implements ActivityResultResponder
                             original.recycle(); //this one may be huge, might as well free it right now
                         }
                         _fileName = _fileName.replaceAll(".png", "");
-                        if(_thumbnailScale > 0) {
+                        if(_thumbnailScale > 0 && bitmap != null) {
                             Bitmap bitmapThumbnail = scaleToFill(bitmap, (int)(_width * _thumbnailScale), (int)(_height * _thumbnailScale));
-                            saveBitmap(bitmapThumbnail, NativeUtility.getMainActivity().getFilesDir().getPath() + "/" + _fileName + "-thumbnail.png");
-                            if(bitmapThumbnail != bitmap)
-                            {
-                                bitmapThumbnail.recycle();
+                            if(bitmapThumbnail != null) {
+                                saveBitmap(bitmapThumbnail, NativeUtility.getMainActivity().getFilesDir().getPath() + "/" + _fileName + "-thumbnail.png");
+                                if (bitmapThumbnail != bitmap) {
+                                    bitmapThumbnail.recycle();
+                                }
                             }
                         }
-                        saveBitmap(bitmap, NativeUtility.getMainActivity().getFilesDir().getPath() + "/" + _fileName + ".png");
-                        bitmap.recycle();
+                        if(bitmap != null) {
+                            saveBitmap(bitmap, NativeUtility.getMainActivity().getFilesDir().getPath() + "/" + _fileName + ".png");
+                            bitmap.recycle();
+                        }
                         NativeUtility.getMainActivity().runOnGLThread(new Runnable() {
                             public void run() {
                                 notifyImagePickedWrap(_fileName, _identifier);
@@ -330,14 +333,22 @@ public class ImagePicker implements ActivityResultResponder
     }
     
     // Scale and keep aspect ratio 
-    static public Bitmap scaleToFill(Bitmap b, int width, int height) {
+    static private Bitmap scaleToFill(Bitmap b, int width, int height) {
         float factorH = height / (float) b.getHeight();
         float factorW = width / (float) b.getWidth();
         float factorToUse = (factorH > factorW) ? factorW : factorH;
         if(factorToUse >= 1) {
             return b;
         }
-        return Bitmap.createScaledBitmap(b, (int) (b.getWidth() * factorToUse), (int) (b.getHeight() * factorToUse), true);  
+        Bitmap result = null;
+        try {
+            result = Bitmap.createScaledBitmap(b, (int) (b.getWidth() * factorToUse), (int) (b.getHeight() * factorToUse), true);
+        }
+        catch (OutOfMemoryError e) {
+            Log.e(TAG, "OutOfMemoryError when trying to scale a bitmap with size " + b.getWidth() + "x" + b.getHeight());
+            Toast.makeText(NativeUtility.getMainActivity(), "L'image sélectionnée est trop grande, merci de réessayer avec une image plus petite", Toast.LENGTH_LONG);
+        }
+        return result;
     }
 
     public void insertPhotoIntoGallery(Intent data)
@@ -347,6 +358,7 @@ public class ImagePicker implements ActivityResultResponder
     
     public void insertPhotoIntoGallery(Bitmap image)
     {
+        new File(storageDirectory).mkdirs();
         File fi = new File(storageDirectory, "photo.png");
         fi.setReadable(true, false);
 		FileOutputStream stream;
@@ -365,7 +377,7 @@ public class ImagePicker implements ActivityResultResponder
             String filePath = fi.getAbsolutePath();
             String uri = "";
             int i = 0;
-            while(uri.isEmpty() && i<10)
+            while((uri == null || uri.isEmpty()) && i<10)
             {
                 try
                 {
@@ -379,7 +391,7 @@ public class ImagePicker implements ActivityResultResponder
                 }
 
             }
-            if(!uri.isEmpty())
+            if(uri != null && !uri.isEmpty())
             {
                 uriOfSavedPhoto = Uri.parse(uri);
             }
