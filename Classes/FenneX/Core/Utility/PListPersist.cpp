@@ -138,6 +138,69 @@ void saveObjectToFile(Ref* obj, const char* name)
 #endif
 }
 
+void appendObject(Value& val, xml_node& node)
+{
+    xml_node children;
+    switch(val.getType())
+    {
+        case Value::Type::MAP:
+            children = node.append_child("dict");
+            for(ValueMap::iterator it = val.asValueMap().begin(); it != val.asValueMap().end(); ++it) {
+                children.append_child("key").append_child(node_pcdata).set_value(it->first.c_str());
+                appendObject(it->second, children);
+            }
+            break;
+        case Value::Type::VECTOR:
+            children = node.append_child("array");
+            for(ValueVector::iterator it = val.asValueVector().begin(); it < val.asValueVector().end(); it++) {
+                appendObject(*it, children);
+            }
+            break;
+        case Value::Type::STRING:
+            node.append_child("string").append_child(node_pcdata).set_value(val.asString().c_str());
+            break;
+        case Value::Type::INTEGER:
+            node.append_child("integer").append_child(node_pcdata).set_value(val.asString().c_str());
+            break;
+        case Value::Type::FLOAT:
+        case Value::Type::DOUBLE:
+            node.append_child("real").append_child(node_pcdata).set_value(val.asString().c_str());
+            break;
+        case Value::Type::BOOLEAN:
+            node.append_child(val.asBool() ? "true" : "false");
+            break;
+        default:
+#if VERBOSE_SAVE_PLIST
+            CCLOG("Warning: unrecognized Value type when saving plist, check if the object is in plist format. Value description: %s", val.getDescription().c_str());
+#endif
+            break;
+    }
+}
+
+void saveValueToFile(Value& val, std::string fileName)
+{
+    xml_document doc;
+    //add the verbose things so that it's a proper plist like those created by xcode
+    xml_node decl = doc.prepend_child(node_declaration);
+    decl.append_attribute("version") = "1.0";
+    decl.append_attribute("encoding") = "UTF-8";
+    xml_node doctype = doc.append_child(node_doctype);
+    doctype.set_value("plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\"");
+    xml_node plistNode = doc.append_child("plist");
+
+    //construct the actual plist informations
+    appendObject(val, plistNode);
+
+#if VERBOSE_SAVE_PLIST
+    CCLOG("Saving document %s :\n%s", fileName, node_to_string(doc).c_str());
+    CCLOG("Local path %s", getLocalPath(fileName).c_str());
+#endif
+    doc.save_file(getLocalPath(fileName).c_str());
+#if VERBOSE_SAVE_PLIST
+    CCLOG("Document saved!");
+#endif
+}
+
 Ref* loadObject(xml_node node)
 {
     const char* name = node.name();
@@ -262,6 +325,139 @@ Ref* loadObjectFromFile(const char* name, bool resource)
 #endif
     Ref* result = loadObject(doc.child("plist").first_child());
     
+#if VERBOSE_LOAD_PLIST
+    CCLOG("Parse successful, returning");
+#endif
+    return result;
+}
+
+Value loadValue(xml_node node)
+{
+    const char* name = node.name();
+    Value val;
+    if(strcmp(name, "dict") == 0)
+    {
+        ValueMap map;
+        char* key;
+        bool isKey = true;
+        for(xml_node child = node.first_child(); child; child = child.next_sibling())
+        {
+            if(isKey)
+            {
+                key = const_cast<char*>(child.first_child().value());//remove const while reading value, easier that way
+            }
+            else
+            {
+                Value result = loadValue(child);
+                if(result.getType() != Value::Type::NONE)
+                {
+                    map[key] = result;
+                }
+            }
+            isKey = !isKey;
+        }
+        val = map;
+    }
+    else if(strcmp(name, "array") == 0)
+    {
+        ValueVector vector;
+        for(xml_node child = node.first_child(); child; child = child.next_sibling())
+        {
+            Value result = loadValue(child);
+            if(result.getType() != Value::Type::NONE)
+            {
+                vector.push_back(result);
+            }
+        }
+        val = vector;
+    }
+    else if(strcmp(name, "string") == 0)
+    {
+        val = Value(node.first_child().value());
+    }
+    else if(strcmp(name, "integer") == 0)
+    {
+        val = Value(atoi(node.first_child().value()));
+    }
+    else if(strcmp(name, "real") == 0)
+    {
+        val = Value(atof(node.first_child().value()));
+    }
+    else if(strcmp(name, "true") == 0)
+    {
+        val = Value(true);
+    }
+    else if(strcmp(name, "false") == 0)
+    {
+        val = Value(false);
+    }
+#if VERBOSE_LOAD_PLIST
+    else
+    {
+        CCLOG("Warning: unrecognized type \"%s\" when loading plist, check if the plist is correctly formated", name);
+    }
+#endif
+    return val;
+}
+
+Value loadValueFromFile(std::string fileName, bool resource)
+{
+    xml_document doc;
+#if VERBOSE_LOAD_PLIST
+    CCLOG("local path : %s", getLocalPath(fileName).c_str());
+#endif
+    std::string charbuffer = "";
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+    if(resource)
+    {
+        ssize_t bufferSize = 0;
+        //Load file from apk
+        charbuffer = FileUtils::getInstance()->getStringFromFile(fileName);
+    }
+    std::string path = resource ? "" : getLocalPath(fileName);
+#else
+    std::string path = resource ? getResourcesPath(fileName) : getLocalPath(fileName);
+#endif
+#if VERBOSE_LOAD_PLIST
+    CCLOG("Loading from path :\n%s", path.c_str());
+#endif
+    xml_parse_result parse_result;
+    //If the file inside the apk doesn't exist, we load the local file.
+    if(charbuffer.empty())
+        parse_result = doc.load_file(path.c_str());
+    else
+        parse_result = doc.load(charbuffer.c_str());
+#if VERBOSE_LOAD_PLIST
+    CCLOG("parse result : %d", parse_result.status);
+#endif
+    if(parse_result.status != status_ok)
+    {
+        Value emptyVal;
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+        if(resource)
+        {
+            CCLOG("Copying resource file to local ...");
+            copyResourceFileToLocal(fileName);
+        }
+        parse_result = doc.load_file(path.c_str());
+#if VERBOSE_LOAD_PLIST
+        CCLOG("parse result after copy : %d", parse_result.status);
+#endif
+
+        if(parse_result.status != status_ok)
+        {
+            return emptyVal;
+        }
+#else
+        return emptyVal;
+#endif
+    }
+#if VERBOSE_LOAD_PLIST
+    CCLOG("Document loaded, parsing it");
+    CCLOG("%s", node_to_string(doc).c_str()); //can't be done because this crash on Android, probably due to String_en.plist containing % not escaped properly
+#endif
+    Value result = loadValue(doc.child("plist").first_child());
+
 #if VERBOSE_LOAD_PLIST
     CCLOG("Parse successful, returning");
 #endif
