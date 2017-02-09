@@ -49,7 +49,6 @@ xcuserdata
 *.moved-aside
 *.xcuserstate
 *.xcscmblueprint
-*.xcscheme
 
 *.mode*
 *.pbxuser
