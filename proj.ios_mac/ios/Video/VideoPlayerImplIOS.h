@@ -52,6 +52,7 @@
 - (void) setFullscreen:(BOOL)fullscreen animated:(BOOL)animated;
 
 + (NSString*) getThumbnail:(NSString*)path;
++ (CGSize) getVideoSize:(NSString*)path;
 + (BOOL) videoExists:(NSString*)path;
 
 @end

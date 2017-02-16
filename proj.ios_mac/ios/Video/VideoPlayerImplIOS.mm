@@ -405,6 +405,13 @@ USING_NS_FENNEX;
     return thumbnailName;
 }
 
++ (CGSize) getVideoSize:(NSString*)path
+{
+    AVURLAsset *asset = [AVURLAsset URLAssetWithURL:[VideoPlayerImplIOS URLFromPath:path] options:nil];
+    AVAssetTrack *track = [[asset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
+    return track.naturalSize;
+}
+
 + (BOOL) videoExists:(NSString*)path
 {
     if([path hasPrefix:@"assets-library://"])

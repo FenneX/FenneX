@@ -109,6 +109,12 @@ std::string VideoPlayer::getThumbnail(const std::string& path)
     return thumbnailPath != nil ? [thumbnailPath UTF8String] : "";
 }
 
+cocos2d::Size VideoPlayer::getVideoSize(const std::string& path)
+{
+    CGSize size = [VideoPlayerImplIOS getVideoSize:[NSString stringWithUTF8String:path.c_str()]];
+    return cocos2d::Size(size.width, size.height);
+}
+
 bool VideoPlayer::isValidVideo(const std::string& filePath)
 {
     return true;

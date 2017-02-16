@@ -63,6 +63,10 @@ public:
     //May return NULL if there was a problem generating the thumbnail
     static std::string getThumbnail(const std::string& path);
     
+    //Return the size of the video
+    //May return (0,0) if there was a problem with the video
+    static cocos2d::Size getVideoSize(const std::string& path);
+    
     //TODO : Add iOS implementation
     static bool isValidVideo(const std::string& filePath);
     

@@ -181,6 +181,27 @@ std::string VideoPlayer::getThumbnail(const std::string& path)
     return thumbnailPath;
 }
 
+CCSize VideoPlayer::getVideoSize(const std::string& path)
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"getVideoSize", "(Ljava/lang/String;)[F");
+    CCAssert(functionExist, "Function doesn't exist");
+    CCLOG("path is: %s", path.c_str());
+    jstring stringArg = minfo.env->NewStringUTF(path.c_str());
+    jfloatArray result = (jfloatArray)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID, stringArg);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(stringArg);
+    CCAssert(minfo.env->GetArrayLength(result) == 2, "getVideoSize: result should have 2 values");
+    CCSize size;
+
+    jfloat* array = minfo.env->GetFloatArrayElements(result, 0);
+    size.width = array[0];
+    size.height = array[1];
+    minfo.env->ReleaseFloatArrayElements(result, array, 0);
+    minfo.env->DeleteLocalRef(result);
+    return size;
+}
+
 bool VideoPlayer::isValidVideo(const std::string& filePath)
 {
     JniMethodInfo minfo;

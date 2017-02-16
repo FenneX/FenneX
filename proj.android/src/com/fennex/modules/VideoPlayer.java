@@ -566,6 +566,31 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 		return thumbPath;
 	}
 
+	public static float[] getVideoSize(String path)
+	{
+		MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+		File videoFile = getFile(path);
+		float[] size = new float[2];
+		size[0] = 0;
+		size[1] = 0;
+		try {
+			Uri appUri = NativeUtility.getMainActivity().getUriFromFileName(path);
+			if(appUri != null && appUri.toString().startsWith("android.resource://")) {
+				//Raw resources cannot be loaded with absolute path
+				retriever.setDataSource(NativeUtility.getMainActivity(), appUri);
+			}
+			else {
+				retriever.setDataSource(videoFile.getAbsolutePath());
+			}
+			size[0] = Integer.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+			size[1] = Integer.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+		} catch (Exception ex) {
+			Log.i(TAG, "MediaMetadataRetriever in getVideoSize got exception:" + ex);
+		}
+		retriever.release();
+		return size;
+	}
+
 	public static boolean isValidVideo(String path)
 	{
 		int dotIndex = path.lastIndexOf(".");
