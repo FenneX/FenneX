@@ -529,7 +529,14 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 			Bitmap thumb; //= ThumbnailUtils.createVideoThumbnail(videoFile.getAbsolutePath(),MediaStore.Images.Thumbnails.MINI_KIND);
 			MediaMetadataRetriever retriever = new MediaMetadataRetriever();
 			try {
-		        retriever.setDataSource(videoFile.getAbsolutePath());
+				Uri appUri = NativeUtility.getMainActivity().getUriFromFileName(path);
+				if(appUri != null && appUri.toString().startsWith("android.resource://")) {
+					//Raw resources cannot be loaded with absolute path
+					retriever.setDataSource(NativeUtility.getMainActivity(), appUri);
+				}
+				else {
+					retriever.setDataSource(videoFile.getAbsolutePath());
+				}
 		        int timeInSeconds = 1;
 		        thumb = retriever.getFrameAtTime(timeInSeconds * 1000000,
 		                    MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
@@ -541,9 +548,10 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
                     thumbPath = null;
                 }
 		    } catch (Exception ex) {
-		        Log.i(TAG, "MediaMetadataRetriever got exception:" + ex);
+		        Log.i(TAG, "MediaMetadataRetriever in getThumbnail got exception:" + ex);
 		        thumbPath = null;
 		    }
+			retriever.release();
 			streamThumbnail.close();
 			Log.d(TAG, "thumbnail saved successfully");
 		} catch (FileNotFoundException e) {
