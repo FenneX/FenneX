@@ -105,33 +105,45 @@ if [ ! `convert --version | grep "not found"` ]; then
 		  			echo "[INFO]Checking ${f} alpha channel"
 		  			if [ $CHANNEL == "srgb" ]; then
 		  				echo "[OK]Alpha channel checked"
-			  			convert ${f} -resize 29x29 "${PROJECTPATH}proj.ios/${ICONDIR}Icon-29.png"
-			  			convert ${f} -resize 32x32 "${PROJECTPATH}proj.ios/${ICONDIR}Icon-32.png"
-			  			convert ${f} -resize 48x48 "${PROJECTPATH}proj.ios/${ICONDIR}Icon-48.png"
-			  			convert ${f} -resize 57x57 "${PROJECTPATH}proj.ios/${ICONDIR}Icon-57.png"
-			  			convert ${f} -resize 58x58 "${PROJECTPATH}proj.ios/${ICONDIR}Icon-58.png"
-			  			convert ${f} -resize 72x72 "${PROJECTPATH}proj.ios/${ICONDIR}Icon-72.png"
-			  			convert ${f} -resize 76x76 "${PROJECTPATH}proj.ios/${ICONDIR}Icon-76.png"
-			  			convert ${f} -resize 96x96 "${PROJECTPATH}proj.ios/${ICONDIR}Icon-96.png"
-			  			convert ${f} -resize 100x100 "${PROJECTPATH}proj.ios/${ICONDIR}Icon-100.png"
-			  			convert ${f} -resize 114x114 "${PROJECTPATH}proj.ios/${ICONDIR}Icon-114.png"
-			  			convert ${f} -resize 120x120 "${PROJECTPATH}proj.ios/${ICONDIR}Icon-120.png"
-			  			convert ${f} -resize 144x144 "${PROJECTPATH}proj.ios/${ICONDIR}Icon-144.png"
-			  			convert ${f} -resize 152x152 "${PROJECTPATH}proj.ios/${ICONDIR}Icon-152.png"
+			  			convert ${f} -resize 29x29 "${PROJECTPATH}proj.ios_mac/ios/${ICONDIR}Icon-29.png"
+			  			convert ${f} -resize 32x32 "${PROJECTPATH}proj.ios_mac/ios/${ICONDIR}Icon-32.png"
+			  			convert ${f} -resize 40x40 "${PROJECTPATH}proj.ios_mac/ios/${ICONDIR}Icon-40.png"
+			  			convert ${f} -resize 48x48 "${PROJECTPATH}proj.ios_mac/ios/${ICONDIR}Icon-48.png"
+			  			convert ${f} -resize 50x50 "${PROJECTPATH}proj.ios_mac/ios/${ICONDIR}Icon-50.png"
+			  			convert ${f} -resize 57x57 "${PROJECTPATH}proj.ios_mac/ios/${ICONDIR}Icon-57.png"
+			  			convert ${f} -resize 58x58 "${PROJECTPATH}proj.ios_mac/ios/${ICONDIR}Icon-58.png"
+			  			convert ${f} -resize 72x72 "${PROJECTPATH}proj.ios_mac/ios/${ICONDIR}Icon-72.png"
+			  			convert ${f} -resize 76x76 "${PROJECTPATH}proj.ios_mac/ios/${ICONDIR}Icon-76.png"
+			  			convert ${f} -resize 80x80 "${PROJECTPATH}proj.ios_mac/ios/${ICONDIR}Icon-80.png"
+			  			convert ${f} -resize 87x87 "${PROJECTPATH}proj.ios_mac/ios/${ICONDIR}Icon-87.png"
+			  			convert ${f} -resize 96x96 "${PROJECTPATH}proj.ios_mac/ios/${ICONDIR}Icon-96.png"
+			  			convert ${f} -resize 100x100 "${PROJECTPATH}proj.ios_mac/ios/${ICONDIR}Icon-100.png"
+			  			convert ${f} -resize 114x114 "${PROJECTPATH}proj.ios_mac/ios/${ICONDIR}Icon-114.png"
+			  			convert ${f} -resize 120x120 "${PROJECTPATH}proj.ios_mac/ios/${ICONDIR}Icon-120.png"
+			  			convert ${f} -resize 144x144 "${PROJECTPATH}proj.ios_mac/ios/${ICONDIR}Icon-144.png"
+			  			convert ${f} -resize 152x152 "${PROJECTPATH}proj.ios_mac/ios/${ICONDIR}Icon-152.png"
+			  			convert ${f} -resize 167x167 "${PROJECTPATH}proj.ios_mac/ios/${ICONDIR}Icon-167.png"
+			  			convert ${f} -resize 180x180 "${PROJECTPATH}proj.ios_mac/ios/${ICONDIR}Icon-180.png"
 			  			
-			  			TOCOMMIT+=("proj.ios/${ICONDIR}Icon-29.png")
-			  			TOCOMMIT+=("proj.ios/${ICONDIR}Icon-32.png")
-			  			TOCOMMIT+=("proj.ios/${ICONDIR}Icon-48.png")
-			  			TOCOMMIT+=("proj.ios/${ICONDIR}Icon-57.png")
-			  			TOCOMMIT+=("proj.ios/${ICONDIR}Icon-58.png")
-			  			TOCOMMIT+=("proj.ios/${ICONDIR}Icon-72.png")
-			  			TOCOMMIT+=("proj.ios/${ICONDIR}Icon-76.png")
-			  			TOCOMMIT+=("proj.ios/${ICONDIR}Icon-96.png")
-			  			TOCOMMIT+=("proj.ios/${ICONDIR}Icon-100.png")
-			  			TOCOMMIT+=("proj.ios/${ICONDIR}Icon-114.png")
-			  			TOCOMMIT+=("proj.ios/${ICONDIR}Icon-120.png")
-			  			TOCOMMIT+=("proj.ios/${ICONDIR}Icon-144.png")
-			  			TOCOMMIT+=("proj.ios/${ICONDIR}Icon-152.png")
+			  			TOCOMMIT+=("proj.ios_mac/ios/${ICONDIR}Icon-29.png")
+			  			TOCOMMIT+=("proj.ios_mac/ios/${ICONDIR}Icon-32.png")
+			  			TOCOMMIT+=("proj.ios_mac/ios/${ICONDIR}Icon-40.png")
+			  			TOCOMMIT+=("proj.ios_mac/ios/${ICONDIR}Icon-48.png")
+			  			TOCOMMIT+=("proj.ios_mac/ios/${ICONDIR}Icon-5°.png")
+			  			TOCOMMIT+=("proj.ios_mac/ios/${ICONDIR}Icon-57.png")
+			  			TOCOMMIT+=("proj.ios_mac/ios/${ICONDIR}Icon-58.png")
+			  			TOCOMMIT+=("proj.ios_mac/ios/${ICONDIR}Icon-72.png")
+			  			TOCOMMIT+=("proj.ios_mac/ios/${ICONDIR}Icon-76.png")
+			  			TOCOMMIT+=("proj.ios_mac/ios/${ICONDIR}Icon-80.png")
+			  			TOCOMMIT+=("proj.ios_mac/ios/${ICONDIR}Icon-87.png")
+			  			TOCOMMIT+=("proj.ios_mac/ios/${ICONDIR}Icon-96.png")
+			  			TOCOMMIT+=("proj.ios_mac/ios/${ICONDIR}Icon-100.png")
+			  			TOCOMMIT+=("proj.ios_mac/ios/${ICONDIR}Icon-114.png")
+			  			TOCOMMIT+=("proj.ios_mac/ios/${ICONDIR}Icon-120.png")
+			  			TOCOMMIT+=("proj.ios_mac/ios/${ICONDIR}Icon-144.png")
+			  			TOCOMMIT+=("proj.ios_mac/ios/${ICONDIR}Icon-152.png")
+			  			TOCOMMIT+=("proj.ios_mac/ios/${ICONDIR}Icon-167.png")
+			  			TOCOMMIT+=("proj.ios_mac/ios/${ICONDIR}Icon-180.png")
 
 		  				convert ${f} -resize 1024x1024 "${ICONPATH}Store/${APP}-AppleStore.png"
 			  		else
