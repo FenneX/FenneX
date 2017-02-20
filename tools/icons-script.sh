@@ -76,6 +76,12 @@ if [ ! `convert --version | grep "not found"` ]; then
 		  		echo "[INFO]Checking ${f} size"
 		  		if [ $RESULT == "1024x1024" ]; then
 		  			echo "[OK]Size checked"
+                    mkdir -p "${PROJECTPATH}proj.android/res/drawable-hdpi/"
+                    mkdir -p "${PROJECTPATH}proj.android/res/drawable-ldpi/"
+                    mkdir -p "${PROJECTPATH}proj.android/res/drawable-mdpi/"
+                    mkdir -p "${PROJECTPATH}proj.android/res/drawable-xhdpi/"
+                    mkdir -p "${PROJECTPATH}proj.android/res/drawable-xxhdpi/"
+                    mkdir -p "${PROJECTPATH}proj.android/res/drawable-xxxhdpi/"
 		  			convert ${f} -resize 72x72 "${PROJECTPATH}proj.android/res/drawable-hdpi/icon.png"
 		  			convert ${f} -resize 32x32 "${PROJECTPATH}proj.android/res/drawable-ldpi/icon.png"
 		  			convert ${f} -resize 48x48 "${PROJECTPATH}proj.android/res/drawable-mdpi/icon.png"
