@@ -21,7 +21,7 @@ TOCOMMIT=()
 
 function showHelp()
 {
-	echo "\nUsage : ./splashscreen-script.sh /Path/To/Project/Root/Folder /Path/To/SplashScreens/Folder\n"
+	echo "\nUsage : ./splashscreen-script.sh /Path/To/Project/Root/Folder/ /Path/To/SplashScreens/Folder/\n"
 }
 
 if [ ! `convert --version | grep "not found"` ]; then
@@ -48,18 +48,18 @@ if [ ! `convert --version | grep "not found"` ]; then
 			exit 1
 		fi
 
-		if [ ! -d "${PROJECTPATH}projects/Resources" ]; then
-			echo "[ERROR] The folder '${PROJECTPATH}projects/Resources' doesn't exist"
+		if [ ! -d "${PROJECTPATH}Resources" ]; then
+			echo "[ERROR] The folder '${PROJECTPATH}Resources' doesn't exist"
 			exit 1
 		fi
 
 		#iOS
-		if [ -d "${PROJECTPATH}projects/proj.ios/Splashscreens/" ]; then
-			SPLASHDIR="${PROJECTPATH}projects/proj.ios/Splashscreens/"
-			SPLASHCOMMITDIR="projects/proj.ios/Splashscreens/"
+		if [ -d "${PROJECTPATH}proj.ios_mac/ios/Splashscreens/" ]; then
+			SPLASHDIR="${PROJECTPATH}proj.ios_mac/ios/Splashscreens/"
+			SPLASHCOMMITDIR="proj.ios_mac/ios/Splashscreens/"
 		else
-			SPLASHDIR="${PROJECTPATH}projects/proj.ios/"
-			SPLASHCOMMITDIR="projects/proj.ios/"
+			SPLASHDIR="${PROJECTPATH}proj.ios_mac/ios/"
+			SPLASHCOMMITDIR="proj.ios_mac/ios/"
 		fi
 
 		PROCESSSPLASHPATH="$SPLASHPATH*"
@@ -101,24 +101,24 @@ if [ ! `convert --version | grep "not found"` ]; then
 		count=${#TOPROCESS[@]}
 		if [ ${count} == 11 ]; then
 			#iOS
-			cp "${PROJECTPATH}projects/Resources/splash-screen-1024-768.png" "${SPLASHDIR}Default-Landscape~ipad.png"
-			cp "${PROJECTPATH}projects/Resources/splash-screen-1024-768.png" "${SPLASHDIR}Default-Landscape.png"
+			cp "${SPLASHPATH}splash-screen-1024-768.png" "${SPLASHDIR}Default-Landscape~ipad.png"
+			cp "${SPLASHPATH}splash-screen-1024-768.png" "${SPLASHDIR}Default-Landscape.png"
 
 		  	convert "${SPLASHDIR}Default-Landscape~ipad.png" -rotate 90 "${SPLASHDIR}Default-Portrait~ipad.png"
 			cp "${SPLASHDIR}Default-Portrait~ipad.png" "${SPLASHDIR}Default~ipad.png"
 			cp "${SPLASHDIR}Default-Portrait~ipad.png" "${SPLASHDIR}Default-Portrait.png"
 
-			cp "${PROJECTPATH}projects/Resources/splash-screen-2048-1536.png" "${SPLASHDIR}Default-Landscape@2x~ipad.png"
-			cp "${PROJECTPATH}projects/Resources/splash-screen-2048-1536.png" "${SPLASHDIR}Default-Landscape@2x.png"
-		  	convert "${SPLASHDIR}Default-Landscape~ipad.png" -rotate 90 "${SPLASHDIR}Default-Portrait@2x~ipad.png"
+			cp "${SPLASHPATH}splash-screen-2048-1536.png" "${SPLASHDIR}Default-Landscape@2x~ipad.png"
+			cp "${SPLASHPATH}splash-screen-2048-1536.png" "${SPLASHDIR}Default-Landscape@2x.png"
+		  	convert "${SPLASHDIR}Default-Landscape@2x~ipad.png" -rotate 90 "${SPLASHDIR}Default-Portrait@2x~ipad.png"
 			cp "${SPLASHDIR}Default-Portrait@2x~ipad.png" "${SPLASHDIR}Default-Portrait@2x.png"
 
-		  	convert "${PROJECTPATH}projects/Resources/splash-screen-480-320.png" -rotate 90 "${SPLASHDIR}Default.png"
+		  	convert "${SPLASHPATH}splash-screen-480-320.png" -rotate 90 "${SPLASHDIR}Default.png"
 
-		  	convert "${PROJECTPATH}projects/Resources/splash-screen-960-640.png" -rotate 90 "${SPLASHDIR}Default~iphone.png"
+		  	convert "${SPLASHPATH}splash-screen-960-640.png" -rotate 90 "${SPLASHDIR}Default~iphone.png"
 			cp "${SPLASHDIR}Default~iphone.png" "${SPLASHDIR}Default@2x.png"
 
-		  	convert "${PROJECTPATH}projects/Resources/splash-screen-1136-640.png" -rotate 90 "${SPLASHDIR}Default-568h@2x.png"
+		  	convert "${SPLASHPATH}splash-screen-1136-640.png" -rotate 90 "${SPLASHDIR}Default-568h@2x.png"
 
 		  	TOCOMMIT+=("${SPLASHCOMMITDIR}Default-Landscape~ipad.png")
 		  	TOCOMMIT+=("${SPLASHCOMMITDIR}Default-Landscape.png")
