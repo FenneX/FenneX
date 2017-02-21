@@ -35,6 +35,10 @@ USING_NS_CC;
 #include "Image.h"
 #include "FenneXMacros.h"
 
+#define LAYER (GraphicLayer::sharedLayer())
+#define ADD_OBSERVER(func, notifName) (eventListeners.pushBack(Director::getInstance()->getEventDispatcher()->addCustomEventListener(notifName, std::bind(&func, this, std::placeholders::_1))))
+#define ADD_SIMPLE_OBSERVER(func, notifName) (eventListeners.pushBack(Director::getInstance()->getEventDispatcher()->addCustomEventListener(notifName, std::bind(&func, this))))
+
 NS_FENNEX_BEGIN
 //Warning : it is mandatory to stop() a scene before stopping using it, because there is a cyclic reference
 class Scene : public Pausable, public Layer
@@ -103,6 +107,8 @@ protected:
     EventListenerKeyboard* keyboardListener;
     EventListenerCustom* tapListener;
     EventListenerCustom* appWillResignListener;
+    
+    Vector<EventListenerCustom*> eventListeners;
 };
 NS_FENNEX_END
 

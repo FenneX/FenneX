@@ -255,6 +255,13 @@ void Scene::stop()
     }
     touchReceiversList.clear();
     
+    
+    for(EventListenerCustom* listener : eventListeners)
+    {
+        Director::getInstance()->getEventDispatcher()->removeEventListener(listener);
+    }
+    eventListeners.clear();
+    
     delegate->removeChild(this, false);
     delegate->removeChild(Director::getInstance()->getNotificationNode(), false);
     
