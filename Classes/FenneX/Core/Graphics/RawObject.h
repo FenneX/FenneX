@@ -58,7 +58,7 @@ public:
     GLubyte getOpacity();
     void setOpacityRecursive(GLubyte opacity);
     
-    CCDictionary* getEventInfos();//Warning : the returned CCDictionary is copied, changes will not affect RawObject
+    CCDictionary* getEventInfos() const;//Warning : the returned CCDictionary is copied, changes will not affect RawObject
     //Will not copy Sender automatically. Do it manually if required
     void addEventInfos(CCDictionary* infos);
     void setEventInfo(Ref* obj, std::string key);
@@ -91,6 +91,8 @@ public:
 protected:
     CCDictionary* eventInfos;
 };
+
+bool operator<(const RawObject& obj1, const RawObject& obj2);
 NS_FENNEX_END
 
 #endif /* defined(__FenneX__RawObject__) */
