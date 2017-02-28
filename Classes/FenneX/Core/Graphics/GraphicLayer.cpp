@@ -1908,7 +1908,7 @@ bool GraphicLayer::containsObject(RawObject* obj)
 
 CCArray* GraphicLayer::allPanelsWithName(std::string name)
 {
-    return allObjectsWithName(Screate(name));
+    return allPanelsWithName(Screate(name));
 }
 
 CCArray* GraphicLayer::allPanelsWithName(CCString* name)
