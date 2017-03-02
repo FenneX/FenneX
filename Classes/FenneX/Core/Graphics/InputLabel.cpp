@@ -55,6 +55,26 @@ void InputLabel::setPlaceHolderColor(Color3B color)
     delegate->setPlaceholderFontColor(color);
 }
 
+Color3B InputLabel::getPlaceHolderColor()
+{
+    return Color3B(delegate->getPlaceholderFontColor());
+}
+
+void InputLabel::setFontColor(Color3B color)
+{
+    delegate->setFontColor(color);
+}
+
+Color3B InputLabel::getFontColor()
+{
+    return Color3B(delegate->getFontColor());
+}
+
+void InputLabel::setPlaceHolder(std::string value)
+{
+    delegate->setPlaceHolder(value.c_str());
+}
+
 void InputLabel::setLabelValue(const char* value)
 {
     delegate->setText(value);

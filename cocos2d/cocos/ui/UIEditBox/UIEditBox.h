@@ -340,6 +340,8 @@ namespace ui {
          */
         void setFontColor(const Color3B& color);
         void setFontColor(const Color4B& color);
+        
+        Color4B getFontColor();
             
         /**
          * Set the placeholder's font. Only system font is allowed.
@@ -369,6 +371,8 @@ namespace ui {
          * Set the font color of the placeholder text when the edit box is empty.
          */
         void setPlaceholderFontColor(const Color4B& color);
+        
+        Color4B getPlaceholderFontColor();
             
         /**
          * Set a text in the edit box that acts as a placeholder when an

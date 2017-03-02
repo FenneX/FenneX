@@ -247,6 +247,11 @@ void EditBox::setFontColor(const Color4B& color)
         _editBoxImpl->setFontColor(color);
     }
 }
+    
+Color4B EditBox::getFontColor()
+{
+    return _colText;
+}
 
 void EditBox::setPlaceholderFont(const char* pFontName, int fontSize)
 {
@@ -293,6 +298,11 @@ void EditBox::setPlaceholderFontColor(const Color4B& color)
     {
         _editBoxImpl->setPlaceholderFontColor(color);
     }
+}
+    
+Color4B EditBox::getPlaceholderFontColor()
+{
+    return _colPlaceHolder;
 }
 
 void EditBox::setPlaceHolder(const char* pText)

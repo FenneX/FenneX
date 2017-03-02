@@ -43,6 +43,10 @@ public:
     
     cocos2d::Rect getBoundingBox();
     virtual void setPlaceHolderColor(Color3B color);
+    virtual Color3B getPlaceHolderColor();
+    virtual void setFontColor(Color3B color);
+    virtual Color3B getFontColor();
+    virtual void setPlaceHolder(std::string value);
     virtual const char* getLabelValue();
     virtual void setLabelValue(const char* value);
     virtual Node* getNode();
