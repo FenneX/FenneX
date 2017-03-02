@@ -28,7 +28,6 @@ THE SOFTWARE.
 NS_FENNEX_BEGIN
 bool CustomInput::init()
 {
-    numbersOnly = false;
     maxChar = -1;
     fontSize = -1;
     inputMode = -1;
@@ -57,10 +56,6 @@ bool CustomInput::onAssignCCBCustomProperty(Ref* pTarget, const char* pMemberVar
     else if(pCCBValue.getType() == cocos2d::Value::Type::STRING && strcmp(pMemberVariableName, "fontName") == 0)
     {
         target->setFontName(Screate(pCCBValue.asString()));
-    }
-    else if(pCCBValue.getType() == cocos2d::Value::Type::BOOLEAN && strcmp(pMemberVariableName, "numbers") == 0)
-    {
-        target->setNumbersOnly(pCCBValue.asBool());
     }
     else
     {

@@ -76,7 +76,6 @@ InputLabel::InputLabel() : delegate(NULL)
 InputLabel::InputLabel(ui::Scale9Sprite* sprite)
 {
     isOpened = false;
-    textDirty = false;
     originalInfos = NULL;
     fontSize = -1;
     fontName = "";
@@ -118,7 +117,6 @@ InputLabel::InputLabel(ui::Scale9Sprite* sprite)
             delegate->setPlaceHolder(input->getPlaceHolder()->getCString());
             this->setInitialText(input->getPlaceHolder()->getCString());
         }
-        numbersOnly = input->getNumbersOnly();
         if(input->getMaxChar() != -1)
         {
             delegate->setMaxLength(input->getMaxChar());
@@ -144,7 +142,6 @@ InputLabel::InputLabel(ui::Scale9Sprite* sprite)
 InputLabel::InputLabel(const char* placeHolder, const char* fontName, int fontSize, Vec2 location, ui::EditBox::InputMode inputMode, int maxChar, Size dimensions, TextHAlignment format)
 {
     isOpened = false;
-    textDirty = false;
     originalInfos = NULL;
     fontSize = -1;
     fontName = "";
@@ -166,7 +163,6 @@ InputLabel::InputLabel(const char* placeHolder, const char* fontName, int fontSi
     
     this->setPosition(location);
     delegate->setInputMode(inputMode);
-    numbersOnly = inputMode ==  ui::EditBox::InputMode::DECIMAL;
     delegate->setReturnType(ui::EditBox::KeyboardReturnType::DONE);
     delegate->setInputFlag(ui::EditBox::InputFlag::INITIAL_CAPS_SENTENCE);
     if(maxChar != -1)
@@ -201,32 +197,6 @@ InputLabel::~InputLabel()
 #if VERBOSE_DEALLOC
     CCLOG("Dealloc InputLabel %s", name.c_str());
 #endif
-}
-
-void InputLabel::update(float deltaTime)
-{
-    if(textDirty && numbersOnly)
-    {
-        //remove non-numeric characters
-        CCLOG("checking characters ...");
-        const char* label = this->getLabelValue();
-        char* result = (char*)malloc((strlen(label)+1) * sizeof(char));
-        int resultPos = 0;
-        for (int i = 0; i < strlen(label); i++)
-        {
-            char ch = label[i];
-            if(ch >= '0' && ch <= '9')
-            {
-                result[resultPos] = ch;
-                resultPos++;
-            }
-        }
-        result[resultPos] = '\0';
-        this->setLabelValue(result);
-        free(result);
-        CCLOG("done");
-    }
-    textDirty = false;
 }
 
 void InputLabel::openKeyboard(EventCustom* event)
@@ -327,16 +297,6 @@ void InputLabel::editBoxEditingDidEnd(ui::EditBox* editBox)
 
 void InputLabel::editBoxTextChanged(ui::EditBox* editBox, const std::string& text)
 {
-    const char* label = this->getLabelValue();
-    CCLOG("ui::EditBoxTextChanged called, value : %s", text.c_str());
-    for (int i = 0; i < strlen(label); i++)
-    {
-        char ch = label[i];
-        if(!(ch >= '0' && ch <= '9'))
-        {
-            textDirty = true;
-        }
-    }
 }
 
 bool InputLabel::isUnedited()

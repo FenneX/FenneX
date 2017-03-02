@@ -53,7 +53,6 @@ public:
     //TODO : add keyboard type and max char
     ~InputLabel();
     
-    virtual void update(float deltaTime);
     /*
      virtual bool onTextFieldInsertText(CCTextFieldTTF * sender, const char * text, int nLen);
      virtual bool onTextFieldDeleteBackward(CCTextFieldTTF * sender, const char * delText, int nLen);
@@ -70,9 +69,6 @@ public:
     virtual void editBoxReturn(ui::EditBox* editBox);
     virtual void editBoxEditingDidEnd(ui::EditBox* editBox);
     virtual void editBoxTextChanged(ui::EditBox* editBox, const std::string& text);
-    
-    
-    bool numbersOnly; //false by default
     
     bool isUnedited();
     void setInitialText(const std::string& text);
@@ -93,7 +89,6 @@ public:
 protected:
     ui::EditBox* delegate;
     bool isOpened;
-    bool textDirty;
     
     std::string initialText; //Used to know if the current text is the placeholder
     /*
