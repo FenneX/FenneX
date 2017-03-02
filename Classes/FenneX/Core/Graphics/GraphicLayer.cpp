@@ -796,7 +796,7 @@ InputLabel* GraphicLayer::createInputLabel(CCDictionary* values)
             pos.y =  ((TMPPoint*)values->objectForKey("Position"))->y;
         }
         
-        ui::EditBox::InputMode inputMode = values->objectForKey("KeyboardType") != NULL && isKindOfClass(values->objectForKey("KeyboardType"), CCInteger) ? (ui::EditBox::InputMode)TOINT(values->objectForKey("KeyboardType")) : ui::EditBox::InputMode::ANY;
+        ui::EditBox::InputMode inputMode = values->objectForKey("InputMode") != NULL && isKindOfClass(values->objectForKey("InputMode"), CCInteger) ? (ui::EditBox::InputMode)TOINT(values->objectForKey("InputMode")) : ui::EditBox::InputMode::ANY;
         int maxDigits = values->objectForKey("MaxDigits") != NULL && isKindOfClass(values->objectForKey("MaxDigits"), CCInteger) ? TOINT(values->objectForKey("MaxDigits")) : -1;
         if(values->objectForKey("Dimensions") != NULL
            && isKindOfClass(values->objectForKey("Dimensions"), Size)
@@ -919,9 +919,6 @@ InputLabel* GraphicLayer::createInputLabel(CCDictionary* values)
 InputLabel* GraphicLayer::createInputLabelFromScale9Sprite(ui::Scale9Sprite* cocosSprite, Panel* parent)
 {
     InputLabel* label = NULL;
-    
-    //ui::EditBoxInputMode inputMode = /*(ui::EditBoxInputMode)TOINT(values->objectForKey("KeyboardType"))*/ kui::EditBoxInputModeAny;
-    //int maxDigits = values->objectForKey("MaxDigits") != NULL && isKindOfClass(values->objectForKey("MaxDigits"), CCInteger) ? TOINT(values->objectForKey("MaxDigits")) : -1;
     label = new InputLabel(cocosSprite);
     
     if(label != NULL)

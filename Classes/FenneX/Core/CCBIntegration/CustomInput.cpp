@@ -31,6 +31,7 @@ bool CustomInput::init()
     numbersOnly = false;
     maxChar = -1;
     fontSize = -1;
+    inputMode = -1;
     return ui::Scale9Sprite::init();
 }
 
@@ -44,6 +45,10 @@ bool CustomInput::onAssignCCBCustomProperty(Ref* pTarget, const char* pMemberVar
     else if(pCCBValue.getType() == cocos2d::Value::Type::INTEGER && strcmp(pMemberVariableName, "fontSize") == 0)
     {
         target->setFontSize(pCCBValue.asInt());
+    }
+    else if(pCCBValue.getType() == cocos2d::Value::Type::INTEGER && strcmp(pMemberVariableName, "InputMode") == 0)
+    {
+        target->setInputMode(pCCBValue.asInt());
     }
     else if(pCCBValue.getType() == cocos2d::Value::Type::STRING && strcmp(pMemberVariableName, "placeHolder") == 0)
     {

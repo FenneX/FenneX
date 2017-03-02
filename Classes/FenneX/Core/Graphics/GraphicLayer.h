@@ -128,7 +128,7 @@ public:
     
     /*Parameters must contain PlaceHolder (CCString), which is a placeholder, FontFile (CCString) and FontSize (CCInteger)
      Optional Parameters :
-     - KeyboardType (CCInteger as ui::EditBoxInputMode) default kui::EditBoxInputModeAny
+     - InputMode (CCInteger as ui::EditBoxInputMode) default kui::EditBoxInputModeAny
      - MaxDigits (CCInteger as int) default 0
      - Label (CCString) default empty
      - Position (Vec2) default (0, 0)

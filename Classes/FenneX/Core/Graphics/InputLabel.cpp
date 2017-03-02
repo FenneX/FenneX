@@ -123,6 +123,11 @@ InputLabel::InputLabel(ui::Scale9Sprite* sprite)
         {
             delegate->setMaxLength(input->getMaxChar());
         }
+        
+        if(input->getInputMode() != -1)
+        {
+            delegate->setInputMode((ui::EditBox::InputMode)input->getInputMode());
+        }
         if(input->getFontSize() > 0 && input->getFontName() != NULL)
         {
             this->setFontName(input->getFontName()->getCString());
