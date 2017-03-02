@@ -25,6 +25,7 @@ THE SOFTWARE.
 package org.cocos2dx.lib;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -162,6 +163,22 @@ public class Cocos2dxEditBoxHelper {
                                     Cocos2dxEditBoxHelper.__editBoxEditingDidBegin(index);
                                 }
                             });
+                            editBox.setupInputMode(mCocos2dxActivity);
+                            if(editBox.getCustomInput() != null)
+                            { //Same code as loose focus, but on dismiss (when user click cancel)
+                                editBox.getCustomInput().setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                    public void onDismiss(DialogInterface dialog) {
+                                        editBox.setVisibility(View.GONE);
+                                        mCocos2dxActivity.runOnGLThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Cocos2dxEditBoxHelper.__editBoxEditingDidEnd(index, editBox.getText().toString());
+                                            }
+                                        });
+                                        mFrameLayout.setEnableForceDoLayout(false);
+                                    }
+                                });
+                            }
                             editBox.setSelection(editBox.getText().length());
                             mFrameLayout.setEnableForceDoLayout(true);
                             mCocos2dxActivity.getGLSurfaceView().setSoftKeyboardShown(true);

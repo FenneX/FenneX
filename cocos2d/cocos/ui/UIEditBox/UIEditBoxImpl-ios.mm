@@ -68,8 +68,12 @@ static const int CC_EDIT_BOX_PADDING = 5;
 
 
 @interface UIEditBoxImplIOS_objc : NSObject <UITextFieldDelegate>
+{
+    UIDatePicker* datePicker;
+}
 
 @property (nonatomic, retain) UITextField *textField;
+@property (nonatomic, assign) cocos2d::ui::EditBox::InputMode inputMode;
 @property (nonatomic, assign) void *editBox;
 @property (nonatomic, readonly, getter = isEditState) BOOL editState;
 
@@ -79,8 +83,11 @@ static const int CC_EDIT_BOX_PADDING = 5;
 - (void)setPosition:(CGPoint)pos;
 - (void)setContentSize:(CGSize)size;
 
+- (bool)isDatePickerMode;
 - (void)openKeyboard;
 - (void)closeKeyboard;
+
+- (void) dateChanged:(id)sender;
 
 @end
 
@@ -114,6 +121,7 @@ static const int CC_EDIT_BOX_PADDING = 5;
         
         self.textField = textField;
         self.editBox = editBox;
+        datePicker = nil;
     }
     
     return self;
@@ -156,10 +164,26 @@ static const int CC_EDIT_BOX_PADDING = 5;
     _textField.frame = frame;
 }
 
+- (bool)isDatePickerMode
+{
+    return _inputMode == cocos2d::ui::EditBox::InputMode::DATE ||
+        _inputMode == cocos2d::ui::EditBox::InputMode::TIME;
+}
+
 - (void)openKeyboard
 {
     auto view = cocos2d::Director::getInstance()->getOpenGLView();
     CCEAGLView *eaglview = (CCEAGLView *)view->getEAGLView();
+    
+    if([self isDatePickerMode])
+    {
+        datePicker = [[UIDatePicker alloc] init];
+        datePicker.datePickerMode = _inputMode == cocos2d::ui::EditBox::InputMode::TIME ? UIDatePickerModeTime :
+            _inputMode == cocos2d::ui::EditBox::InputMode::DATE ? UIDatePickerModeDate :
+            UIDatePickerModeDateAndTime;
+        [datePicker addTarget:self action:@selector(dateChanged:) forControlEvents:UIControlEventValueChanged];
+        [_textField setInputView:datePicker];
+    }
 
     [eaglview addSubview:_textField];
     [_textField becomeFirstResponder];
@@ -169,6 +193,13 @@ static const int CC_EDIT_BOX_PADDING = 5;
 {
     [_textField resignFirstResponder];
     [_textField removeFromSuperview];
+    [_textField setInputView:nil];
+    
+    if([self isDatePickerMode])
+    {
+        [datePicker autorelease];
+        datePicker = nil;
+    }
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)sender
@@ -199,6 +230,26 @@ static const int CC_EDIT_BOX_PADDING = 5;
     
     const char* inputText = [textField.text UTF8String];
     getEditBoxImplIOS()->editBoxEditingChanged(inputText);
+}
+
+- (void)dateChanged:(id)sender
+{
+    if(sender == datePicker)
+    {
+        NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+        NSString* dateFormat = _inputMode == cocos2d::ui::EditBox::InputMode::TIME ? @"HH:mm" :
+        _inputMode == cocos2d::ui::EditBox::InputMode::DATE ? @"dd/MM/yyyy" :
+        @"dd/MM HH:mm";
+        [formatter setDateFormat:dateFormat];
+        _textField.text = [formatter stringFromDate:[datePicker date]];
+        int maxLength = getEditBoxImplIOS()->getMaxLength();
+        if (_textField.text.length > maxLength) {
+            _textField.text = [_textField.text substringToIndex:maxLength];
+        }
+        
+        const char* inputText = [_textField.text UTF8String];
+        getEditBoxImplIOS()->editBoxEditingChanged(inputText);
+    }
 }
 
 #pragma mark - UITextField delegate methods
@@ -378,6 +429,7 @@ void EditBoxImplIOS::setNativeInputMode(EditBox::InputMode inputMode)
             _systemControl.textField.keyboardType = UIKeyboardTypeDefault;
             break;
     }
+    _systemControl.inputMode = inputMode;
 }
 
 void EditBoxImplIOS::setNativeInputFlag(EditBox::InputFlag inputFlag)

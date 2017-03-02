@@ -24,21 +24,26 @@ THE SOFTWARE.
  ****************************************************************************/
 package org.cocos2dx.lib;
 
+import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.text.format.DateFormat;
 import android.text.method.PasswordTransformationMethod;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.TimePicker;
 
-public class Cocos2dxEditBox extends EditText {
+import java.util.Calendar;
+
+public class Cocos2dxEditBox extends EditText implements TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener {
     /**
      * The user is allowed to enter any text, including line breaks.
      */
@@ -73,6 +78,16 @@ public class Cocos2dxEditBox extends EditText {
      * The user is allowed to enter any text, except for line breaks.
      */
     private final int kEditBoxInputModeSingleLine = 6;
+
+    /**
+     * The user is allowed to select a time.
+     */
+    private final int kEditBoxInputModeTime = 7;
+
+    /**
+     * The user is allowed to select a date.
+     */
+    private final int kEditBoxInputModeDate = 8;
 
     /**
      * Indicates that the text entered is confidential data that should be obscured whenever possible. This implies EDIT_BOX_INPUT_FLAG_SENSITIVE.
@@ -113,12 +128,60 @@ public class Cocos2dxEditBox extends EditText {
     //OpenGL view scaleX
     private  float mScaleX;
 
+    private int inputMode = kEditBoxInputModeAny;
 
+    private AlertDialog customInput = null;
+    public AlertDialog getCustomInput()
+    {
+        return customInput;
+    }
 
+    public void setupInputMode(final Context context)
+    {
+        Calendar calendar = Calendar.getInstance();
+        if(inputMode == kEditBoxInputModeTime)
+        {
+            TimePickerDialog timePicker = new TimePickerDialog(
+                    context,
+                    this,
+                    calendar.get(Calendar.HOUR_OF_DAY),
+                    calendar.get(Calendar.MINUTE),
+                    DateFormat.is24HourFormat(context)
+            );
+            timePicker.setTitle("Select Time");
+            timePicker.show();
+            customInput = timePicker;
+        }
+        else if(inputMode == kEditBoxInputModeDate)
+        {
+            DatePickerDialog datePicker = new DatePickerDialog(
+                    context,
+                    this,
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)
+            );
+            datePicker.setTitle("Select Date");
+            datePicker.show();
+            customInput = datePicker;
+        }
+    }
 
     public  Cocos2dxEditBox(Context context){
         super(context);
     }
+
+
+    public void onTimeSet(TimePicker view, int selectedHour, int selectedMinute) {
+        this.setText( "" + selectedHour + ":" + selectedMinute);
+    }
+
+    public void onDateSet(DatePicker datepicker, int selectedYear, int selectedMonth, int selectedDay) {
+        selectedMonth += 1;
+        this.setText("" + selectedDay + "/" + selectedMonth + "/" + selectedYear);
+    }
+
+
 
     public void setEditBoxViewRect(int left, int top, int maxWidth, int maxHeight) {
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -205,6 +268,7 @@ public class Cocos2dxEditBox extends EditText {
                 break;
         }
 
+        this.inputMode = inputMode;
         this.setInputType(this.mInputModeContraints | this.mInputFlagConstraints);
 
     }

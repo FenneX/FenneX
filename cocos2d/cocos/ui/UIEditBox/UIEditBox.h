@@ -157,6 +157,16 @@ namespace ui {
              * The user is allowed to enter any text, except for line breaks.
              */
             SINGLE_LINE = 6,
+            
+            /**
+             * The user is allowed to select a time.
+             */
+            TIME = 7,
+            
+            /**
+             * The user is allowed to select a date.
+             */
+            DATE = 8,
         };
             
         /**

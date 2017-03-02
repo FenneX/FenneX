@@ -77,6 +77,7 @@ Cocos2d-x V3.8.1 Modifications
 * cocos2d/cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHelper.java remove if (!sInited) condition in init procedure
 * cocos2d/ui/UIEditBox/UIEditBox.h => define int values of InputMode enum
 * cocos2d/ui/UIEditBox/UIEditBox.h/cpp => add getBackgroundSprite(), getFontColor and getPlaceholderFontColor methods
+* cocos2d/ui/UIEditBox/UIEditBox.h/platform impl => add date and time pickers
 * cocos/ui/UIEditBox.cpp => add editBoxEditingWillBegin to UIEditBoxDelegate
 * cocos2d/extensions/GUI/CCeditBox/CCEditBox.cpp => fix scaling problems for fontSize (not contentSize anymore)
 * Scale9Sprite::updateWithSprite  => comment _preferredSize = size; cause it erase information for some reason.
