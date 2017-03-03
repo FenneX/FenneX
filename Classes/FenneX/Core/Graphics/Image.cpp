@@ -361,6 +361,7 @@ bool Image::collision(Vec2 point)
 
 bool Image::generateScaledImage(std::string fileToScale, std::string fileToSave, float scale)
 {
+    CCAssert(scale > 0, "Scale must be > 0 for generateScaledImage");
     cocos2d::Image::Format format = cocos2d::Image::Format::PNG;
     Texture2D* newTexture = Director::getInstance()->getTextureCache()->addImage(fileToScale.append(".png").c_str());
     fileToScale.erase(fileToScale.length() - 4, 4);
