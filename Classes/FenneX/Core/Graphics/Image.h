@@ -67,6 +67,13 @@ public:
     void textureLoaded(Texture2D* tex);
     bool isAnimation();
     bool collision(Vec2 point); //Overload for spritesheet, which behaves differently
+    
+    //Will generate a scaled image from fileToScale (using same extension)
+    //fileToScale must be the full path. fileToSave must be only the filename, it will be saved in local path
+    //The main purpose is to generate thumbnails
+    //Throw event ImageScaled with "Name" key for filename
+    static bool generateScaledImage(std::string fileToScale, std::string fileToSave, float scale);
+    
 protected:
     //the actual Sprite which will perform cocos2d actions
     Sprite* delegate;

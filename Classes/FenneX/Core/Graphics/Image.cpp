@@ -357,4 +357,52 @@ bool Image::collision(Vec2 point)
     }
     return RawObject::collision(point);
 }
+
+
+bool Image::generateScaledImage(std::string fileToScale, std::string fileToSave, float scale)
+{
+    cocos2d::Image::Format format = cocos2d::Image::Format::PNG;
+    Texture2D* newTexture = Director::getInstance()->getTextureCache()->addImage(fileToScale.append(".png").c_str());
+    fileToScale.erase(fileToScale.length() - 4, 4);
+    if(newTexture == NULL)
+    {
+        format = cocos2d::Image::Format::JPG;
+        newTexture = Director::getInstance()->getTextureCache()->addImage(fileToScale.append(".jpg").c_str());
+        fileToScale.erase(fileToScale.length() - 4, 4);
+    }
+    if(newTexture == NULL)
+    {
+        newTexture = Director::getInstance()->getTextureCache()->addImage(fileToScale.append(".jpeg").c_str());
+        fileToScale.erase(fileToScale.length() - 5, 5);
+    }
+    if(newTexture == NULL)
+    {
+#if VERBOSE_WARNING
+        CCLOG("Warning : Problem with asset : %s, texture not replaced", fileToScale.c_str());
+#endif
+        return false;
+    }
+    //Make it async to avoid crash when already rendering
+    DelayedDispatcher::funcAfterDelay([fileToScale, fileToSave, scale, newTexture, format](EventCustom* event) {
+        Sprite* image = Sprite::createWithTexture(newTexture);
+        Size thumbnailSize = image->getContentSize() * scale;
+        RenderTexture* thumbnail = RenderTexture::create(thumbnailSize.width, thumbnailSize.height);
+        image->setScale(scale);
+        image->setPosition(Vec2(0, 0));
+        image->setAnchorPoint(Vec2(0, 0));
+        thumbnail->beginWithClear(0, 0, 0, 0);
+        image->visit();
+        thumbnail->end();
+        std::string extension = format == cocos2d::Image::Format::PNG ? ".png" : ".jpg";
+        thumbnail->saveToFile(fileToSave + extension,
+                              format,
+                              true,
+                              [fileToScale, fileToSave, extension] (RenderTexture* texture, const std::string& filename){
+                                  //DO NOT USE FILENAME. It is corrupted on iOS. Use lambda capture instead.
+                                  Director::getInstance()->getTextureCache()->removeTextureForKey(fileToSave + extension);
+                                  Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ImageScaled", DcreateP(Screate(fileToScale), Screate("Original"), Screate(fileToSave), Screate("Name"), NULL));
+                              });
+    }, NULL, 0.01);
+    return true;
+}
 NS_FENNEX_END
