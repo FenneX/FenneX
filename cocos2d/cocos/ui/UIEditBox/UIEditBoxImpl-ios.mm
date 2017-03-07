@@ -183,6 +183,7 @@ static const int CC_EDIT_BOX_PADDING = 5;
             UIDatePickerModeDateAndTime;
         [datePicker addTarget:self action:@selector(dateChanged:) forControlEvents:UIControlEventValueChanged];
         [_textField setInputView:datePicker];
+        [self dateChanged:datePicker]; //Force set date so that user can immediatly accept current date
     }
 
     [eaglview addSubview:_textField];
