@@ -70,7 +70,8 @@ bool pickVideoFromLibrary()
         if([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
         {
             UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:[VideoPicker sharedPicker].controller];
-            CGRect rect = [AppController sharedController].window.frame;
+            //Tested on iPad retina and not retina, will show the popover on the bottom right corner with an Arrow Up.
+            CGRect rect = CGRectMake(0, 0, 2048, 250);
             if(UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation]))
             {
                 rect.size.width /= 2;
@@ -80,9 +81,6 @@ bool pickVideoFromLibrary()
         }
         else
         {
-            [[VideoPicker sharedPicker] initController];
-            [[VideoPicker sharedPicker] setSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
-            
             [[AppController sharedController].viewController presentModalViewController:[VideoPicker sharedPicker].controller animated:YES];
         }
         return true;
