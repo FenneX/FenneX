@@ -3,9 +3,13 @@ package com.fennex.modules;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -30,12 +34,12 @@ public class VideoPicker implements ActivityResultResponder {
 
     private static final String TAG = "VideoPicker";
     private static final int VIDEO_GALLERY = 40;
-    private static final int CAMERA_CAPTURE = 41;
     private static volatile VideoPicker instance = null;
     
     private static String storageDirectory;
     private static boolean stateStorage = false;
     private static boolean isPending = false;
+    private static String _fileName;
     
     private VideoPicker() { }
 
@@ -71,9 +75,10 @@ public class VideoPicker implements ActivityResultResponder {
     public native static void notifyVideoName(String path, String name);
     public native static void notifyGetAllVideosFinished();
     
-    public static boolean pickVideoFromLibrary()
+    public static boolean pickVideoFromLibrary(String saveName)
     {
     	VideoPicker.getInstance(); //ensure the instance is created
+        _fileName = saveName;
     	boolean error = false;
 		try
 		{
@@ -294,43 +299,53 @@ public class VideoPicker implements ActivityResultResponder {
 	public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
         isPending = false;
 		Log.d(TAG, "onActivityResult(" + requestCode + "," + resultCode + "," + data.getExtras());
-        if (requestCode == VIDEO_GALLERY || requestCode == CAMERA_CAPTURE)
+        if (requestCode == VIDEO_GALLERY)
 		{
 			Log.d(TAG, "intent data: " + data.getDataString());
-	        final Uri videoUri = data.getData();
+	        Uri videoUri = data.getData();
+
+            // Copy file into the app
+            String path = getFullPathFromURI(videoUri);
+            _fileName += path.substring(path.lastIndexOf("."));
+            File destinationFile = new File(NativeUtility.getLocalPath() + java.io.File.separator + _fileName);
+
+            Log.d(TAG, "TRACKING video path : " + path + ", new filename : " + _fileName);
+            if(!destinationFile.exists())
+            {
+                InputStream in = null;
+                OutputStream out = null;
+                try
+                {
+                    in = new FileInputStream(path);
+                    out = new FileOutputStream(NativeUtility.getLocalPath() + java.io.File.separator + _fileName);
+                    byte[] buffer = new byte[1024];
+                    int read;
+                    while ((read = in.read(buffer)) != -1) {
+                        out.write(buffer, 0, read);
+                    }
+                    in.close();
+                    in = null;
+
+                    // write the output file
+                    out.flush();
+                    out.close();
+                    out = null;
+                }
+                catch(Exception e)
+                {
+                    Log.i("FileUtility", "Could not move file : " + _fileName);
+                    e.printStackTrace();
+                    return false;
+                }
+            }
+            final String name = _fileName; // In case we relaunch with a new filename before the thread run
     		NativeUtility.getMainActivity().runOnGLThread(new Runnable() 
     		{
     			public void run()
     			{
-    				notifyVideoPickedWrap(videoUri.toString());
+    				notifyVideoPickedWrap(name);
     			}
     		});
-	        //Execute this part in another thread since MediaMetadataRetriever can take some time
-	        Thread thread = new Thread()
-	        {
-	            @Override
-	            public void run() 
-	            {
-	    	        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-	    	        retriever.setDataSource(NativeUtility.getMainActivity(), videoUri);
-	    	        final String title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-
-            		NativeUtility.getMainActivity().runOnGLThread(new Runnable() 
-            		{
-            			public void run()
-            			{
-            				notifyVideoName(videoUri.toString(), title != null ? title : getFileNameFromURI(videoUri));
-            			}
-            		});
-	            }
-	        };
-	        thread.start();
-			if(requestCode == VIDEO_GALLERY)
-			{
-			}
-			else if(requestCode == CAMERA_CAPTURE)
-			{
-			}
 			return true;
 		}		
 		else 
@@ -339,7 +354,7 @@ public class VideoPicker implements ActivityResultResponder {
 		}
         return false;
 	}
-	public String getFileNameFromURI (Uri contentUri) 
+	public String getFullPathFromURI (Uri contentUri)
 	{
 	    String path = null;
 	    try
@@ -351,10 +366,6 @@ public class VideoPicker implements ActivityResultResponder {
 			{
 			   path = cur.getString(0);
 			   cur.close();
-			   if(path.lastIndexOf('/') >= 0)
-			   {
-				   path = path.substring(path.lastIndexOf('/')+1);
-			   }
 			}
 	    }
 	    catch(Exception e)

@@ -61,8 +61,9 @@ bool cancelRecording(bool notify)
     return [[VideoRecorder sharedRecorder] cancelRecording:notify];
 }
 
-bool pickVideoFromLibrary()
+bool pickVideoFromLibrary(const std::string& saveName)
 {
+    [VideoPicker sharedPicker].saveName = [NSString stringWithFormat:@"%s", saveName.c_str()];
     if([AppController sharedController] != NULL)
     {
         [[VideoPicker sharedPicker] initController];
@@ -154,6 +155,8 @@ void getAllVideos()
 
 @synthesize controller;
 @synthesize popOver;
+@synthesize saveName;
+
 static VideoPicker* _sharedPicker = nil;
 
 + (VideoPicker*) sharedPicker
@@ -213,19 +216,17 @@ static VideoPicker* _sharedPicker = nil;
     if (CFStringCompare ((CFStringRef) mediaType, kUTTypeMovie, 0) == kCFCompareEqualTo)
     {
         NSURL* videoURL = (NSURL *) [info objectForKey:UIImagePickerControllerMediaURL];
-        ALAssetsLibraryAssetForURLResultBlock resultblock = ^(ALAsset *myasset)
-        {
-            ALAssetRepresentation *representation = [myasset defaultRepresentation];
-            NSString *fileName = [representation filename];
-            notifyVideoName([[videoURL path] UTF8String], [fileName UTF8String]);
-        };
-        //Warning : the MediaURL is the path to the readable file (which may have been compressed)
-        //while ReferenceURL is the original AssetsLibrary path (can't be read directly)
-        ALAssetsLibrary* assetslibrary = [[[ALAssetsLibrary alloc] init] autorelease];
-        [assetslibrary assetForURL:(NSURL *) [info objectForKey:UIImagePickerControllerReferenceURL]
-                       resultBlock:resultblock
-                      failureBlock:nil];
-        notifyVideoPicked([[videoURL path] UTF8String]);
+        
+        // Copy file into the app
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        NSError *error;
+        NSString* fileName = [NSString stringWithFormat:@"%@/Documents/%@.%@", [NSString stringWithUTF8String:getenv("HOME")], saveName, [videoURL pathExtension]];
+        saveName = [NSString stringWithFormat:@"%@.%@", saveName, [videoURL pathExtension]];
+        if ([fileManager fileExistsAtPath:[videoURL path]] == YES) {
+            [fileManager copyItemAtPath:[videoURL path] toPath:fileName error:&error];
+        }
+        
+        notifyVideoPicked([saveName UTF8String]);
         [controller release];
         controller = nil;
     }

@@ -28,10 +28,12 @@
 {
     UIImagePickerController* controller;    
     UIPopoverController* popOver;
+    NSString* saveName;
 }
 
 @property (nonatomic, readonly) UIImagePickerController* controller;
 @property (nonatomic, assign) UIPopoverController* popOver;
+@property (nonatomic, retain) NSString* saveName;
 
 - (void) initController;
 - (void) setSourceType:(UIImagePickerControllerSourceType)sourceType;

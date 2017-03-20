@@ -50,16 +50,16 @@ void stopVideoRecording();
 //Pass true to get a VideoRecordingCancelled when it's done
 bool cancelRecording(bool notify = true);
 
-bool pickVideoFromLibrary();
+bool pickVideoFromLibrary(const std::string& saveName);
 
 //Will start the process of getting all videos path, names and duration, which will be notified with VideoFound, VideoNameResolved and VideoDurationAvailable (from VideoPlayer)
 //Current implementation is in the same thread for iOS, and in a different thread on Android (but still using all the resources)
 //Will throw a GetAllVideosFinished notification when it ends
 void getAllVideos();
 
-static inline void notifyVideoPicked(std::string fullPath)
+static inline void notifyVideoPicked(std::string name)
 {
-    DelayedDispatcher::eventAfterDelay("VideoPicked", DcreateP(Screate(fullPath), Screate("Path"), NULL), 0.01);
+    DelayedDispatcher::eventAfterDelay("VideoPicked", DcreateP(Screate(name), Screate("Name"), NULL), 0.01);
 }
 
 static inline void notifyVideoFound(std::string fullPath)
@@ -67,7 +67,7 @@ static inline void notifyVideoFound(std::string fullPath)
     DelayedDispatcher::eventAfterDelay("VideoFound", DcreateP(Screate(fullPath), Screate("Path"), NULL), 0.01);
 }
 
-//This notification will be sent after VideoPicked (it is necesary on iOS to be there because the reference URL is currently not saved) : you should save the name yourself if you need it
+//This notification will be sent after VideoFound (it is necesary on iOS to be there because the reference URL is currently not saved) : you should save the name yourself if you need it
 static inline void notifyVideoName(std::string path, std::string name)
 {
     DelayedDispatcher::eventAfterDelay("VideoNameResolved", DcreateP(Screate(name), Screate("Name"), Screate(path), Screate("Path"), NULL), 0.01);
