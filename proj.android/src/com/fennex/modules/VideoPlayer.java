@@ -238,7 +238,7 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
                     FrameLayout.LayoutParams lp = VideoPlayer.isFullScreen ?
                                                     new FrameLayout.LayoutParams(VideoPlayer.widthScreen, VideoPlayer.heightScreen, Gravity.CENTER) :
                                                     new FrameLayout.LayoutParams((int) VideoPlayer.localWidth, (int) VideoPlayer.localHeight);
-            		lp.leftMargin = (int)(VideoPlayer.isFullScreen ? 0 : widthScreen - localX - (localWidth / 2) + 0.5);
+            		lp.leftMargin = (int)(VideoPlayer.isFullScreen ? 0 : localX - (localWidth / 2) + 0.5);
             		lp.topMargin = (int)(VideoPlayer.isFullScreen ? 0 : heightScreen - localY - (localHeight / 2) + 0.5);
             		video.setLayoutParams(lp);
                     Log.i(TAG, "widthScreen : " + widthScreen);
@@ -269,6 +269,28 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
         		mainFrame.invalidate();
 			}
 		});
+	}
+
+	public static void setPlayerPosition(float x, float y, float height, float width)
+	{
+		localX = x;
+		localY = y;
+		localHeight = height;
+		localWidth = width;
+		NativeUtility.getMainActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if(videoView != null)
+				{
+					FrameLayout.LayoutParams lp = VideoPlayer.isFullScreen ?
+							new FrameLayout.LayoutParams(VideoPlayer.widthScreen, VideoPlayer.heightScreen, Gravity.CENTER) :
+							new FrameLayout.LayoutParams((int) VideoPlayer.localWidth, (int) VideoPlayer.localHeight);
+					lp.leftMargin = (int)(VideoPlayer.isFullScreen ? 0 : localX - (localWidth / 2) + 0.5);
+					lp.topMargin = (int)(VideoPlayer.isFullScreen ? 0 : heightScreen - localY - (localHeight / 2) + 0.5);
+					videoView.setLayoutParams(lp);
+					videoView.invalidate();
+				}
+			}});
 	}
 
 	public static void play()

@@ -172,6 +172,27 @@ USING_NS_FENNEX;
     return self;
 }
 
+- (void) setPlayerPosition:(CGPoint)position size:(CGSize)size
+{
+    _position = position;
+    _size = size;
+    [player.view setBounds:CGRectMake(0, 0, _size.width, _size.height)];
+    
+    CGRect bounds = [[UIScreen mainScreen] bounds];
+    CGPoint newCenter;
+    if(IS_IOS8_OR_NEWER)
+    {
+        newCenter = CGPointMake(_position.x,
+                    bounds.size.height - _position.y);
+    }
+    else
+    {
+        newCenter = CGPointMake((currentOrientation == UIInterfaceOrientationLandscapeRight ? _position.y : bounds.size.width - _position.y),
+                    (currentOrientation == UIInterfaceOrientationLandscapeLeft ? _position.x : bounds.size.height - _position.x));
+    }
+    player.view.center = newCenter;
+}
+
 - (void) play
 {
     [player play];
@@ -267,7 +288,7 @@ USING_NS_FENNEX;
         if(IS_IOS8_OR_NEWER)
         {
             newCenter = fullscreen ? CGPointMake(bounds.size.width / 2, bounds.size.height/2) :
-            CGPointMake((currentOrientation == UIInterfaceOrientationLandscapeLeft ? _position.x : bounds.size.width - _position.x),
+            CGPointMake(_position.x,
                         bounds.size.height - _position.y);
             if(_size.height / bounds.size.height > _size.width / bounds.size.width)
             {

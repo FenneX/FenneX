@@ -45,6 +45,7 @@ public:
     //It also support more formats
     static void setUseVLC(bool useVLC);
 #endif
+    void setPlayerPosition(CCPoint position, CCSize size);
     void play();
     void pause();
     void stop();

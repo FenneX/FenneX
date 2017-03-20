@@ -48,6 +48,18 @@ VideoPlayer::~VideoPlayer()
     delegate = nil;
 }
 
+
+void VideoPlayer::setPlayerPosition(CCPoint position, CCSize size)
+{
+    cocos2d::GLView *glview = cocos2d::Director::getInstance()->getOpenGLView();
+    CCEAGLView *eaglview = (CCEAGLView*) glview->getEAGLView();
+    float scaleFactor = [eaglview contentScaleFactor];
+    [TYPED_DELEGATE setPlayerPosition:CGPointMake(position.x / scaleFactor,
+                                                  position.y / scaleFactor)
+                                 size:CGSizeMake(size.width/ scaleFactor,
+                                                 size.height/ scaleFactor)];
+}
+
 void VideoPlayer::play()
 {
     [TYPED_DELEGATE play];
