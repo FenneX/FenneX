@@ -28,6 +28,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.VideoView;
 
@@ -66,6 +67,7 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 	
 	private static boolean isPrepared = false;
 	private static boolean shouldLoop;
+	private static boolean hideOnPause;
 	private static boolean videoEnded; //Video ended is there because restart is different than play for LibVLC
 	private static float lastPlaybackRate; //Playback rate must be kept between sessions (when restarting video)
 	private static org.videolan.libvlc.MediaPlayer vlcMediaPlayer;
@@ -121,6 +123,7 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 		localWidth = width;
 		isPrepared = false;
 		shouldLoop = loop;
+		hideOnPause = false;
 		final File videoFile = getFile(path);
 		if(videoFile == null)
 		{
@@ -295,6 +298,15 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 			}
 			((VideoView)videoView).start();
 		}
+		if(hideOnPause)
+		{
+			NativeUtility.getMainActivity().runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					videoView.setVisibility(View.VISIBLE);
+					videoView.invalidate();
+				}});
+		}
 		videoEnded = false;
 	}
 
@@ -316,6 +328,15 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 		else if(isPrepared)
 		{
 			((VideoView)videoView).pause();
+		}
+		if(hideOnPause)
+		{
+			NativeUtility.getMainActivity().runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					videoView.setVisibility(View.GONE);
+					videoView.invalidate();
+				}});
 		}
 	}
 
@@ -384,7 +405,7 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 
 	public static void setHideOnPause(boolean hide)
 	{
-
+		hideOnPause = hide;
 	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
