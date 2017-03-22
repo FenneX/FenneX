@@ -81,13 +81,15 @@ bool cancelRecording(bool notify)
     return result;
 }
 
-bool pickVideoFromLibrary()
+bool pickVideoFromLibrary(const std::string& saveName)
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME_PICKER, "pickVideoFromLibrary", "()Z");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME_PICKER, "pickVideoFromLibrary", "(Ljava/lang/String;)Z");
     CCAssert(functionExist, "Function doesn't exist");
-    bool result = minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID);
+    jstring jSaveName = minfo.env->NewStringUTF(saveName.c_str());
+    bool result = minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID, jSaveName);
     minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(jSaveName);
     return result;
 }
 

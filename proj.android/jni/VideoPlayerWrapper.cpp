@@ -65,6 +65,20 @@ void VideoPlayer::setUseVLC(bool useVLC)
     minfo.env->DeleteLocalRef(minfo.classID);
 }
 
+void VideoPlayer::setPlayerPosition(CCPoint position, CCSize size)
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"setPlayerPosition", "(FFFF)V");
+    CCAssert(functionExist, "Function doesn't exist");
+    minfo.env->CallStaticVoidMethod(minfo.classID,
+                                    minfo.methodID,
+                                    (jfloat) position.x,
+                                    (jfloat) position.y,
+                                    (jfloat) size.height,
+                                    (jfloat) size.width);
+    minfo.env->DeleteLocalRef(minfo.classID);
+}
+
 void VideoPlayer::play()
 {
     JniMethodInfo minfo;
