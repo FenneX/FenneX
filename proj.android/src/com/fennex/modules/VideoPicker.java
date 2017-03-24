@@ -34,6 +34,7 @@ public class VideoPicker implements ActivityResultResponder {
 
     private static final String TAG = "VideoPicker";
     private static final int VIDEO_GALLERY = 40;
+    private static final int CAMERA_CAPTURE = 41;
     private static volatile VideoPicker instance = null;
     
     private static String storageDirectory;
@@ -93,6 +94,26 @@ public class VideoPicker implements ActivityResultResponder {
 	    	error = true;
 		}
     	return error;
+    }
+
+    public static boolean pickVideoFromCamera(String saveName)
+    {
+        VideoPicker.getInstance(); //ensure the instance is created
+        _fileName = saveName;
+        boolean error = false;
+        try
+        {
+            Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+            setStorageExtras(intent);
+            isPending = true;
+            NativeUtility.getMainActivity().startActivityForResult(intent, CAMERA_CAPTURE);
+        }
+        catch(ActivityNotFoundException e)
+        {
+            Log.d(TAG, "intent for image pick from Camera not found : " + e.getMessage());
+            error = true;
+        }
+        return error;
     }
     
     public static void getAllVideos()
@@ -261,7 +282,7 @@ public class VideoPicker implements ActivityResultResponder {
         return dirs;
     }
     
-    static public void setExtras(Intent intent, boolean useCamera) {
+    static public void setStorageExtras(Intent intent) {
     	if((Environment.getExternalStorageState() != Environment.MEDIA_BAD_REMOVAL &&
         		Environment.getExternalStorageState() != Environment.MEDIA_MOUNTED_READ_ONLY &&
         		Environment.getExternalStorageState() != Environment.MEDIA_NOFS &&
@@ -287,11 +308,10 @@ public class VideoPicker implements ActivityResultResponder {
         			Log.d(TAG, "Folder " + storageDirectory + " does not exist, cannot create folder.");
         	}
         	else
-        		storageDirectory = storageDirectory + "/" + NativeUtility.getAppName();
-        	if(!useCamera)
-        	{
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        	}
+            {
+                storageDirectory = storageDirectory + "/" + NativeUtility.getAppName();
+            }
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         }
     }
     
@@ -299,7 +319,7 @@ public class VideoPicker implements ActivityResultResponder {
 	public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
         isPending = false;
 		Log.d(TAG, "onActivityResult(" + requestCode + "," + resultCode + "," + data.getExtras());
-        if (requestCode == VIDEO_GALLERY)
+        if (requestCode == VIDEO_GALLERY || requestCode == CAMERA_CAPTURE)
 		{
 			Log.d(TAG, "intent data: " + data.getDataString());
 	        Uri videoUri = data.getData();
@@ -347,8 +367,8 @@ public class VideoPicker implements ActivityResultResponder {
     			}
     		});
 			return true;
-		}		
-		else 
+		}
+		else
 		{
 			Log.d(TAG, "not video picker activity");
 		}

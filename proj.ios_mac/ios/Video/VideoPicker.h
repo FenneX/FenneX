@@ -29,11 +29,13 @@
     UIImagePickerController* controller;    
     UIPopoverController* popOver;
     NSString* saveName;
+    bool useCamera;
 }
 
 @property (nonatomic, readonly) UIImagePickerController* controller;
 @property (nonatomic, assign) UIPopoverController* popOver;
 @property (nonatomic, retain) NSString* saveName;
+@property (nonatomic, assign) bool useCamera;
 
 - (void) initController;
 - (void) setSourceType:(UIImagePickerControllerSourceType)sourceType;

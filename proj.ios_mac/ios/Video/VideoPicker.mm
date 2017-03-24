@@ -63,11 +63,12 @@ bool cancelRecording(bool notify)
 
 bool pickVideoFromLibrary(const std::string& saveName)
 {
-    [VideoPicker sharedPicker].saveName = [NSString stringWithFormat:@"%s", saveName.c_str()];
     if([AppController sharedController] != NULL)
     {
         [[VideoPicker sharedPicker] initController];
+        [VideoPicker sharedPicker].saveName = [NSString stringWithFormat:@"%s", saveName.c_str()];
         [[VideoPicker sharedPicker] setSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
+        [VideoPicker sharedPicker].useCamera = false;
         if([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
         {
             UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:[VideoPicker sharedPicker].controller];
@@ -84,6 +85,20 @@ bool pickVideoFromLibrary(const std::string& saveName)
         {
             [[AppController sharedController].viewController presentModalViewController:[VideoPicker sharedPicker].controller animated:YES];
         }
+        return true;
+    }
+    return false;
+}
+
+bool pickVideoFromCamera(const std::string& saveName)
+{
+    if([AppController sharedController] != NULL)
+    {
+        [[VideoPicker sharedPicker] initController];
+        [VideoPicker sharedPicker].saveName = [NSString stringWithFormat:@"%s", saveName.c_str()];
+        [[VideoPicker sharedPicker] setSourceType:UIImagePickerControllerSourceTypeCamera];
+        [VideoPicker sharedPicker].useCamera = true;
+        [[AppController sharedController].viewController presentModalViewController:[VideoPicker sharedPicker].controller animated:YES];
         return true;
     }
     return false;
@@ -156,6 +171,7 @@ void getAllVideos()
 @synthesize controller;
 @synthesize popOver;
 @synthesize saveName;
+@synthesize useCamera;
 
 static VideoPicker* _sharedPicker = nil;
 
@@ -223,7 +239,14 @@ static VideoPicker* _sharedPicker = nil;
         NSString* fileName = [NSString stringWithFormat:@"%@/Documents/%@.%@", [NSString stringWithUTF8String:getenv("HOME")], saveName, [videoURL pathExtension]];
         saveName = [NSString stringWithFormat:@"%@.%@", saveName, [videoURL pathExtension]];
         if ([fileManager fileExistsAtPath:[videoURL path]] == YES) {
-            [fileManager copyItemAtPath:[videoURL path] toPath:fileName error:&error];
+            if(useCamera)
+            {// It's useless to keep a tmp video
+                [fileManager moveItemAtPath:[videoURL path] toPath:fileName error:&error];
+            }
+            else
+            {
+                [fileManager copyItemAtPath:[videoURL path] toPath:fileName error:&error];
+            }
         }
         
         notifyVideoPicked([saveName UTF8String]);

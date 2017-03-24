@@ -52,6 +52,8 @@ bool cancelRecording(bool notify = true);
 
 bool pickVideoFromLibrary(const std::string& saveName);
 
+bool pickVideoFromCamera(const std::string& saveName);
+
 //Will start the process of getting all videos path, names and duration, which will be notified with VideoFound, VideoNameResolved and VideoDurationAvailable (from VideoPlayer)
 //Current implementation is in the same thread for iOS, and in a different thread on Android (but still using all the resources)
 //Will throw a GetAllVideosFinished notification when it ends
