@@ -47,8 +47,8 @@ public:
     virtual void setFontColor(Color3B color);
     virtual Color3B getFontColor();
     virtual void setPlaceHolder(std::string value);
-    virtual const char* getLabelValue();
-    virtual void setLabelValue(const char* value);
+    virtual std::string getLabelValue();
+    virtual void setLabelValue(std::string value);
     virtual Node* getNode();
     
     InputLabel();

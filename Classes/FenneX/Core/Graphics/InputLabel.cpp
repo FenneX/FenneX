@@ -75,12 +75,12 @@ void InputLabel::setPlaceHolder(std::string value)
     delegate->setPlaceHolder(value.c_str());
 }
 
-void InputLabel::setLabelValue(const char* value)
+void InputLabel::setLabelValue(std::string value)
 {
-    delegate->setText(value);
+    delegate->setText(value.c_str());
 }
 
-const char* InputLabel::getLabelValue()
+std::string InputLabel::getLabelValue()
 {
     return delegate->getText();
 }
