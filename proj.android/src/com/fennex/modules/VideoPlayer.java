@@ -240,6 +240,7 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
                                                     new FrameLayout.LayoutParams((int) VideoPlayer.localWidth, (int) VideoPlayer.localHeight);
             		lp.leftMargin = (int)(VideoPlayer.isFullScreen ? 0 : localX - (localWidth / 2) + 0.5);
             		lp.topMargin = (int)(VideoPlayer.isFullScreen ? 0 : heightScreen - localY - (localHeight / 2) + 0.5);
+					lp.gravity = isFullScreen ? Gravity.CENTER : (Gravity.TOP | Gravity.START);
             		video.setLayoutParams(lp);
                     Log.i(TAG, "widthScreen : " + widthScreen);
                     Log.i(TAG, "heightScreen : " + heightScreen);
@@ -287,6 +288,7 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 							new FrameLayout.LayoutParams((int) VideoPlayer.localWidth, (int) VideoPlayer.localHeight);
 					lp.leftMargin = (int)(VideoPlayer.isFullScreen ? 0 : localX - (localWidth / 2) + 0.5);
 					lp.topMargin = (int)(VideoPlayer.isFullScreen ? 0 : heightScreen - localY - (localHeight / 2) + 0.5);
+					lp.gravity = isFullScreen ? Gravity.CENTER : (Gravity.TOP | Gravity.START);
 					videoView.setLayoutParams(lp);
 					videoView.invalidate();
 				}
@@ -457,8 +459,9 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 		    		FrameLayout.LayoutParams lp = (android.widget.FrameLayout.LayoutParams) videoView.getLayoutParams();
 		    		lp.width  = isFullScreen ? (int) widthScreen : (int) localWidth;
 		    		lp.height = isFullScreen ? (int) heightScreen : (int) localHeight;
-		    		lp.leftMargin = (int)(isFullScreen ? 0 : widthScreen - localX - (localWidth / 2));
-		    		lp.topMargin = (int)(isFullScreen ? 0 : heightScreen - localY - (localHeight / 2));
+					lp.leftMargin = (int)(isFullScreen ? 0 : localX - (localWidth / 2) + 0.5);
+					lp.topMargin = (int)(isFullScreen ? 0 : heightScreen - localY - (localHeight / 2) + 0.5);
+					lp.gravity = isFullScreen ? Gravity.CENTER : (Gravity.TOP | Gravity.START);
 		    		videoView.setLayoutParams(lp);
 	        		videoView.invalidate();
 	        	}
@@ -734,8 +737,9 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 				FrameLayout.LayoutParams lp = (android.widget.FrameLayout.LayoutParams) videoView.getLayoutParams();
 				lp.width  = (int)videoWidth;
 				lp.height = (int)videoHeight;
-				lp.leftMargin = (int)(VideoPlayer.isFullScreen ? widthScreen - videoWidth - (widthScreen-videoWidth)/2 : widthScreen - localX - (videoWidth / 2));
-				lp.topMargin = (int)(VideoPlayer.isFullScreen ? heightScreen - videoHeight - (heightScreen-videoHeight)/2 : heightScreen - localY - (videoHeight / 2));
+				lp.leftMargin = (int)(VideoPlayer.isFullScreen ? 0 : widthScreen - localX - (videoWidth / 2));
+				lp.topMargin = (int)(VideoPlayer.isFullScreen ? 0 : heightScreen - localY - (videoHeight / 2));
+				lp.gravity = isFullScreen ? Gravity.CENTER : (Gravity.TOP | Gravity.START);
 				videoView.setLayoutParams(lp);
 				videoView.invalidate();
 			}
