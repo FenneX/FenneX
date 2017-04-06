@@ -30,6 +30,8 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
 
+import static android.app.Activity.*;
+
 public class VideoPicker implements ActivityResultResponder {
 
     private static final String TAG = "VideoPicker";
@@ -75,6 +77,8 @@ public class VideoPicker implements ActivityResultResponder {
     public native static void notifyVideoFound(String path);
     public native static void notifyVideoName(String path, String name);
     public native static void notifyGetAllVideosFinished();
+    public native static void notifyVideoPickCancelled();
+
     
     public static boolean pickVideoFromLibrary(String saveName)
     {
@@ -318,9 +322,13 @@ public class VideoPicker implements ActivityResultResponder {
 	@Override
 	public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
         isPending = false;
-		Log.d(TAG, "onActivityResult(" + requestCode + "," + resultCode + "," + data.getExtras());
-        if (requestCode == VIDEO_GALLERY || requestCode == CAMERA_CAPTURE)
+        if(resultCode == RESULT_CANCELED)
+        {
+            notifyVideoPickCancelled();
+        }
+        else if (requestCode == VIDEO_GALLERY || requestCode == CAMERA_CAPTURE)
 		{
+            Log.d(TAG, "onActivityResult(" + requestCode + "," + resultCode + "," + data.getExtras());
 			Log.d(TAG, "intent data: " + data.getDataString());
 	        Uri videoUri = data.getData();
 

@@ -127,7 +127,11 @@ void VideoPlayer::setPlaybackRate(float rate)
 
 void VideoPlayer::setHideOnPause(bool hide)
 {
-#warning TODO : not implemented
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"setHideOnPause", "(Z)V");
+    CCAssert(functionExist, "Function doesn't exist");
+    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, (jboolean)hide);
+    minfo.env->DeleteLocalRef(minfo.classID);
 }
 
 void VideoPlayer::setFullscreen(bool fullscreen, bool animated)

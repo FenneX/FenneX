@@ -47,6 +47,8 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
 
+import static android.app.Activity.RESULT_CANCELED;
+
 public class ImagePicker implements ActivityResultResponder
 {
     private static final String TAG = "ImagePicker";
@@ -99,9 +101,13 @@ public class ImagePicker implements ActivityResultResponder
 	//Return true if it uses the activity result is handled by the in-app module
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
         isPending = false;
-        Log.d(TAG, "onActivityResult(" + requestCode + "," + resultCode + "," + (data != null ? data.getExtras() : "no data"));
-        if (requestCode == PICTURE_GALLERY || requestCode == CAMERA_CAPTURE || requestCode == CROP)
+        if(resultCode == RESULT_CANCELED)
+        {
+            notifyImagePickCancelled();
+        }
+        else if (requestCode == PICTURE_GALLERY || requestCode == CAMERA_CAPTURE || requestCode == CROP)
 		{
+            Log.d(TAG, "onActivityResult(" + requestCode + "," + resultCode + "," + (data != null ? data.getExtras() : "no data"));
             if(requestCode == CROP || !_rescale)
             {
                 try {
@@ -404,4 +410,5 @@ public class ImagePicker implements ActivityResultResponder
     }
     
     private native static void notifyImagePickedWrap(String name, String identifier);
+    private native static void notifyImagePickCancelled();
 }

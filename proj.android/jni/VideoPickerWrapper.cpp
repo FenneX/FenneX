@@ -141,4 +141,9 @@ extern "C"
     {
         notifyGetAllVideosFinished();
     }
+
+    void Java_com_fennex_modules_VideoPicker_notifyVideoPickCancelled(JNIEnv* env, jobject thiz)
+    {
+        notifyVideoPickCancelled();
+    }
 }

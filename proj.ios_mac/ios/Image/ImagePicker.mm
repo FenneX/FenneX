@@ -255,6 +255,8 @@ static ImagePicker* _sharedPicker = nil;
     {
         [popOver dismissPopoverAnimated:YES];
     }
+    
+    notifyImagePickCancelled();
 }
 
 @end

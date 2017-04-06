@@ -85,4 +85,9 @@ static inline void notifyGetAllVideosFinished()
     DelayedDispatcher::eventAfterDelay("GetAllVideosFinished", Dcreate(), 0.01);
 }
 
+static inline void notifyVideoPickCancelled()
+{
+    DelayedDispatcher::eventAfterDelay("VideoPickerCancelled", Dcreate(), 0.01);
+}
+
 #endif

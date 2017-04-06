@@ -158,6 +158,15 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 		else
 		{
 			Log.i("ActivityResultNotifier", "Result not OK");
+			if (resultcode == RESULT_CANCELED) {
+				for(ActivityResultResponder responder : responders) {
+					// Only the picker here need to know when it's cancelled
+					if(responder instanceof VideoPicker || responder instanceof ImagePicker)
+					{
+						responder.onActivityResult(requestCode, resultcode, intent);
+					}
+				}
+			}
 		}
 	}
 	

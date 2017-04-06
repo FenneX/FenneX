@@ -69,4 +69,9 @@ extern "C"
     {
         notifyImagePicked(JniHelper::jstring2string(name), JniHelper::jstring2string(identifier));
     }
+
+    void Java_com_fennex_modules_ImagePicker_notifyImagePickCancelled(JNIEnv* env, jobject thiz)
+    {
+        notifyImagePickCancelled();
+    }
 }

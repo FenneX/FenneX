@@ -71,4 +71,11 @@ static inline void notifyImagePicked(std::string name, std::string identifier)
 #endif
 
 
+
+static inline void notifyImagePickCancelled()
+{
+    DelayedDispatcher::eventAfterDelay("ImagePickerCancelled", Dcreate(), 0.01);
+}
+
+
 #endif

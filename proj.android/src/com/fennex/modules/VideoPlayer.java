@@ -21,6 +21,7 @@ import android.graphics.Bitmap.CompressFormat;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.opengl.Visibility;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;

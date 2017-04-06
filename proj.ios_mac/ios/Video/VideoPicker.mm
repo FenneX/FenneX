@@ -268,6 +268,7 @@ static VideoPicker* _sharedPicker = nil;
     {
         [popOver dismissPopoverAnimated:YES];
     }
+    notifyVideoPickCancelled();
 }
 
 @end
