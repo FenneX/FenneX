@@ -192,7 +192,7 @@ void saveValueToFile(Value& val, std::string fileName)
     appendObject(val, plistNode);
 
 #if VERBOSE_SAVE_PLIST
-    CCLOG("Saving document %s :\n%s", fileName, node_to_string(doc).c_str());
+    CCLOG("Saving document %s :\n%s", fileName.c_str(), node_to_string(doc).c_str());
     CCLOG("Local path %s", getLocalPath(fileName).c_str());
 #endif
     doc.save_file(getLocalPath(fileName).c_str());
