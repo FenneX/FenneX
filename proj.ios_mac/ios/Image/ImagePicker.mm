@@ -142,6 +142,7 @@ static ImagePicker* _sharedPicker = nil;
     NSLog(@"Image picked, save name : %@", saveName);
     NSString *mediaType = [info objectForKey: UIImagePickerControllerMediaType];
     UIImage *originalImage, *editedImage, *imageToSave;
+    bool notified = false;
     
     if (CFStringCompare ((CFStringRef) mediaType, kUTTypeImage, 0) == kCFCompareEqualTo)
     {
@@ -225,6 +226,7 @@ static ImagePicker* _sharedPicker = nil;
                 }
             }
             notifyImagePicked([saveName UTF8String], [identifier UTF8String]);
+            notified = true;
         }
         else
         {
@@ -239,7 +241,13 @@ static ImagePicker* _sharedPicker = nil;
     {
         NSLog(@"Problem : picked a media which is not an image");
     }
-    [self imagePickerControllerDidCancel:picker];
+    [picker dismissModalViewControllerAnimated:YES];
+    CCDirector::sharedDirector()->startAnimation();
+    if(popOver)
+    {
+        [popOver dismissPopoverAnimated:YES];
+    }
+    if(!notified) notifyImagePickCancelled();
 }
 
 - (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController {
