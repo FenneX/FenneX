@@ -237,7 +237,7 @@ static VideoPicker* _sharedPicker = nil;
         NSFileManager *fileManager = [NSFileManager defaultManager];
         NSError *error;
         NSString* fileName = [NSString stringWithFormat:@"%@/Documents/%@.%@", [NSString stringWithUTF8String:getenv("HOME")], saveName, [videoURL pathExtension]];
-        saveName = [NSString stringWithFormat:@"%@.%@", saveName, [videoURL pathExtension]];
+        self.saveName = [NSString stringWithFormat:@"%@.%@", saveName, [videoURL pathExtension]];
         if ([fileManager fileExistsAtPath:[videoURL path]] == YES) {
             if(useCamera)
             {// It's useless to keep a tmp video
