@@ -66,7 +66,7 @@ protected:
     
     float currentTime;
     float lastInertiaNotificationTime;
-    Vector<EventListenerCustom*> listeners;
+    Vector<EventListenerCustom*> eventListeners;
 };
 NS_FENNEX_END
 

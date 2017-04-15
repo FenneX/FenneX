@@ -164,7 +164,7 @@ static ImagePicker* _sharedPicker = nil;
         
         if(imageToSave.size.width != imageToSave.size.height && rescale)
         {
-            float difference = fabsf(imageToSave.size.width - imageToSave.size.height);
+            float difference = std::abs(imageToSave.size.width - imageToSave.size.height);
             BOOL cropWidth = imageToSave.size.width > imageToSave.size.height;
             NSLog(@"Crop rect : %f, %f, %f, %f", cropWidth ? difference / 2 : 0,
                   !cropWidth ? difference / 2 : 0,

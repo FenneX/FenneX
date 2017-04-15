@@ -203,6 +203,7 @@ void uncaughtExceptionHandler(NSException *exception)
     openUrl = [url absoluteString];
     [openUrl retain];
     notifyUrlOpened([[url absoluteString] UTF8String]);
+    return YES;
 }
 
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification*)notif

@@ -29,7 +29,6 @@ THE SOFTWARE.
 #include "Inertia.h"
 
 #define TIME GraphicLayer::sharedLayer()->getClock()
-#define ADD_OBSERVER(func, notifName) (listeners.pushBack(Director::getInstance()->getEventDispatcher()->addCustomEventListener(notifName, std::bind(&InertiaGenerator::func, this, std::placeholders::_1))))
 #define TIME_BETWEEN_NOTIFICATIONS 0.015
 
 #define MAX_SCROLL 200 * RESOLUTION_MULTIPLIER
@@ -56,19 +55,19 @@ void InertiaGenerator::init()
     currentTime = 0;
     lastInertiaNotificationTime = 0;
     
-    ADD_OBSERVER(planSceneSwitch, "PlanSceneSwitch");
-    ADD_OBSERVER(scrollingEnded, "ScrollingEnded");
-    ADD_OBSERVER(scrolling, "Scrolling");
-    ADD_OBSERVER(tapRecognized, "TapRecognized");
+    ADD_OBSERVER(InertiaGenerator::planSceneSwitch, "PlanSceneSwitch");
+    ADD_OBSERVER(InertiaGenerator::scrollingEnded, "ScrollingEnded");
+    ADD_OBSERVER(InertiaGenerator::scrolling, "Scrolling");
+    ADD_OBSERVER(InertiaGenerator::tapRecognized, "TapRecognized");
 }
 
 InertiaGenerator::~InertiaGenerator()
 {
-    for(EventListenerCustom* listener : listeners)
+    for(EventListenerCustom* listener : eventListeners)
     {
         Director::getInstance()->getEventDispatcher()->removeEventListener(listener);
     }
-    listeners.clear();
+    eventListeners.clear();
 }
 
 void InertiaGenerator::addPossibleTarget(Ref* target)

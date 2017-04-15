@@ -76,7 +76,6 @@
 - (void) pause;
 - (void) restart;
 
-- (void) setNumberOfLoops:(int)loops;
 //- (void) checkLowSound;
 
 @end
