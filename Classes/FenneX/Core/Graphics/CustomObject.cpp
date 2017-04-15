@@ -44,7 +44,7 @@ void CustomObject::setNode(Node* node)
     node->setScaleX(delegate->getScaleX());
     node->setScaleY(delegate->getScaleY());
     node->setAnchorPoint(delegate->getAnchorPoint());
-    node->setZOrder(delegate->getZOrder());
+    node->setLocalZOrder(delegate->getLocalZOrder());
     node->setVisible(delegate->isVisible());
     delegate->getParent()->addChild(node);
     delegate->removeFromParentAndCleanup(true);
@@ -65,7 +65,7 @@ CustomObject::CustomObject(Node* child)
     delegate = child;
     if(delegate == NULL)
     {
-        CCLOG("Problem with CustomObject, delegate is NULL, the application will crash");
+        log("Problem with CustomObject, delegate is NULL, the application will crash");
     }
     delegate->retain();
 }
@@ -75,7 +75,7 @@ CustomObject::CustomObject(Node* child, Vec2 location)
     delegate = child;
     if(delegate == NULL)
     {
-        CCLOG("Problem with CustomObject, delegate is NULL, the application will crash");
+        log("Problem with CustomObject, delegate is NULL, the application will crash");
     }
     delegate->retain();
     this->setPosition(location);
@@ -87,11 +87,11 @@ CustomObject::~CustomObject()
 #if VERBOSE_DEALLOC
     if(this->getName() != NULL)
     {
-        CCLOG("Dealloc CustomObject %s", this->getName());
+        log("Dealloc CustomObject %s", this->getName());
     }
     else
     {
-        CCLOG("Dealloc unnamed CustomObject");
+        log("Dealloc unnamed CustomObject");
     }
 #endif
 }

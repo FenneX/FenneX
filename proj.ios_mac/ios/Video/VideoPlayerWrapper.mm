@@ -28,7 +28,7 @@
 
 #define TYPED_DELEGATE ((VideoPlayerImplIOS*)delegate)
 
-VideoPlayer::VideoPlayer(std::string file, CCPoint position, CCSize size, bool front, bool loop)
+VideoPlayer::VideoPlayer(std::string file, Vec2 position, cocos2d::Size size, bool front, bool loop)
 {
     cocos2d::GLView *glview = cocos2d::Director::getInstance()->getOpenGLView();
     CCEAGLView *eaglview = (CCEAGLView*) glview->getEAGLView();
@@ -49,7 +49,7 @@ VideoPlayer::~VideoPlayer()
 }
 
 
-void VideoPlayer::setPlayerPosition(CCPoint position, CCSize size)
+void VideoPlayer::setPlayerPosition(Vec2 position, cocos2d::Size size)
 {
     cocos2d::GLView *glview = cocos2d::Director::getInstance()->getOpenGLView();
     CCEAGLView *eaglview = (CCEAGLView*) glview->getEAGLView();

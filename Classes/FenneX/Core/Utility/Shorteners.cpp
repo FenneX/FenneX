@@ -61,7 +61,7 @@ CCDictionary* createDictionaryWithParameters(Ref* firstObject, ... )
                 //keys should be Strings
                 if(!isKindOfClass(eachObject, CCString))
                 {
-                    CCLOG("Warning : not a key, value ignored");
+                    log("Warning : not a key, value ignored");
                 }
                 else
                 {
@@ -80,7 +80,7 @@ CCDictionary* createDictionaryWithParameters(Ref* firstObject, ... )
     }
     else
     {
-        CCLOG("Warning : createDictionaryWithParameters called with no firstObject");
+        log("Warning : createDictionaryWithParameters called with no firstObject");
     }
     return NULL;
 }
@@ -104,7 +104,7 @@ CCArray* createArrayWithParameters(Ref* firstObject, ... )
     }
     else
     {
-        CCLOG("Warning : createArrayWithParameters called with no firstObject, returning empty Array");
+        log("Warning : createArrayWithParameters called with no firstObject, returning empty Array");
     }
     return Acreate();
 }

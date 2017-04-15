@@ -34,7 +34,7 @@ USING_NS_FENNEX;
 
 bool pickImageFrom(const std::string& saveName, PickOption pickOption, int width, int height, const std::string& identifier, bool rescale, float thumbnailScale)
 {
-    CCDirector::sharedDirector()->stopAnimation();
+    Director::getInstance()->stopAnimation();
     [ImagePicker sharedPicker].saveName = [NSString stringWithFormat:@"%s", saveName.c_str()];
     [ImagePicker sharedPicker].identifier = [NSString stringWithFormat:@"%s", identifier.c_str()];
     [ImagePicker sharedPicker].width = width;
@@ -204,7 +204,7 @@ static ImagePicker* _sharedPicker = nil;
         if(result)
         {
             std::string fullPath = std::string(getenv("HOME")) + "/Documents/" + [saveName UTF8String] + ".png" ;
-            CCTextureCache::sharedTextureCache()->removeTextureForKey(fullPath.c_str());
+            Director::getInstance()->getTextureCache()->removeTextureForKey(fullPath.c_str());
             if(thumbnailScale > 0)
             {
                 targetSize.width *= thumbnailScale;
@@ -218,7 +218,7 @@ static ImagePicker* _sharedPicker = nil;
                 if(result)
                 {
                     std::string fullPathThumbnail = std::string(getenv("HOME")) + "/Documents/" + [saveName UTF8String] + "-thumbnail.png";
-                    CCTextureCache::sharedTextureCache()->removeTextureForKey(fullPathThumbnail.c_str());
+                    Director::getInstance()->getTextureCache()->removeTextureForKey(fullPathThumbnail.c_str());
                 }
                 else
                 {
@@ -242,7 +242,7 @@ static ImagePicker* _sharedPicker = nil;
         NSLog(@"Problem : picked a media which is not an image");
     }
     [picker dismissModalViewControllerAnimated:YES];
-    CCDirector::sharedDirector()->startAnimation();
+    Director::getInstance()->startAnimation();
     if(popOver)
     {
         [popOver dismissPopoverAnimated:YES];
@@ -258,7 +258,7 @@ static ImagePicker* _sharedPicker = nil;
 {
     // Dismiss the image selection and close the program
     [picker dismissModalViewControllerAnimated:YES];
-    CCDirector::sharedDirector()->startAnimation();
+    Director::getInstance()->startAnimation();
     if(popOver)
     {
         [popOver dismissPopoverAnimated:YES];

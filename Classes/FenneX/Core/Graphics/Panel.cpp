@@ -89,7 +89,7 @@ Panel::~Panel()
     children->release();
     delegate->release();
 #if VERBOSE_DEALLOC
-    CCLOG("Dealloc Panel %s", name.c_str());
+    log("Dealloc Panel %s", name.c_str());
 #endif
 }
 
@@ -105,7 +105,7 @@ void Panel::addChild(RawObject* child)
     }
     else
     {
-        CCLOG("Warning : child %s doesn't have a Node, you shouldn't try to place it on a panel", child->getName().c_str());
+        log("Warning : child %s doesn't have a Node, you shouldn't try to place it on a panel", child->getName().c_str());
     }
 }
 
@@ -123,7 +123,7 @@ void Panel::removeChild(RawObject* child)
     }
     else
     {
-        CCLOG("Warning : child %s doesn't have a Node, you shouldn't try to remove it from panel", child->getName().c_str());
+        log("Warning : child %s doesn't have a Node, you shouldn't try to remove it from panel", child->getName().c_str());
     }
 }
 

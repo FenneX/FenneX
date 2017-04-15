@@ -35,7 +35,7 @@
 USING_NS_CC;
 USING_NS_FENNEX;
 
-void startVideoRecordPreview(CCPoint position, CCSize size)
+void startVideoRecordPreview(Vec2 position, cocos2d::Size size)
 {
     [[VideoRecorder sharedRecorder] setPreviewPosition:CGPointMake(position.x, position.y) size:CGSizeMake(size.width, size.height)];
     [[VideoRecorder sharedRecorder] startPreview];

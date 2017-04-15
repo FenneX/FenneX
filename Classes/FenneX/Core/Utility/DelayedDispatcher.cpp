@@ -86,7 +86,7 @@ void DelayedDispatcher::update(float deltaTime)
     for(EventTuple& tuple : eventsToCall)
     {
 #if VERBOSE_GENERAL_INFO
-        CCLOG("Launching event %s", std::get<1>(tuple).c_str());
+        log("Launching event %s", std::get<1>(tuple).c_str());
 #endif
         Director::getInstance()->getEventDispatcher()->dispatchCustomEvent(std::get<1>(tuple), std::get<2>(tuple));
         IFEXIST(std::get<2>(tuple))->release();
@@ -109,7 +109,7 @@ void DelayedDispatcher::update(float deltaTime)
     {
         EventCustom* event = EventCustom::create(std::get<3>(tuple), std::get<2>(tuple));
 #if VERBOSE_GENERAL_INFO
-            CCLOG("Launching func named %s", std::get<3>(tuple).c_str());
+            log("Launching func named %s", std::get<3>(tuple).c_str());
 #endif
         std::get<1>(tuple)(event);
         IFEXIST(std::get<2>(tuple))->release();

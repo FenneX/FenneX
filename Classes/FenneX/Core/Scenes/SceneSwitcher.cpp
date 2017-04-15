@@ -87,7 +87,7 @@ void SceneSwitcher::trySceneSwitch(float deltaTime)
     if(nextScene != None && !isEventFired)
     {
 #if VERBOSE_GENERAL_INFO
-        CCLOG("next scene : %s, current scene : %s", formatSceneToString(nextScene), formatSceneToString(currentSceneName));
+        log("next scene : %s, current scene : %s", formatSceneToString(nextScene), formatSceneToString(currentSceneName));
 #endif
         if(nextScene != currentSceneName)
         {
@@ -117,7 +117,7 @@ void SceneSwitcher::trySceneSwitch(float deltaTime)
     {
         delayReplace -= deltaTime;
 #if VERBOSE_GENERAL_INFO
-        CCLOG("event fired, remaining delay : %f", delayReplace);
+        log("event fired, remaining delay : %f", delayReplace);
 #endif
         if(delayReplace <= 0)
         {
@@ -142,7 +142,7 @@ void SceneSwitcher::takeQueuedScene()
     if(nextScene != queuedScene)
     {
 #if VERBOSE_GENERAL_INFO
-        CCLOG("Taking queued scene : %s", formatSceneToString(queuedScene));
+        log("Taking queued scene : %s", formatSceneToString(queuedScene));
 #endif
         nextScene = queuedScene;
         frameDelay = false;
@@ -154,7 +154,7 @@ void SceneSwitcher::takeQueuedScene()
     else
     {
 #if VERBOSE_GENERAL_INFO
-        CCLOG("Queued scene is the same as current : %s", formatSceneToString(queuedScene));
+        log("Queued scene is the same as current : %s", formatSceneToString(queuedScene));
 #endif
         nextScene = None;
         if(queuedParam != NULL)
@@ -175,7 +175,7 @@ void SceneSwitcher::planSceneSwitch(EventCustom* event)
         Director::getInstance()->getTextureCache()->unbindAllImageAsync();
         nextScene = (SceneName) ((CCInteger*) infos->objectForKey("Scene"))->getValue();
 #if VERBOSE_GENERAL_INFO
-        CCLOG("Planning Scene Switch to %s", formatSceneToString(nextScene));
+        log("Planning Scene Switch to %s", formatSceneToString(nextScene));
 #endif
         frameDelay = false;
         nextSceneParam = CCDictionary::createWithDictionary(infos);
@@ -190,7 +190,7 @@ void SceneSwitcher::planSceneSwitch(EventCustom* event)
         queuedParam = CCDictionary::createWithDictionary(infos);
         queuedParam->retain();
 #if VERBOSE_GENERAL_INFO
-        CCLOG("Queuing scene change as a scene switch is already happening");
+        log("Queuing scene change as a scene switch is already happening");
 #endif
     }
 }
@@ -199,7 +199,7 @@ void SceneSwitcher::cancelSceneSwitch()
 {
     sceneSwitchCancelled = true;
 #if VERBOSE_GENERAL_INFO
-    CCLOG("Scene switch cancelled");
+    log("Scene switch cancelled");
 #endif
 }
 
@@ -215,12 +215,12 @@ void SceneSwitcher::replaceScene()
     gettimeofday(&startTime, NULL);
 #endif
 #if VERBOSE_GENERAL_INFO
-    CCLOG("Starting replace Scene");
+    log("Starting replace Scene");
 #endif
     if(sceneSwitchCancelled)
     {
 #if VERBOSE_GENERAL_INFO
-        CCLOG("Ignoring scene %s as it was cancelled", formatSceneToString(currentSceneName));
+        log("Ignoring scene %s as it was cancelled", formatSceneToString(currentSceneName));
 #endif
         this->takeQueuedScene();
         sceneSwitchCancelled = false;
@@ -236,7 +236,7 @@ void SceneSwitcher::replaceScene()
         }
         if(currentScene != NULL)
         {
-            CCLOG("Warning : current scene should be NULL already, stopping it anyway (probably caused by a cancelSceneSwitch");
+            log("Warning : current scene should be NULL already, stopping it anyway (probably caused by a cancelSceneSwitch");
             currentScene->stop();
         }
         CCAssert(nextScene != None, "in replaceScene in SceneSwitcher cannot go to scene None");
@@ -260,14 +260,14 @@ void SceneSwitcher::replaceScene()
     }
     else
     {
-        CCLOG("Warning : in replaceScene in SceneSwitcher : same next scene");
+        log("Warning : in replaceScene in SceneSwitcher : same next scene");
     }
     isEventFired = false;
     
 #if VERBOSE_PERFORMANCE_TIME
     timeval endTime;
     gettimeofday(&endTime, NULL);
-    CCLOG("Replace Scene ended in %f ms",  getTimeDifferenceMS(startTime, endTime));
+    log("Replace Scene ended in %f ms",  getTimeDifferenceMS(startTime, endTime));
 #endif
 }
 NS_FENNEX_END

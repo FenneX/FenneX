@@ -66,7 +66,7 @@ void GraphicLayer::init()
 GraphicLayer::~GraphicLayer()
 {
 #if VERBOSE_DEALLOC
-    CCLOG("Layer dealloc");
+    log("Layer dealloc");
 #endif
     this->clear();
     s_SharedLayer = NULL;
@@ -159,7 +159,7 @@ Image* GraphicLayer::createImage(Ref* firstObject, ... )
                 if(!isKindOfClass(eachObject, CCString))
                 {
 #if VERBOSE_WARNING
-                    CCLOG("Warning : not a key, value ignored");
+                    log("Warning : not a key, value ignored");
 #endif
                 }
                 else
@@ -180,7 +180,7 @@ Image* GraphicLayer::createImage(Ref* firstObject, ... )
 #if VERBOSE_WARNING
     else
     {
-        CCLOG("Warning : createImage called with no firstObject");
+        log("Warning : createImage called with no firstObject");
     }
 #endif
     return NULL;
@@ -223,7 +223,7 @@ Image* GraphicLayer::createImage(CCDictionary* values)
            && isKindOfClass(values->objectForKey("ImageFile"), CCString))
         {
 #if VERBOSE_LOAD_CCB
-            CCLOG("creating image %s", ((CCString*)values->objectForKey("ImageFile"))->getCString());
+            log("creating image %s", ((CCString*)values->objectForKey("ImageFile"))->getCString());
 #endif
             img = new Image(((CCString*)values->objectForKey("ImageFile"))->getCString(), pos);
         }
@@ -280,7 +280,7 @@ Image* GraphicLayer::createImage(CCDictionary* values)
 #if VERBOSE_WARNING
                 if(values->objectForKey("Zindex") != NULL && isKindOfClass(values->objectForKey("Zindex"), CCInteger))
                 {
-                    CCLOG("Warning : try to add image in a Panel with a Zindex : currently, depth is not supported in panels");
+                    log("Warning : try to add image in a Panel with a Zindex : currently, depth is not supported in panels");
                 }
 #endif
                 this->placeObject(img, (Panel*)values->objectForKey("Panel"));
@@ -301,18 +301,18 @@ Image* GraphicLayer::createImage(CCDictionary* values)
         else
         {
 #if VERBOSE_WARNING
-            CCLOG("Warning : error creating image with file %s, perhaps the file name is incorrect or the file is too large", ((CCString*)values->objectForKey("ImageFile"))->getCString());
+            log("Warning : error creating image with file %s, perhaps the file name is incorrect or the file is too large", ((CCString*)values->objectForKey("ImageFile"))->getCString());
 #endif
         }
     }
 #if VERBOSE_WARNING
     else
     {
-        CCLOG("Warning : createImage aborted, incorrect parameter types");
+        log("Warning : createImage aborted, incorrect parameter types");
     }
 #endif
 #if VERBOSE_LOAD_CCB
-    CCLOG("Ended creating image");
+    log("Ended creating image");
 #endif
     return img;
 }
@@ -373,7 +373,7 @@ CustomObject* GraphicLayer::createCustomObject(Ref* firstObject, ... )
                 if(!isKindOfClass(eachObject, CCString))
                 {
 #if VERBOSE_WARNING
-                    CCLOG("Warning : not a key, value ignored");
+                    log("Warning : not a key, value ignored");
 #endif
                 }
                 else
@@ -394,7 +394,7 @@ CustomObject* GraphicLayer::createCustomObject(Ref* firstObject, ... )
 #if VERBOSE_WARNING
     else
     {
-        CCLOG("Warning : createCustomObject called with no firstObject");
+        log("Warning : createCustomObject called with no firstObject");
     }
 #endif
     return NULL;
@@ -475,7 +475,7 @@ CustomObject* GraphicLayer::createCustomObject(CCDictionary* values)
 #if VERBOSE_WARNING
                 if(values->objectForKey("Zindex") != NULL && isKindOfClass(values->objectForKey("Zindex"), CCInteger))
                 {
-                    CCLOG("Warning : try to add image in a Panel with a Zindex : currently, depth is not supported in panels");
+                    log("Warning : try to add image in a Panel with a Zindex : currently, depth is not supported in panels");
                 }
 #endif
                 this->placeObject(obj, (Panel*)values->objectForKey("Panel"));
@@ -496,18 +496,18 @@ CustomObject* GraphicLayer::createCustomObject(CCDictionary* values)
 #if VERBOSE_WARNING
         else
         {
-            CCLOG("Warning : error creating CustomObject");
+            log("Warning : error creating CustomObject");
         }
 #endif
     }
 #if VERBOSE_WARNING
     else
     {
-        CCLOG("Warning : createCustomObject aborted, incorrect parameter types");
+        log("Warning : createCustomObject aborted, incorrect parameter types");
     }
 #endif
 #if VERBOSE_LOAD_CCB
-    CCLOG("Ended creating Custom Object");
+    log("Ended creating Custom Object");
 #endif
     return obj;
 }
@@ -534,7 +534,7 @@ LabelTTF* GraphicLayer::createLabelTTF(Ref* firstObject, ... )
                 if(!isKindOfClass(eachObject, CCString))
                 {
 #if VERBOSE_WARNING
-                    CCLOG("Warning : not a key, value ignored");
+                    log("Warning : not a key, value ignored");
 #endif
                 }
                 else
@@ -555,7 +555,7 @@ LabelTTF* GraphicLayer::createLabelTTF(Ref* firstObject, ... )
 #if VERBOSE_WARNING
     else
     {
-        CCLOG("Warning : createLabelTTF called with no firstObject");
+        log("Warning : createLabelTTF called with no firstObject");
     }
 #endif
     return NULL;
@@ -573,7 +573,7 @@ LabelTTF* GraphicLayer::createLabelTTF(CCDictionary* values)
        && isKindOfClass(values->objectForKey("FontFile"), CCString))
     {
 #if VERBOSE_LOAD_CCB
-        CCLOG("creating labelTTF %s", ((CCString*)values->objectForKey("Label"))->getCString());
+        log("creating labelTTF %s", ((CCString*)values->objectForKey("Label"))->getCString());
 #endif
         Vec2 pos = Vec2(0, 0);
         if(values->objectForKey("PositionX") != NULL
@@ -660,7 +660,7 @@ LabelTTF* GraphicLayer::createLabelTTF(CCDictionary* values)
 #if VERBOSE_WARNING
                 if(values->objectForKey("Zindex") != NULL && isKindOfClass(values->objectForKey("Zindex"), CCInteger))
                 {
-                    CCLOG("Warning : try to add image in a Panel with a Zindex : currently, depth is not supported in panels");
+                    log("Warning : try to add image in a Panel with a Zindex : currently, depth is not supported in panels");
                 }
 #endif
                 this->placeObject(label, (Panel*)values->objectForKey("Panel"));
@@ -671,7 +671,7 @@ LabelTTF* GraphicLayer::createLabelTTF(CCDictionary* values)
             }
             if(values->objectForKey("Opacity") != NULL && isKindOfClass(values->objectForKey("Opacity"), CCInteger))
             {
-                ((CCLabelBMFont*)label->getNode())->setOpacity(((CCInteger*)values->objectForKey("Opacity"))->getValue());
+                ((LabelBMFont*)label->getNode())->setOpacity(((CCInteger*)values->objectForKey("Opacity"))->getValue());
             }
             if(values->objectForKey("Help") != NULL && isKindOfClass(values->objectForKey("Help"), CCString))
             {
@@ -681,18 +681,18 @@ LabelTTF* GraphicLayer::createLabelTTF(CCDictionary* values)
 #if VERBOSE_WARNING
         else
         {
-            CCLOG("Warning : error creating labelTTF with font %s, perhaps the file name is incorrect or the file is too large", ((CCString*)values->objectForKey("FontFile"))->getCString());
+            log("Warning : error creating labelTTF with font %s, perhaps the file name is incorrect or the file is too large", ((CCString*)values->objectForKey("FontFile"))->getCString());
         }
 #endif
     }
 #if VERBOSE_WARNING
     else
     {
-        CCLOG("Warning : createLabelTTF aborted, incorrect parameter types");
+        log("Warning : createLabelTTF aborted, incorrect parameter types");
     }
 #endif
 #if VERBOSE_LOAD_CCB
-    CCLOG("Ended creating labelTTF");
+    log("Ended creating labelTTF");
 #endif
     return label;
 }
@@ -736,7 +736,7 @@ InputLabel* GraphicLayer::createInputLabel(Ref* firstObject, ... )
                 if(!isKindOfClass(eachObject, CCString))
                 {
 #if VERBOSE_WARNING
-                    CCLOG("Warning : not a key, value ignored");
+                    log("Warning : not a key, value ignored");
 #endif
                 }
                 else
@@ -757,7 +757,7 @@ InputLabel* GraphicLayer::createInputLabel(Ref* firstObject, ... )
 #if VERBOSE_WARNING
     else
     {
-        CCLOG("Warning : createInputLabel called with no firstObject");
+        log("Warning : createInputLabel called with no firstObject");
     }
 #endif
     return NULL;
@@ -776,7 +776,7 @@ InputLabel* GraphicLayer::createInputLabel(CCDictionary* values)
        && isKindOfClass(values->objectForKey("FontSize"), CCInteger))
     {
 #if VERBOSE_LOAD_CCB
-        CCLOG("creating input label %s", ((CCString*)values->objectForKey("PlaceHolder"))->getCString());
+        log("creating input label %s", ((CCString*)values->objectForKey("PlaceHolder"))->getCString());
 #endif
         Vec2 pos = Vec2(0, 0);
         if(values->objectForKey("PositionX") != NULL
@@ -877,7 +877,7 @@ InputLabel* GraphicLayer::createInputLabel(CCDictionary* values)
 #if VERBOSE_WARNING
                 if(values->objectForKey("Zindex") != NULL && isKindOfClass(values->objectForKey("Zindex"), CCInteger))
                 {
-                    CCLOG("Warning : try to add image in a Panel with a Zindex : currently, depth is not supported in panels");
+                    log("Warning : try to add image in a Panel with a Zindex : currently, depth is not supported in panels");
                 }
 #endif
                 this->placeObject(label, (Panel*)values->objectForKey("Panel"));
@@ -888,7 +888,7 @@ InputLabel* GraphicLayer::createInputLabel(CCDictionary* values)
             }
             if(values->objectForKey("Opacity") != NULL && isKindOfClass(values->objectForKey("Opacity"), CCInteger))
             {
-                ((CCLabelBMFont*)label->getNode())->setOpacity(((CCInteger*)values->objectForKey("Opacity"))->getValue());
+                ((LabelBMFont*)label->getNode())->setOpacity(((CCInteger*)values->objectForKey("Opacity"))->getValue());
             }
             if(values->objectForKey("Help") != NULL && isKindOfClass(values->objectForKey("Help"), CCString))
             {
@@ -899,18 +899,18 @@ InputLabel* GraphicLayer::createInputLabel(CCDictionary* values)
 #if VERBOSE_WARNING
         else
         {
-            CCLOG("Warning : error creating label with fontfile %s, perhaps the file name is incorrect or the file is too large", ((CCString*)values->objectForKey("FontFile"))->getCString());
+            log("Warning : error creating label with fontfile %s, perhaps the file name is incorrect or the file is too large", ((CCString*)values->objectForKey("FontFile"))->getCString());
         }
 #endif
     }
 #if VERBOSE_WARNING
     else
     {
-        CCLOG("Warning : createInputLabel aborted, incorrect parameter types");
+        log("Warning : createInputLabel aborted, incorrect parameter types");
     }
 #endif
 #if VERBOSE_LOAD_CCB
-    CCLOG("ended creating InputLabel");
+    log("ended creating InputLabel");
 #endif
     return label;
 }
@@ -961,7 +961,7 @@ Panel* GraphicLayer::createPanel(Ref* firstObject, ... )
                 if(!isKindOfClass(eachObject, CCString))
                 {
 #if VERBOSE_WARNING
-                    CCLOG("Warning : not a key, value ignored");
+                    log("Warning : not a key, value ignored");
 #endif
                 }
                 else
@@ -982,7 +982,7 @@ Panel* GraphicLayer::createPanel(Ref* firstObject, ... )
 #if VERBOSE_WARNING
     else
     {
-        CCLOG("Warning : createPanel called with no firstObject");
+        log("Warning : createPanel called with no firstObject");
     }
 #endif
     return NULL;
@@ -1053,7 +1053,7 @@ Panel* GraphicLayer::createPanel(CCDictionary* values)
 #if VERBOSE_WARNING
                 if(values->objectForKey("Zindex") != NULL && isKindOfClass(values->objectForKey("Zindex"), CCInteger))
                 {
-                    CCLOG("Warning : try to add image in a Panel with a Zindex : currently, depth is not supported in panels");
+                    log("Warning : try to add image in a Panel with a Zindex : currently, depth is not supported in panels");
                 }
 #endif
                 this->placeObject(panel, (Panel*)values->objectForKey("Panel"));
@@ -1074,14 +1074,14 @@ Panel* GraphicLayer::createPanel(CCDictionary* values)
 #if VERBOSE_WARNING
         else
         {
-            CCLOG("Warning : error creating panel with name %s", ((CCString*)values->objectForKey("Name"))->getCString());
+            log("Warning : error creating panel with name %s", ((CCString*)values->objectForKey("Name"))->getCString());
         }
 #endif
     }
 #if VERBOSE_WARNING
     else
     {
-        CCLOG("Warning : createPanel aborted, incorrect parameter types");
+        log("Warning : createPanel aborted, incorrect parameter types");
     }
 #endif
     return panel;
@@ -1139,7 +1139,7 @@ DropDownList* GraphicLayer::createDropDownList(Ref* firstObject, ... )
                 if(!isKindOfClass(eachObject, CCString))
                 {
 #if VERBOSE_WARNING
-                    CCLOG("Warning : not a key, value ignored");
+                    log("Warning : not a key, value ignored");
 #endif
                 }
                 else
@@ -1160,7 +1160,7 @@ DropDownList* GraphicLayer::createDropDownList(Ref* firstObject, ... )
 #if VERBOSE_WARNING
     else
     {
-        CCLOG("Warning : createDropDownList called with no firstObject");
+        log("Warning : createDropDownList called with no firstObject");
     }
 #endif
     return NULL;
@@ -1198,7 +1198,7 @@ DropDownList* GraphicLayer::createDropDownList(CCDictionary* values)
            && isKindOfClass(values->objectForKey("ImageFile"), CCString))
         {
 #if VERBOSE_LOAD_CCB
-            CCLOG("creating DropDownList %s", ((CCString*)values->objectForKey("ImageFile"))->getCString());
+            log("creating DropDownList %s", ((CCString*)values->objectForKey("ImageFile"))->getCString());
 #endif
             dropDownList = new DropDownList(((CCString*)values->objectForKey("ImageFile"))->getCString(), pos);
         }
@@ -1249,7 +1249,7 @@ DropDownList* GraphicLayer::createDropDownList(CCDictionary* values)
 #if VERBOSE_WARNING
                 if(values->objectForKey("Zindex") != NULL && isKindOfClass(values->objectForKey("Zindex"), CCInteger))
                 {
-                    CCLOG("Warning : try to add image in a Panel with a Zindex : currently, depth is not supported in panels");
+                    log("Warning : try to add image in a Panel with a Zindex : currently, depth is not supported in panels");
                 }
 #endif
                 this->placeObject(dropDownList, (Panel*)values->objectForKey("Panel"));
@@ -1271,11 +1271,11 @@ DropDownList* GraphicLayer::createDropDownList(CCDictionary* values)
 #if VERBOSE_WARNING
     else
     {
-        CCLOG("Warning : createDropDownList aborted, incorrect parameter types");
+        log("Warning : createDropDownList aborted, incorrect parameter types");
     }
 #endif
 #if VERBOSE_LOAD_CCB
-    CCLOG("Ended creating DropDownList");
+    log("Ended creating DropDownList");
 #endif
     return dropDownList;
 }
@@ -1308,7 +1308,7 @@ RawObject* GraphicLayer::duplicateObject(RawObject* otherObject)
         if(otherImage->isAnimation())
         {
 #if VERBOSE_WARNING
-            CCLOG("Warning: animated Image not supported for duplicate yet");
+            log("Warning: animated Image not supported for duplicate yet");
 #endif
             return NULL;
         }
@@ -1344,7 +1344,7 @@ RawObject* GraphicLayer::duplicateObject(RawObject* otherObject)
     else
     {
 #if VERBOSE_WARNING
-        CCLOG("Warning: object type not supported for duplicate yet");
+        log("Warning: object type not supported for duplicate yet");
 #endif
         return NULL;
     }
@@ -1401,7 +1401,7 @@ RawObject* GraphicLayer::placeObject(RawObject* obj, Panel* panel)
 #if VERBOSE_WARNING
             else
             {
-                CCLOG("Warning : child %s doesn't have a Node, you shouldn't try to place it on a panel", obj->getName().c_str());
+                log("Warning : child %s doesn't have a Node, you shouldn't try to place it on a panel", obj->getName().c_str());
             }
 #endif
         }
@@ -1438,7 +1438,7 @@ void GraphicLayer::removeObjectFromPanel(RawObject* obj, Panel* panel)
 #if VERBOSE_WARNING
     else
     {
-        CCLOG("Warning : child %s doesn't have a Node, you shouldn't try to remove it from a panel", obj->getName().c_str());
+        log("Warning : child %s doesn't have a Node, you shouldn't try to remove it from a panel", obj->getName().c_str());
     }
 #endif
 }
@@ -1506,7 +1506,7 @@ void GraphicLayer::destroyObject(RawObject* obj)
     else
     {
 #if VERBOSE_WARNING
-        CCLOG("Warning : trying to destroy not valid object at adress %p", obj);
+        log("Warning : trying to destroy not valid object at adress %p", obj);
 #endif
         if(obj != NULL && storedPanels->containsObject(obj))
         {
@@ -1542,7 +1542,7 @@ void GraphicLayer::destroyObjectEvent(EventCustom* event)
 #if VERBOSE_WARNING
         else
         {
-            CCLOG("Warning : sent a non RawObject to destroyObject, ignoring it");
+            log("Warning : sent a non RawObject to destroyObject, ignoring it");
         }
 #endif
     }
@@ -1563,7 +1563,7 @@ void GraphicLayer::destroyObjectsEvent(EventCustom* event)
 #if VERBOSE_WARNING
                 else
                 {
-                    CCLOG("Warning : array contains non RawObject in destroyObjects, ignoring that value");
+                    log("Warning : array contains non RawObject in destroyObjects, ignoring that value");
                 }
 #endif
             }
@@ -1571,7 +1571,7 @@ void GraphicLayer::destroyObjectsEvent(EventCustom* event)
 #if VERBOSE_WARNING
         else
         {
-            CCLOG("Warning : sent a non CCArray to destroyObjects, ignoring it");
+            log("Warning : sent a non CCArray to destroyObjects, ignoring it");
         }
 #endif
     }
@@ -2041,18 +2041,18 @@ float GraphicLayer::getRealScaleY(RawObject* obj)
 bool GraphicLayer::touchAtPosition(Vec2 position, bool event)
 {
 #if VERBOSE_GENERAL_INFO
-    CCLOG("Before trying touchAtPosition, obj order :");
+    log("Before trying touchAtPosition, obj order :");
     for(int i =  storedObjects->count() - 1; i >= 0; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
-        CCLOG("obj name: %s", obj->getName().c_str());
+        log("obj name: %s", obj->getName().c_str());
     }
 #endif
     for(int i =  storedObjects->count() - 1; i >= 0; i--)
     {
         if(!isKindOfClass(storedObjects->objectAtIndex(i), RawObject))
         {
-            CCLOG("Problem with object at index %d, not a valid RawObject", i);
+            log("Problem with object at index %d, not a valid RawObject", i);
         }
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
         Node* node = obj->getNode();
@@ -2092,7 +2092,6 @@ bool GraphicLayer::touchObject(RawObject* obj, bool event, Vec2 position)
             IFEXIST(tapObserver)->onButtonTapped(obj, obj->getEventName(), infos);
             Director::getInstance()->getEventDispatcher()->dispatchCustomEvent(obj->getEventName(), infos);
             CCString* trackingName = (CCString*)obj->getEventInfos()->objectForKey("TrackingName");
-            SceneName currentScene = SceneSwitcher::sharedSwitcher()->getCurrentSceneName();
             //In VideoView, buttons are only tracked if the video meet the minimum duration
             if(trackingName != NULL)
             {
@@ -2257,7 +2256,7 @@ void GraphicLayer::addObject(RawObject* obj, int z)
 #if VERBOSE_WARNING
             else if(obj->getNode() == NULL)
             {
-                CCLOG("Warning : Child %s doesn't have a Node, it will not be displayed by cocos2d", obj->getName().c_str());
+                log("Warning : Child %s doesn't have a Node, it will not be displayed by cocos2d", obj->getName().c_str());
             }
 #endif
         }
@@ -2265,7 +2264,7 @@ void GraphicLayer::addObject(RawObject* obj, int z)
 #if VERBOSE_WARNING
     else
     {
-        CCLOG("Warning : trying to add a nil object, check if it has been created correctly (in particular if the resource exists)");
+        log("Warning : trying to add a nil object, check if it has been created correctly (in particular if the resource exists)");
     }
 #endif
 }
@@ -2282,7 +2281,7 @@ void GraphicLayer::update(float deltaTime)
         }
         else
         {
-            CCLOG("Warning: wrong object type in storedObjects");
+            log("Warning: wrong object type in storedObjects");
         }
     }
     isUpdating = false;
@@ -2330,21 +2329,21 @@ void GraphicLayer::loadBaseNodeAttributes(CustomBaseNode* node, RawObject* obj)
         if(node->getName() != NULL)
         {
 #if VERBOSE_LOAD_CCB
-            CCLOG("setting name : %s", node->getName()->getCString());
+            log("setting name : %s", node->getName()->getCString());
 #endif
             obj->setName(node->getName()->getCString());
         }
         if(node->getEventName() != NULL)
         {
 #if VERBOSE_LOAD_CCB
-            CCLOG("setting event name : %s", node->getEventName()->getCString());
+            log("setting event name : %s", node->getEventName()->getCString());
 #endif
             obj->setEventName(node->getEventName()->getCString());
         }
         if(node->getScene() != 0)
         {
 #if VERBOSE_LOAD_CCB
-            CCLOG("setting scene : %d", node->getScene());
+            log("setting scene : %d", node->getScene());
 #endif
             obj->setEventInfo(Icreate(node->getScene()), "Scene");
         }

@@ -410,7 +410,7 @@ USING_NS_FENNEX;
             if(result)
             {
                 std::string fullPath =  std::string(getenv("HOME")) + "/Documents/"+[thumbnailName UTF8String]+".png";
-                CCTextureCache::sharedTextureCache()->removeTextureForKey(fullPath.c_str());
+                Director::getInstance()->getTextureCache()->removeTextureForKey(fullPath.c_str());
             }
             else
             {

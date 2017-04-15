@@ -66,7 +66,7 @@ std::string AudioPlayerRecorder::getSoundsSavePath()
     return [iosString UTF8String];
 }
 
-void AudioPlayerRecorder::record(const std::string&  file, CCObject* linkTo)
+void AudioPlayerRecorder::record(const std::string&  file, Ref* linkTo)
 {
     CCAssert(recordEnabled, "Record is disabled, enable it before starting to record");
 	std::string withExtension = file + ".caf";
@@ -94,7 +94,7 @@ void AudioPlayerRecorder::stopRecording()
     this->setPath("");
 }
 
-float AudioPlayerRecorder::play(const std::string& file, CCObject* linkTo, bool independent, float volume)
+float AudioPlayerRecorder::play(const std::string& file, Ref* linkTo, bool independent, float volume)
 {
     if(independent)
     {
@@ -208,7 +208,7 @@ CCDictionary* AudioPlayerRecorder::getFileMetadata(const std::string& path)
             ccMetadata->setObject(Screate([item stringValue].UTF8String), "Author");
         }
         //Uncomment to see what key/value are available in your files
-        //CCLOG("key = %s, value = %s", [item commonKey].UTF8String, [item stringValue].UTF8String);
+        //log("key = %s, value = %s", [item commonKey].UTF8String, [item stringValue].UTF8String);
     }
     return ccMetadata;
 }

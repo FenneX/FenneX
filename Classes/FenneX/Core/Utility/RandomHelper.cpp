@@ -79,7 +79,7 @@ void randomWithoutRetake(int* array, int count, int max)
 		{
 			if(array[i] == array[j])
 			{
-				CCLOG("Warning : number %d picked twice during question choice", array[i]);
+				log("Warning : number %d picked twice during question choice", array[i]);
 			}
 		}
 	}
@@ -110,7 +110,7 @@ void randomWithoutRetake(CCArray* array, int count, int max)
 		{
 			if(TOINT(array->objectAtIndex(i)) == TOINT(array->objectAtIndex(j)))
 			{
-				CCLOG("Warning : number %d picked twice during question choice", TOINT(array->objectAtIndex(i)));
+				log("Warning : number %d picked twice during question choice", TOINT(array->objectAtIndex(i)));
 			}
 		}
 	}

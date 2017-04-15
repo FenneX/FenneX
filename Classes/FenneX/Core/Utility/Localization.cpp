@@ -53,19 +53,19 @@ CCString* Localization::getLocalizedString(CCString* string) {
     return string;
 #endif
 #if VERBOSE_LOCALIZATION
-    CCLOG("Getting localized string ...");
+    log("Getting localized string ...");
 #endif
     CCString* language = Screate(getLocalLanguage());
     if (!loadAvailableTranslations() || !arrayContainsString(availableTranslations, language))
     {
 #if VERBOSE_LOCALIZATION
-        CCLOG("language not supported, returning same string");
+        log("language not supported, returning same string");
 #endif
         return string;
     }
     if (currentLanguage == NULL || !currentLanguage->isEqual(language)) {
 #if VERBOSE_LOCALIZATION
-        CCLOG("language : %s, loading infos", language->getCString());
+        log("language : %s, loading infos", language->getCString());
 #endif
         if(currentLanguage != NULL)
         {
@@ -81,7 +81,7 @@ CCString* Localization::getLocalizedString(CCString* string) {
 #if VERBOSE_LOCALIZATION
     if(infos != NULL && infos->objectForKey(string->getCString()) == NULL)
     {
-        CCLOG("Warning : the string %s doesn't have any match, check your translation file", string->getCString());
+        log("Warning : the string %s doesn't have any match, check your translation file", string->getCString());
     }
 #endif
     return infos != NULL && infos->objectForKey(string->getCString()) != NULL ?
@@ -115,7 +115,7 @@ void Localization::loadAdditionalTranslations(std::function<std::string(std::str
                 }
                 else
                 {
-                    CCLOG("Warning, translations already contain key %s", key.c_str());
+                    log("Warning, translations already contain key %s", key.c_str());
                 }
             }
         }
@@ -151,13 +151,13 @@ void Localization::loadInfos()
     if (infos == NULL)
     {
 #if VERBOSE_LOCALIZATION
-        CCLOG("Warning, language not supported : %d", currentLanguage);
+        log("Warning, language not supported : %d", currentLanguage);
 #endif
     }
     else
     {
 #if VERBOSE_LOCALIZATION
-        CCLOG("infos loaded, returning string ...");
+        log("infos loaded, returning string ...");
 #endif
         infos->retain();
         CCArray* keys = infos->allKeys();

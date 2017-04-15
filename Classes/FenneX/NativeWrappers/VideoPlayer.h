@@ -45,7 +45,7 @@ public:
     //It also support more formats
     static void setUseVLC(bool useVLC);
 #endif
-    void setPlayerPosition(CCPoint position, CCSize size);
+    void setPlayerPosition(Vec2 position, cocos2d::Size size);
     void play();
     void pause();
     void stop();

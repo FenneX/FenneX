@@ -228,7 +228,7 @@ void InertiaGenerator::scrollingEnded(EventCustom* event)
                && !(originalTarget && !intersectingObjects->containsObject(target)))
             {
 #if VERBOSE_TOUCH_RECOGNIZERS
-                CCLOG("inertiaOffset : %f, %f", inertiaOffset.x, inertiaOffset.y);
+                log("inertiaOffset : %f, %f", inertiaOffset.x, inertiaOffset.y);
 #endif
                 inertiaTargets.pushBack(target);
                 inertiaParameters.pushBack(Inertia::create(inertiaOffset, position, target->getEventInfos()->objectForKey("isVertical") != NULL && TOBOOL(target->getEventInfos()->objectForKey("isVertical"))));

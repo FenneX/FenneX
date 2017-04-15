@@ -155,7 +155,7 @@ loadingValue("")
     }
     if(sizeEnd == -1 || sizeBegin == -1)
     {
-        CCLOG("LabelTTF : incorrect font formating, use : FontnameSizeColor");
+        log("LabelTTF : incorrect font formating, use : FontnameSizeColor");
         return;
     }
     CCString* fontFile = CCString::createWithData((const unsigned char*)filename, sizeBegin);
@@ -216,7 +216,7 @@ loadingValue("")
 LabelTTF::~LabelTTF()
 {
 #if VERBOSE_DEALLOC
-    CCLOG("Dealloc label %s, font : %s", name.c_str(), fullFontFile->getCString());
+    log("Dealloc label %s, font : %s", name.c_str(), fullFontFile->getCString());
 #endif
     delegate->release();
     fontFile->release();
@@ -276,7 +276,7 @@ void LabelTTF::adjustLabel()
             }
             else
             {
-                CCLOG("Warning, unsupported fit type, won't cut");
+                log("Warning, unsupported fit type, won't cut");
                 return;
             }
         }

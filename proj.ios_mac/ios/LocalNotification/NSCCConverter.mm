@@ -42,7 +42,7 @@
     
     for (int i = 0; i < ccDictionary->allKeys()->count(); i++) {
         cocos2d::CCString* key = (cocos2d::CCString *)ccDictionary->allKeys()->objectAtIndex(i);
-        cocos2d::CCObject* obj = ccDictionary->objectForKey(key->getCString());
+        cocos2d::Ref* obj = ccDictionary->objectForKey(key->getCString());
         NSObject* nsObject;
         if(isKindOfClass(obj, CCDictionary))
         {
@@ -96,7 +96,7 @@
     for (int i = 0; i < [nsDictionary allKeys].count; i++) {
         NSString* key = [[nsDictionary allKeys] objectAtIndex:i];
         NSObject* obj = [nsDictionary objectForKey:key];
-        cocos2d::CCObject* ccObject;
+        cocos2d::Ref* ccObject;
         if([obj isKindOfClass:[NSDictionary class]])
         {
             ccObject = Screate("Dictionary");

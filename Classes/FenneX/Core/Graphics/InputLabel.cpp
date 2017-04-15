@@ -33,7 +33,7 @@ static std::vector<int> locks;
 
 void InputLabel::setEventName(const char* var)
 {
-    CCLOG("Warning : changing eventName for InputLabel, may not be able to open keyboard");
+    log("Warning : changing eventName for InputLabel, may not be able to open keyboard");
     if(var == NULL) eventName.clear();
     else if (eventName.compare(var))
         eventName = var;
@@ -103,8 +103,8 @@ InputLabel::InputLabel(ui::Scale9Sprite* sprite)
     sprite->retain();
     sprite->removeFromParentAndCleanup(true);
     Vec2 position = sprite->getPosition();
-    //CCLOG("prefered size : %f, %f, content size : %f, %f, insets : %f, %f, %f, %f, position : %f, %f", sprite->getPreferredSize().width, sprite->getPreferredSize().height, sprite->getContentSize().width, sprite->getContentSize().height, sprite->getInsetBottom(), sprite->getInsetTop(), sprite->getInsetLeft(), sprite->getInsetRight(), position.x, position.y);
-    CCLOG("sprite position before : %f, %f", position.x, position.y);
+    //log("prefered size : %f, %f, content size : %f, %f, insets : %f, %f, %f, %f, position : %f, %f", sprite->getPreferredSize().width, sprite->getPreferredSize().height, sprite->getContentSize().width, sprite->getContentSize().height, sprite->getInsetBottom(), sprite->getInsetTop(), sprite->getInsetLeft(), sprite->getInsetRight(), position.x, position.y);
+    log("sprite position before : %f, %f", position.x, position.y);
     //The content size is fucked up (way higher than it's supposed to be, probably a problem with cocosBuilder), so always use the prefered size, which is the real sprite size
     sprite->setContentSize(sprite->getPreferredSize());
     
@@ -121,7 +121,7 @@ InputLabel::InputLabel(ui::Scale9Sprite* sprite)
     //You HAVE to set the contentSize again, because CCControlButton do some weird thing on the UIEditbox content size which makes it work only on 1024x768
     //delegate->setContentSize(sprite->getPreferredSize());
     this->setPosition(position);
-    CCLOG("delegate position after : %f, %f", delegate->getPosition().x, delegate->getPosition().y);
+    log("delegate position after : %f, %f", delegate->getPosition().x, delegate->getPosition().y);
     delegate->setInputMode(ui::EditBox::InputMode::SINGLE_LINE);
     delegate->setReturnType(ui::EditBox::KeyboardReturnType::DONE);
     listeners.pushBack(Director::getInstance()->getEventDispatcher()->addCustomEventListener("OpenKeyboard", std::bind(&InputLabel::openKeyboard, this, std::placeholders::_1)));
@@ -153,7 +153,7 @@ InputLabel::InputLabel(ui::Scale9Sprite* sprite)
         }
         else if(input->getFontSize() > 0 || input->getFontName() != NULL)
         {
-            CCLOG("WARNING, you cannot use font size or font name alone, you need both of them on an InputLabel");
+            log("WARNING, you cannot use font size or font name alone, you need both of them on an InputLabel");
         }
         originalInfos = input;
     }
@@ -215,7 +215,7 @@ InputLabel::~InputLabel()
         originalInfos->release();
     }
 #if VERBOSE_DEALLOC
-    CCLOG("Dealloc InputLabel %s", name.c_str());
+    log("Dealloc InputLabel %s", name.c_str());
 #endif
 }
 
@@ -228,7 +228,7 @@ void InputLabel::openKeyboard(EventCustom* event)
            || (isKindOfClass(infos->objectForKey("Target"), CCInteger)
                && TOINT(infos->objectForKey("Target")) == identifier)))
     {
-        CCLOG("Open InputLabel keyboard");
+        log("Open InputLabel keyboard");
         delegate->touchDownAction(this, cocos2d::ui::Widget::TouchEventType::ENDED);//open keyboard by simulating a touch inside
         isOpened = true;
     }
@@ -242,7 +242,7 @@ void InputLabel::closeKeyboard(EventCustom* event)
        || (isKindOfClass(infos->objectForKey("Target"), CCInteger)
            && TOINT(infos->objectForKey("Target")) == identifier))
     {
-        CCLOG("Close InputLabel keyboard");
+        log("Close InputLabel keyboard");
         delegate->detachWithIME();
         delegate->closeKeyboard(); //Force close the keyboard
     }
@@ -263,7 +263,7 @@ void InputLabel::editBoxEditingWillBegin(ui::EditBox* editBox)
     /*
     if(locks.size() == 0 && !isOpened && delegate->isEnabled())
     {
-        CCLOG("editing will begin InputLabel");
+        log("editing will begin InputLabel");
         if(linkTo != NULL)
         {
             //A password should be cleared when you begin editing. That's the default behavior on iOS, and we can't easily go around anyway, since UITextField.secureEntry force this behavior
@@ -297,14 +297,14 @@ void InputLabel::editBoxEditingDidBegin(ui::EditBox* editBox)
 
 void InputLabel::editBoxReturn(ui::EditBox* editBox)
 {
-    CCLOG("ui::EditBoxReturn : Close InputLabel keyboard");
+    log("ui::EditBoxReturn : Close InputLabel keyboard");
     DelayedDispatcher::eventAfterDelay("InputLabelReturn", this->getEventInfos(), 0.01);
 }
 
 
 void InputLabel::editBoxEditingDidEnd(ui::EditBox* editBox)
 {
-    CCLOG("Edit Box editing did end");
+    log("Edit Box editing did end");
     if(isOpened)
     { //on dealloc, the isOpened flag will be false to prevent this code from being executed (could be used for a cancel method too)
         isOpened = false;

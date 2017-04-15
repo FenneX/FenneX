@@ -162,7 +162,7 @@ CCString* upperCaseString(CCString* text)
     static std::vector<std::pair<std::string, std::string>> conversions = getConversions();
     if(conversions.size() == 0)
     {
-        CCLOG("Warning: missing file letters_conversion.txt, required for upperCaseString, string %s not converted", text->getCString());
+        log("Warning: missing file letters_conversion.txt, required for upperCaseString, string %s not converted", text->getCString());
         return text;
     }
     std::string from = text->getCString();

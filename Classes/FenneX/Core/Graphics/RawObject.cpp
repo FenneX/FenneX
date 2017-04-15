@@ -49,7 +49,7 @@ const Size& RawObject::getSize()
 }
 const int RawObject::getZOrder()
 {
-    return this->getNode()->getZOrder();
+    return this->getNode()->getLocalZOrder();
 }
 const float RawObject::getScale()
 {

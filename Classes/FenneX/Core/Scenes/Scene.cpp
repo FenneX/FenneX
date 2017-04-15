@@ -128,20 +128,20 @@ void Scene::update(float deltaTime)
 #endif
     currentTime += deltaTime;
 #if VERBOSE_GENERAL_INFO
-    CCLOG("Begin scene update");
+    log("Begin scene update");
 #endif
     for(Pausable* obj : updateList)
     {
-        //CCLOG("Updating object of type: %s", typeid(*obj).name());
+        //log("Updating object of type: %s", typeid(*obj).name());
         obj->update(deltaTime);
     }
 #if VERBOSE_GENERAL_INFO
-    CCLOG("scene update: second part");
+    log("scene update: second part");
 #endif
     SceneSwitcher::sharedSwitcher()->trySceneSwitch(deltaTime);
     if(updatablesToRemove.size() > 0)
     {
-        //CCLOG("Removing %d updatables", updatablesToRemove->count());
+        //log("Removing %d updatables", updatablesToRemove->count());
         //Manual release for updateList Ref*
         for(Pausable* obj : updatablesToRemove)
         {
@@ -162,7 +162,7 @@ void Scene::update(float deltaTime)
     }
     if(updatablesToAdd.size() > 0)
     {
-        //CCLOG("Removing %d updatables", updatablesToAdd->count());
+        //log("Removing %d updatables", updatablesToAdd->count());
         //Manual retain for updateList Ref*
         for(Pausable* obj : updatablesToAdd)
         {
@@ -172,7 +172,7 @@ void Scene::update(float deltaTime)
     }
     if(receiversToRemove.size() > 0)
     {
-        //CCLOG("Removing %d updatables", updatablesToRemove->count());
+        //log("Removing %d updatables", updatablesToRemove->count());
         for(GenericRecognizer* recognizer : receiversToRemove)
         {
             touchReceiversList.eraseObject(recognizer);
@@ -181,7 +181,7 @@ void Scene::update(float deltaTime)
     }
     if(receiversToAdd.size() > 0)
     {
-        //CCLOG("Removing %d updatables", updatablesToAdd->count());
+        //log("Removing %d updatables", updatablesToAdd->count());
         for(GenericRecognizer* newReceiver : receiversToAdd)
         {
             newReceiver->setLinker(linker);
@@ -191,7 +191,7 @@ void Scene::update(float deltaTime)
     }
     SynchronousReleaser::sharedReleaser()->emptyReleasePool();
 #if VERBOSE_GENERAL_INFO
-    CCLOG("end scene update");
+    log("end scene update");
 #endif
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     if(frameNumber == 3)
@@ -204,7 +204,7 @@ void Scene::update(float deltaTime)
     if(frameNumber <= 3)
     {
         gettimeofday(&endTime, NULL);
-        CCLOG("Frame %d of scene %s loaded in %f ms", frameNumber, formatSceneToString(sceneName), getTimeDifferenceMS(startTime, endTime));
+        log("Frame %d of scene %s loaded in %f ms", frameNumber, formatSceneToString(sceneName), getTimeDifferenceMS(startTime, endTime));
     }
 #endif
 }
@@ -273,28 +273,28 @@ void Scene::stop()
 //TODO : requires GraphicLayer and TouchLinker
 bool Scene::onTouchBegan(Touch *touch, Event *pEvent)
 {
-    //CCLOG("onTouchBegan started...");
+    //log("onTouchBegan started...");
     linker->recordTouch(touch);
 #if VERBOSE_TOUCH_RECOGNIZERS
-    CCLOG("recorded touch at position : %f, %f, ID : %d", Scene::touchPosition(touch).x, Scene::touchPosition(touch).y, touch->getID());
+    log("recorded touch at position : %f, %f, ID : %d", Scene::touchPosition(touch).x, Scene::touchPosition(touch).y, touch->getID());
 #endif
     
     this->switchButton(Scene::touchPosition(touch), true, touch);
     
-    //CCLOG("sending to receivers ...");
+    //log("sending to receivers ...");
     for(GenericRecognizer* receiver : touchReceiversList)
     {
         if(!receiversToRemove.contains(receiver)) receiver->onTouchBegan(touch, pEvent);
     }
     //TODO : cancel selection if needed
     numberOfTouches++;
-    //CCLOG("onTouchBegan ended");
+    //log("onTouchBegan ended");
     return true;
 }
 
 void Scene::onTouchMoved(Touch *touch, Event *pEvent)
 {
-    //CCLOG("onTouchMoved started...");
+    //log("onTouchMoved started...");
     if(linker->linkedObjectOf(touch) != NULL
        && isKindOfClass(linker->linkedObjectOf(touch), const Image))
     {
@@ -311,12 +311,12 @@ void Scene::onTouchMoved(Touch *touch, Event *pEvent)
     {
         if(!receiversToRemove.contains(receiver)) receiver->onTouchMoved(touch, pEvent);
     }
-    //CCLOG("onTouchMoved ended");
+    //log("onTouchMoved ended");
 }
 
 void Scene::onTouchEnded(Touch *touch, Event *pEvent)
 {
-    //CCLOG("onTouchEnded started...");
+    //log("onTouchEnded started...");
     if(linker->linkedObjectOf(touch) != NULL
        && isKindOfClass(linker->linkedObjectOf(touch), const Image)
        && GraphicLayer::sharedLayer()->containsObject((RawObject*)linker->linkedObjectOf(touch)))
@@ -337,7 +337,7 @@ void Scene::onTouchEnded(Touch *touch, Event *pEvent)
     numberOfTouches--;
     linker->removeTouch(touch);
 #if VERBOSE_TOUCH_RECOGNIZERS
-    CCLOG("onTouchEnded ended at position : %f, %f, ID : %d", Scene::touchPosition(touch).x, Scene::touchPosition(touch).y, touch->getID());
+    log("onTouchEnded ended at position : %f, %f, ID : %d", Scene::touchPosition(touch).x, Scene::touchPosition(touch).y, touch->getID());
 #endif
 }
 
@@ -346,14 +346,14 @@ void Scene::onTouchCancelled(Touch *touch, Event *pEvent)
     this->onTouchEnded(touch, pEvent);
     
 #if VERBOSE_TOUCH_RECOGNIZERS
-    CCLOG("ended from cancel");
+    log("ended from cancel");
 #endif
 }
 
 void Scene::switchButton(Vec2 position, bool state, Touch* touch)
 {
     Image* target = getButtonAtPosition(position, state);
-    //CCLOG("checked if toggle");
+    //log("checked if toggle");
     if(target != NULL)
     {
         this->switchButton(target, state, touch);
@@ -397,25 +397,25 @@ void Scene::tapRecognized(EventCustom* event)
     
     Vec2 pos = Scene::touchPosition(touch);
 #if VERBOSE_TOUCH_RECOGNIZERS
-    CCLOG("Tap recognized at pos %f, %f, forwarding to layer ...", pos.x, pos.y);
+    log("Tap recognized at pos %f, %f, forwarding to layer ...", pos.x, pos.y);
 #endif
     RawObject* target = getButtonAtPosition(pos, false);
     if(target != NULL && linker->touchesLinkedTo(target).size() > 0)
     {
 #if VERBOSE_TOUCH_RECOGNIZERS
-        CCLOG("Tap intercepted by button still linked");
+        log("Tap intercepted by button still linked");
 #endif
     }
     else if(GraphicLayer::sharedLayer()->touchAtPosition(pos, true))
     {
 #if VERBOSE_TOUCH_RECOGNIZERS
-        CCLOG("Tap used!");
+        log("Tap used!");
 #endif
     }
     else
     {
 #if VERBOSE_TOUCH_RECOGNIZERS
-        CCLOG("No target found for tap");
+        log("No target found for tap");
 #endif
     }
 }

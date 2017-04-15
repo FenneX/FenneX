@@ -76,7 +76,7 @@ isLoadingTexture(false)
     }
     if(delegate == NULL)
     {
-        CCLOG("Problem with asset : %s, the application will crash", filename.c_str());
+        log("Problem with asset : %s, the application will crash", filename.c_str());
     }
     delegate->retain();
     this->setPosition(location);
@@ -104,7 +104,7 @@ isLoadingTexture(false)
     delegate = Sprite::create();
     delegate->retain();
     SpriteFrame* firstFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(((CCString*)spritesName->objectAtIndex(0))->getCString());
-    delegate->setDisplayFrame(firstFrame);
+    delegate->setSpriteFrame(firstFrame);
     this->setPosition(location);
     spriteSheet->addChild(delegate);
     runningAnimation = NULL;
@@ -152,7 +152,7 @@ Image::~Image()
     }
     delegate->release();
 #if VERBOSE_DEALLOC
-    CCLOG("Dealloc image %s", name.c_str());
+    log("Dealloc image %s", name.c_str());
 #endif
 }
 
@@ -251,7 +251,7 @@ void Image::loadAnimation(const char* filename, int capacity, bool useLastFrame)
     }
     parent->addChild(spriteSheet);
     parent->removeChild(delegate, false);
-    delegate->setDisplayFrame(firstFrame);
+    delegate->setSpriteFrame(firstFrame);
     spriteSheet->addChild(delegate);
     spriteSheet->setContentSize(firstFrame->getOriginalSize());
     runningAnimation = NULL;
@@ -288,7 +288,7 @@ void Image::replaceTexture(std::string filename, bool keepExactSize, bool async,
         if(newTexture == NULL)
         {
 #if VERBOSE_WARNING
-            CCLOG("Warning : Problem with asset : %s, texture not replaced", filename.c_str());
+            log("Warning : Problem with asset : %s, texture not replaced", filename.c_str());
 #endif
             imageFile = originalImageFile;
             return;
@@ -379,7 +379,7 @@ bool Image::generateScaledImage(std::string fileToScale, std::string fileToSave,
     if(newTexture == NULL)
     {
 #if VERBOSE_WARNING
-        CCLOG("Warning : Problem with asset : %s, texture not replaced", fileToScale.c_str());
+        log("Warning : Problem with asset : %s, texture not replaced", fileToScale.c_str());
 #endif
         return false;
     }

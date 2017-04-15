@@ -56,7 +56,7 @@ void appendObject(Ref* obj, xml_node& node)
 {
     if(isKindOfClass(obj, CCDictionary))
     {
-        //CCLOG("Dictionary recognized");
+        //log("Dictionary recognized");
         CCDictionary* dict = (CCDictionary*)obj;
         xml_node children = node.append_child("dict");
         CCArray* keys = dict->allKeys();
@@ -72,7 +72,7 @@ void appendObject(Ref* obj, xml_node& node)
     }
     else if(isKindOfClass(obj, CCArray))
     {
-        //CCLOG("Array recognized");
+        //log("Array recognized");
         CCArray* array = (CCArray*)obj;
         xml_node children = node.append_child("array");
         for(int i = 0; i < array->count(); i++)
@@ -83,33 +83,33 @@ void appendObject(Ref* obj, xml_node& node)
     }
     else if (isKindOfClass(obj, CCString))
     {
-        //CCLOG("String recognized");
+        //log("String recognized");
         node.append_child("string").append_child(node_pcdata).set_value(((CCString*)obj)->getCString());
     }
     else if (isKindOfClass(obj, CCInteger))
     {
-        //CCLOG("Integer recognized");
+        //log("Integer recognized");
         int value = TOINT(obj);
         CCString* stringVal = ScreateF("%d", value);
         node.append_child("integer").append_child(node_pcdata).set_value(stringVal->getCString());
     }
     else if (isKindOfClass(obj, CCFloat))
     {
-        //CCLOG("Float recognized");
+        //log("Float recognized");
         float value = TOFLOAT(obj);
         CCString* stringVal = ScreateF("%g", value);
         node.append_child("real").append_child(node_pcdata).set_value(stringVal->getCString());
     }
     else if (isKindOfClass(obj, CCBool))
     {
-        //CCLOG("Bool recognized");
+        //log("Bool recognized");
         bool value = TOBOOL(obj);
         node.append_child(value ? "true" : "false");
     }
 #if VERBOSE_SAVE_PLIST
     else
     {
-        CCLOG("Warning: unrecognized type %s when saving plist, check if the object is in plist format", typeid(*obj).name());
+        log("Warning: unrecognized type %s when saving plist, check if the object is in plist format", typeid(*obj).name());
     }
 #endif
 }
@@ -129,12 +129,12 @@ void saveObjectToFile(Ref* obj, const char* name)
     appendObject(obj, plistNode);
     
 #if VERBOSE_SAVE_PLIST
-    CCLOG("Saving document %s :\n%s", name, node_to_string(doc).c_str());
-    CCLOG("Local path %s", getLocalPath(name).c_str());
+    log("Saving document %s :\n%s", name, node_to_string(doc).c_str());
+    log("Local path %s", getLocalPath(name).c_str());
 #endif
     doc.save_file(getLocalPath(name).c_str());
 #if VERBOSE_SAVE_PLIST
-    CCLOG("Document saved!");
+    log("Document saved!");
 #endif
 }
 
@@ -171,7 +171,7 @@ void appendObject(Value& val, xml_node& node)
             break;
         default:
 #if VERBOSE_SAVE_PLIST
-            CCLOG("Warning: unrecognized Value type when saving plist, check if the object is in plist format. Value description: %s", val.getDescription().c_str());
+            log("Warning: unrecognized Value type when saving plist, check if the object is in plist format. Value description: %s", val.getDescription().c_str());
 #endif
             break;
     }
@@ -192,12 +192,12 @@ void saveValueToFile(Value& val, std::string fileName)
     appendObject(val, plistNode);
 
 #if VERBOSE_SAVE_PLIST
-    CCLOG("Saving document %s :\n%s", fileName.c_str(), node_to_string(doc).c_str());
-    CCLOG("Local path %s", getLocalPath(fileName).c_str());
+    log("Saving document %s :\n%s", fileName.c_str(), node_to_string(doc).c_str());
+    log("Local path %s", getLocalPath(fileName).c_str());
 #endif
     doc.save_file(getLocalPath(fileName).c_str());
 #if VERBOSE_SAVE_PLIST
-    CCLOG("Document saved!");
+    log("Document saved!");
 #endif
 }
 
@@ -262,7 +262,7 @@ Ref* loadObject(xml_node node)
 #if VERBOSE_LOAD_PLIST
     else
     {
-        CCLOG("Warning: unrecognized type \"%s\" when loading plist, check if the plist is correctly formated", name);
+        log("Warning: unrecognized type \"%s\" when loading plist, check if the plist is correctly formated", name);
     }
 #endif
     return obj;
@@ -272,7 +272,7 @@ Ref* loadObjectFromFile(const char* name, bool resource)
 {
     xml_document doc;
 #if VERBOSE_LOAD_PLIST
-    CCLOG("local path : %s", getLocalPath(name).c_str());
+    log("local path : %s", getLocalPath(name).c_str());
 #endif
     std::string charbuffer = "";
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
@@ -287,7 +287,7 @@ Ref* loadObjectFromFile(const char* name, bool resource)
     std::string path = resource ? getResourcesPath(name) : getLocalPath(name);
 #endif
 #if VERBOSE_LOAD_PLIST
-    CCLOG("Loading from path :\n%s", path.c_str());
+    log("Loading from path :\n%s", path.c_str());
 #endif
     xml_parse_result parse_result;
     //If the file inside the apk doesn't exist, we load the local file.
@@ -296,19 +296,19 @@ Ref* loadObjectFromFile(const char* name, bool resource)
     else
         parse_result = doc.load(charbuffer.c_str());
 #if VERBOSE_LOAD_PLIST
-    CCLOG("parse result : %d", parse_result.status);
+    log("parse result : %d", parse_result.status);
 #endif
     if(parse_result.status != status_ok)
     {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
         if(resource)
         {
-            CCLOG("Copying resource file to local ...");
+            log("Copying resource file to local ...");
             copyResourceFileToLocal(name);
         }
         parse_result = doc.load_file(path.c_str());
 #if VERBOSE_LOAD_PLIST
-        CCLOG("parse result after copy : %d", parse_result.status);
+        log("parse result after copy : %d", parse_result.status);
 #endif
         
         if(parse_result.status != status_ok)
@@ -320,13 +320,13 @@ Ref* loadObjectFromFile(const char* name, bool resource)
 #endif
     }
 #if VERBOSE_LOAD_PLIST
-    CCLOG("Document loaded, parsing it");
-    CCLOG("%s", node_to_string(doc).c_str()); //can't be done because this crash on Android, probably due to String_en.plist containing % not escaped properly
+    log("Document loaded, parsing it");
+    log("%s", node_to_string(doc).c_str()); //can't be done because this crash on Android, probably due to String_en.plist containing % not escaped properly
 #endif
     Ref* result = loadObject(doc.child("plist").first_child());
     
 #if VERBOSE_LOAD_PLIST
-    CCLOG("Parse successful, returning");
+    log("Parse successful, returning");
 #endif
     return result;
 }
@@ -394,7 +394,7 @@ Value loadValue(xml_node node)
 #if VERBOSE_LOAD_PLIST
     else
     {
-        CCLOG("Warning: unrecognized type \"%s\" when loading plist, check if the plist is correctly formated", name);
+        log("Warning: unrecognized type \"%s\" when loading plist, check if the plist is correctly formated", name);
     }
 #endif
     return val;
@@ -404,7 +404,7 @@ Value loadValueFromFile(std::string fileName, bool resource)
 {
     xml_document doc;
 #if VERBOSE_LOAD_PLIST
-    CCLOG("local path : %s", getLocalPath(fileName).c_str());
+    log("local path : %s", getLocalPath(fileName).c_str());
 #endif
     std::string charbuffer = "";
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
@@ -419,7 +419,7 @@ Value loadValueFromFile(std::string fileName, bool resource)
     std::string path = resource ? getResourcesPath(fileName) : getLocalPath(fileName);
 #endif
 #if VERBOSE_LOAD_PLIST
-    CCLOG("Loading from path :\n%s", path.c_str());
+    log("Loading from path :\n%s", path.c_str());
 #endif
     xml_parse_result parse_result;
     //If the file inside the apk doesn't exist, we load the local file.
@@ -428,7 +428,7 @@ Value loadValueFromFile(std::string fileName, bool resource)
     else
         parse_result = doc.load(charbuffer.c_str());
 #if VERBOSE_LOAD_PLIST
-    CCLOG("parse result : %d", parse_result.status);
+    log("parse result : %d", parse_result.status);
 #endif
     if(parse_result.status != status_ok)
     {
@@ -436,12 +436,12 @@ Value loadValueFromFile(std::string fileName, bool resource)
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
         if(resource)
         {
-            CCLOG("Copying resource file to local ...");
+            log("Copying resource file to local ...");
             copyResourceFileToLocal(fileName);
         }
         parse_result = doc.load_file(path.c_str());
 #if VERBOSE_LOAD_PLIST
-        CCLOG("parse result after copy : %d", parse_result.status);
+        log("parse result after copy : %d", parse_result.status);
 #endif
 
         if(parse_result.status != status_ok)
@@ -453,13 +453,13 @@ Value loadValueFromFile(std::string fileName, bool resource)
 #endif
     }
 #if VERBOSE_LOAD_PLIST
-    CCLOG("Document loaded, parsing it");
-    CCLOG("%s", node_to_string(doc).c_str()); //can't be done because this crash on Android, probably due to String_en.plist containing % not escaped properly
+    log("Document loaded, parsing it");
+    log("%s", node_to_string(doc).c_str()); //can't be done because this crash on Android, probably due to String_en.plist containing % not escaped properly
 #endif
     Value result = loadValue(doc.child("plist").first_child());
 
 #if VERBOSE_LOAD_PLIST
-    CCLOG("Parse successful, returning");
+    log("Parse successful, returning");
 #endif
     return result;
 }
@@ -471,11 +471,11 @@ void deleteFile(const char* name)
     int result = unlink(path.c_str());
     if(result == 0)
     {
-        CCLOG("file %s removed successfully", path.c_str());
+        log("file %s removed successfully", path.c_str());
     }
     else
     {
-        CCLOG("Problem removing file %s, error : %d", path.c_str(), errno);
+        log("Problem removing file %s, error : %d", path.c_str(), errno);
     }
 #else
     unlink(path.c_str());
