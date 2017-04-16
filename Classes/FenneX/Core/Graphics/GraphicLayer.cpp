@@ -1107,7 +1107,7 @@ Panel* GraphicLayer::createPanelFromNode(Node* cocosNode, Panel* parent)
     return panel;
 }
 
-Panel* GraphicLayer::createPanelWithNode(const char* name, Node* panelNode, int zOrder)
+Panel* GraphicLayer::createPanelWithNode(std::string name, Node* panelNode, int zOrder)
 {
     Panel* panel = NULL;
     panel = new Panel(panelNode, name);
@@ -2326,19 +2326,19 @@ void GraphicLayer::loadBaseNodeAttributes(CustomBaseNode* node, RawObject* obj)
     //Always check for NULL since node is the result of a dynamic cast
     if(node != NULL)
     {
-        if(node->getName() != NULL)
+        if(!node->getName().empty())
         {
 #if VERBOSE_LOAD_CCB
-            log("setting name : %s", node->getName()->getCString());
+            log("setting name : %s", node->getName().c_str());
 #endif
-            obj->setName(node->getName()->getCString());
+            obj->setName(node->getName());
         }
-        if(node->getEventName() != NULL)
+        if(!node->getEventName().empty())
         {
 #if VERBOSE_LOAD_CCB
-            log("setting event name : %s", node->getEventName()->getCString());
+            log("setting event name : %s", node->getEventName().c_str());
 #endif
-            obj->setEventName(node->getEventName()->getCString());
+            obj->setEventName(node->getEventName());
         }
         if(node->getScene() != 0)
         {

@@ -40,7 +40,7 @@ NS_FENNEX_BEGIN
  
  Refer to loadNodeToFenneX for more info on the mapping
  */
-Panel* loadCCBFromFileToFenneX(const char* file, const char* inPanel = NULL, int zIndex = 0);
+Panel* loadCCBFromFileToFenneX(std::string file, std::string inPanel = "", int zIndex = 0);
 
 /* This method is used to load a hierarchy loaded by CCBReader into FenneX.
  It is used recursively by Panels to create their own hierarchy. The base node (when parent == NULL) will be used as GraphicLayer base node

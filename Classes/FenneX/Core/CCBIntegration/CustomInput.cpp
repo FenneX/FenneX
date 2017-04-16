@@ -51,11 +51,11 @@ bool CustomInput::onAssignCCBCustomProperty(Ref* pTarget, const char* pMemberVar
     }
     else if(pCCBValue.getType() == cocos2d::Value::Type::STRING && strcmp(pMemberVariableName, "placeHolder") == 0)
     {
-        target->setPlaceHolder(Screate(pCCBValue.asString()));
+        target->setPlaceHolder(pCCBValue.asString());
     }
     else if(pCCBValue.getType() == cocos2d::Value::Type::STRING && strcmp(pMemberVariableName, "fontName") == 0)
     {
-        target->setFontName(Screate(pCCBValue.asString()));
+        target->setFontName(pCCBValue.asString());
     }
     else
     {

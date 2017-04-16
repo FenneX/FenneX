@@ -132,10 +132,10 @@ InputLabel::InputLabel(ui::Scale9Sprite* sprite)
     CustomInput* input = dynamic_cast<CustomInput*>(sprite);
     if(input != NULL)
     {
-        if(input->getPlaceHolder() != NULL)
+        if(!input->getPlaceHolder().empty())
         {
-            delegate->setPlaceHolder(input->getPlaceHolder()->getCString());
-            this->setInitialText(input->getPlaceHolder()->getCString());
+            delegate->setPlaceHolder(input->getPlaceHolder().c_str());
+            this->setInitialText(input->getPlaceHolder());
         }
         if(input->getMaxChar() != -1)
         {
@@ -146,12 +146,12 @@ InputLabel::InputLabel(ui::Scale9Sprite* sprite)
         {
             delegate->setInputMode((ui::EditBox::InputMode)input->getInputMode());
         }
-        if(input->getFontSize() > 0 && input->getFontName() != NULL)
+        if(input->getFontSize() > 0 && !input->getFontName().empty())
         {
-            this->setFontName(input->getFontName()->getCString());
+            this->setFontName(input->getFontName());
             this->setFontSize(input->getFontSize());
         }
-        else if(input->getFontSize() > 0 || input->getFontName() != NULL)
+        else if(input->getFontSize() > 0 || !input->getFontName().empty())
         {
             log("WARNING, you cannot use font size or font name alone, you need both of them on an InputLabel");
         }

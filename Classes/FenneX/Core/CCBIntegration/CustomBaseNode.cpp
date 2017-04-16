@@ -28,11 +28,9 @@ THE SOFTWARE.
 NS_FENNEX_BEGIN
 CustomBaseNode::CustomBaseNode()
 {
-    parameters = Dcreate();
-    parameters->retain();
 }
 
-CCDictionary* CustomBaseNode::getParameters()
+ValueMap& CustomBaseNode::getParameters()
 {
     return parameters;
 }
@@ -62,55 +60,28 @@ bool CustomBaseNode::onAssignCCBCustomProperty(Ref* pTarget, const char* pMember
 {
 //#error this method is never called => seems that the super is called instead
     CustomBaseNode* target = dynamic_cast<CustomBaseNode*>(pTarget);
-    if(pCCBValue.getType() == cocos2d::Value::Type::INTEGER)
+    if(pCCBValue.getType() == cocos2d::Value::Type::INTEGER && strcmp(pMemberVariableName, "scene") == 0)
     {
-        if(strcmp(pMemberVariableName, "scene") == 0)
-        {
-            target->setScene(pCCBValue.asInt());
-            target->setEventName(Screate("PlanSceneSwitch"));
-        }
-        else if(strcmp(pMemberVariableName, "zindex") == 0)
-        {
-            target->setZindex(pCCBValue.asInt());
-        }
-        else
-        {
-            target->getParameters()->setObject(Icreate(pCCBValue.asInt()), pMemberVariableName);
-        }
+        target->setScene(pCCBValue.asInt());
+        target->setEventName("PlanSceneSwitch");
     }
-    else if(pCCBValue.getType() == cocos2d::Value::Type::FLOAT)
+    else if(pCCBValue.getType() == cocos2d::Value::Type::INTEGER && strcmp(pMemberVariableName, "zindex") == 0)
     {
-        target->getParameters()->setObject(Fcreate(pCCBValue.asFloat()), pMemberVariableName);
+        target->setZindex(pCCBValue.asInt());
     }
-    else if(pCCBValue.getType() == cocos2d::Value::Type::STRING)
+    else if(pCCBValue.getType() == cocos2d::Value::Type::STRING && strcmp(pMemberVariableName, "event") == 0)
     {
-        if(strcmp(pMemberVariableName, "event") == 0)
-        {
-            target->setEventName(Screate(pCCBValue.asString()));
-        }
-        else if(strcmp(pMemberVariableName, "name") == 0)
-        {
-            target->setName(Screate(pCCBValue.asString()));
-        }
-        else
-        {
-            target->getParameters()->setObject(Screate(pCCBValue.asString()), pMemberVariableName);
-        }
+        target->setEventName(pCCBValue.asString());
     }
-    else if(pCCBValue.getType() == cocos2d::Value::Type::BOOLEAN)
+    else if(pCCBValue.getType() == cocos2d::Value::Type::STRING && strcmp(pMemberVariableName, "name") == 0)
     {
-        target->getParameters()->setObject(Bcreate(pCCBValue.asBool()), pMemberVariableName);
+        target->setName(pCCBValue.asString());
+    }
+    else
+    {
+        target->getParameters()[pMemberVariableName] = pCCBValue;
     }
     return CCBMemberVariableAssigner::onAssignCCBCustomProperty(pTarget, pMemberVariableName, pCCBValue);
-}
-
-CustomBaseNode::~CustomBaseNode()
-{
-    parameters->release();
-    if(name != NULL)
-        name->release();
-    if(eventName != NULL)
-        eventName->release();
 }
 
 NS_FENNEX_END

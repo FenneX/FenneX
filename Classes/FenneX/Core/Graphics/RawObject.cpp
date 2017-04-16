@@ -131,6 +131,22 @@ void RawObject::addEventInfos(CCDictionary* infos)
     }
 }
 
+void RawObject::setEventInfo(std::string key, Value obj)
+{
+    setEventInfo(valueToRef(obj), key);
+}
+
+void RawObject::addEventInfos(ValueMap infos)
+{
+    for(auto iter = infos.begin(); iter != infos.end(); iter++)
+    {
+        if(iter->first != "Sender")
+        {
+            this->setEventInfo(iter->first, iter->second);
+        }
+    }
+}
+
 void RawObject::removeEventInfo(std::string key)
 {
     eventInfos->removeObjectForKey(key);

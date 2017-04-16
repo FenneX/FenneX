@@ -102,6 +102,25 @@ static inline float getTimeDifferenceMS(const timeval& start, const timeval& end
              +end.tv_usec) - start.tv_usec) / 1000.0f);
 }
 
+static inline Ref* valueToRef(Value val)
+{
+    switch(val.getType())
+    { //Only support primitive types
+        case Value::Type::INTEGER:
+            return Icreate(val.asInt());
+        case Value::Type::FLOAT:
+            return Fcreate(val.asFloat());
+        case Value::Type::DOUBLE:
+            return Fcreate(val.asDouble());
+        case Value::Type::BOOLEAN:
+            return Bcreate(val.asBool());
+        case Value::Type::STRING:
+            return Screate(val.asString());
+        default:
+            return NULL;
+    }
+}
+
 //std::to_string isn't always defined on Android, use this method as a replacement.
 template < typename T > std::string to_string( const T& n )
 {

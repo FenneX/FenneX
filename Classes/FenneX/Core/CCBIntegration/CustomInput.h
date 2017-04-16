@@ -42,8 +42,8 @@ public:
     CC_SYNTHESIZE(int, inputMode, InputMode);
     CC_SYNTHESIZE(int, maxChar, MaxChar);
     CC_SYNTHESIZE(int, fontSize, FontSize);
-    CC_SYNTHESIZE_RETAIN(CCString*, placeHolder, PlaceHolder);
-    CC_SYNTHESIZE_RETAIN(CCString*, fontName, FontName);
+    CC_SYNTHESIZE(std::string, placeHolder, PlaceHolder);
+    CC_SYNTHESIZE(std::string, fontName, FontName);
     virtual bool init();
     virtual bool onAssignCCBCustomProperty(Ref* pTarget, const char* pMemberVariableName, const cocos2d::Value& pCCBValue);
 };

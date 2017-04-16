@@ -30,7 +30,7 @@ void CustomScaleSpriteLoader::onHandlePropTypeSpriteFrame(Node * pNode, Node * p
 {
     if(strcmp(pPropertyName, "spriteFrame") == 0)
     {
-        ((CustomScaleSprite*)pNode)->getParameters()->setObject(Screate(Director::getInstance()->getTextureCache()->getKeyForTexture(pSpriteFrame->getTexture())), "spriteFrame");
+        ((CustomScaleSprite*)pNode)->getParameters()["spriteFrame"] = Value(Director::getInstance()->getTextureCache()->getKeyForTexture(pSpriteFrame->getTexture()));
     }
     
     Scale9SpriteLoader::onHandlePropTypeSpriteFrame(pNode, pParent, pPropertyName, pSpriteFrame, pCCBReader);

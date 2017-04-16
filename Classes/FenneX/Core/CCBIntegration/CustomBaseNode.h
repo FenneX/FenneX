@@ -42,16 +42,16 @@ NS_FENNEX_BEGIN
  */
 class CustomBaseNode : public CCBSelectorResolver, public CCBMemberVariableAssigner, public NodeLoaderListener
 {
-    CC_SYNTHESIZE_RETAIN(CCString*, name, Name);
-    CC_SYNTHESIZE_RETAIN(CCString*, eventName, EventName);
+    CC_SYNTHESIZE(std::string, name, Name);
+    CC_SYNTHESIZE(std::string, eventName, EventName);
     CC_SYNTHESIZE(int, scene, Scene);
     CC_SYNTHESIZE(int, zindex, Zindex);
     
 private:
-    CCDictionary* parameters;
+    ValueMap parameters;
 public:
     CustomBaseNode();
-    virtual CCDictionary* getParameters();
+    virtual ValueMap& getParameters();
 public:
     virtual SEL_MenuHandler onResolveCCBCCMenuItemSelector(Ref * pTarget, const char* pSelectorName);
     
@@ -62,8 +62,6 @@ public:
     virtual void onNodeLoaded(Node * pNode, NodeLoader * pNodeLoader);
     
     virtual bool onAssignCCBCustomProperty(Ref* pTarget, const char* pMemberVariableName, const cocos2d::Value& pCCBValue);
-    
-    ~CustomBaseNode();
 };
 
 NS_FENNEX_END
