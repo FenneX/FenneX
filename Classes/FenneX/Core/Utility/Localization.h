@@ -43,11 +43,11 @@ public:
     
     static void loadAdditionalTranslations(std::function<std::string(std::string)> resolveLanguageFile);
 private:
-    static CCString* currentLanguage;
-    static CCDictionary* infos;
-    static CCArray* availableTranslations;
+    static std::string currentLanguage;
+    static std::map<std::string, std::string> translations;
+    static std::vector<std::string> availableTranslations;
     static bool loadAvailableTranslations();
-    static void loadInfos();
+    static void loadTranslations();
 };
 NS_FENNEX_END
 

@@ -75,5 +75,6 @@ THE SOFTWARE.
 #include "StringUtility.h"
 #include "TMPPoint.h"
 #include "DelayedDispatcher.h"
+#include "ValueConversion.h"
 
 #endif

@@ -29,12 +29,13 @@ THE SOFTWARE.
 #include "NativeUtility.h"
 #include "StringUtility.h"
 #include "FenneXMacros.h"
+#include "ValueConversion.h"
 
 NS_FENNEX_BEGIN
-CCString* Localization::currentLanguage = NULL;
-CCDictionary* Localization::infos = NULL;
-CCArray* Localization::availableTranslations = NULL;
 
+std::string Localization::currentLanguage;
+std::map<std::string, std::string> Localization::translations;
+std::vector<std::string> Localization::availableTranslations;
 
 //TODO : refactor : tell which translations should be tried
 
@@ -44,56 +45,48 @@ bool Localization::willTranslate()
     return false;
 #endif
     loadAvailableTranslations();
-    CCString* language = Screate(getLocalLanguage());
-    return arrayContainsString(availableTranslations, language);
+    return std::find(availableTranslations.begin(), availableTranslations.end(), getLocalLanguage()) != availableTranslations.end();
 }
 
 CCString* Localization::getLocalizedString(CCString* string) {
+    return Screate(getLocalizedString(string->getCString()));
+}
+
+const char* Localization::getLocalizedString(const char* string) {
+    std::string result = getLocalizedString(string);
+    return result.c_str();
+}
+
+const std::string Localization::getLocalizedString(const std::string& string){
 #if !(USE_TRANSLATION)
     return string;
 #endif
 #if VERBOSE_LOCALIZATION
     log("Getting localized string ...");
 #endif
-    CCString* language = Screate(getLocalLanguage());
-    if (!loadAvailableTranslations() || !arrayContainsString(availableTranslations, language))
+    std::string language = getLocalLanguage();
+    if (!loadAvailableTranslations() || !willTranslate())
     {
 #if VERBOSE_LOCALIZATION
         log("language not supported, returning same string");
 #endif
         return string;
     }
-    if (currentLanguage == NULL || !currentLanguage->isEqual(language)) {
+    if (currentLanguage != language) {
 #if VERBOSE_LOCALIZATION
-        log("language : %s, loading infos", language->getCString());
+        log("language : %s, loading translations", language.c_str());
 #endif
-        if(currentLanguage != NULL)
-        {
-            currentLanguage->release();
-        }
         currentLanguage = language;
-        currentLanguage->retain();
-        if (infos != NULL) {
-            infos->release();
-        }
-        loadInfos();
+        translations.clear();
+        loadTranslations();
     }
 #if VERBOSE_LOCALIZATION
-    if(infos != NULL && infos->objectForKey(string->getCString()) == NULL)
+    if(infos != NULL && infos.find(string->getCString()) == infos.end())
     {
         log("Warning : the string %s doesn't have any match, check your translation file", string->getCString());
     }
 #endif
-    return infos != NULL && infos->objectForKey(string->getCString()) != NULL ?
-    (CCString*) infos->objectForKey(string->getCString()) : string;
-}
-
-const char* Localization::getLocalizedString(const char* string) {
-    return getLocalizedString(Screate(string))->getCString();
-}
-
-const std::string Localization::getLocalizedString(const std::string& string){
-    return getLocalizedString(Screate(string.c_str()))->getCString();
+    return translations.find(string) != translations.end() ? translations[string] : string;
 }
 
 void Localization::loadAdditionalTranslations(std::function<std::string(std::string)> resolveLanguageFile)
@@ -102,21 +95,16 @@ void Localization::loadAdditionalTranslations(std::function<std::string(std::str
     getLocalizedString("");
     if(willTranslate())
     {
-        CCDictionary* additionalTranslations = (CCDictionary*)loadObjectFromFile(resolveLanguageFile(currentLanguage->getCString()).c_str(), true);
-        if(additionalTranslations != NULL)
+        std::map<std::string, std::string> additionalTranslations = ValueConversion::toMapStringString(loadValueFromFile(resolveLanguageFile(currentLanguage), true));
+        for(auto iter = additionalTranslations.begin(); iter != additionalTranslations.end(); iter++)
         {
-            CCArray* keys = additionalTranslations->allKeys();
-            for(int i = 0; i < keys->count(); i++)
+            if(translations.find(iter->first) == translations.end())
             {
-                std::string key = TOCSTRING(keys->objectAtIndex(i));
-                if(infos->objectForKey(key) == NULL)
-                {
-                    infos->setObject(additionalTranslations->objectForKey(key), key);
-                }
-                else
-                {
-                    log("Warning, translations already contain key %s", key.c_str());
-                }
+                translations[iter->first] = iter->second;
+            }
+            else
+            {
+                log("Warning, translations already contain key %s", iter->first.c_str());
             }
         }
     }
@@ -124,34 +112,25 @@ void Localization::loadAdditionalTranslations(std::function<std::string(std::str
 
 bool Localization::loadAvailableTranslations()
 {
-    if(availableTranslations == NULL)
+    if(availableTranslations.empty())
     {
-        availableTranslations = (CCArray*)loadObjectFromFile("Available_translations.plist", true);
-        
-        if(availableTranslations == NULL)
-        {
-            availableTranslations = new CCArray();
-        }
-        else
-        {
-            availableTranslations->retain();
-        }
+        availableTranslations = ValueConversion::toVectorString(loadValueFromFile("Available_translations.plist", true));
     }
-    if(availableTranslations->count() == 0)
+    if(availableTranslations.size() == 0)
     {
         return false;
     }
     return true;
 }
 
-void Localization::loadInfos()
+void Localization::loadTranslations()
 {
-    infos = (CCDictionary*) loadObjectFromFile(ScreateF("Strings_%s.plist", currentLanguage->getCString())->getCString(), true);
+    translations = ValueConversion::toMapStringString(loadValueFromFile(ScreateF("Strings_%s.plist", currentLanguage.c_str())->getCString(), true));
     
-    if (infos == NULL)
+    if (translations.empty())
     {
 #if VERBOSE_LOCALIZATION
-        log("Warning, language not supported : %d", currentLanguage);
+        log("Warning, language not supported : %s", currentLanguage.c_str());
 #endif
     }
     else
@@ -159,36 +138,38 @@ void Localization::loadInfos()
 #if VERBOSE_LOCALIZATION
         log("infos loaded, returning string ...");
 #endif
-        infos->retain();
-        CCArray* keys = infos->allKeys();
-        //replace occurences of (p) by %
-        for(int i = 0; i < keys->count(); i++)
+        //Avoid erasing during iteration
+        std::vector<std::string> toErase;
+        for(auto iter = translations.begin(); iter != translations.end(); iter++)
         {
-            CCString* key = (CCString*)keys->objectAtIndex(i);
-            CCString* value = (CCString*)infos->objectForKey(key->getCString());
             bool valueChanged = false;
-            std::string stdKey = key->getCString();
-            std::string stdValue = value->getCString();
+            std::string key = iter->first;
+            std::string value = iter->second;
             std::size_t position;
             std::string toReplace = "(p)";
-            while((position = stdValue.find(toReplace)) != std::string::npos)
+            while((position = value.find(toReplace)) != std::string::npos)
             {
                 valueChanged = true;
-                stdValue = stdValue.replace(position, toReplace.size(), "%");
+                value = value.replace(position, toReplace.size(), "%");
             }
-            if(stdKey.find(toReplace) != std::string::npos)
+            if(key.find(toReplace) != std::string::npos)
             {
-                infos->removeObjectForKey(stdKey);
-                while((position = stdKey.find(toReplace)) != std::string::npos)
+                toErase.push_back(key);
+                while((position = key.find(toReplace)) != std::string::npos)
                 {
-                    stdKey = stdKey.replace(position, toReplace.size(), "%");
+                    key = key.replace(position, toReplace.size(), "%");
                 }
-                infos->setObject(Screate(stdValue.c_str()), stdKey);
+                translations.at(key) = value;
             }
             else if(valueChanged)
             {
-                infos->setObject(Screate(stdValue.c_str()), stdKey);
+                translations.at(key) = value;
             }
+            
+        }
+        for(std::string key : toErase)
+        {
+            translations.erase(key);
         }
     }
 }
