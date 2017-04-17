@@ -106,17 +106,6 @@ void GraphicLayer::stop()
     this->stopRenderOnLayer(relatedScene, false);
 }
 
-/* TODO : create it if needed
- RawObject* GraphicLayer::createObject(Ref* firstObject, ... )
- {
- return NULL;
- }
- 
- RawObject* GraphicLayer::createObject(CCDictionary* values)
- {
- return NULL;
- }*/
-
 Image* GraphicLayer::createImage(Ref* firstObject, ... )
 {
     Ref* eachObject;
@@ -167,14 +156,8 @@ Image* GraphicLayer::createImage(Ref* firstObject, ... )
 Image* GraphicLayer::createImage(CCDictionary* values)
 {
     Image* img = NULL;
-    
-    //try to create an image : each value is checked : if it exists and if it is of the right type
-    //an image should have at least an ImageFile (String) or ImageData and cocosName (String) for texture
     if((values->objectForKey("ImageFile") != NULL
         && isKindOfClass(values->objectForKey("ImageFile"), CCString)) ||
-       /*(values->objectForKey("ImageData") != NULL
-        && values->objectForKey("cocosName") != NULL
-        &&  isKindOfClass(values->objectForKey("cocosName"), CCString) ) ||*/
        (values->objectForKey("SpriteSheetFile") != NULL
         &&  isKindOfClass(values->objectForKey("SpriteSheetFile"), CCString)
         && values->objectForKey("Capacity") != NULL
@@ -205,12 +188,6 @@ Image* GraphicLayer::createImage(CCDictionary* values)
 #endif
             img = new Image(((CCString*)values->objectForKey("ImageFile"))->getCString(), pos);
         }
-        /*else if(values->objectForKey("cocosName") != NULL
-         && [values->objectForKey("cocosName"] isKindOfClass:[NSString class]])
-         {
-         CGImageRef imageRef = (CGImageRef) values->objectForKey("ImageData"];
-         img = [[Image alloc] initWithImageData:imageRef location:pos name:values->objectForKey("cocosName"]];
-         }*/
         else
         {
             img = new Image(((CCString*)values->objectForKey("SpriteSheetFile"))->getCString(), pos, ((CCInteger*)values->objectForKey("Capacity"))->getValue());
@@ -381,9 +358,6 @@ CustomObject* GraphicLayer::createCustomObject(Ref* firstObject, ... )
 CustomObject* GraphicLayer::createCustomObject(CCDictionary* values)
 {
     CustomObject* obj = NULL;
-    
-    //try to create an image : each value is checked : if it exists and if it is of the right type
-    //an image should have at least an ImageFile (String) or ImageData and cocosName (String) for texture
     if(values->objectForKey("Delegate") != NULL
        && isKindOfClass(values->objectForKey("Delegate"), Node))
     {
@@ -542,9 +516,6 @@ LabelTTF* GraphicLayer::createLabelTTF(Ref* firstObject, ... )
 LabelTTF* GraphicLayer::createLabelTTF(CCDictionary* values)
 {
     LabelTTF* label = NULL;
-    
-    //try to create an image : each value is checked : if it exists and if it is of the right type
-    //an image should have at least an ImageFile (String) or ImageData and cocosName (String) for texture
     if(values->objectForKey("Label") != NULL
        && isKindOfClass(values->objectForKey("Label"), CCString)
        && values->objectForKey("FontFile") != NULL
@@ -1147,9 +1118,6 @@ DropDownList* GraphicLayer::createDropDownList(Ref* firstObject, ... )
 DropDownList* GraphicLayer::createDropDownList(CCDictionary* values)
 {
     DropDownList* dropDownList = NULL;
-    
-    //try to create an image : each value is checked : if it exists and if it is of the right type
-    //an image should have at least an ImageFile (String) or ImageData and cocosName (String) for texture
     if((values->objectForKey("SpriteSheetFile") != NULL
         &&  isKindOfClass(values->objectForKey("SpriteSheetFile"), CCString)
         && values->objectForKey("Capacity") != NULL
@@ -1425,6 +1393,10 @@ void GraphicLayer::removeAllObjectsFromPanel(Panel* panel)
 Panel* GraphicLayer::getContainingPanel(RawObject* obj)
 {
     if(obj == NULL) return NULL;
+    if(childsParents.find(obj->getID()) == childsParents.end())
+    {
+        return NULL;
+    }
     return childsParents[obj->getID()];
 }
 
