@@ -41,31 +41,23 @@ USING_NS_CC;
 
 NS_FENNEX_BEGIN
 
-class ButtonTapObserver;
-
 class GraphicLayer : public Ref, public Pausable
 {
 public:
     static GraphicLayer* sharedLayer();
     
-    CCArray* getMainPanels() { return mainPanels; }
     Layer* getLayer() { return layer; }
-    int getDepthInScene() { return depthInScene; }
     bool IsPaused() { return isPaused; }
     float getClock() { return clock; }
     CCArray* getChildren() { return storedObjects; }
     
-    void setTapObserver(ButtonTapObserver* observer);
-    ButtonTapObserver* getTapObserver();
-protected:
-    ButtonTapObserver* tapObserver;
 public:
     ~GraphicLayer();
     
     //Used when loading an entire scene from CCB
     void useBaseLayer(Layer* otherLayer);
     //Specify on which layer (or scene) it should be rendered and its depth
-    void renderOnLayer(Scene* destination, int depth);
+    void renderOnLayer(Scene* destination);
     
     //Should be called to detach it before being render on another layer
     void stopRenderOnLayer(Scene* destination, bool cleanup);
@@ -209,8 +201,6 @@ public:
     RawObject* firstObjectWithName(std::string name, bool cache = false);
     RawObject* firstObjectWithNameInPanel(std::string name, Panel* panel);
     RawObject* firstObjectAtPosition(Vec2 position);
-    RawObject* firstObjectInRect(cocos2d::Rect rect);
-    RawObject* firstObjectContainingRect(cocos2d::Rect rect);
     RawObject* objectAtIndex(int index);
     
     //The resulting array should be released after being used
@@ -220,8 +210,6 @@ public:
     CCArray* allObjectsStartingWithString(CCString* name);
     CCArray* allObjectsStartingWithString(std::string name);
     CCArray* allObjectsAtPosition(Vec2 position);
-    CCArray* allObjectsInRect(cocos2d::Rect rect);
-    CCArray* allObjectsContainingRect(cocos2d::Rect rect);
     CCArray* allActionnableObjects();
     CCArray* allObjects(const std::function<bool(RawObject*)>& filter);
     
@@ -258,11 +246,6 @@ public:
     //reoderChild using zOrder
     void reorderChild(RawObject* child, int zOrder);
     
-    //provide an easier way to reorder childs according other childs instead of zOrder.
-    //It is an efficient way to reorder childs having the same zOrder.
-    void reorderChildAfter(RawObject* child, RawObject* otherChild);
-    void reorderChildBefore(RawObject* child, RawObject* otherChild);
-    
     //TODO : implement if needed
     //return the time it will take to close all panels. 0 mean there are no panels to close
     //float closeMainPanels();
@@ -287,8 +270,6 @@ private:
     //the actual rendering layer for graphic objects stored
     Layer* layer;
     
-    //depth in Scene, used to conserve it while saving state, default value = 0
-    int depthInScene;
     bool isPaused;
     Scene* relatedScene;
     
@@ -297,21 +278,12 @@ private:
     
     float clock;
     
-    CCArray* mainPanels;
-    
     bool isUpdating;
     CCArray* objectsToAdd; //contains NSMutableArrays, which contains, in order : a RawObject, its index and its panel (optional)
     CCArray* objectsToRemove; //only contains RawObjects directly
     
     CCDictionary* childParent; //keys are objects ID, values are Panel
     int nextAvailableId;
-};
-
-//Allow to observe ALL buttons tap, to do some sort of global action
-class ButtonTapObserver
-{
-public:
-    virtual void onButtonTapped(RawObject* button, std::string event, CCDictionary* infos) = 0;
 };
 
 NS_FENNEX_END

@@ -49,18 +49,15 @@ void GraphicLayer::init()
     nextAvailableId = 0;
     relatedScene = NULL;
     isPaused = false;
-    mainPanels = new CCArray();
     storedObjects = new CCArray();
     storedPanels = new CCArray();
     layer = Layer::create();
     layer->retain();
-    depthInScene = 0;
     clock = 0;
     isUpdating = false;
     objectsToAdd = new CCArray();
     objectsToRemove = new CCArray();
     childParent = new CCDictionary();
-    tapObserver = NULL;
 }
 
 GraphicLayer::~GraphicLayer()
@@ -70,7 +67,6 @@ GraphicLayer::~GraphicLayer()
 #endif
     this->clear();
     s_SharedLayer = NULL;
-    mainPanels->release();
     storedObjects->release();
     storedPanels->release();
     layer->release();
@@ -79,20 +75,10 @@ GraphicLayer::~GraphicLayer()
     childParent->release();
 }
 
-void GraphicLayer::setTapObserver(ButtonTapObserver* observer)
-{
-    tapObserver = observer;
-}
-
-ButtonTapObserver* GraphicLayer::getTapObserver()
-{
-    return tapObserver;
-}
-
 void GraphicLayer::useBaseLayer(Layer* otherLayer)
 {
     Node* parent = layer->getParent();
-    parent->addChild(otherLayer, depthInScene);
+    parent->addChild(otherLayer);
     parent->removeChild(layer, true);
     //Ensure the layer is properly released: actually, only the first one (at launch) will have a retain count of 2 here
     if(layer->getReferenceCount() == 2)
@@ -103,17 +89,16 @@ void GraphicLayer::useBaseLayer(Layer* otherLayer)
     layer->retain();
 }
 
-void GraphicLayer::renderOnLayer(Scene* destination, int depth)
+void GraphicLayer::renderOnLayer(Scene* destination)
 {
     relatedScene = destination;
-    depthInScene = depth;
     //Ensure that the layer is not on another Scene
     if(layer->getParent() != NULL)
     {
         layer->removeFromParentAndCleanup(true);
     }
     storedObjects->removeAllObjects();
-    destination->addChild(layer, depth);
+    destination->addChild(layer);
     layer->setScale(SceneSwitcher::sharedSwitcher()->getScale());
 }
 
@@ -1668,38 +1653,6 @@ RawObject* GraphicLayer::firstObjectAtPosition(Vec2 position)
     return result;
 }
 
-RawObject* GraphicLayer::firstObjectInRect(Rect rect)
-{
-    RawObject* result = NULL;
-    for(int i =  storedObjects->count() - 1; i >= 0  && result == NULL; i--)
-    {
-        RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
-        Rect realRect = rect;
-        realRect.origin = this->getPositionRelativeToObject(rect.origin, obj);
-        if(obj->collision(realRect))
-        {
-            result = obj;
-        }
-    }
-    return result;
-}
-
-RawObject* GraphicLayer::firstObjectContainingRect(Rect rect)
-{
-    RawObject* result = NULL;
-    for(int i =  storedObjects->count() - 1; i >= 0  && result == NULL; i--)
-    {
-        RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
-        Rect realRect = rect;
-        realRect.origin = this->getPositionRelativeToObject(rect.origin, obj);
-        if(obj->containsRect(realRect))
-        {
-            result = obj;
-        }
-    }
-    return result;
-}
-
 RawObject* GraphicLayer::objectAtIndex(int index)
 {
     CCAssert(index >= 0, "in GraphicLayer objectAtIndex : invalid index, it should be positive");
@@ -1767,38 +1720,6 @@ CCArray* GraphicLayer::allObjectsAtPosition(Vec2 position)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
         if(obj->collision(this->getPositionRelativeToObject(position, obj)))
-        {
-            result->addObject(obj);
-        }
-    }
-    return result;
-}
-
-CCArray* GraphicLayer::allObjectsInRect(Rect rect)
-{
-    CCArray* result = CCArray::create();
-    for(int i =  storedObjects->count() - 1; i >= 0; i--)
-    {
-        RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
-        Rect realRect = rect;
-        realRect.origin = this->getPositionRelativeToObject(rect.origin, obj);
-        if(obj->collision(realRect))
-        {
-            result->addObject(obj);
-        }
-    }
-    return result;
-}
-
-CCArray* GraphicLayer::allObjectsContainingRect(Rect rect)
-{
-    CCArray* result = CCArray::create();
-    for(int i =  storedObjects->count() - 1; i >= 0; i--)
-    {
-        RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
-        Rect realRect = rect;
-        realRect.origin = this->getPositionRelativeToObject(rect.origin, obj);
-        if(obj->containsRect(realRect))
         {
             result->addObject(obj);
         }
@@ -2089,7 +2010,6 @@ bool GraphicLayer::touchObject(RawObject* obj, bool event, Vec2 position)
         {
             CCDictionary* infos = obj->getEventInfos();
             infos->setObject(Pcreate(position), "TouchPosition");
-            IFEXIST(tapObserver)->onButtonTapped(obj, obj->getEventName(), infos);
             Director::getInstance()->getEventDispatcher()->dispatchCustomEvent(obj->getEventName(), infos);
             CCString* trackingName = (CCString*)obj->getEventInfos()->objectForKey("TrackingName");
             //In VideoView, buttons are only tracked if the video meet the minimum duration
@@ -2140,14 +2060,6 @@ void GraphicLayer::reorderChild(RawObject* child, int zOrder)
     }
 }
 
-void GraphicLayer::reorderChildAfter(RawObject* child, RawObject* otherChild)
-{
-}
-
-void GraphicLayer::reorderChildBefore(RawObject* child, RawObject* otherChild)
-{
-}
-
 void GraphicLayer::reorderChildrenOfPanel(Panel* panel)
 {
     CCArray* alreadyReordered = Acreate();
@@ -2174,53 +2086,6 @@ void GraphicLayer::reorderChildrenOfPanel(Panel* panel)
         }
     }
 }
-/* back up version of the method : scale working properly, position not so much
- void GraphicLayer::applyDisplayScaling(RawObject* obj, DisplayScaling options)
- {
- Size frameSize = Director::getInstance()->getOpenGLView()->getFrameSize();
- float shinzuScale = 1;
- float scaleFactor = Director::getInstance()->getContentScaleFactor();
- Size designSize = Director::getInstance()->getOpenGLView()->getDesignResolutionSize();
- Size usedSize;
- usedSize.width = designSize.width * scaleFactor * shinzuScale;
- usedSize.height = designSize.height * scaleFactor * shinzuScale;
- Vec2 position = obj->getPosition();
- if(options & AnchorLeft && position.x < designSize.width/2)
- {
- position.x -= (frameSize.width - usedSize.width)/2 / (scaleFactor*shinzuScale);
- }
- if(options & AnchorRight && position.x > designSize.width/2)
- {
- position.x += (frameSize.width - usedSize.width)/2 / (scaleFactor*shinzuScale);
- }
- if(options & AnchorTop && position.y > designSize.height/2)
- {
- position.y += (frameSize.height - usedSize.height)/2 / (scaleFactor*shinzuScale);
- }
- if(options & AnchorBottom && position.y < designSize.height/2)
- {
- position.y -= (frameSize.height - usedSize.height)/2 / (scaleFactor*shinzuScale);
- }
- obj->setPosition(position);
- float scale = obj->getScale();
- if(options & FitWidth)
- {
- float newScale = (obj->getSize().width * obj->getScale() + (frameSize.width - usedSize.width))/obj->getSize().width;
- scale = MAX(scale, newScale);
- }
- if(options & FitHeight)
- {
- float newScale = (obj->getSize().height * obj->getScale() + (frameSize.height - usedSize.height))/obj->getSize().height;
- scale = MAX(scale, newScale);
- }
- obj->setScale(scale);
- }*/
-
-/*
- float GraphicLayer::closeMainPanels()
- {
- return 0;
- }*/
 
 void GraphicLayer::addObject(RawObject* obj, int z)
 {

@@ -68,7 +68,7 @@ sceneName(identifier)
     
     appWillResignListener = Director::getInstance()->getEventDispatcher()->addCustomEventListener("AppWillResignActive", std::bind(&Scene::dropAllTouches, this, std::placeholders::_1));
     
-    GraphicLayer::sharedLayer()->renderOnLayer(this, 0);
+    GraphicLayer::sharedLayer()->renderOnLayer(this);
     LayoutHandler::sharedHandler()->linkToScene(this);
     
     //TODO : add selectionrecognizer here + suscribe to it
