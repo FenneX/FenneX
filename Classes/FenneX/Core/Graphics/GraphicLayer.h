@@ -279,8 +279,10 @@ private:
     float clock;
     
     bool isUpdating;
-    CCArray* objectsToAdd; //contains NSMutableArrays, which contains, in order : a RawObject, its index and its panel (optional)
-    CCArray* objectsToRemove; //only contains RawObjects directly
+    Vector<RawObject*> objectsToAdd;
+    std::vector<int> objectsToAddZindex;
+    std::vector<Panel*> objectsToAddPanel;
+    Vector<RawObject*> objectsToRemove; //only contains RawObjects directly
     
     CCDictionary* childParent; //keys are objects ID, values are Panel
     int nextAvailableId;

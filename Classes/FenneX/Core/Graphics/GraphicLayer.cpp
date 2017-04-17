@@ -55,8 +55,6 @@ void GraphicLayer::init()
     layer->retain();
     clock = 0;
     isUpdating = false;
-    objectsToAdd = new CCArray();
-    objectsToRemove = new CCArray();
     childParent = new CCDictionary();
 }
 
@@ -70,8 +68,6 @@ GraphicLayer::~GraphicLayer()
     storedObjects->release();
     storedPanels->release();
     layer->release();
-    objectsToAdd->release();
-    objectsToRemove->release();
     childParent->release();
 }
 
@@ -1393,12 +1389,11 @@ RawObject* GraphicLayer::placeObject(RawObject* obj, Panel* panel)
     }
     else if(panel != NULL)
     {
-        for(int i = 0; i < objectsToAdd->count(); i++)
+        for(int i = 0; i < objectsToAdd.size(); i++)
         {
-            CCArray* objInfos = (CCArray*)objectsToAdd->objectAtIndex(i);
-            if(objInfos->objectAtIndex(0) == obj)
+            if(objectsToAdd.at(i) == obj)
             {
-                objInfos->addObject(panel);
+                objectsToAddPanel[i] = panel;
             }
         }
     }
@@ -1459,7 +1454,7 @@ void GraphicLayer::destroyObject(RawObject* obj)
     {
         if(isUpdating)
         {
-            objectsToRemove->addObject(obj);
+            objectsToRemove.pushBack(obj);
         }
         else
         {
@@ -2093,7 +2088,9 @@ void GraphicLayer::addObject(RawObject* obj, int z)
     {
         if(isUpdating)
         {
-            objectsToAdd->addObject(CCArray::create(obj, Icreate(z), NULL));
+            objectsToAdd.pushBack(obj);
+            objectsToAddZindex.push_back(z);
+            objectsToAddPanel.push_back(NULL);
         }
         else
         {
@@ -2150,23 +2147,24 @@ void GraphicLayer::update(float deltaTime)
         }
     }
     isUpdating = false;
-    
-    CCARRAY_FOREACH(objectsToAdd, obj)
+    for(int i = 0; i < objectsToAdd.size(); i++)
     {
-        CCArray* objInfos = (CCArray*)obj;
-        this->addObject((RawObject*)objInfos->objectAtIndex(0), ((CCInteger*)objInfos->objectAtIndex(1))->getValue());
-        if(objInfos->count() > 2)
+        this->addObject(objectsToAdd.at(i), objectsToAddZindex[i]);
+        if(objectsToAddPanel[i] != NULL)
         {
-            this->placeObject((RawObject*)objInfos->objectAtIndex(0), (Panel*)objInfos->objectAtIndex(2));
+            this->placeObject(objectsToAdd.at(i), objectsToAddPanel[i]);
         }
     }
-    objectsToAdd->removeAllObjects();
+    objectsToAdd.clear();
+    objectsToAddZindex.clear();
+    objectsToAddPanel.clear();
     
-    CCARRAY_FOREACH(objectsToAdd, obj)
+    for(RawObject* obj : objectsToRemove)
     {
-        this->destroyObject((RawObject*)obj);
+        this->destroyObject(obj);
+        
     }
-    objectsToRemove->removeAllObjects();
+    objectsToRemove.clear();
     
     clock += deltaTime;
 }
