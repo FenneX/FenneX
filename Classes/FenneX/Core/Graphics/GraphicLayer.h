@@ -46,16 +46,11 @@ class GraphicLayer : public Ref, public Pausable
 public:
     static GraphicLayer* sharedLayer();
     
-    float getClock() { return clock; }
-    CCArray* getChildren() { return storedObjects; }
+    /**********************************************************************************
+     Methods to create objects
+     *********************************************************************************/
     
-    //create an object according parameters Type (CCString => Label or Image)
-    //required parameters are the same as this object, see below
-    //TODO : implement it if some automatic creation is needed
-    //RawObject* createObject(Ref* firstObject, ... );
-    //RawObject* createObject(CCDictionary* values);
-    
-    /*Parameters must contain ImageFile (CCString) or TODO ??ImageData (casted CGImageRef)?? + cocosName (CCString) : each cocosName MUST be unique and MUST NOT correspond to an image file in use
+    /*Parameters must contain ImageFile (CCString)
      Optional Parameters :
      - Position (Vec2) default (0, 0)
      - Zindex (CCInteger as int) default 0
@@ -82,12 +77,6 @@ public:
     CustomObject* createCustomObject(Ref* firstObject, ... );
     CustomObject* createCustomObject(CCDictionary* values);
     CustomObject* createCustomObjectFromNode(Node* node, Panel* parent);
-    
-    /*Label vs LabelTTF ?
-     see cocos2d documentation about CCLabelBMFont vs Label
-     in short, use Label when you are sure about the characters needed (no user generated content) to have better performance (with a slight loading time)
-     use LabelTTF to have every sinle character available. May have a performance drop especially if you change the labels a lot
-     */
     
     /*Parameters must contain Label (CCString) and FontFile (CCString) : FontFile must be formatted as FontnameSizeColor (example : Verdana30Black, recognized colors are : Black, White, Gray)
      Optional Parameters :
@@ -154,6 +143,12 @@ public:
     //Duplicate an object, currently supported : Image (not animated), LabelTTF, Panel (including its children, by recursive call)
     //Apart from specific type infos, copied properties are : Position, Zindex, Panel, Name, EventName, EventInfos, Visible, Scale
     RawObject* duplicateObject(RawObject* otherObject);
+    
+    
+    /**********************************************************************************
+     Methods to interact with Panels
+     *********************************************************************************/
+    
     //Leave panel at NULL to remove it from any panel it may be on
     RawObject* placeObject(RawObject* obj, Panel* panel = NULL);
     
@@ -161,7 +156,12 @@ public:
     void removeObjectFromPanel(RawObject* obj, Panel* panel);
     void removeAllObjectsFromPanel(Panel* panel);
     
+    //Get the parent panel of an object, or NULL if the object has no parent
     Panel* getContainingPanel(RawObject* obj);
+    
+    /**********************************************************************************
+     Methods to destroy objects
+     *********************************************************************************/
     
     //Destroy an object of the manager
     //It is not possible to remove an object without destroying it, as only the manager should store RawObject references
@@ -174,8 +174,13 @@ public:
     void destroyObjectEvent(EventCustom* event);
     void destroyObjectsEvent(EventCustom* event);
     
+    /**********************************************************************************
+     Methods to retrieve objects
+     *********************************************************************************/
+    
     RawObject* getById(int id);
     
+    CCArray* getChildren() { return storedObjects; }
     //Different ways of querying objects
     //The first object found is always returned to avoid managing arrays, or nil if no result
     //Cache is a way to tell GraphicLayer to cache this particular object for the current scene, so that subsequent call will be very fast
@@ -197,19 +202,16 @@ public:
     
     CCArray* allVisibleObjectsAtPosition(Vec2 position);
     
-    bool collision(Vec2 position, RawObject* obj);
-    
-    bool isOnScreen(RawObject* obj, cocos2d::Size size = cocos2d::Size(0, 0));
-    
-    //Return true if obj1 is in front of obj2
-    bool isInFront(RawObject* obj1, RawObject* obj2);
-    
-    bool containsObject(RawObject* obj);
     CCArray* allPanelsWithName(std::string name);
     CCArray* allPanelsWithName(CCString* name);
     Panel* firstPanelWithName(std::string name);
     Panel* firstPanelWithName(CCString* name);
     Panel* firstVisiblePanelWithName(CCString* name);
+    
+    
+    /**********************************************************************************
+     Methods to get position/scale relative to world instead of local
+     *********************************************************************************/
     
     Vec2 getPositionRelativeToObject(Vec2 point, RawObject* obj);
     Vec2 getRealPosition(RawObject* obj);
@@ -217,6 +219,25 @@ public:
     float getRealScale(RawObject* obj);
     float getRealScaleX(RawObject* obj);
     float getRealScaleY(RawObject* obj);
+    
+    /**********************************************************************************
+     Miscellaneous methods
+     *********************************************************************************/
+    
+    //Return true if the position is inside the object
+    bool collision(Vec2 position, RawObject* obj);
+    
+    //Return true if at least some part of the object is on screen
+    bool isOnScreen(RawObject* obj, cocos2d::Size size = cocos2d::Size(0, 0));
+    
+    //Return true if obj1 is in front of obj2
+    bool isInFront(RawObject* obj1, RawObject* obj2);
+    
+    //The universal clock
+    float getClock() { return clock; }
+    
+    //Return true if the object is known by the layer. Does not take into account objects being added/removed
+    bool containsObject(RawObject* obj);
     
     //Should be by superclass called to perform object touch action, return YES to claim touch
     bool touchObject(RawObject* obj, bool event, Vec2 position);
