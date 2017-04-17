@@ -48,7 +48,6 @@ void GraphicLayer::init()
 {
     nextAvailableId = 0;
     relatedScene = NULL;
-    isPaused = false;
     storedObjects = new CCArray();
     storedPanels = new CCArray();
     layer = Layer::create();

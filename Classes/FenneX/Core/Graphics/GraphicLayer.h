@@ -47,7 +47,6 @@ public:
     static GraphicLayer* sharedLayer();
     
     Layer* getLayer() { return layer; }
-    bool IsPaused() { return isPaused; }
     float getClock() { return clock; }
     CCArray* getChildren() { return storedObjects; }
     
@@ -270,7 +269,6 @@ private:
     //the actual rendering layer for graphic objects stored
     Layer* layer;
     
-    bool isPaused;
     Scene* relatedScene;
     
     //Array containing Motion panels
