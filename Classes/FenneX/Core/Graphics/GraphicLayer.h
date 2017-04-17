@@ -284,7 +284,7 @@ private:
     std::vector<Panel*> objectsToAddPanel;
     Vector<RawObject*> objectsToRemove; //only contains RawObjects directly
     
-    CCDictionary* childParent; //keys are objects ID, values are Panel
+    std::map<int, Panel*> childsParents;//keys are objects ID, values are Panel
     int nextAvailableId;
 };
 

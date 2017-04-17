@@ -55,7 +55,6 @@ void GraphicLayer::init()
     layer->retain();
     clock = 0;
     isUpdating = false;
-    childParent = new CCDictionary();
 }
 
 GraphicLayer::~GraphicLayer()
@@ -68,7 +67,6 @@ GraphicLayer::~GraphicLayer()
     storedObjects->release();
     storedPanels->release();
     layer->release();
-    childParent->release();
 }
 
 void GraphicLayer::useBaseLayer(Layer* otherLayer)
@@ -308,7 +306,7 @@ Image* GraphicLayer::createImageFromSprite(Sprite* sprite, Panel* parent)
         if(parent != NULL)
         {
             parent->addChild(img);
-            childParent->setObject(parent, img->getID());
+            childsParents[img->getID()] = parent;
         }
         img->release();
     }
@@ -326,7 +324,7 @@ CustomObject* GraphicLayer::createCustomObjectFromNode(Node* node, Panel* parent
         if(parent != NULL)
         {
             parent->addChild(obj);
-            childParent->setObject(parent, obj->getID());
+            childsParents[obj->getID()] = parent;
         }
         obj->release();
     }
@@ -688,7 +686,7 @@ LabelTTF* GraphicLayer::createLabelTTFromLabel(Label* cocosLabel, Panel* parent)
         if(parent != NULL)
         {
             parent->addChild(label);
-            childParent->setObject(parent, label->getID());
+            childsParents[label->getID()] = parent;
         }
         label->release();
     }
@@ -909,7 +907,7 @@ InputLabel* GraphicLayer::createInputLabelFromScale9Sprite(ui::Scale9Sprite* coc
         {
             storedObjects->addObject(label);
             parent->addChild(label);
-            childParent->setObject(parent, label->getID());
+            childsParents[label->getID()] = parent;
         }
         else
         {
@@ -1079,7 +1077,7 @@ Panel* GraphicLayer::createPanelFromNode(Node* cocosNode, Panel* parent)
         if(parent != NULL)
         {
             parent->addChild(panel);
-            childParent->setObject(parent, panel->getID());
+            childsParents[panel->getID()] = parent;
         }
         panel->release();
     }
@@ -1271,7 +1269,7 @@ DropDownList* GraphicLayer::createDropDownListFromSprite(Sprite* sprite, Panel* 
         if(parent != NULL)
         {
             parent->addChild(dropDownList);
-            childParent->setObject(parent, dropDownList->getID());
+            childsParents[dropDownList->getID()] = parent;
         }
         dropDownList->release();
     }
@@ -1377,7 +1375,7 @@ RawObject* GraphicLayer::placeObject(RawObject* obj, Panel* panel)
                 storedObjects->removeObject(obj);
                 storedObjects->insertObject(obj, storedObjects->indexOfObject(panel));
                 //TODO : problem with obj zOrder : it does not correspond to panel zOrder
-                childParent->setObject(panel, obj->getID());
+                childsParents[obj->getID()] = panel;
             }
 #if VERBOSE_WARNING
             else
@@ -1406,14 +1404,8 @@ void GraphicLayer::removeObjectFromPanel(RawObject* obj, Panel* panel)
     {
         panel->removeChild(obj);
         layer->addChild(obj->getNode());
-        if(childParent->objectForKey(obj->getID()) != NULL)
-        {
-            childParent->removeObjectForKey(obj->getID());
-        }
-        else
-        {
-            CCASSERT(1, "Problem with childParent");
-        }
+        CCAssert(childsParents.find(obj->getID()) != childsParents.end(), "Cannot find object inf childsParents");
+        childsParents.erase(obj->getID());
     }
 #if VERBOSE_WARNING
     else
@@ -1434,18 +1426,7 @@ void GraphicLayer::removeAllObjectsFromPanel(Panel* panel)
 Panel* GraphicLayer::getContainingPanel(RawObject* obj)
 {
     if(obj == NULL) return NULL;
-    return (Panel*)childParent->objectForKey(obj->getID());
-    /* OLD unefficient way to get the containing panel by trying all panels
-     Panel* containingPanel = NULL;
-     for(int i = 0; i < storedPanels->count(); i++)
-     {
-     Panel* panel = (Panel*)storedPanels->objectAtIndex(i);
-     if(panel->containsObject(obj))
-     {
-     containingPanel = panel;
-     }
-     }
-     return containingPanel;*/
+    return childsParents[obj->getID()];
 }
 
 void GraphicLayer::destroyObject(RawObject* obj)
@@ -1471,8 +1452,6 @@ void GraphicLayer::destroyObject(RawObject* obj)
                 storedPanels->removeObject(obj);
                 CCArray* children = ((Panel*)obj)->getChildren();
                 CCASSERT(children == NULL || children->count() == 0, "Problem with panel children when releasing panel");
-                CCArray* keys = childParent->allKeysForObject(obj);
-                CCASSERT(keys == NULL || keys->count() == 0, "Problem with child parent when releasing panel");
             }
             this->placeObject(obj);
             if(obj->getNode() != NULL)
@@ -1564,7 +1543,7 @@ void GraphicLayer::clear()
         this->destroyObject((RawObject*)storedObjects->objectAtIndex(0));
     }
     storedPanels->removeAllObjects();
-    childParent->removeAllObjects();
+    childsParents.clear();
     nextAvailableId = 0;
 }
 
