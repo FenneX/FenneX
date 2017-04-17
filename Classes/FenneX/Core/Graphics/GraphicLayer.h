@@ -218,6 +218,9 @@ public:
     
     bool isOnScreen(RawObject* obj, cocos2d::Size size = cocos2d::Size(0, 0));
     
+    //Return true if obj1 is in front of obj2
+    bool isInFront(RawObject* obj1, RawObject* obj2);
+    
     bool containsObject(RawObject* obj);
     CCArray* allPanelsWithName(std::string name);
     CCArray* allPanelsWithName(CCString* name);
