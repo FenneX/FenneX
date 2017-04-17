@@ -1543,6 +1543,7 @@ void GraphicLayer::clear()
     }
     storedPanels->removeAllObjects();
     childsParents.clear();
+    objectsToRemove.clear();
     nextAvailableId = 0;
 }
 
@@ -1629,7 +1630,7 @@ RawObject* GraphicLayer::firstObjectAtPosition(Vec2 position)
 RawObject* GraphicLayer::objectAtIndex(int index)
 {
     CCAssert(index >= 0, "in GraphicLayer objectAtIndex : invalid index, it should be positive");
-    CCAssert(index < this->count(), "in GraphicLayer objectAtIndex : invalid index, it should be inferior to count");
+    CCAssert(index < storedObjects->count(), "in GraphicLayer objectAtIndex : invalid index, it should be inferior to count");
     return (RawObject*)storedObjects->objectAtIndex(index);
 }
 

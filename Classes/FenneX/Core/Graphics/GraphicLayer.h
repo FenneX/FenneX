@@ -46,21 +46,8 @@ class GraphicLayer : public Ref, public Pausable
 public:
     static GraphicLayer* sharedLayer();
     
-    Layer* getLayer() { return layer; }
     float getClock() { return clock; }
     CCArray* getChildren() { return storedObjects; }
-    
-public:
-    ~GraphicLayer();
-    
-    //Used when loading an entire scene from CCB
-    void useBaseLayer(Layer* otherLayer);
-    //Specify on which layer (or scene) it should be rendered and its depth
-    void renderOnLayer(Scene* destination);
-    
-    //Should be called to detach it before being render on another layer
-    void stopRenderOnLayer(Scene* destination, bool cleanup);
-    virtual void stop();
     
     //create an object according parameters Type (CCString => Label or Image)
     //required parameters are the same as this object, see below
@@ -187,10 +174,6 @@ public:
     void destroyObjectEvent(EventCustom* event);
     void destroyObjectsEvent(EventCustom* event);
     
-    long count() { return storedObjects->count(); }
-    
-    void clear();
-    
     RawObject* getById(int id);
     
     //Different ways of querying objects
@@ -234,58 +217,85 @@ public:
     float getRealScale(RawObject* obj);
     float getRealScaleX(RawObject* obj);
     float getRealScaleY(RawObject* obj);
+    
+    //Should be by superclass called to perform object touch action, return YES to claim touch
+    bool touchObject(RawObject* obj, bool event, Vec2 position);
+    
+    //change child local z-order, and update storedObjects
+    void reorderChild(RawObject* child, int zOrder);
+    
+    //On resume app, some platforms (Android so far) need to refresh render texture because the openGL context is dropped and the render textures are invalid
+    void refreshRenderTextures(Ref* obj);
+    
+    /**********************************************************************************
+     Methods that are used by FenneX other classes. You should not call any directly
+     *********************************************************************************/
+    //Return an available ID and increment the counter for next one
+    int getNextId();
+    
+    //Used when loading an entire scene from CCB
+    void useBaseLayer(Layer* otherLayer);
+    
+    //Specify on which scene it should be rendered
+    void renderOnLayer(Scene* destination);
+    
+    //Should be called to detach it before being render on another layer
+    void stopRenderOnLayer(Scene* destination, bool cleanup);
+    
     //Call this method to transmit a touch to it's children
     //The touch will be transmitted to each child which have position in it's bounding box
     //Return true if at least one child claimed it
     //if event is true, it will post a notification according the object. Else, it will ask for informations about the object
     bool touchAtPosition(Vec2 position, bool event);
     
-    //Should be by superclass called to perform object touch action, return YES to claim touch
-    bool touchObject(RawObject* obj, bool event, Vec2 position);
-    
-    
-    //TODO : implement reorder, which are not done yet, requires Panel implementation of reorder too
-    //reoderChild using zOrder
-    void reorderChild(RawObject* child, int zOrder);
-    
-    //TODO : implement if needed
-    //return the time it will take to close all panels. 0 mean there are no panels to close
-    //float closeMainPanels();
-    
+    //Run update on all children, then add/remove children. Also update clock
     virtual void update(float deltaTime);
     
-    //On resume app, some platforms (Android so far) need to refresh render texture because the openGL context is dropped and the render textures are invalid
-    void refreshRenderTextures(Ref* obj);
+    //Stop the layer and remove it from its parent
+    virtual void stop();
     
-    //note : a few class may need to friend GraphicLayer to use that method. Its usage may be unsafe but necessary
-    void addObject(RawObject* obj, int z = 0);
-    int getNextId();
-protected:
 private:
+    //Initialization, use init method instead of a constructor.
     void init();
+    
+    //Remove all objects
+    void clear();
+    
+    //Since GraphicLayer is a singleton, it should never be dealloc. It should be stopped instead
+    ~GraphicLayer();
+    
+    //Actually add the object to the Layer
+    void addObject(RawObject* obj, int z = 0);
+    
+    //Used to internally reorder storedObjects after updating an object z-order
     void reorderChildrenOfPanel(Panel* panel);
     
+    //Helper method to load ccb infos into an object
     void loadBaseNodeAttributes(CustomBaseNode* node, RawObject* obj);
-    //Array containing graphic objects and motion panels. Image children are sort according their zOrder (ascending)
+    
+    //Array containing all objects. They are sort according their zOrder (ascending)
     CCArray* storedObjects;
-    
-    //the actual rendering layer for graphic objects stored
-    Layer* layer;
-    
-    Scene* relatedScene;
-    
-    //Array containing Motion panels
+    //Array containing panels, for easier retrieval when using Panel specific methods
     CCArray* storedPanels;
+    //Allow to easily find the parent of any object
+    std::map<int, Panel*> childsParents;//keys are objects ID, values are Panel
     
-    float clock;
-    
+    //Lock add/remove during updating, and instead use the following vectors, which will be used to add/remove at the end of updating
     bool isUpdating;
     Vector<RawObject*> objectsToAdd;
     std::vector<int> objectsToAddZindex;
     std::vector<Panel*> objectsToAddPanel;
     Vector<RawObject*> objectsToRemove; //only contains RawObjects directly
     
-    std::map<int, Panel*> childsParents;//keys are objects ID, values are Panel
+    //the actual rendering layer for graphic objects stored
+    Layer* layer;
+    
+    //The parent of the layer, to remove the layer when stopping
+    Scene* relatedScene;
+    
+    //The time is counted separately from update method, so that everything is on the same page
+    float clock;
+    //Next available ID that any new object can take. getNextId will automatically increment it
     int nextAvailableId;
 };
 
