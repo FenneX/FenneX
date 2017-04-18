@@ -39,17 +39,17 @@ void arrayRemoveStringFromOther(CCArray* list, CCArray* other);
 
 //Will return a new string with the first letter upper-case or lower-cased
 CCString* changeFirstLetterCase(CCString* text, bool lower);
-const char* changeFirstLetterCase(const char* text, bool lower);
+std::string changeFirstLetterCase(std::string text, bool lower);
 CCString* upperCaseFirstLetter(CCString* text);
-const char* upperCaseFirstLetter(const char* text);
+std::string upperCaseFirstLetter(std::string text);
 CCString* lowerCaseFirstLetter(CCString* text);
-const char* lowerCaseFirstLetter(const char* text);
+std::string lowerCaseFirstLetter(std::string text);
 
 //Those methods are UTF-8 aware and require letters_conversion.txt resource to work (add it to project on iOS)
 CCString* upperCaseString(CCString* text);
-const char* upperCaseString(const char* text);
+std::string upperCaseString(std::string text);
 
-bool stringEndsWith(const char *str, const char *suffix);
+bool stringEndsWith(std::string str, std::string suffix);
 
 //Use Percent-encoding as defined in https://en.wikipedia.org/wiki/Percent-encoding
 //Useful to submit forms, since libcurl curl_easy_escape is hard to use

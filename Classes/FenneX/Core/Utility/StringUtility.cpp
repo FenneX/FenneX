@@ -107,7 +107,7 @@ CCString* upperCaseFirstLetter(CCString* text)
     return changeFirstLetterCase(text, false);
 }
 
-const char* upperCaseFirstLetter(const char* text)
+std::string upperCaseFirstLetter(std::string text)
 {
     return changeFirstLetterCase(text, false);
 }
@@ -117,7 +117,7 @@ CCString* lowerCaseFirstLetter(CCString* text)
     return changeFirstLetterCase(text, true);
 }
 
-const char* lowerCaseFirstLetter(const char* text)
+std::string lowerCaseFirstLetter(std::string text)
 {
     return changeFirstLetterCase(text, true);
 }
@@ -190,20 +190,16 @@ CCString* upperCaseString(CCString* text)
     return Screate(to.c_str());
 }
 
-const char* upperCaseString(const char* text)
+std::string upperCaseString(std::string text)
 {
     return upperCaseString(Screate(text))->getCString();
 }
 
-bool stringEndsWith(const char *str, const char *suffix)
+bool stringEndsWith(std::string str, std::string suffix)
 {
-    if (!str || !suffix)
-        return 0;
-    long lenstr = strlen(str);
-    long lensuffix = strlen(suffix);
-    if (lensuffix >  lenstr)
-        return 0;
-    return strncmp(str + lenstr - lensuffix, suffix, lensuffix) == 0;
+    if (suffix.length() >  str.length())
+        return false;
+    return str.substr(str.length() - suffix.length()) == suffix;
 }
 
 //Copied from http://stackoverflow.com/questions/154536/encode-decode-urls-in-c
