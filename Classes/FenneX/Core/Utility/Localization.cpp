@@ -52,11 +52,6 @@ CCString* Localization::getLocalizedString(CCString* string) {
     return Screate(getLocalizedString(string->getCString()));
 }
 
-const char* Localization::getLocalizedString(const char* string) {
-    std::string result = getLocalizedString(string);
-    return result.c_str();
-}
-
 const std::string Localization::getLocalizedString(const std::string& string){
 #if !(USE_TRANSLATION)
     return string;

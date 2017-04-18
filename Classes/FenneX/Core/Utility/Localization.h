@@ -38,7 +38,6 @@ class Localization
 public:
     static bool willTranslate();
     static CCString* getLocalizedString(CCString* string);
-    static const char* getLocalizedString(const char* string);
     static const std::string getLocalizedString(const std::string& string);
     
     static void loadAdditionalTranslations(std::function<std::string(std::string)> resolveLanguageFile);
