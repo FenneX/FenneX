@@ -115,15 +115,13 @@ std::vector<std::pair<std::string, std::string>> getConversions()
     return result;
 }
 
-std::string upperCaseString(std::string text)
+std::string upperCase(std::string text)
 {
-    timeval startTime;
-    gettimeofday(&startTime, NULL);
     //TODO : speed up by sorting the vector and doing a better search
     static std::vector<std::pair<std::string, std::string>> conversions = getConversions();
     if(conversions.size() == 0)
     {
-        log("Warning: missing file letters_conversion.txt, required for upperCaseString, string %s not converted", text.c_str());
+        log("Warning: missing file letters_conversion.txt, required for upperCase, string %s not converted", text.c_str());
         return text;
     }
     std::string to;
@@ -145,8 +143,37 @@ std::string upperCaseString(std::string text)
             to += charString;
         }
     }
-    timeval endTime;
-    gettimeofday(&endTime, NULL);
+    return to;
+}
+
+std::string lowerCase(std::string text)
+{
+    //TODO : speed up by sorting the vector and doing a better search
+    static std::vector<std::pair<std::string, std::string>> conversions = getConversions();
+    if(conversions.size() == 0)
+    {
+        log("Warning: missing file letters_conversion.txt, required for upperCase, string %s not converted", text.c_str());
+        return text;
+    }
+    std::string to;
+    for(int i = 0; i < text.length(); i+= utf8_chsize(&text[i]))
+    {
+        long charLength = utf8_chsize(&text[i]);
+        std::string charString = text.substr(i, charLength);
+        int conversionIndex = 0;
+        while(conversionIndex < conversions.size() && conversions[conversionIndex].first != charString)
+        {
+            conversionIndex++;
+        }
+        if(conversionIndex < conversions.size())
+        {
+            to += conversions[conversionIndex].second;
+        }
+        else
+        {
+            to += charString;
+        }
+    }
     return to;
 }
 
