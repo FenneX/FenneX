@@ -34,13 +34,6 @@ NS_FENNEX_BEGIN
 
 //Replacement suggestion assume std::vector<std::string> list; and std::string string;
 
-//Will return a new string with the first letter upper-case or lower-cased
-CCString* changeFirstLetterCase(CCString* text, bool lower);
-std::string changeFirstLetterCase(std::string text, bool lower);
-CCString* upperCaseFirstLetter(CCString* text);
-std::string upperCaseFirstLetter(std::string text);
-CCString* lowerCaseFirstLetter(CCString* text);
-std::string lowerCaseFirstLetter(std::string text);
 /*
  Replace by 
  std::find(list.begin(), list.end(), string) != list.end();

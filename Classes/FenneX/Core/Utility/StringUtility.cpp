@@ -83,45 +83,6 @@ void arrayRemoveStringFromOther(CCArray* list, CCArray* other)
     list->removeObjectsInArray(objectsToRemove);
 }
 
-CCString* changeFirstLetterCase(CCString* text, bool lower)
-{
-    if(text->length() > 0)
-    {
-        char firstChar = lower ? tolower(text->getCString()[0]) : toupper(text->getCString()[0]);
-        std::string textString = std::string(text->getCString());
-        std::string subString = textString.substr(1);
-        const char* rest = subString.c_str();
-        //reconstruct the char with first character lower cased
-        text = ScreateF("%c%s", firstChar, rest);
-    }
-    return text;
-}
-
-std::string changeFirstLetterCase(std::string text, bool lower)
-{
-    return changeFirstLetterCase(Screate(text), lower)->getCString();
-}
-
-CCString* upperCaseFirstLetter(CCString* text)
-{
-    return changeFirstLetterCase(text, false);
-}
-
-std::string upperCaseFirstLetter(std::string text)
-{
-    return changeFirstLetterCase(text, false);
-}
-
-CCString* lowerCaseFirstLetter(CCString* text)
-{
-    return changeFirstLetterCase(text, true);
-}
-
-std::string lowerCaseFirstLetter(std::string text)
-{
-    return changeFirstLetterCase(text, true);
-}
-
 std::vector<std::pair<std::string, std::string>> getConversions()
 {
     std::vector<std::pair<std::string, std::string>> result;
