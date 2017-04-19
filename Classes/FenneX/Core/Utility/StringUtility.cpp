@@ -83,11 +83,6 @@ void arrayRemoveStringFromOther(CCArray* list, CCArray* other)
     list->removeObjectsInArray(objectsToRemove);
 }
 
-const char* changeFirstLetterCase(const char* text, bool lower)
-{
-    return changeFirstLetterCase(Screate(text), lower)->getCString();
-}
-
 CCString* changeFirstLetterCase(CCString* text, bool lower)
 {
     if(text->length() > 0)
@@ -100,6 +95,11 @@ CCString* changeFirstLetterCase(CCString* text, bool lower)
         text = ScreateF("%c%s", firstChar, rest);
     }
     return text;
+}
+
+std::string changeFirstLetterCase(std::string text, bool lower)
+{
+    return changeFirstLetterCase(Screate(text), lower)->getCString();
 }
 
 CCString* upperCaseFirstLetter(CCString* text)
