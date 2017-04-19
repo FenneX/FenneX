@@ -35,6 +35,7 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 /* Implements ActivityResult so that the MainActivity doesn't have to redo all this common code
@@ -78,6 +79,8 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 		{
 			observer.onStateChanged(ActivityObserver.CREATE);
 		}
+		NativeUtility.getMainActivity().getWindow().setSoftInputMode(
+				WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 	}
 
     public void discardSplashDialog()
