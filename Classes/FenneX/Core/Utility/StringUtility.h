@@ -31,11 +31,8 @@ USING_NS_CC;
 
 NS_FENNEX_BEGIN
 //Perform a real string comparison, whereas the default CCArray::containsObject just do a pointer comparison
-bool arrayContainsString(CCArray* list, CCString* string);
-int arrayGetStringIndex(CCArray* list, CCString* string);
-void arrayRemoveString(CCArray* list, CCString* string);
-void arrayRemoveStringFromOther(CCArray* list, CCArray* other);
 
+//Replacement suggestion assume std::vector<std::string> list; and std::string string;
 
 //Will return a new string with the first letter upper-case or lower-cased
 CCString* changeFirstLetterCase(CCString* text, bool lower);
@@ -44,6 +41,32 @@ CCString* upperCaseFirstLetter(CCString* text);
 std::string upperCaseFirstLetter(std::string text);
 CCString* lowerCaseFirstLetter(CCString* text);
 std::string lowerCaseFirstLetter(std::string text);
+/*
+ Replace by 
+ std::find(list.begin(), list.end(), string) != list.end();
+ */
+CC_DEPRECATED_ATTRIBUTE bool arrayContainsString(CCArray* list, CCString* string);
+
+/* 
+ Replace by
+ std::vector<std::string>::iterator iter = std::find_if(list.begin(), list.end(), string);
+ if(iter != list.end()) size_t index = std::distance(list.begin(), iter);
+ */
+CC_DEPRECATED_ATTRIBUTE int arrayGetStringIndex(CCArray* list, CCString* string);
+
+/*
+ Replace by
+ list.erase(std::remove(list.begin(), list.end(), string), list.end())
+ */
+CC_DEPRECATED_ATTRIBUTE void arrayRemoveString(CCArray* list, CCString* string);
+
+/*
+ Replace by
+ list.erase(std::remove_if(list.begin(), list.end(), [other](const std::string& string) {
+    std::find(other.begin(), other.end(), string) != other.end()
+ }), list.end())
+ */
+CC_DEPRECATED_ATTRIBUTE void arrayRemoveStringFromOther(CCArray* list, CCArray* other);
 
 //Those methods are UTF-8 aware and require letters_conversion.txt resource to work (add it to project on iOS)
 CCString* upperCaseString(CCString* text);
