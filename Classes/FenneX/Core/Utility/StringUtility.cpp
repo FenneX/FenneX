@@ -115,7 +115,7 @@ std::vector<std::pair<std::string, std::string>> getConversions()
     return result;
 }
 
-CCString* upperCaseString(CCString* text)
+std::string upperCaseString(std::string text)
 {
     timeval startTime;
     gettimeofday(&startTime, NULL);
@@ -123,15 +123,14 @@ CCString* upperCaseString(CCString* text)
     static std::vector<std::pair<std::string, std::string>> conversions = getConversions();
     if(conversions.size() == 0)
     {
-        log("Warning: missing file letters_conversion.txt, required for upperCaseString, string %s not converted", text->getCString());
+        log("Warning: missing file letters_conversion.txt, required for upperCaseString, string %s not converted", text.c_str());
         return text;
     }
-    std::string from = text->getCString();
     std::string to;
-    for(int i = 0; i < from.length(); i+= utf8_chsize(&from[i]))
+    for(int i = 0; i < text.length(); i+= utf8_chsize(&text[i]))
     {
-        long charLength = utf8_chsize(&from[i]);
-        std::string charString = from.substr(i, charLength);
+        long charLength = utf8_chsize(&text[i]);
+        std::string charString = text.substr(i, charLength);
         int conversionIndex = 0;
         while(conversionIndex < conversions.size() && conversions[conversionIndex].second != charString)
         {
@@ -148,12 +147,7 @@ CCString* upperCaseString(CCString* text)
     }
     timeval endTime;
     gettimeofday(&endTime, NULL);
-    return Screate(to.c_str());
-}
-
-std::string upperCaseString(std::string text)
-{
-    return upperCaseString(Screate(text))->getCString();
+    return to;
 }
 
 bool stringEndsWith(std::string str, std::string suffix)

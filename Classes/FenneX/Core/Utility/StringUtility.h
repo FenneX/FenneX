@@ -62,7 +62,6 @@ CC_DEPRECATED_ATTRIBUTE void arrayRemoveString(CCArray* list, CCString* string);
 CC_DEPRECATED_ATTRIBUTE void arrayRemoveStringFromOther(CCArray* list, CCArray* other);
 
 //Those methods are UTF-8 aware and require letters_conversion.txt resource to work (add it to project on iOS)
-CCString* upperCaseString(CCString* text);
 std::string upperCaseString(std::string text);
 
 bool stringEndsWith(std::string str, std::string suffix);
