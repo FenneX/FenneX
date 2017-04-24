@@ -248,10 +248,6 @@ Image* GraphicLayer::createImage(CCDictionary* values)
             {
                 ((Sprite*)img->getNode())->setOpacity(((CCInteger*)values->objectForKey("Opacity"))->getValue());
             }
-            if(values->objectForKey("Help") != NULL && isKindOfClass(values->objectForKey("Help"), CCString))
-            {
-                img->setHelp(((CCString*)values->objectForKey("Help"))->getCString());
-            }
         }
         else
         {
@@ -440,10 +436,6 @@ CustomObject* GraphicLayer::createCustomObject(CCDictionary* values)
             {
                 ((Sprite*)obj->getNode())->setOpacity(((CCInteger*)values->objectForKey("Opacity"))->getValue());
             }
-            if(values->objectForKey("Help") != NULL && isKindOfClass(values->objectForKey("Help"), CCString))
-            {
-                obj->setHelp(((CCString*)values->objectForKey("Help"))->getCString());
-            }
         }
 #if VERBOSE_WARNING
         else
@@ -621,10 +613,6 @@ LabelTTF* GraphicLayer::createLabelTTF(CCDictionary* values)
             if(values->objectForKey("Opacity") != NULL && isKindOfClass(values->objectForKey("Opacity"), CCInteger))
             {
                 ((LabelBMFont*)label->getNode())->setOpacity(((CCInteger*)values->objectForKey("Opacity"))->getValue());
-            }
-            if(values->objectForKey("Help") != NULL && isKindOfClass(values->objectForKey("Help"), CCString))
-            {
-                label->setHelp(((CCString*)values->objectForKey("Help"))->getCString());
             }
         }
 #if VERBOSE_WARNING
@@ -839,10 +827,6 @@ InputLabel* GraphicLayer::createInputLabel(CCDictionary* values)
             {
                 ((LabelBMFont*)label->getNode())->setOpacity(((CCInteger*)values->objectForKey("Opacity"))->getValue());
             }
-            if(values->objectForKey("Help") != NULL && isKindOfClass(values->objectForKey("Help"), CCString))
-            {
-                label->setHelp(((CCString*)values->objectForKey("Help"))->getCString());
-            }
             label->update(0);//used to apply text change right now so that the label is resized correctly right now
         }
 #if VERBOSE_WARNING
@@ -1015,10 +999,6 @@ Panel* GraphicLayer::createPanel(CCDictionary* values)
              {
              ((Sprite*)img->getNode())->setOpacity(((CCInteger*)values->objectForKey("Opacity"))->getValue());
              }*/
-            if(values->objectForKey("Help") != NULL && isKindOfClass(values->objectForKey("Help"), CCString))
-            {
-                panel->setHelp(((CCString*)values->objectForKey("Help"))->getCString());
-            }
         }
 #if VERBOSE_WARNING
         else
@@ -1207,10 +1187,6 @@ DropDownList* GraphicLayer::createDropDownList(CCDictionary* values)
             if(values->objectForKey("Opacity") != NULL && isKindOfClass(values->objectForKey("Opacity"), CCInteger))
             {
                 ((Sprite*)dropDownList->getNode())->setOpacity(((CCInteger*)values->objectForKey("Opacity"))->getValue());
-            }
-            if(values->objectForKey("Help") != NULL && isKindOfClass(values->objectForKey("Help"), CCString))
-            {
-                dropDownList->setHelp(((CCString*)values->objectForKey("Help"))->getCString());
             }
         }
     }
@@ -1974,13 +1950,6 @@ bool GraphicLayer::touchObject(RawObject* obj, bool event, Vec2 position)
                 CCString* trackingLabel = (CCString*) obj->getEventInfos()->objectForKey("TrackingLabel");
                 AnalyticsWrapper::logEvent(trackingName->_string, trackingInfo != NULL ? trackingInfo->getCString() : trackingLabel != NULL ? trackingLabel->_string : "");
             }
-        }
-        else if(!obj->getHelp().empty() && obj->getHelp()[0] != '\0')
-        {
-            CCDictionary* helpInfos = CCDictionary::create();
-            helpInfos->setObject(Icreate(obj->getID()), "Sender");
-            helpInfos->setObject(Screate(obj->getHelp()), "RequestedHelp");
-            Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("DisplayHelp", helpInfos);
         }
         return true;
     }

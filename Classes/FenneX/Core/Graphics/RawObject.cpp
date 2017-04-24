@@ -155,7 +155,6 @@ void RawObject::removeEventInfo(std::string key)
 RawObject::RawObject():
 name(""),
 eventName(""),
-help(""),
 isEventActivated(true)
 {
     eventInfos = CCDictionary::create();

@@ -37,7 +37,6 @@ class RawObject : public Ref
     CC_SYNTHESIZE_STRING(name, Name);
     CC_SYNTHESIZE_STRING(eventName, EventName);
     CC_SYNTHESIZE(bool, isEventActivated, EventActivated);
-    CC_SYNTHESIZE_STRING(help, Help);
     CC_SYNTHESIZE_READONLY(int, identifier, ID);
 public:
     
