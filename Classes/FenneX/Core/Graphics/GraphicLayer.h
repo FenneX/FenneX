@@ -50,94 +50,48 @@ public:
      Methods to create objects
      *********************************************************************************/
     
-    /*Parameters must contain ImageFile (CCString)
-     Optional Parameters :
-     - Position (Vec2) default (0, 0)
-     - Zindex (CCInteger as int) default 0
-     - Name (CCString) default ImageFile or cocosName
-     - EventName (CCString) default nil
-     - Panel (Panel) default nil
-     - EventInfos (CCDictionary) default nothing
-     - Visible (set CCInteger(0) for invisible) default visible
+    /*
+     Optional values for all objects :
+     - X (float) default 0
+     - Y (float) default 0
+     - Scale (float) default 1
+     - Zindex (int) default 0
+     - Name (string) default imageFile or spriteSheetFile
+     - EventName (String) default empty
+     - Panel (Panel ID) default none
+     - EventInfos (ValueMao) default nothing
+     - Visible (bool) default visible
+     - Opacity (int) default 255 (should range between 0-255)
      */
-    Image* createImage(Ref* firstObject, ... );
-    Image* createImage(CCDictionary* values);
+    
+    Image* createImage(std::string imageFile, ValueMap values);
+    Image* createAnimatedImage(std::string spriteSheetFile, int capacity, ValueMap values);
     Image* createImageFromSprite(Sprite* sprite, Panel* parent);
     
-    /*Parameters must contain Delegate (Node)
-     Optional Parameters :
-     - Position (Vec2) default (0, 0)
-     - Zindex (CCInteger as int) default 0
-     - Name (CCString) default ImageFile or cocosName
-     - EventName (CCString) default nil
-     - Panel (Panel) default nil
-     - EventInfos (CCDictionary) default nothing
-     - Visible (set CCInteger(0) for invisible) default visible
-     */
-    CustomObject* createCustomObject(Ref* firstObject, ... );
-    CustomObject* createCustomObject(CCDictionary* values);
+    CustomObject* createCustomObject(Node* delegate, ValueMap values);
     CustomObject* createCustomObjectFromNode(Node* node, Panel* parent);
     
-    /*Parameters must contain Label (CCString) and FontFile (CCString) : FontFile must be formatted as FontnameSizeColor (example : Verdana30Black, recognized colors are : Black, White, Gray)
-     Optional Parameters :
-     - Position (Vec2) default (0, 0)
-     - Dimensions (Size) and TextFormat (CCInteger as enum TextFormat) together or just Dimensions default NO_MAX_LINE_WIDTH and AlignCenter  DO NOT USE SCALE IF YOU WANT DIMENSIONS TO HAVE AN EFFECT
-     - Zindex (CCInteger as int) default 0
-     - Name (CCString) default ImageFile or cocosName
-     - EventName (CCString) default nil
-     - Panel (Panel) default nil
-     - EventInfos (CCDictionary) default nothing
-     - Visible (set CCInteger(0) for invisible) default visible
+    /* FontFile must be formatted as FontnameSizeColor (example : Verdana30Black, recognized colors are : Black, White, Gray)
+     Additional optional values :
+     - Dimensions: both DimX (float) and DimY (float) default 0, 0, which translates to NO_MAX_LINE_WIDTH
+     - TextFormat (int as enum TextFormat), requires DimX and DimY, default  AlignCenter
+     Do not use scale if you use dimensions, or it won't work properly
      */
-    LabelTTF* createLabelTTF(Ref* firstObject, ... );
-    LabelTTF* createLabelTTF(CCDictionary* values);
+    LabelTTF* createLabelTTF(std::string label, std::string fontFile, ValueMap values);
     LabelTTF* createLabelTTFromLabel(Label* cocosLabel, Panel* parent);
     
-    /*Parameters must contain PlaceHolder (CCString), which is a placeholder, FontFile (CCString) and FontSize (CCInteger)
-     Optional Parameters :
-     - InputMode (CCInteger as ui::EditBoxInputMode) default kui::EditBoxInputModeAny
-     - MaxDigits (CCInteger as int) default 0
-     - Label (CCString) default empty
-     - Position (Vec2) default (0, 0)
-     - Dimensions (Size) and TextFormat (CCInteger as enum TextFormat) together or just Dimensions default NO_MAX_LINE_WIDTH and AlignCenter
-     - Zindex (CCInteger as int) default 0
-     - Name (CCString) default ImageFile or cocosName
-     - EventName (CCString) default OpenKeyboard
-     - Panel (Panel) default nil
-     - EventInfos (CCDictionary) default nothing
-     - Visible (set CCInteger(0) for invisible) default visible
+    /* There is no createInputLabel with values, because it is not yet used. Feel free to create it if you need it 
      */
-    InputLabel* createInputLabel(Ref* firstObject, ... );
-    InputLabel* createInputLabel(CCDictionary* values);
     InputLabel* createInputLabelFromScale9Sprite(ui::Scale9Sprite* cocosSprite, Panel* parent);
     
-    /*Parameters must contain Name (CCString)
-     Optional Parameters :
-     - Position (Vec2) default (0, 0)
-     - Zindex (CCString as int) default 0
-     - EventName (CCString) default nil
-     - Panel (Panel) default nil
-     - EventInfos (CCDictionary) default nothing
-     - Visible (set CCString(0) for invisible) default visible
-     */
-    Panel* createPanel(Ref* firstObject, ... );
-    Panel* createPanel(CCDictionary* values);
+    Panel* createPanel(std::string name, ValueMap values);
     Panel* createPanelFromNode(Node* cocosNode, Panel* parent);
     //Special case : when you want the panel to be the host for a .ccbi file, the Node is already created
     Panel* createPanelWithNode(std::string name, Node* panelNode, int zOrder = 0);
     
-    /*Parameters must contain Name (CCString)
-     Optional Parameters :
-     - Position (Vec2) default (0, 0)
-     - Zindex (CCInteger as int) default 0
-     - Name (CCString) default ImageFile or cocosName
-     - EventName (CCString) default nil
-     - Panel (Panel) default nil
-     - EventInfos (CCDictionary) default nothing
-     - Visible (set CCInteger(0) for invisible) default visible
+    
+    /* There is no createDropDownList with values, because it is not yet used. Feel free to create it if you need it
      */
-    DropDownList* createDropDownList(Ref* firstObject, ... );
-    DropDownList* createDropDownList(CCDictionary* values);
     DropDownList* createDropDownListFromSprite(Sprite* sprite, Panel* parent);
     
     //Duplicate an object, currently supported : Image (not animated), LabelTTF, Panel (including its children, by recursive call)
@@ -287,6 +241,7 @@ private:
     
     //Actually add the object to the Layer
     void addObject(RawObject* obj, int z = 0);
+    void setObjectFields(RawObject* obj, ValueMap values);
     
     //Used to internally reorder storedObjects after updating an object z-order
     void reorderChildrenOfPanel(Panel* panel);

@@ -159,43 +159,6 @@ InputLabel::InputLabel(ui::Scale9Sprite* sprite)
     }
 }
 
-InputLabel::InputLabel(const char* placeHolder, const char* fontName, int fontSize, Vec2 location, ui::EditBox::InputMode inputMode, int maxChar, Size dimensions, TextHAlignment format)
-{
-    isOpened = false;
-    originalInfos = NULL;
-    fontSize = -1;
-    fontName = "";
-    name = placeHolder;
-    this->setFontSize(fontSize);
-    ui::Scale9Sprite* sprite = ui::Scale9Sprite::create("green_edit.png", Rect(0, 0, 43, 38), Rect(4, 3, 35, 32));
-    sprite->setPreferredSize(Size(43, 38));
-    sprite->setOpacity(0);
-    delegate = ui::EditBox::create(dimensions, sprite);
-    delegate->retain();
-    if(strlen(placeHolder) > 0)
-    {
-        std::string placeholderWithBrackets = "<" + std::string(placeHolder) + ">";
-        delegate->setPlaceHolder(placeholderWithBrackets.c_str());
-        this->setInitialText(placeholderWithBrackets);
-    }
-    delegate->setFontColor(Color3B::BLACK);
-    delegate->setDelegate(this);
-    
-    this->setPosition(location);
-    delegate->setInputMode(inputMode);
-    delegate->setReturnType(ui::EditBox::KeyboardReturnType::DONE);
-    delegate->setInputFlag(ui::EditBox::InputFlag::INITIAL_CAPS_SENTENCE);
-    if(maxChar != -1)
-    {
-        delegate->setMaxLength(maxChar);
-    }
-    listeners.pushBack(Director::getInstance()->getEventDispatcher()->addCustomEventListener("OpenKeyboard", std::bind(&InputLabel::openKeyboard, this, std::placeholders::_1)));
-    listeners.pushBack(Director::getInstance()->getEventDispatcher()->addCustomEventListener("CloseKeyboard", std::bind(&InputLabel::closeKeyboard, this, std::placeholders::_1)));
-    listeners.pushBack(Director::getInstance()->getEventDispatcher()->addCustomEventListener("DisableInputs", std::bind(&InputLabel::disableInputs, this, std::placeholders::_1)));
-    listeners.pushBack(Director::getInstance()->getEventDispatcher()->addCustomEventListener("EnableInputs", std::bind(&InputLabel::enableInputs, this, std::placeholders::_1)));
-    
-}
-
 InputLabel::~InputLabel()
 {
     if(isOpened)

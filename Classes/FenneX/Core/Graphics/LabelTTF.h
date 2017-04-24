@@ -59,7 +59,7 @@ public:
     
     LabelTTF();
     //will try to load filenameLight.fnt before filename.fnt in case there is a light font (which includes less symbols than the full one)
-    LabelTTF(const char* labelString, const char* filename, Vec2 location, cocos2d::Size dimensions = cocos2d::Size(0,0), TextHAlignment format = TextHAlignment::CENTER);
+    LabelTTF(std::string labelString, std::string filename, Vec2 position, cocos2d::Size dimensions = cocos2d::Size(0,0), TextHAlignment alignment = TextHAlignment::CENTER);
     LabelTTF(Label* label);
     ~LabelTTF();
     

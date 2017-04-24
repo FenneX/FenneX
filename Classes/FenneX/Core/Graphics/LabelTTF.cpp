@@ -132,16 +132,16 @@ loadingValue("")
 {
 }
 
-LabelTTF::LabelTTF(const char* labelString, const char* filename, Vec2 location, Size dimensions, TextHAlignment format) :
+LabelTTF::LabelTTF(std::string labelString, std::string filename, Vec2 position, Size dimensions, TextHAlignment alignment) :
 loadingValue("")
 {
     name = labelString;
     fitType = ResizeFont;
     fontFile = new CCString(filename);
     fullFontFile = new CCString(filename);
-    alignment = format;
+    this->alignment = alignment;
     int sizeBegin = -1, sizeEnd = -1;
-    for(int i = 0; i < strlen(filename); i++)
+    for(int i = 0; i < filename.size(); i++)
     {
         bool isNumber = filename[i] >= '0' && filename[i] <= '9';
         if(isNumber && sizeBegin == -1)
@@ -158,7 +158,7 @@ loadingValue("")
         log("LabelTTF : incorrect font formating, use : FontnameSizeColor");
         return;
     }
-    CCString* fontFile = CCString::createWithData((const unsigned char*)filename, sizeBegin);
+    CCString* fontFile = CCString::createWithData((const unsigned char*)filename.c_str(), sizeBegin);
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
     //ios doesn't like full path and ttf extension
     std::string fontFileWithoutTTF = fontFile->getCString();
@@ -173,12 +173,12 @@ loadingValue("")
         fontFileWithoutTTF = fontFileWithoutTTF.substr(slashPos+1);
     }
 #endif
-    CCString* fontSize = CCString::createWithData((const unsigned char*)(filename + sizeBegin), sizeEnd - sizeBegin);
-    CCString* color = CCString::createWithData((const unsigned char*)(filename + sizeEnd), strlen(filename) - sizeEnd);
+    CCString* fontSize = CCString::createWithData((const unsigned char*)filename.substr(sizeBegin).c_str(), sizeEnd - sizeBegin);
+    CCString* color = CCString::createWithData((const unsigned char*)filename.substr(sizeEnd).c_str(), filename.size() - sizeEnd);
     delegate = Label::create(labelString, fontFile->getCString(), fontSize->intValue());
     delegate->retain();
-    delegate->setPosition(location);
-    delegate->setHorizontalAlignment(format);
+    delegate->setPosition(position);
+    delegate->setHorizontalAlignment(alignment);
     Color3B color3B = color->isEqual(Screate("Gray")) ? Color3B::GRAY : color->isEqual(Screate("White")) ? Color3B::WHITE : Color3B::BLACK;
     delegate->setColor(color3B);
     realDimensions = dimensions;

@@ -53,7 +53,6 @@ public:
     
     InputLabel();
     InputLabel(ui::Scale9Sprite* sprite);
-    InputLabel(const char* placeHolder, const char* fontName, int fontSize, Vec2 location, ui::EditBox::InputMode inputMode = ui::EditBox::InputMode::ANY, int maxChar = -1, cocos2d::Size dimensions = cocos2d::Size(0,0), TextHAlignment format = TextHAlignment::CENTER);
     //TODO : add keyboard type and max char
     ~InputLabel();
     
