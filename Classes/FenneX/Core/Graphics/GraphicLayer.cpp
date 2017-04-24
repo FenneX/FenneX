@@ -1253,7 +1253,7 @@ void GraphicLayer::setObjectFields(RawObject* obj, ValueMap values)
         }
 #endif
         RawObject* target = getById(values.at("Panel").asInt());
-        CCAssert(isKindOfClass(target, Panel), "Trying to place on object on another object which is not a Panel"),
+        CCAssert(isKindOfClass(target, Panel), "Trying to place on object on another object which is not a Panel");
         this->placeObject(obj, (Panel*)target);
     }
     if(values.find("Visible") != values.end() && values.at("Visible").getType() == Value::Type::BOOLEAN)
