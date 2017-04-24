@@ -40,6 +40,10 @@ class ValueConversion
 public:
     static std::vector<std::string> toVectorString(Value val);
     static std::map<std::string, std::string> toMapStringString(Value val);
+    static Value fromDaysVector(std::vector<struct tm> vec);
+    static std::vector<struct tm> toDaysVector(Value val);
+    static Value fromBoolVector(std::vector<bool> vec);
+    static std::vector<bool> toBoolVector(Value val);
 };
 
 NS_FENNEX_END

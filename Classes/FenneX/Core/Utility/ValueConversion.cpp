@@ -70,4 +70,46 @@ std::map<std::string, std::string> ValueConversion::toMapStringString(Value val)
     return result;
 }
 
+Value ValueConversion::fromDaysVector(std::vector<struct tm> vec)
+{
+    ValueVector val;
+    for(struct tm d : vec)
+    {
+        val.push_back(Value((int)mktime(&d)));
+    }
+    return Value(val);
+}
+
+std::vector<struct tm> ValueConversion::toDaysVector(Value val)
+{
+    std::vector<struct tm> vec;
+    time_t timeVal;
+    for(Value v : val.asValueVector())
+    {
+        timeVal = (time_t)v.asInt();
+        vec.push_back(*localtime(&timeVal));
+    }
+    return vec;
+}
+
+Value ValueConversion::fromBoolVector(std::vector<bool> vec)
+{
+    ValueVector val;
+    for(bool b : vec)
+    {
+        val.push_back(Value(b));
+    }
+    return Value(val);
+}
+
+std::vector<bool> ValueConversion::toBoolVector(Value val)
+{
+    std::vector<bool> vec;
+    for(Value v : val.asValueVector())
+    {
+        vec.push_back(v.asBool());
+    }
+    return vec;
+}
+
 NS_FENNEX_END
