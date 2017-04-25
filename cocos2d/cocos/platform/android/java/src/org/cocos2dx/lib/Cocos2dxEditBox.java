@@ -28,7 +28,9 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.format.DateFormat;
@@ -141,7 +143,8 @@ public class Cocos2dxEditBox extends EditText implements TimePickerDialog.OnTime
         Calendar calendar = Calendar.getInstance();
         if(inputMode == kEditBoxInputModeTime)
         {
-            TimePickerDialog timePicker = new TimePickerDialog(
+            //Regular way of using a timePicker
+            /*TimePickerDialog timePicker = new TimePickerDialog(
                     context,
                     this,
                     calendar.get(Calendar.HOUR_OF_DAY),
@@ -150,11 +153,38 @@ public class Cocos2dxEditBox extends EditText implements TimePickerDialog.OnTime
             );
             timePicker.setTitle("Select Time");
             timePicker.show();
-            customInput = timePicker;
+            customInput = timePicker;*/
+
+            // This is implemented using an AlertDialog and a TimePicker instead of a TimePickerDialog
+            // because the TimePickerDialog implementation on Samsung does not work.
+            final TimePicker timePicker = new TimePicker(context);
+            timePicker.setIs24HourView(DateFormat.is24HourFormat(context));
+            timePicker.setCurrentHour(calendar.get(Calendar.HOUR_OF_DAY));
+            timePicker.setCurrentMinute(calendar.get(Calendar.MINUTE));
+            customInput = new AlertDialog.Builder(context)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                Cocos2dxEditBox.this.onTimeSet(timePicker, timePicker.getHour(), timePicker.getMinute());
+                            }
+                            else
+                            {
+                                Cocos2dxEditBox.this.onTimeSet(timePicker, timePicker.getCurrentHour(), timePicker.getCurrentMinute());
+                            }
+                        }
+                    })
+                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .setView(timePicker).show();
         }
         else if(inputMode == kEditBoxInputModeDate)
         {
-            DatePickerDialog datePicker = new DatePickerDialog(
+            /*DatePickerDialog datePicker = new DatePickerDialog(
                     context,
                     this,
                     calendar.get(Calendar.YEAR),
@@ -163,7 +193,24 @@ public class Cocos2dxEditBox extends EditText implements TimePickerDialog.OnTime
             );
             datePicker.setTitle("Select Date");
             datePicker.show();
-            customInput = datePicker;
+            customInput = datePicker;*/
+            // This is implemented using an AlertDialog and a DatePicker instead of a DatePickerDialog
+            // to use same code as TimePicker, and have similar UI
+            final DatePicker datePicker = new DatePicker(context);
+            customInput = new AlertDialog.Builder(context)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Cocos2dxEditBox.this.onDateSet(datePicker, datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth());
+                        }
+                    })
+                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .setView(datePicker).show();
         }
     }
 
