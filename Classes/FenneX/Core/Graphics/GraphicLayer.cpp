@@ -799,33 +799,6 @@ CCArray* GraphicLayer::allObjectsAtPosition(Vec2 position)
     return result;
 }
 
-CCArray* GraphicLayer::allActionnableObjects()
-{
-    CCArray* result = CCArray::create();
-    for(int i =  storedObjects->count() - 1; i >= 0; i--)
-    {
-        RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
-        if(obj->getNode() != NULL && obj->isVisible() && !obj->getEventName().empty() && obj->getEventName()[0] != '\0' && obj->getEventActivated())
-        {
-            bool parentVisible = true;
-            RawObject* parent = this->getContainingPanel(obj);
-            while(parent != NULL && parentVisible)
-            {
-                if(parent->getNode() == NULL || !parent->isVisible())
-                {
-                    parentVisible = false;
-                }
-                parent = this->getContainingPanel(parent);
-            }
-            if(parentVisible)
-            {
-                result->addObject(obj);
-            }
-        }
-    }
-    return result;
-}
-
 RawObject* GraphicLayer::first(const std::function<bool(RawObject*)>& filter)
 {
     RawObject* result = NULL;

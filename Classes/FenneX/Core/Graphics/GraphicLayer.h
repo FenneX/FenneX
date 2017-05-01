@@ -149,7 +149,6 @@ public:
     CCArray* allObjectsWithName(std::string name);
     CCArray* allObjectsWithNameInPanel(std::string name, Panel* panel);
     CCArray* allObjectsAtPosition(Vec2 position);
-    CCArray* allActionnableObjects();
     CCArray* allObjects(const std::function<bool(RawObject*)>& filter);
     
     //Method for querying panels. Faster because there are generally way less panels
