@@ -528,7 +528,12 @@ int Scene::getFrameNumber()
 Image* Scene::getButtonAtPosition(Vec2 position, bool state)
 {
     Image* target = NULL;
-    CCArray* objects = GraphicLayer::sharedLayer()->allVisibleObjectsAtPosition(position);
+    CCArray* objects = GraphicLayer::sharedLayer()->allObjects([position](RawObject* obj) -> bool {
+        //All visible objects at position
+        return obj->getNode() != NULL &&
+            GraphicLayer::sharedLayer()->isWorldVisible(obj) &&
+            obj->collision(GraphicLayer::sharedLayer()->getPositionRelativeToObject(position, obj));
+    });
     for(int i = 0; i < objects->count() && target == NULL; i++)
     {
         RawObject* obj = (RawObject*)objects->objectAtIndex(i);

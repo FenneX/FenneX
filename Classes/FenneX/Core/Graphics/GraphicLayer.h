@@ -138,29 +138,27 @@ public:
     //Different ways of querying objects
     //The first object found is always returned to avoid managing arrays, or nil if no result
     //Cache is a way to tell GraphicLayer to cache this particular object for the current scene, so that subsequent call will be very fast
+    RawObject* first(const std::function<bool(RawObject*)>& filter);
     RawObject* firstObjectWithName(CCString* name, bool cache = false);
     RawObject* firstObjectWithName(std::string name, bool cache = false);
     RawObject* firstObjectWithNameInPanel(std::string name, Panel* panel);
     RawObject* firstObjectAtPosition(Vec2 position);
     RawObject* objectAtIndex(int index);
     
-    //The resulting array should be released after being used
     CCArray* allObjectsWithName(CCString* name);
     CCArray* allObjectsWithName(std::string name);
     CCArray* allObjectsWithNameInPanel(std::string name, Panel* panel);
-    CCArray* allObjectsStartingWithString(CCString* name);
-    CCArray* allObjectsStartingWithString(std::string name);
     CCArray* allObjectsAtPosition(Vec2 position);
     CCArray* allActionnableObjects();
     CCArray* allObjects(const std::function<bool(RawObject*)>& filter);
     
-    CCArray* allVisibleObjectsAtPosition(Vec2 position);
+    //Method for querying panels. Faster because there are generally way less panels
+    Panel* firstPanel(const std::function<bool(RawObject*)>& filter);
+    Panel* firstPanelWithName(std::string name);
+    Panel* firstPanelWithName(CCString* name);
     
     CCArray* allPanelsWithName(std::string name);
     CCArray* allPanelsWithName(CCString* name);
-    Panel* firstPanelWithName(std::string name);
-    Panel* firstPanelWithName(CCString* name);
-    Panel* firstVisiblePanelWithName(CCString* name);
     
     
     /**********************************************************************************
