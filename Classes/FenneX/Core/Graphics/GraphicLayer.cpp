@@ -840,7 +840,7 @@ RawObject* GraphicLayer::first(const std::function<bool(RawObject*)>& filter)
     return result;
 }
 
-Panel* GraphicLayer::firstPanel(const std::function<bool(RawObject*)>& filter)
+Panel* GraphicLayer::firstPanel(const std::function<bool(Panel*)>& filter)
 {
     Panel* result = NULL;
     for(int i =  storedPanels->count() - 1; i >= 0; i--)

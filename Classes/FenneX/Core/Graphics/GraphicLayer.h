@@ -153,7 +153,7 @@ public:
     CCArray* allObjects(const std::function<bool(RawObject*)>& filter);
     
     //Method for querying panels. Faster because there are generally way less panels
-    Panel* firstPanel(const std::function<bool(RawObject*)>& filter);
+    Panel* firstPanel(const std::function<bool(Panel*)>& filter);
     Panel* firstPanelWithName(std::string name);
     Panel* firstPanelWithName(CCString* name);
     
