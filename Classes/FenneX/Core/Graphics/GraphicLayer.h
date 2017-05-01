@@ -168,6 +168,7 @@ public:
     Vec2 getPositionRelativeToObject(Vec2 point, RawObject* obj);
     Vec2 getRealPosition(RawObject* obj);
     Vec2 getCenterRealPosition(RawObject* obj);
+    bool isWorldVisible(RawObject* obj);
     float getRealScale(RawObject* obj);
     float getRealScaleX(RawObject* obj);
     float getRealScaleY(RawObject* obj);

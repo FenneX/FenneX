@@ -987,6 +987,25 @@ Vec2 GraphicLayer::getCenterRealPosition(RawObject* obj)
     return realPosition;
 }
 
+
+bool GraphicLayer::isWorldVisible(RawObject* obj)
+{
+    if(!obj->isVisible())
+    {
+        return false;
+    }
+    RawObject* parent = GraphicLayer::sharedLayer()->getContainingPanel(obj);
+    while(parent != NULL)
+    {
+        if(parent->getNode() == NULL || !parent->isVisible())
+        {
+            return false;
+        }
+        parent = GraphicLayer::sharedLayer()->getContainingPanel(parent);
+    }
+    return true;
+}
+
 float GraphicLayer::getRealScale(RawObject* obj)
 {
     float realScale = obj->getScale();
