@@ -177,7 +177,7 @@ void appendObject(Value& val, xml_node& node)
     }
 }
 
-void saveValueToFile(Value& val, std::string fileName)
+void saveValueToFile(Value& val, std::string fileName, bool external)
 {
     xml_document doc;
     //add the verbose things so that it's a proper plist like those created by xcode
@@ -191,11 +191,12 @@ void saveValueToFile(Value& val, std::string fileName)
     //construct the actual plist informations
     appendObject(val, plistNode);
 
+    std::string fullPath = external ? getPublicPath(fileName) : getLocalPath(fileName);
 #if VERBOSE_SAVE_PLIST
     log("Saving document %s :\n%s", fileName.c_str(), node_to_string(doc).c_str());
-    log("Local path %s", getLocalPath(fileName).c_str());
+    log("Local path %s", fullPath.c_str());
 #endif
-    doc.save_file(getLocalPath(fileName).c_str());
+    doc.save_file(fullPath.c_str());
 #if VERBOSE_SAVE_PLIST
     log("Document saved!");
 #endif
