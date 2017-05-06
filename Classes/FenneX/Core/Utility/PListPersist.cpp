@@ -194,7 +194,7 @@ void saveValueToFile(Value& val, std::string fileName, bool external)
     std::string fullPath = external ? getPublicPath(fileName) : getLocalPath(fileName);
 #if VERBOSE_SAVE_PLIST
     log("Saving document %s :\n%s", fileName.c_str(), node_to_string(doc).c_str());
-    log("Local path %s", fullPath.c_str());
+    log("Saving to full %s path %s", external ? "external" : "local", fullPath.c_str());
 #endif
     doc.save_file(fullPath.c_str());
 #if VERBOSE_SAVE_PLIST
