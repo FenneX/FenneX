@@ -856,7 +856,7 @@ bool GraphicLayer::isOnScreen(RawObject* obj, Size size)
 
 bool GraphicLayer::isInFront(RawObject* obj1, RawObject* obj2)
 {
-    storedObjects->indexOfObject(obj1) < storedObjects->indexOfObject(obj2);
+    return storedObjects->indexOfObject(obj1) < storedObjects->indexOfObject(obj2);
 }
 
 bool GraphicLayer::containsObject(RawObject* obj)
