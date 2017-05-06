@@ -678,12 +678,6 @@ RawObject* GraphicLayer::getById(int id)
     return NULL;
 }
 
-
-RawObject* GraphicLayer::firstObjectWithName(CCString* name, bool cache)
-{
-    return this->firstObjectWithName(name->getCString());
-}
-
 RawObject* GraphicLayer::firstObjectWithName(std::string name, bool cache)
 {
     static SceneName lastScene = SceneSwitcher::sharedSwitcher()->getCurrentSceneName();
@@ -752,23 +746,18 @@ RawObject* GraphicLayer::objectAtIndex(int index)
     return (RawObject*)storedObjects->objectAtIndex(index);
 }
 
-CCArray* GraphicLayer::allObjectsWithName(CCString* name)
+CCArray* GraphicLayer::allObjectsWithName(std::string name)
 {
     CCArray* result = CCArray::create();
     for(int i =  storedObjects->count() - 1; i >= 0; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
-        if(name->_string == obj->getName())
+        if(name == obj->getName())
         {
             result->addObject(obj);
         }
     }
     return result;
-}
-
-CCArray* GraphicLayer::allObjectsWithName(std::string name)
-{
-    return this->allObjectsWithName(Screate(name));
 }
 
 CCArray* GraphicLayer::allObjectsWithNameInPanel(std::string name, Panel* panel)
@@ -877,16 +866,11 @@ bool GraphicLayer::containsObject(RawObject* obj)
 
 CCArray* GraphicLayer::allPanelsWithName(std::string name)
 {
-    return allPanelsWithName(Screate(name));
-}
-
-CCArray* GraphicLayer::allPanelsWithName(CCString* name)
-{
     CCArray* result = CCArray::create();
     for(int i =  storedPanels->count() - 1; i >= 0; i--)
     {
         Panel* obj = (Panel*)storedPanels->objectAtIndex(i);
-        if(name->_string == obj->getName() && storedObjects->containsObject(obj))
+        if(name == obj->getName() && storedObjects->containsObject(obj))
         {
             result->addObject(obj);
         }
@@ -896,16 +880,11 @@ CCArray* GraphicLayer::allPanelsWithName(CCString* name)
 
 Panel* GraphicLayer::firstPanelWithName(std::string name)
 {
-    return this->firstPanelWithName(Screate(name));
-}
-
-Panel* GraphicLayer::firstPanelWithName(CCString* name)
-{
     Panel* result = NULL;
     for(int i =  storedPanels->count() - 1; i >= 0  && result == NULL; i--)
     {
         Panel* obj = (Panel*)storedPanels->objectAtIndex(i);
-        if(name->_string == obj->getName() && storedObjects->containsObject(obj))
+        if(name == obj->getName() && storedObjects->containsObject(obj))
         {
             result = obj;
         }

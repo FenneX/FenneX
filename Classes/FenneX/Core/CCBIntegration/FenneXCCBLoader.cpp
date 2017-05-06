@@ -410,7 +410,7 @@ void linkInputLabels()
                 if(dropDownList->getLinkTo() == NULL)
                 {
                     CCString* linkTo = (CCString*)child->getEventInfos()->objectForKey("LinkTo");
-                    CCArray* matchs = layer->allObjectsWithName(linkTo);
+                    CCArray* matchs = layer->allObjectsWithName(linkTo->getCString());
                     for(long j = 0; j < matchs->count(); j++)
                     {
                         RawObject* match = (RawObject*)matchs->objectAtIndex(j);
