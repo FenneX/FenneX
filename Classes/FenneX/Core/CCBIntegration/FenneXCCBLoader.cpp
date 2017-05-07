@@ -371,7 +371,7 @@ void loadNodeToFenneX(Node* baseNode, Panel* parent)
 void reorderZindex()
 {
     GraphicLayer* layer = GraphicLayer::sharedLayer();
-    CCArray* children = layer->getChildren();
+    CCArray* children = layer->all();
     if(children != NULL)
     {
         for(int i = 0 ; i < children->count(); i++)
@@ -388,7 +388,7 @@ void reorderZindex()
 void linkInputLabels()
 {
     GraphicLayer* layer = GraphicLayer::sharedLayer();
-    CCArray* children = layer->getChildren();
+    CCArray* children = layer->all();
     if(children != NULL)
     {
         for(int i = 0 ; i < children->count(); i++)
@@ -410,7 +410,7 @@ void linkInputLabels()
                 if(dropDownList->getLinkTo() == NULL)
                 {
                     CCString* linkTo = (CCString*)child->getEventInfos()->objectForKey("LinkTo");
-                    CCArray* matchs = layer->allObjectsWithName(linkTo->getCString());
+                    CCArray* matchs = layer->all(linkTo->getCString());
                     for(long j = 0; j < matchs->count(); j++)
                     {
                         RawObject* match = (RawObject*)matchs->objectAtIndex(j);

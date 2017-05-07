@@ -665,7 +665,7 @@ void GraphicLayer::clear()
     nextAvailableId = 0;
 }
 
-RawObject* GraphicLayer::getById(int id)
+RawObject* GraphicLayer::first(int id)
 {
     for(int i =  storedObjects->count() - 1; i >= 0; i--)
     {
@@ -678,7 +678,7 @@ RawObject* GraphicLayer::getById(int id)
     return NULL;
 }
 
-RawObject* GraphicLayer::firstObjectWithName(std::string name, bool cache)
+RawObject* GraphicLayer::first(std::string name, bool cache)
 {
     static SceneName lastScene = SceneSwitcher::sharedSwitcher()->getCurrentSceneName();
     static CCDictionary* staticCache = new CCDictionary();
@@ -711,7 +711,7 @@ RawObject* GraphicLayer::firstObjectWithName(std::string name, bool cache)
     return result;
 }
 
-RawObject* GraphicLayer::firstObjectWithNameInPanel(std::string name, Panel* panel)
+RawObject* GraphicLayer::first(std::string name, Panel* panel)
 {
     RawObject* result = NULL;
     for(int i =  storedObjects->count() - 1; i >= 0  && result == NULL; i--)
@@ -725,7 +725,7 @@ RawObject* GraphicLayer::firstObjectWithNameInPanel(std::string name, Panel* pan
     return result;
 }
 
-RawObject* GraphicLayer::firstObjectAtPosition(Vec2 position)
+RawObject* GraphicLayer::first(Vec2 position)
 {
     RawObject* result = NULL;
     for(int i =  storedObjects->count() - 1; i >= 0  && result == NULL; i--)
@@ -739,14 +739,14 @@ RawObject* GraphicLayer::firstObjectAtPosition(Vec2 position)
     return result;
 }
 
-RawObject* GraphicLayer::objectAtIndex(int index)
+RawObject* GraphicLayer::at(int index)
 {
     CCAssert(index >= 0, "in GraphicLayer objectAtIndex : invalid index, it should be positive");
     CCAssert(index < storedObjects->count(), "in GraphicLayer objectAtIndex : invalid index, it should be inferior to count");
     return (RawObject*)storedObjects->objectAtIndex(index);
 }
 
-CCArray* GraphicLayer::allObjectsWithName(std::string name)
+CCArray* GraphicLayer::all(std::string name)
 {
     CCArray* result = CCArray::create();
     for(int i =  storedObjects->count() - 1; i >= 0; i--)
@@ -760,7 +760,7 @@ CCArray* GraphicLayer::allObjectsWithName(std::string name)
     return result;
 }
 
-CCArray* GraphicLayer::allObjectsWithNameInPanel(std::string name, Panel* panel)
+CCArray* GraphicLayer::all(std::string name, Panel* panel)
 {
     CCArray* result = CCArray::create();
     for(int i =  storedObjects->count() - 1; i >= 0; i--)
@@ -774,7 +774,7 @@ CCArray* GraphicLayer::allObjectsWithNameInPanel(std::string name, Panel* panel)
     return result;
 }
 
-CCArray* GraphicLayer::allObjectsAtPosition(Vec2 position)
+CCArray* GraphicLayer::all(Vec2 position)
 {
     CCArray* result = CCArray::create();
     for(int i =  storedObjects->count() - 1; i >= 0; i--)
@@ -816,7 +816,7 @@ Panel* GraphicLayer::firstPanel(const std::function<bool(Panel*)>& filter)
     return result;
 }
 
-CCArray* GraphicLayer::allObjects(const std::function<bool(RawObject*)>& filter)
+CCArray* GraphicLayer::all(const std::function<bool(RawObject*)>& filter)
 {
     CCArray* result = CCArray::create();
     for(int i =  storedObjects->count() - 1; i >= 0; i--)
@@ -856,7 +856,7 @@ bool GraphicLayer::isOnScreen(RawObject* obj, Size size)
 
 bool GraphicLayer::isInFront(RawObject* obj1, RawObject* obj2)
 {
-    return storedObjects->indexOfObject(obj1) < storedObjects->indexOfObject(obj2);
+    storedObjects->indexOfObject(obj1) < storedObjects->indexOfObject(obj2);
 }
 
 bool GraphicLayer::containsObject(RawObject* obj)
@@ -864,7 +864,7 @@ bool GraphicLayer::containsObject(RawObject* obj)
     return storedObjects->containsObject(obj);
 }
 
-CCArray* GraphicLayer::allPanelsWithName(std::string name)
+CCArray* GraphicLayer::allPanels(std::string name)
 {
     CCArray* result = CCArray::create();
     for(int i =  storedPanels->count() - 1; i >= 0; i--)
@@ -878,7 +878,7 @@ CCArray* GraphicLayer::allPanelsWithName(std::string name)
     return result;
 }
 
-Panel* GraphicLayer::firstPanelWithName(std::string name)
+Panel* GraphicLayer::firstPanel(std::string name)
 {
     Panel* result = NULL;
     for(int i =  storedPanels->count() - 1; i >= 0  && result == NULL; i--)
@@ -1190,7 +1190,7 @@ void GraphicLayer::setObjectFields(RawObject* obj, ValueMap values)
             log("Warning : try to add image in a Panel with a Zindex : currently, depth is not supported in panels");
         }
 #endif
-        RawObject* target = getById(values.at("Panel").asInt());
+        RawObject* target = first(values.at("Panel").asInt());
         CCAssert(isKindOfClass(target, Panel), "Trying to place on object on another object which is not a Panel");
         this->placeObject(obj, (Panel*)target);
     }

@@ -219,6 +219,6 @@ bool operator<(const RawObject& obj1, const RawObject& obj2)
     }
     //If all else fails, order them by screen zorder
     GraphicLayer* layer = GraphicLayer::sharedLayer();
-    return layer->isInFront(layer->getById(obj1.getID()), layer->getById(obj2.getID()));
+    return layer->isInFront(layer->first(obj1.getID()), layer->first(obj2.getID()));
 }
 NS_FENNEX_END

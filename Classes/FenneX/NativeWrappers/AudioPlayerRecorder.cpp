@@ -95,7 +95,7 @@ void AudioPlayerRecorder::playObject(EventCustom* event)
         linkTo = infos->objectForKey("Sender");
         if(isKindOfClass(linkTo, CCInteger))
         {
-            RawObject* target = GraphicLayer::sharedLayer()->getById(TOINT(linkTo));
+            RawObject* target = GraphicLayer::sharedLayer()->first(TOINT(linkTo));
             if(target != NULL) linkTo = target;
         }
     }

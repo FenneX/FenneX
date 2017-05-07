@@ -301,7 +301,7 @@ void Scene::onTouchMoved(Touch *touch, Event *pEvent)
         Image* toggle = (Image*)linker->linkedObjectOf(touch);
         GraphicLayer* layer = GraphicLayer::sharedLayer();
         char *end = strrchr(toggle->getImageFile().c_str(), '-');
-        if(end && strcmp(end, "-on") == 0 && !layer->allObjectsAtPosition(Scene::touchPosition(touch))->containsObject(toggle))
+        if(end && strcmp(end, "-on") == 0 && !layer->all(Scene::touchPosition(touch))->containsObject(toggle))
         {
             this->switchButton(toggle, false);
         }
@@ -528,7 +528,7 @@ int Scene::getFrameNumber()
 Image* Scene::getButtonAtPosition(Vec2 position, bool state)
 {
     Image* target = NULL;
-    CCArray* objects = GraphicLayer::sharedLayer()->allObjects([position](RawObject* obj) -> bool {
+    CCArray* objects = GraphicLayer::sharedLayer()->all([position](RawObject* obj) -> bool {
         //All visible objects at position
         return obj->getNode() != NULL &&
             GraphicLayer::sharedLayer()->isWorldVisible(obj) &&

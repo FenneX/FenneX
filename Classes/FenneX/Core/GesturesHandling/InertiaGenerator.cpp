@@ -207,7 +207,7 @@ void InertiaGenerator::scrollingEnded(EventCustom* event)
                 inertiaOffset.y = inertiaOffset.y > 0 ? MAX_SCROLL : -MAX_SCROLL;
             }
             Vec2 position = TOPOINT(infos->objectForKey("Position"));
-            CCArray* intersectingObjects = GraphicLayer::sharedLayer()->allObjectsAtPosition(position);
+            CCArray* intersectingObjects = GraphicLayer::sharedLayer()->all(position);
             RawObject* target = (RawObject*)infos->objectForKey("Target");
             bool originalTarget = true;
             if(target == NULL)

@@ -131,30 +131,32 @@ public:
     /**********************************************************************************
      Methods to retrieve objects
      *********************************************************************************/
+    //Get by object index in stored objects
+    RawObject* at(int index);
     
-    RawObject* getById(int id);
-    
-    CCArray* getChildren() { return storedObjects; }
     //Different ways of querying objects
     //The first object found is always returned to avoid managing arrays, or nil if no result
-    //Cache is a way to tell GraphicLayer to cache this particular object for the current scene, so that subsequent call will be very fast
-    RawObject* first(const std::function<bool(RawObject*)>& filter);
-    RawObject* firstObjectWithName(std::string name, bool cache = false);
-    RawObject* firstObjectWithNameInPanel(std::string name, Panel* panel);
-    RawObject* firstObjectAtPosition(Vec2 position);
-    RawObject* objectAtIndex(int index);
     
-    CCArray* allObjectsWithName(std::string name);
-    CCArray* allObjectsWithNameInPanel(std::string name, Panel* panel);
-    CCArray* allObjectsAtPosition(Vec2 position);
-    CCArray* allObjects(const std::function<bool(RawObject*)>& filter);
+    //Get by object ID
+    RawObject* first(int id);
+    RawObject* first(const std::function<bool(RawObject*)>& filter);
+    //Cache is a way to tell GraphicLayer to cache this particular object for the current scene, so that subsequent call will be very fast
+    RawObject* first(std::string name, bool cache = false);
+    RawObject* first(std::string name, Panel* panel);
+    RawObject* first(Vec2 position);
+    
+    //Return all objects matching query
+    CCArray* all() { return storedObjects; }
+    CCArray* all(std::string name);
+    CCArray* all(std::string name, Panel* panel);
+    CCArray* all(Vec2 position);
+    CCArray* all(const std::function<bool(RawObject*)>& filter);
     
     //Method for querying panels. Faster because there are generally way less panels
     Panel* firstPanel(const std::function<bool(Panel*)>& filter);
-    Panel* firstPanelWithName(std::string name);
+    Panel* firstPanel(std::string name);
     
-    CCArray* allPanelsWithName(std::string name);
-    
+    CCArray* allPanels(std::string name);
     
     /**********************************************************************************
      Methods to get position/scale relative to world instead of local
