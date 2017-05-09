@@ -83,12 +83,18 @@ void arrayRemoveStringFromOther(CCArray* list, CCArray* other)
     list->removeObjectsInArray(objectsToRemove);
 }
 
-std::vector<std::pair<std::string, std::string>> getConversions()
+std::vector<std::pair<std::string, std::string>>* getConversions()
 {
-    std::vector<std::pair<std::string, std::string>> result;
-    char upperCase[20];
-    char separator[20];
-    char lowerCase[20];
+    //Conversions is heavy, avoid copying it. There are 15695 pairs
+    static std::vector<std::pair<std::string, std::string>>* result = NULL;
+    if(result != NULL)
+    {
+        return result;
+    }
+    result = new std::vector<std::pair<std::string, std::string>>();
+    char* upperCase = new char[20];
+    char* separator = new char[20];
+    char* lowerCase = new char[20];
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     ssize_t bufferSize = 0;
     //Load file from apk
@@ -97,7 +103,7 @@ std::vector<std::pair<std::string, std::string>> getConversions()
         int index = 0;
         while (sscanf(&charbuffer[index], "%20s %20s %20s", upperCase, separator, lowerCase) !=EOF)
         {
-            result.push_back(std::pair<std::string, std::string>(upperCase, lowerCase));
+            result->push_back(std::pair<std::string, std::string>(upperCase, lowerCase));
             //3 => 2 spaces + backspace
             index += strlen(upperCase) + strlen(lowerCase) + strlen(separator) + 3;
         }
@@ -107,19 +113,22 @@ std::vector<std::pair<std::string, std::string>> getConversions()
     if (file) {
         while (fscanf(file, "%s %s %s", upperCase, separator, lowerCase)!=EOF)
         {
-            result.push_back(std::pair<std::string, std::string>(upperCase, lowerCase));
+            result->push_back(std::pair<std::string, std::string>(upperCase, lowerCase));
         }
         fclose(file);
     }
 #endif
+    delete[] upperCase;
+    delete[] separator;
+    delete[] lowerCase;
     return result;
 }
 
 std::string upperCase(std::string text)
 {
     //TODO : speed up by sorting the vector and doing a better search
-    static std::vector<std::pair<std::string, std::string>> conversions = getConversions();
-    if(conversions.size() == 0)
+    std::vector<std::pair<std::string, std::string>>* conversions = getConversions();
+    if(conversions->size() == 0)
     {
         log("Warning: missing file letters_conversion.txt, required for upperCase, string %s not converted", text.c_str());
         return text;
@@ -130,13 +139,13 @@ std::string upperCase(std::string text)
         long charLength = utf8_chsize(&text[i]);
         std::string charString = text.substr(i, charLength);
         int conversionIndex = 0;
-        while(conversionIndex < conversions.size() && conversions[conversionIndex].second != charString)
+        while(conversionIndex < conversions->size() && conversions->at(conversionIndex).second != charString)
         {
             conversionIndex++;
         }
-        if(conversionIndex < conversions.size())
+        if(conversionIndex < conversions->size())
         {
-            to += conversions[conversionIndex].first;
+            to += conversions->at(conversionIndex).first;
         }
         else
         {
@@ -149,8 +158,8 @@ std::string upperCase(std::string text)
 std::string lowerCase(std::string text)
 {
     //TODO : speed up by sorting the vector and doing a better search
-    static std::vector<std::pair<std::string, std::string>> conversions = getConversions();
-    if(conversions.size() == 0)
+    std::vector<std::pair<std::string, std::string>>* conversions = getConversions();
+    if(conversions->size() == 0)
     {
         log("Warning: missing file letters_conversion.txt, required for upperCase, string %s not converted", text.c_str());
         return text;
@@ -161,13 +170,13 @@ std::string lowerCase(std::string text)
         long charLength = utf8_chsize(&text[i]);
         std::string charString = text.substr(i, charLength);
         int conversionIndex = 0;
-        while(conversionIndex < conversions.size() && conversions[conversionIndex].first != charString)
+        while(conversionIndex < conversions->size() && conversions->at(conversionIndex).first != charString)
         {
             conversionIndex++;
         }
-        if(conversionIndex < conversions.size())
+        if(conversionIndex < conversions->size())
         {
-            to += conversions[conversionIndex].second;
+            to += conversions->at(conversionIndex).second;
         }
         else
         {
