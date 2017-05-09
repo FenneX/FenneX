@@ -459,10 +459,8 @@ RawObject* GraphicLayer::duplicateObject(RawObject* otherObject)
     //Recursively add children for Panel
     if(isKindOfClass(otherObject, Panel))
     {
-        CCArray* children = ((Panel*)otherObject)->getChildren();
-        for(int i = 0; i < children->count(); i++)
+        for(RawObject* otherChild : ((Panel*)otherObject)->getChildren())
         {
-            RawObject* otherChild = (RawObject*)children->objectAtIndex(i);
             RawObject* child = duplicateObject(otherChild);
             placeObject(child, (Panel*)obj);
         }
@@ -530,9 +528,9 @@ void GraphicLayer::removeObjectFromPanel(RawObject* obj, Panel* panel)
 
 void GraphicLayer::removeAllObjectsFromPanel(Panel* panel)
 {
-    while(panel->getChildren()->count() > 0)
+    while(panel->getChildren().size() > 0)
     {
-        this->removeObjectFromPanel((RawObject*)panel->getChildren()->objectAtIndex(0), panel);
+        this->removeObjectFromPanel(panel->getChildren().at(0), panel);
     }
 }
 
@@ -559,16 +557,14 @@ void GraphicLayer::destroyObject(RawObject* obj)
             if(isKindOfClass(obj, Panel))
             {
                 //we can't use copy anymore, but clone doesn't work with RawObjects. Manually clone instead
-                Array* childrenCopy = Acreate();
-                CCArray* childrenToClear = ((Panel*)obj)->getChildren();
-                for(int i = 0; i < childrenToClear->count(); i++)
+                Vector<RawObject*> childrenCopy;
+                for(RawObject* child : ((Panel*)obj)->getChildren())
                 {
-                    childrenCopy->addObject(childrenToClear->objectAtIndex(i));
+                    childrenCopy.pushBack(child);
                 }
                 this->destroyObjects(childrenCopy);
                 storedPanels->removeObject(obj);
-                CCArray* children = ((Panel*)obj)->getChildren();
-                CCASSERT(children == NULL || children->count() == 0, "Problem with panel children when releasing panel");
+                CCASSERT(((Panel*)obj)->getChildren().size() == 0, "Problem with panel children when releasing panel");
             }
             this->placeObject(obj);
             if(obj->getNode() != NULL)
@@ -591,15 +587,15 @@ void GraphicLayer::destroyObject(RawObject* obj)
     }
 }
 
-void GraphicLayer::destroyObjects(CCArray* array)
+void GraphicLayer::destroyObjects(Vector<RawObject*> array)
 {
-    for(int i = array->count() - 1; i >= 0; i--)
+    for(auto obj : array)
     {
-        this->destroyObject((RawObject*)array->objectAtIndex(i));
+        this->destroyObject(obj);
     }
 }
 
-void GraphicLayer::destroyObjects(Vector<RawObject*> array)
+void GraphicLayer::destroyObjects(Vector<Panel*> array)
 {
     for(auto obj : array)
     {
@@ -746,43 +742,43 @@ RawObject* GraphicLayer::at(int index)
     return (RawObject*)storedObjects->objectAtIndex(index);
 }
 
-CCArray* GraphicLayer::all(std::string name)
+Vector<RawObject*> GraphicLayer::all(std::string name)
 {
-    CCArray* result = CCArray::create();
+    Vector<RawObject*> result;
     for(int i =  storedObjects->count() - 1; i >= 0; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
         if(name == obj->getName())
         {
-            result->addObject(obj);
+            result.pushBack(obj);
         }
     }
     return result;
 }
 
-CCArray* GraphicLayer::all(std::string name, Panel* panel)
+Vector<RawObject*> GraphicLayer::all(std::string name, Panel* panel)
 {
-    CCArray* result = CCArray::create();
+    Vector<RawObject*> result;
     for(int i =  storedObjects->count() - 1; i >= 0; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
         if(panel->containsObject(obj) && name == obj->getName())
         {
-            result->addObject(obj);
+            result.pushBack(obj);
         }
     }
     return result;
 }
 
-CCArray* GraphicLayer::all(Vec2 position)
+Vector<RawObject*> GraphicLayer::all(Vec2 position)
 {
-    CCArray* result = CCArray::create();
+    Vector<RawObject*> result;
     for(int i =  storedObjects->count() - 1; i >= 0; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
         if(obj->collision(this->getPositionRelativeToObject(position, obj)))
         {
-            result->addObject(obj);
+            result.pushBack(obj);
         }
     }
     return result;
@@ -816,15 +812,15 @@ Panel* GraphicLayer::firstPanel(const std::function<bool(Panel*)>& filter)
     return result;
 }
 
-CCArray* GraphicLayer::all(const std::function<bool(RawObject*)>& filter)
+Vector<RawObject*> GraphicLayer::all(const std::function<bool(RawObject*)>& filter)
 {
-    CCArray* result = CCArray::create();
+    Vector<RawObject*> result;
     for(int i =  storedObjects->count() - 1; i >= 0; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
         if(filter(obj))
         {
-            result->addObject(obj);
+            result.pushBack(obj);
         }
     }
     return result;
@@ -864,15 +860,15 @@ bool GraphicLayer::containsObject(RawObject* obj)
     return storedObjects->containsObject(obj);
 }
 
-CCArray* GraphicLayer::allPanels(std::string name)
+Vector<Panel*> GraphicLayer::allPanels(std::string name)
 {
-    CCArray* result = CCArray::create();
+    Vector<Panel*> result;
     for(int i =  storedPanels->count() - 1; i >= 0; i--)
     {
         Panel* obj = (Panel*)storedPanels->objectAtIndex(i);
         if(name == obj->getName() && storedObjects->containsObject(obj))
         {
-            result->addObject(obj);
+            result.pushBack(obj);
         }
     }
     return result;

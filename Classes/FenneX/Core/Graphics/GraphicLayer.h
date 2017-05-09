@@ -120,9 +120,8 @@ public:
     //Destroy an object of the manager
     //It is not possible to remove an object without destroying it, as only the manager should store RawObject references
     void destroyObject(RawObject* obj);
-    //Destroy an array of objects.
-    CC_DEPRECATED_ATTRIBUTE void destroyObjects(CCArray* array); //use next method instead
     void destroyObjects(Vector<RawObject*> array);
+    void destroyObjects(Vector<Panel*> obj);
     
     //Convenience method for DelayedDispatcher::funcAfterDelay method. Will check the type before passing.
     void destroyObjectEvent(EventCustom* event);
@@ -146,17 +145,25 @@ public:
     RawObject* first(Vec2 position);
     
     //Return all objects matching query
-    CCArray* all() { return storedObjects; }
-    CCArray* all(std::string name);
-    CCArray* all(std::string name, Panel* panel);
-    CCArray* all(Vec2 position);
-    CCArray* all(const std::function<bool(RawObject*)>& filter);
+    Vector<RawObject*> all()
+    {
+        Vector<RawObject*> result;
+        for(int i = 0; i < storedObjects->count(); i++)
+        {
+            result.pushBack((RawObject*)storedObjects->objectAtIndex(i));
+        }
+        return result;
+    }
+    Vector<RawObject*> all(std::string name);
+    Vector<RawObject*> all(std::string name, Panel* panel);
+    Vector<RawObject*> all(Vec2 position);
+    Vector<RawObject*> all(const std::function<bool(RawObject*)>& filter);
     
     //Method for querying panels. Faster because there are generally way less panels
     Panel* firstPanel(const std::function<bool(Panel*)>& filter);
     Panel* firstPanel(std::string name);
     
-    CCArray* allPanels(std::string name);
+    Vector<Panel*> allPanels(std::string name);
     
     /**********************************************************************************
      Methods to get position/scale relative to world instead of local

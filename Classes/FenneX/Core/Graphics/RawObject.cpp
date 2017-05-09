@@ -90,9 +90,8 @@ void RawObject::setOpacityRecursive(GLubyte opacity)
 {
     if(isKindOfClass(this, Panel))
     {
-        for(int i = 0; i < ((Panel*)this)->getChildren()->count(); i++)
+        for(RawObject* target : ((Panel*)this)->getChildren())
         {
-            RawObject* target = (RawObject*)((Panel*)this)->getChildren()->objectAtIndex(i);
             target->setOpacityRecursive(opacity);
         }
     }

@@ -135,9 +135,14 @@ void Panel::reorderChild(RawObject* child, int zOrder)
     }
 }
 
-CCArray* Panel::getChildren()
+Vector<RawObject*> Panel::getChildren()
 {
-    return children;
+    Vector<RawObject*> result;
+    for(int i = 0; i < children->count(); i++)
+    {
+        result.pushBack((RawObject*)children->objectAtIndex(i));
+    }
+    return result;
 }
 
 void Panel::update(float deltaTime)

@@ -301,7 +301,7 @@ void Scene::onTouchMoved(Touch *touch, Event *pEvent)
         Image* toggle = (Image*)linker->linkedObjectOf(touch);
         GraphicLayer* layer = GraphicLayer::sharedLayer();
         char *end = strrchr(toggle->getImageFile().c_str(), '-');
-        if(end && strcmp(end, "-on") == 0 && !layer->all(Scene::touchPosition(touch))->containsObject(toggle))
+        if(end && strcmp(end, "-on") == 0 && !layer->all(Scene::touchPosition(touch)).contains(toggle))
         {
             this->switchButton(toggle, false);
         }
@@ -528,15 +528,14 @@ int Scene::getFrameNumber()
 Image* Scene::getButtonAtPosition(Vec2 position, bool state)
 {
     Image* target = NULL;
-    CCArray* objects = GraphicLayer::sharedLayer()->all([position](RawObject* obj) -> bool {
+    Vector<RawObject*> objects = GraphicLayer::sharedLayer()->all([position](RawObject* obj) -> bool {
         //All visible objects at position
         return obj->getNode() != NULL &&
             GraphicLayer::sharedLayer()->isWorldVisible(obj) &&
             obj->collision(GraphicLayer::sharedLayer()->getPositionRelativeToObject(position, obj));
     });
-    for(int i = 0; i < objects->count() && target == NULL; i++)
+    for(RawObject* obj : objects)
     {
-        RawObject* obj = (RawObject*)objects->objectAtIndex(i);
         if(obj->isVisible() && obj->getEventActivated() && !obj->getEventName().empty() && obj->getEventName()[0] != '\0' && dynamic_cast<Image*>(obj) != NULL)
         {
             //If state = false, the object imagefile must finish by "-on" and and have an _OriginalImageFile

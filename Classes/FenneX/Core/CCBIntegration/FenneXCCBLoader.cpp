@@ -371,16 +371,12 @@ void loadNodeToFenneX(Node* baseNode, Panel* parent)
 void reorderZindex()
 {
     GraphicLayer* layer = GraphicLayer::sharedLayer();
-    CCArray* children = layer->all();
-    if(children != NULL)
+    Vector<RawObject*> children = layer->all();
+    for(RawObject* child : children)
     {
-        for(int i = 0 ; i < children->count(); i++)
+        if(child->getZOrder() != 0)
         {
-            RawObject* child = (RawObject*)children->objectAtIndex(i);
-            if(child->getZOrder() != 0)
-            {
-                layer->reorderChild(child, child->getZOrder());
-            }
+            layer->reorderChild(child, child->getZOrder());
         }
     }
 }
@@ -388,38 +384,31 @@ void reorderZindex()
 void linkInputLabels()
 {
     GraphicLayer* layer = GraphicLayer::sharedLayer();
-    CCArray* children = layer->all();
-    if(children != NULL)
+    Vector<RawObject*> children = layer->all();
+    for(RawObject* child : children)
     {
-        for(int i = 0 ; i < children->count(); i++)
+        //Force actualization of content size and fontSize after everything is loaded because the nodeToWorldTransform is only right after
+        if(isKindOfClass(child, InputLabel))
         {
-            RawObject* child = (RawObject*)children->objectAtIndex(i);
-            //Force actualization of content size and fontSize after everything is loaded because the nodeToWorldTransform is only right after
-            if(isKindOfClass(child, InputLabel))
+            InputLabel* input = (InputLabel*)child;
+            child->getNode()->setContentSize(child->getNode()->getContentSize());
+            if(input->getOriginalInfos() != NULL)
             {
-                InputLabel* input = (InputLabel*)child;
-                child->getNode()->setContentSize(child->getNode()->getContentSize());
-                if(input->getOriginalInfos() != NULL)
-                {
-                    input->setFontSize(input->getOriginalInfos()->getFontSize());
-                }
+                input->setFontSize(input->getOriginalInfos()->getFontSize());
             }
-            if((isKindOfClass(child, DropDownList)) && child->getEventInfos()->objectForKey("LinkTo") != NULL && isKindOfClass(child->getEventInfos()->objectForKey("LinkTo"), CCString))
+        }
+        if((isKindOfClass(child, DropDownList)) && child->getEventInfos()->objectForKey("LinkTo") != NULL && isKindOfClass(child->getEventInfos()->objectForKey("LinkTo"), CCString))
+        {
+            DropDownList* dropDownList = (DropDownList*)child;
+            if(dropDownList->getLinkTo() == NULL)
             {
-                DropDownList* dropDownList = (DropDownList*)child;
-                if(dropDownList->getLinkTo() == NULL)
+                std::string linkTo = ((CCString*)child->getEventInfos()->objectForKey("LinkTo"))->getCString();
+                RawObject* match = layer->first([linkTo](RawObject* obj) {
+                    return obj->getName() == linkTo && isKindOfClass(obj, LabelTTF);
+                });
+                if(match != NULL)
                 {
-                    CCString* linkTo = (CCString*)child->getEventInfos()->objectForKey("LinkTo");
-                    CCArray* matchs = layer->all(linkTo->getCString());
-                    for(long j = 0; j < matchs->count(); j++)
-                    {
-                        RawObject* match = (RawObject*)matchs->objectAtIndex(j);
-                        if(isKindOfClass(match, LabelTTF))
-                        {
-                            dropDownList->setLinkTo((LabelTTF*)match);
-                            j = matchs->count();
-                        }
-                    }
+                    dropDownList->setLinkTo((LabelTTF*)match);
                 }
             }
         }

@@ -51,7 +51,7 @@ public:
     void removeChild(RawObject* child);
     void reorderChild(RawObject* child, int zOrder);
     void clear();
-    CCArray* getChildren();
+    Vector<RawObject*> getChildren();
     
     //TODO : reorder methods when needed by GraphicLayer (protected and friend GraphicLayer ?)
     

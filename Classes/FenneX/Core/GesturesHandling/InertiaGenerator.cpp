@@ -207,24 +207,24 @@ void InertiaGenerator::scrollingEnded(EventCustom* event)
                 inertiaOffset.y = inertiaOffset.y > 0 ? MAX_SCROLL : -MAX_SCROLL;
             }
             Vec2 position = TOPOINT(infos->objectForKey("Position"));
-            CCArray* intersectingObjects = GraphicLayer::sharedLayer()->all(position);
+            Vector<RawObject*> intersectingObjects = GraphicLayer::sharedLayer()->all(position);
             RawObject* target = (RawObject*)infos->objectForKey("Target");
             bool originalTarget = true;
             if(target == NULL)
             {
                 originalTarget = false;
-                for(int i = 0; i < intersectingObjects->count() && target == NULL; i++)
+                for(RawObject* candidate : intersectingObjects)
                 {
-                    if(possibleTargets.contains(intersectingObjects->objectAtIndex(i)))
+                    if(target == NULL && possibleTargets.contains(candidate))
                     {
-                        target = (RawObject*)intersectingObjects->objectAtIndex(i);
+                        target = candidate;
                     }
                 }
             }
             if(target != NULL
                && fabs(inertiaOffset.x) > MIN_SCROLL
                && fabs(inertiaOffset.y) > MIN_SCROLL
-               && !(originalTarget && !intersectingObjects->containsObject(target)))
+               && !(originalTarget && !intersectingObjects.contains(target)))
             {
 #if VERBOSE_TOUCH_RECOGNIZERS
                 log("inertiaOffset : %f, %f", inertiaOffset.x, inertiaOffset.y);
