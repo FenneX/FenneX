@@ -874,6 +874,34 @@ Vector<Panel*> GraphicLayer::allPanels(std::string name)
     return result;
 }
 
+Vector<Panel*> GraphicLayer::allPanels(std::string name, Panel* panel)
+{
+    Vector<Panel*> result;
+    for(int i =  storedPanels->count() - 1; i >= 0; i--)
+    {
+        Panel* obj = (Panel*)storedPanels->objectAtIndex(i);
+        if(panel->containsObject(obj) && name == obj->getName())
+        {
+            result.pushBack(obj);
+        }
+    }
+    return result;
+}
+
+Vector<Panel*> GraphicLayer::allPanels(const std::function<bool(Panel*)>& filter)
+{
+    Vector<Panel*> result;
+    for(int i =  storedPanels->count() - 1; i >= 0; i--)
+    {
+        Panel* obj = (Panel*)storedPanels->objectAtIndex(i);
+        if(filter(obj))
+        {
+            result.pushBack(obj);
+        }
+    }
+    return result;
+}
+
 Panel* GraphicLayer::firstPanel(std::string name)
 {
     Panel* result = NULL;

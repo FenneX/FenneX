@@ -164,6 +164,8 @@ public:
     Panel* firstPanel(std::string name);
     
     Vector<Panel*> allPanels(std::string name);
+    Vector<Panel*> allPanels(std::string name, Panel* panel);
+    Vector<Panel*> allPanels(const std::function<bool(Panel*)>& filter);
     
     /**********************************************************************************
      Methods to get position/scale relative to world instead of local
