@@ -28,6 +28,8 @@ THE SOFTWARE.
 #include "cocos2d.h"
 #include "Pausable.h"
 #include "FenneXMacros.h"
+#include "RawObject.h"
+#include "Panel.h"
 
 USING_NS_CC;
 
