@@ -70,7 +70,7 @@ InertiaGenerator::~InertiaGenerator()
     eventListeners.clear();
 }
 
-void InertiaGenerator::addPossibleTarget(Ref* target)
+void InertiaGenerator::addPossibleTarget(RawObject* target)
 {
     if(target != NULL)
     {
@@ -78,18 +78,17 @@ void InertiaGenerator::addPossibleTarget(Ref* target)
     }
 }
 
-void InertiaGenerator::addPossibleTargets(CCArray* targets)
+void InertiaGenerator::addPossibleTargets(Vector<RawObject*> targets)
 {
-    Ref* obj;
-    CCARRAY_FOREACH(targets, obj)
+    for(RawObject* target : targets)
     {
-        this->addPossibleTarget(obj);
+        addPossibleTarget(target);
     }
 }
 
-void InertiaGenerator::addPossibleTargets(Vector<Ref*> targets)
+void InertiaGenerator::addPossibleTargets(Vector<Panel*> targets)
 {
-    for(Ref* target : targets)
+    for(Panel* target : targets)
     {
         addPossibleTarget(target);
     }
@@ -107,10 +106,10 @@ void InertiaGenerator::update(float delta)
 {
     if(TIME > lastInertiaNotificationTime + TIME_BETWEEN_NOTIFICATIONS)
     {
-        Vector<Ref*> toRemove;
+        Vector<RawObject*> toRemove;
         for(int i = 0; i < inertiaTargets.size(); i++)
         {
-            Ref* target = inertiaTargets.at(i);
+            RawObject* target = inertiaTargets.at(i);
             Inertia* inertia = inertiaParameters.at(i);
             inertia->retain(); //retain inertia in case stopInertia is called during the notification
             inertia->setOffset(inertia->getOffset() * (1-INERTIA_FRICTION));
@@ -244,7 +243,7 @@ void InertiaGenerator::scrollingEnded(EventCustom* event)
     }
 }
 
-void InertiaGenerator::stopInertia(Ref* obj)
+void InertiaGenerator::stopInertia(RawObject* obj)
 {
     if(obj != NULL && inertiaTargets.contains(obj))
     {
