@@ -1283,6 +1283,22 @@ void GraphicLayer::refreshRenderTextures(Ref* obj)
     }
 }
 
+Vector<RawObject*> GraphicLayer::sortObjects(Vector<RawObject*> array)
+{
+    std::sort(array.begin(),
+              array.end(),
+              [](const void* a, const void* b) { return *((RawObject*)a) < *((RawObject*)b); });
+    return array;
+}
+
+Vector<Panel*> GraphicLayer::sortObjects(Vector<Panel*> array)
+{
+    std::sort(array.begin(),
+              array.end(),
+              [](const void* a, const void* b) { return *((Panel*)a) < *((Panel*)b); });
+    return array;
+}
+
 void GraphicLayer::loadBaseNodeAttributes(CustomBaseNode* node, RawObject* obj)
 {
     //Always check for NULL since node is the result of a dynamic cast

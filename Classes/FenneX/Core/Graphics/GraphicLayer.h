@@ -207,6 +207,10 @@ public:
     //On resume app, some platforms (Android so far) need to refresh render texture because the openGL context is dropped and the render textures are invalid
     void refreshRenderTextures(Ref* obj);
     
+    //sort objects in the array using either Order or Index eventInfo
+    static Vector<RawObject*> sortObjects(Vector<RawObject*> array);
+    static Vector<Panel*> sortObjects(Vector<Panel*> array);
+    
     /**********************************************************************************
      Methods that are used by FenneX other classes. You should not call any directly
      *********************************************************************************/
