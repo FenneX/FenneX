@@ -26,6 +26,7 @@ THE SOFTWARE.
 #define FenneX_MailUrlWrapper_h
 
 void openUrl(const std::string& url);
+bool canOpenUrl(const std::string& url);
 void sendMail(const std::string& address, const std::string& subject, const std::string& message, const std::string& attachmentPlist = "");;
 
 #endif

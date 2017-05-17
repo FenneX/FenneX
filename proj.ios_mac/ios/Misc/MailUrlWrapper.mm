@@ -33,6 +33,11 @@ void openUrl(const std::string& url)
                            NSUTF8StringEncoding]]];
 }
 
+bool canOpenUrl(const std::string& url)
+{
+    return [[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:[[NSString stringWithFormat:@"%s", url.c_str()] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]];
+}
+
 void sendMail(const std::string& address, const std::string& subject, const std::string& message, const std::string& attachmentPlist)
 {
     /* OLD alternate method to send a mail using mailto (which goes outside of the app)

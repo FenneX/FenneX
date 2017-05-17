@@ -26,6 +26,7 @@ package com.fennex.modules;
 
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
@@ -60,6 +61,15 @@ public class MailUrlManager {
 	     i.setData(Uri.parse(url));
 	     NativeUtility.getMainActivity().startActivity(i);
     }
+    
+	public static boolean canOpenUrl(String url)
+	{
+		Log.d(TAG, "Opening URL : " + url);
+		Intent i = new Intent(Intent.ACTION_VIEW);
+		i.setData(Uri.parse(url));
+		PackageManager packageManager = NativeUtility.getMainActivity().getPackageManager();
+		return (i.resolveActivity(packageManager) != null);
+	}
 
     public static void sendMail(String address, String object, String message)
     {

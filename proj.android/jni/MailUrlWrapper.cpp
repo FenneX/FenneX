@@ -41,6 +41,18 @@ void openUrl(const std::string& url)
     minfo.env->DeleteLocalRef(jurl);
 }
 
+bool canOpenUrl(const std::string& url)
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "canOpenUrl", "(Ljava/lang/String;)Z");
+    CCAssert(functionExist, "Function doesn't exist");
+    jstring jurl = minfo.env->NewStringUTF(url.c_str());
+    bool result = minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID, jurl);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(jurl);
+    return result;
+}
+
 void sendMail(const std::string& address, const std::string& subject, const std::string& message, const std::string& attachmentPlist)
 {
     JniMethodInfo minfo;
