@@ -78,6 +78,10 @@ std::string utf8_substr(const std::string& str, long start, long leng);
 long utf8_chsize( const char* source );
 //Get the size of an utf8 string
 long utf8_len( const std::string& s );
+
+//Split the string s to a vector using separator separator
+std::vector<std::string> split(const std::string& s, char seperator);
+
 NS_FENNEX_END
 
 #endif /* defined(__FenneX__StringUtility__) */
