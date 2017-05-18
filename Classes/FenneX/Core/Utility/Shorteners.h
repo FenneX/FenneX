@@ -98,8 +98,7 @@ static inline bool hasEnding (const std::string &fullString, const std::string &
 
 static inline float getTimeDifferenceMS(const timeval& start, const timeval& end)
 {
-    return ((((end.tv_sec - start.tv_sec)*1000.0f
-             +end.tv_usec) - start.tv_usec) / 1000.0f);
+    return (end.tv_sec - start.tv_sec) * 1000.0f + (end.tv_usec - start.tv_usec) / 1000.0f;
 }
 
 static inline Ref* valueToRef(Value val)
