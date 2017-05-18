@@ -113,6 +113,8 @@ bool Localization::loadAvailableTranslations()
     }
     if(availableTranslations.size() == 0)
     {
+        //Put in a dummy value to avoid reloading every time
+        availableTranslations.push_back("noTranslation");
         return false;
     }
     return true;
