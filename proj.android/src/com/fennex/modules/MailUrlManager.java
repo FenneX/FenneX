@@ -64,7 +64,6 @@ public class MailUrlManager {
     
 	public static boolean canOpenUrl(String url)
 	{
-		Log.d(TAG, "Opening URL : " + url);
 		Intent i = new Intent(Intent.ACTION_VIEW);
 		i.setData(Uri.parse(url));
 		PackageManager packageManager = NativeUtility.getMainActivity().getPackageManager();
