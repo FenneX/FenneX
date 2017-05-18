@@ -114,7 +114,7 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
                 }, splashMinDuration - (currentTime - launchTime) + 100);
             }
         }
-        // It's time tpo check again if it's an intent or not since the c++ library is alive
+        // It's time to check again if it's an intent or not since the c++ library is alive
 		if(launchTime != 0 && this.getIntent().getDataString() != null)
 		{
 			NativeUtility.notifyUrlOpened(this.getIntent().getDataString());
