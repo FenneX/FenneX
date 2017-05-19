@@ -527,7 +527,6 @@ int Scene::getFrameNumber()
 
 Image* Scene::getButtonAtPosition(Vec2 position, bool state)
 {
-    Image* target = NULL;
     Vector<RawObject*> objects = GraphicLayer::sharedLayer()->all([position](RawObject* obj) -> bool {
         //All visible objects at position
         return obj->getNode() != NULL &&
@@ -541,9 +540,11 @@ Image* Scene::getButtonAtPosition(Vec2 position, bool state)
             //If state = false, the object imagefile must finish by "-on" and and have an _OriginalImageFile
             char *end = strrchr(((Image*)obj)->getImageFile().c_str(), '-');
             if(state || (end && strcmp(end, "-on") == 0 && obj->getEventInfos()->objectForKey("_OriginalImageFile") != NULL))
-                target = (Image*)obj;
+            {
+                return (Image*)obj;
+            }
         }
     }
-    return target;
+    return NULL;
 }
 NS_FENNEX_END
