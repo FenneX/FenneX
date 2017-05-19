@@ -498,7 +498,7 @@ RawObject* GraphicLayer::placeObject(RawObject* obj, Panel* panel)
     }
     else if(panel != NULL)
     {
-        for(int i = 0; i < objectsToAdd.size(); i++)
+        for(long i = 0; i < objectsToAdd.size(); i++)
         {
             if(objectsToAdd.at(i) == obj)
             {
@@ -626,7 +626,7 @@ void GraphicLayer::destroyObjectsEvent(EventCustom* event)
         if(isKindOfClass((Ref*)event->getUserData(), CCArray))
         {
             CCArray* array = (CCArray*)event->getUserData();
-            for(int i = 0; i < array->count(); i++)
+            for(long i = 0; i < array->count(); i++)
             {
                 if(isKindOfClass(array->objectAtIndex(i), RawObject))
                 {
@@ -663,7 +663,7 @@ void GraphicLayer::clear()
 
 RawObject* GraphicLayer::first(int id)
 {
-    for(int i =  storedObjects->count() - 1; i >= 0; i--)
+    for(long i =  storedObjects->count() - 1; i >= 0; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
         if(obj->getID() == id)
@@ -691,48 +691,45 @@ RawObject* GraphicLayer::first(std::string name, bool cache)
             return cachedObject;
         }
     }
-    RawObject* result = NULL;
-    for(int i =  storedObjects->count() - 1; i >= 0  && result == NULL; i--)
+    for(long i =  storedObjects->count() - 1; i >= 0; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
         if(name.compare(obj->getName()) == 0)
         {
-            result = obj;
+            if(cache)
+            {
+                staticCache->setObject(obj, name);
+            }
+            return obj;
         }
     }
-    if(cache && result != NULL)
-    {
-        staticCache->setObject(result, name);
-    }
-    return result;
+    return NULL;
 }
 
 RawObject* GraphicLayer::first(std::string name, Panel* panel)
 {
-    RawObject* result = NULL;
-    for(int i =  storedObjects->count() - 1; i >= 0  && result == NULL; i--)
+    for(long i =  storedObjects->count() - 1; i >= 0; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
         if(panel->containsObject(obj) && name == obj->getName())
         {
-            result = obj;
+            return obj;
         }
     }
-    return result;
+    return NULL;
 }
 
 RawObject* GraphicLayer::first(Vec2 position)
 {
-    RawObject* result = NULL;
-    for(int i =  storedObjects->count() - 1; i >= 0  && result == NULL; i--)
+    for(long i =  storedObjects->count() - 1; i >= 0 ; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
         if(obj->collision(this->getPositionRelativeToObject(position, obj)))
         {
-            result = obj;
+            return obj;
         }
     }
-    return result;
+    return NULL;
 }
 
 RawObject* GraphicLayer::at(int index)
@@ -745,7 +742,7 @@ RawObject* GraphicLayer::at(int index)
 Vector<RawObject*> GraphicLayer::all(std::string name)
 {
     Vector<RawObject*> result;
-    for(int i =  storedObjects->count() - 1; i >= 0; i--)
+    for(long i =  storedObjects->count() - 1; i >= 0; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
         if(name == obj->getName())
@@ -759,7 +756,7 @@ Vector<RawObject*> GraphicLayer::all(std::string name)
 Vector<RawObject*> GraphicLayer::all(std::string name, Panel* panel)
 {
     Vector<RawObject*> result;
-    for(int i =  storedObjects->count() - 1; i >= 0; i--)
+    for(long i =  storedObjects->count() - 1; i >= 0; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
         if(panel->containsObject(obj) && name == obj->getName())
@@ -773,7 +770,7 @@ Vector<RawObject*> GraphicLayer::all(std::string name, Panel* panel)
 Vector<RawObject*> GraphicLayer::all(Vec2 position)
 {
     Vector<RawObject*> result;
-    for(int i =  storedObjects->count() - 1; i >= 0; i--)
+    for(long i =  storedObjects->count() - 1; i >= 0; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
         if(obj->collision(this->getPositionRelativeToObject(position, obj)))
@@ -786,36 +783,34 @@ Vector<RawObject*> GraphicLayer::all(Vec2 position)
 
 RawObject* GraphicLayer::first(const std::function<bool(RawObject*)>& filter)
 {
-    RawObject* result = NULL;
-    for(int i =  storedObjects->count() - 1; i >= 0; i--)
+    for(long i =  storedObjects->count() - 1; i >= 0; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
         if(filter(obj))
         {
-            result = obj;
+            return obj;
         }
     }
-    return result;
+    return NULL;
 }
 
 Panel* GraphicLayer::firstPanel(const std::function<bool(Panel*)>& filter)
 {
-    Panel* result = NULL;
-    for(int i =  storedPanels->count() - 1; i >= 0; i--)
+    for(long i =  storedPanels->count() - 1; i >= 0; i--)
     {
         Panel* obj = (Panel*)storedPanels->objectAtIndex(i);
         if(filter(obj))
         {
-            result = obj;
+            return obj;
         }
     }
-    return result;
+    return NULL;
 }
 
 Vector<RawObject*> GraphicLayer::all(const std::function<bool(RawObject*)>& filter)
 {
     Vector<RawObject*> result;
-    for(int i =  storedObjects->count() - 1; i >= 0; i--)
+    for(long i =  storedObjects->count() - 1; i >= 0; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
         if(filter(obj))
@@ -863,7 +858,7 @@ bool GraphicLayer::containsObject(RawObject* obj)
 Vector<Panel*> GraphicLayer::allPanels(std::string name)
 {
     Vector<Panel*> result;
-    for(int i =  storedPanels->count() - 1; i >= 0; i--)
+    for(long i =  storedPanels->count() - 1; i >= 0; i--)
     {
         Panel* obj = (Panel*)storedPanels->objectAtIndex(i);
         if(name == obj->getName() && storedObjects->containsObject(obj))
@@ -877,7 +872,7 @@ Vector<Panel*> GraphicLayer::allPanels(std::string name)
 Vector<Panel*> GraphicLayer::allPanels(std::string name, Panel* panel)
 {
     Vector<Panel*> result;
-    for(int i =  storedPanels->count() - 1; i >= 0; i--)
+    for(long i =  storedPanels->count() - 1; i >= 0; i--)
     {
         Panel* obj = (Panel*)storedPanels->objectAtIndex(i);
         if(panel->containsObject(obj) && name == obj->getName())
@@ -891,7 +886,7 @@ Vector<Panel*> GraphicLayer::allPanels(std::string name, Panel* panel)
 Vector<Panel*> GraphicLayer::allPanels(const std::function<bool(Panel*)>& filter)
 {
     Vector<Panel*> result;
-    for(int i =  storedPanels->count() - 1; i >= 0; i--)
+    for(long i =  storedPanels->count() - 1; i >= 0; i--)
     {
         Panel* obj = (Panel*)storedPanels->objectAtIndex(i);
         if(filter(obj))
@@ -904,16 +899,15 @@ Vector<Panel*> GraphicLayer::allPanels(const std::function<bool(Panel*)>& filter
 
 Panel* GraphicLayer::firstPanel(std::string name)
 {
-    Panel* result = NULL;
-    for(int i =  storedPanels->count() - 1; i >= 0  && result == NULL; i--)
+    for(long i =  storedPanels->count() - 1; i >= 0; i--)
     {
         Panel* obj = (Panel*)storedPanels->objectAtIndex(i);
         if(name == obj->getName() && storedObjects->containsObject(obj))
         {
-            result = obj;
+            return obj;
         }
     }
-    return result;
+    return NULL;
 }
 
 Vec2 GraphicLayer::getPositionRelativeToObject(Vec2 point, RawObject* obj)
@@ -927,7 +921,7 @@ Vec2 GraphicLayer::getPositionRelativeToObject(Vec2 point, RawObject* obj)
         parents->addObject(parent);
         parent = this->getContainingPanel(parent);
     }
-    for(int i = parents->count() - 1; i >= 0; i--)
+    for(long i = parents->count() - 1; i >= 0; i--)
     {
         parent = (Panel*)parents->objectAtIndex(i);
         realPosition.x = (realPosition.x - parent->getPosition().x + parent->getNode()->getAnchorPoint().x * parent->getSize().width) / parent->getScale();
@@ -1022,13 +1016,13 @@ bool GraphicLayer::touchAtPosition(Vec2 position, bool event)
 {
 #if VERBOSE_GENERAL_INFO
     log("Before trying touchAtPosition, obj order :");
-    for(int i =  storedObjects->count() - 1; i >= 0; i--)
+    for(long i =  storedObjects->count() - 1; i >= 0; i--)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
         log("obj name: %s", obj->getName().c_str());
     }
 #endif
-    for(int i =  storedObjects->count() - 1; i >= 0; i--)
+    for(long i =  storedObjects->count() - 1; i >= 0; i--)
     {
         if(!isKindOfClass(storedObjects->objectAtIndex(i), RawObject))
         {
@@ -1115,7 +1109,7 @@ void GraphicLayer::reorderChild(RawObject* child, int zOrder)
 void GraphicLayer::reorderChildrenOfPanel(Panel* panel)
 {
     CCArray* alreadyReordered = Acreate();
-    for(int i = 0; i < storedObjects->count(); i++)
+    for(long i = 0; i < storedObjects->count(); i++)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
         if(this->getContainingPanel(obj) == panel && !alreadyReordered->containsObject(obj))
@@ -1129,7 +1123,7 @@ void GraphicLayer::reorderChildrenOfPanel(Panel* panel)
             i--;
         }
     }
-    for(int i = 0; i < storedPanels->count(); i++)
+    for(long i = 0; i < storedPanels->count(); i++)
     {
         Panel* subPanel = (Panel*)storedPanels->objectAtIndex(i);
         if(this->getContainingPanel(subPanel) == panel)
@@ -1246,7 +1240,7 @@ void GraphicLayer::update(float deltaTime)
         }
     }
     isUpdating = false;
-    for(int i = 0; i < objectsToAdd.size(); i++)
+    for(long i = 0; i < objectsToAdd.size(); i++)
     {
         this->addObject(objectsToAdd.at(i), objectsToAddZindex[i]);
         if(objectsToAddPanel[i] != NULL)
@@ -1270,7 +1264,7 @@ void GraphicLayer::update(float deltaTime)
 
 void GraphicLayer::refreshRenderTextures(Ref* obj)
 {
-    for(int i = 0; i < storedObjects->count(); i++)
+    for(long i = 0; i < storedObjects->count(); i++)
     {
         RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
         if(isKindOfClass(obj, CustomObject) && isKindOfClass(((CustomObject*)obj)->getNode(), RenderTexture))
