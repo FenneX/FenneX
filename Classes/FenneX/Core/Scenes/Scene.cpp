@@ -527,24 +527,24 @@ int Scene::getFrameNumber()
 
 Image* Scene::getButtonAtPosition(Vec2 position, bool state)
 {
-    Vector<RawObject*> objects = GraphicLayer::sharedLayer()->all([position](RawObject* obj) -> bool {
+    return (Image*)GraphicLayer::sharedLayer()->first([position, state](RawObject* obj) -> bool {
         //All visible objects at position
-        return obj->getNode() != NULL &&
+        if (obj->getNode() != NULL &&
+            dynamic_cast<Image*>(obj) != NULL &&
+            obj->getEventActivated() &&
+            !obj->getEventName().empty() &&
+            obj->getEventName()[0] != '\0' &&
             GraphicLayer::sharedLayer()->isWorldVisible(obj) &&
-            obj->collision(GraphicLayer::sharedLayer()->getPositionRelativeToObject(position, obj));
-    });
-    for(RawObject* obj : objects)
-    {
-        if(obj->isVisible() && obj->getEventActivated() && !obj->getEventName().empty() && obj->getEventName()[0] != '\0' && dynamic_cast<Image*>(obj) != NULL)
+            obj->collision(GraphicLayer::sharedLayer()->getPositionRelativeToObject(position, obj)))
         {
             //If state = false, the object imagefile must finish by "-on" and and have an _OriginalImageFile
             char *end = strrchr(((Image*)obj)->getImageFile().c_str(), '-');
             if(state || (end && strcmp(end, "-on") == 0 && obj->getEventInfos()->objectForKey("_OriginalImageFile") != NULL))
             {
-                return (Image*)obj;
+                return true;
             }
         }
-    }
-    return NULL;
+        return false;
+    });
 }
 NS_FENNEX_END
