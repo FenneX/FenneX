@@ -182,6 +182,11 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 	{
 		LocalNotification.onNewIntent(intent);
 		super.onNewIntent(intent);
+		this.setIntent(intent);
+		if(launchTime != 0 && this.getIntent().getDataString() != null)
+		{
+			NativeUtility.notifyUrlOpened(this.getIntent().getDataString());
+		}
 	}
 	
 	@Override
