@@ -162,6 +162,7 @@ public:
     //Method for querying panels. Faster because there are generally way less panels
     Panel* firstPanel(const std::function<bool(Panel*)>& filter);
     Panel* firstPanel(std::string name);
+    Panel* firstPanel(std::string name, Panel* panel);
     
     Vector<Panel*> allPanels(std::string name);
     Vector<Panel*> allPanels(std::string name, Panel* panel);

@@ -910,6 +910,20 @@ Panel* GraphicLayer::firstPanel(std::string name)
     return NULL;
 }
 
+
+Panel* GraphicLayer::firstPanel(std::string name, Panel* panel)
+{
+    for(long i =  storedPanels->count() - 1; i >= 0; i--)
+    {
+        Panel* obj = (Panel*)storedPanels->objectAtIndex(i);
+        if(panel->containsObject(obj) && name == obj->getName() && storedObjects->containsObject(obj))
+        {
+            return obj;
+        }
+    }
+    return NULL;
+}
+
 Vec2 GraphicLayer::getPositionRelativeToObject(Vec2 point, RawObject* obj)
 {
     Vec2 realPosition = point;
