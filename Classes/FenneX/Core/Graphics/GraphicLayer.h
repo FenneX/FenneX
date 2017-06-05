@@ -147,12 +147,7 @@ public:
     //Return all objects matching query
     Vector<RawObject*> all()
     {
-        Vector<RawObject*> result;
-        for(int i = 0; i < storedObjects->count(); i++)
-        {
-            result.pushBack((RawObject*)storedObjects->objectAtIndex(i));
-        }
-        return result;
+        return storedObjects;
     }
     Vector<RawObject*> all(std::string name);
     Vector<RawObject*> all(std::string name, Panel* panel);
@@ -260,9 +255,9 @@ private:
     void loadBaseNodeAttributes(CustomBaseNode* node, RawObject* obj);
     
     //Array containing all objects. They are sort according their zOrder (ascending)
-    CCArray* storedObjects;
+    Vector<RawObject*> storedObjects;
     //Array containing panels, for easier retrieval when using Panel specific methods
-    CCArray* storedPanels;
+    Vector<Panel*> storedPanels;
     //Allow to easily find the parent of any object
     std::map<int, Panel*> childsParents;//keys are objects ID, values are Panel
     
