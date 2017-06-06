@@ -84,8 +84,8 @@ protected:
     //NULL if the object is not an animation
     SpriteBatchNode* spriteSheet;
     
-    //NULL if the object is not an animation, it is equal to animated sprites filenames in the plist
-    CCArray* spritesName;
+    //empty if the object is not an animation, it is equal to animated sprites filenames in the plist
+    std::vector<std::string> spritesName;
     
     std::string loadingImageFile;
     bool loadingKeepExactSize;

@@ -25,6 +25,8 @@ THE SOFTWARE.
 #include "Image.h"
 #include "Shorteners.h"
 #include "AppMacros.h"
+#include <sstream>
+#include <iomanip>
 
 NS_FENNEX_BEGIN
 Rect Image::getBoundingBox()
@@ -43,7 +45,6 @@ Node* Image::getNode()
 }
 
 Image::Image():
-spritesName(NULL),
 spriteSheet(NULL),
 delegate(NULL),
 runningAnimation(NULL),
@@ -54,7 +55,6 @@ isLoadingTexture(false)
     
 }
 Image::Image(std::string filename, Vec2 location):
-spritesName(NULL),
 spriteSheet(NULL),
 runningAnimation(NULL),
 imageFile(filename),
@@ -93,17 +93,16 @@ isLoadingTexture(false)
     SpriteFrameCache::getInstance()->addSpriteFramesWithFile(imageFile.append(".plist").c_str());
     imageFile.erase(imageFile.length() - 6, 6);
     
-    spritesName = CCArray::createWithCapacity(capacity);
-    spritesName->retain();
+    spritesName.reserve(capacity);
     for(int i = 1; i <= capacity; i++)
     {
-        /*char num[10];
-         sprintf(num, "%04d", i);*/
-        spritesName->addObject(ScreateF("%s_%02d.png", filename.c_str(), i));//imageFile.append(num).append(".png")));
+        std::ostringstream spriteFileName;
+        spriteFileName << filename << std::setw(2) << i;
+        spritesName.push_back(spriteFileName.str());
     }
     delegate = Sprite::create();
     delegate->retain();
-    SpriteFrame* firstFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(((CCString*)spritesName->objectAtIndex(0))->getCString());
+    SpriteFrame* firstFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(spritesName.at(0));
     delegate->setSpriteFrame(firstFrame);
     this->setPosition(location);
     spriteSheet->addChild(delegate);
@@ -148,7 +147,7 @@ Image::~Image()
     if(spriteSheet != NULL)
     {
         spriteSheet->release();
-        spritesName->release();
+        spritesName.clear();
     }
     delegate->release();
 #if VERBOSE_DEALLOC
@@ -160,9 +159,9 @@ void Image::runFullAnimation(float delay, bool invert)
 {
     CCAssert(spriteSheet != NULL, "Image runFullAnimation called on an object without spritesheet");
     Vector<AnimationFrame*> animationFrames;
-    for(int i = 0; i < spritesName->count(); i++)
+    for(int i = 0; i < spritesName.size(); i++)
     {
-        SpriteFrame* spriteFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(((CCString*)spritesName->objectAtIndex(invert ? spritesName->count() - i - 1 : i))->getCString());
+        SpriteFrame* spriteFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(spritesName.at(invert ? spritesName.size() - i - 1 : i));
         
         ValueMap infos;
         infos["Name"] = Value(getName());
@@ -186,9 +185,9 @@ Animate* Image::getFullAnimation(float delay, bool invert)
 {
     CCAssert(spriteSheet != NULL, "Image getFullAnimation called on an object without spritesheet");
     Vector<AnimationFrame*> animationFrames;
-    for(int i = 0; i < spritesName->count(); i++)
+    for(int i = 0; i < spritesName.size(); i++)
     {
-        SpriteFrame* spriteFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(((CCString*)spritesName->objectAtIndex(invert ? spritesName->count() - i - 1 : i))->getCString());
+        SpriteFrame* spriteFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(spritesName.at(invert ? spritesName.size() - i - 1 : i));
         
         ValueMap infos;
         infos["Name"] = Value(getName());
@@ -230,15 +229,14 @@ void Image::loadAnimation(const char* filename, int capacity, bool useLastFrame)
     SpriteFrameCache::getInstance()->addSpriteFramesWithFile(imageFile.append(".plist").c_str());
     imageFile.erase(imageFile.length() - 6, 6);
     
-    spritesName = CCArray::createWithCapacity(capacity);
-    spritesName->retain();
+    spritesName.reserve(capacity);
     for(int i = 1; i <= capacity; i++)
     {
-        /*char num[10];
-         sprintf(num, "%04d", i);*/
-        spritesName->addObject(ScreateF("%s_%02d.png", filename, i));//imageFile.append(num).append(".png")));
+        std::ostringstream spriteFileName;
+        spriteFileName << filename << std::setw(2) << i;
+        spritesName.push_back(filename);
     }
-    SpriteFrame* firstFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(((CCString*)spritesName->objectAtIndex(!useLastFrame ? 0 : spritesName->count() - 1))->getCString());
+    SpriteFrame* firstFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(spritesName.at(!useLastFrame ? 0 : spritesName.size() - 1));
     Node* parent = delegate->getParent();
     //If this is a previous animation, stop it first
     if(isKindOfClass(parent, SpriteBatchNode))
