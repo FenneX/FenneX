@@ -97,7 +97,7 @@ isLoadingTexture(false)
     for(int i = 1; i <= capacity; i++)
     {
         std::ostringstream spriteFileName;
-        spriteFileName << filename << std::setw(2) << i;
+        spriteFileName << filename << '_' << std::setw(2) << std::setfill('0') << i << ".png";
         spritesName.push_back(spriteFileName.str());
     }
     delegate = Sprite::create();
@@ -233,7 +233,7 @@ void Image::loadAnimation(const char* filename, int capacity, bool useLastFrame)
     for(int i = 1; i <= capacity; i++)
     {
         std::ostringstream spriteFileName;
-        spriteFileName << filename << std::setw(2) << i;
+        spriteFileName << filename << '_' << std::setw(2) << std::setfill('0') << i << ".png";
         spritesName.push_back(filename);
     }
     SpriteFrame* firstFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(spritesName.at(!useLastFrame ? 0 : spritesName.size() - 1));
