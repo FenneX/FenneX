@@ -63,7 +63,7 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		if(launchTime != 0 && this.getIntent().getDataString() != null)
+		if(launchTime != 0 && this.getIntent().getDataString() != null && !this.getIntent().getBooleanExtra("IsUrlAlreadyOpened", false))
 		{
 			NativeUtility.notifyUrlOpened(this.getIntent().getDataString());
 		}
@@ -115,9 +115,10 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
             }
         }
         // It's time to check again if it's an intent or not since the c++ library is alive
-		if(launchTime != 0 && this.getIntent().getDataString() != null)
+		if(launchTime != 0 && this.getIntent().getDataString() != null && !this.getIntent().getBooleanExtra("IsUrlAlreadyOpened", false))
 		{
 			NativeUtility.notifyUrlOpened(this.getIntent().getDataString());
+			this.getIntent().putExtra("IsUrlAlreadyOpened", true);
 		}
     }
 	
