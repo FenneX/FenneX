@@ -893,13 +893,32 @@ Vector<Panel*> GraphicLayer::allPanels(const std::function<bool(Panel*)>& filter
     return result;
 }
 
-Panel* GraphicLayer::firstPanel(std::string name)
+Panel* GraphicLayer::firstPanel(std::string name, bool cache)
 {
+    static SceneName lastScene = SceneSwitcher::sharedSwitcher()->getCurrentSceneName();
+    static std::map<std::string, Panel*> staticCache;
+    if(lastScene != SceneSwitcher::sharedSwitcher()->getCurrentSceneName())
+    {
+        staticCache.clear();
+        lastScene = SceneSwitcher::sharedSwitcher()->getCurrentSceneName();
+    }
+    else if(staticCache.find(name) != staticCache.end())
+    {
+        Panel* cachedObject = staticCache.at(name);
+        if(storedPanels.contains(cachedObject))
+        {
+            return cachedObject;
+        }
+    }
     for(long i =  storedPanels.size() - 1; i >= 0; i--)
     {
         Panel* obj = storedPanels.at(i);
         if(name == obj->getName() && storedObjects.contains(obj))
         {
+            if(cache)
+            {
+                staticCache[name] = obj;
+            }
             return obj;
         }
     }
