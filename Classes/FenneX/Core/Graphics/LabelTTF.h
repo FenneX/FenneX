@@ -65,17 +65,17 @@ public:
     
     virtual void update(float deltaTime);
     
-    CCString* getFullFontFile();
+    std::string getFullFontFile();
     TextHAlignment getAlignment();
     
 protected:
-    //the actual CCLabelBMFont which will perform cocos2d actions
+    //the actual Label which will perform cocos2d actions
     Label* delegate;
     
     cocos2d::Size realDimensions;
     void adjustLabel();
-    CCString* fontFile;
-    CCString* fullFontFile;
+    std::string fontFile;
+    std::string fullFontFile;
     TextHAlignment alignment;
     
     std::string loadingValue;

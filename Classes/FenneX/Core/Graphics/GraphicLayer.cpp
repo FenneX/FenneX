@@ -409,7 +409,7 @@ RawObject* GraphicLayer::duplicateObject(RawObject* otherObject)
     {
         LabelTTF* otherLabel = (LabelTTF*)otherObject;
         //const char* labelString, const char* filename, Vec2 location, Size dimensions, TextHAlignment format
-        obj = new LabelTTF(otherLabel->getLabelValue(), otherLabel->getFullFontFile()->getCString(), otherLabel->getPosition(), otherLabel->getDimensions(), otherLabel->getAlignment());
+        obj = new LabelTTF(otherLabel->getLabelValue(), otherLabel->getFullFontFile(), otherLabel->getPosition(), otherLabel->getDimensions(), otherLabel->getAlignment());
         ((Label*)obj->getNode())->setColor(((Label*)otherLabel->getNode())->getColor());
         ((LabelTTF*)obj)->setFitType(otherLabel->getFitType());
         ((LabelTTF*)obj)->setFontSize(((LabelTTF*)otherObject)->getFontSize());

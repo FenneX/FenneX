@@ -86,7 +86,7 @@ const char* LabelTTF::getLabelValue()
 
 const char* LabelTTF::getFontFile()
 {
-    return fontFile->getCString();
+    return fontFile.c_str();
 }
 
 float LabelTTF::getFontSize()
@@ -105,25 +105,9 @@ void LabelTTF::setFontSize(float size)
 
 void LabelTTF::setFont(std::string filename)
 {
-    
-    fontFile = new CCString(filename);
-    fullFontFile = new CCString(filename);
-    CCString* fontFile = CCString::create(filename);
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-    //ios doesn't like full path and ttf extension
-    std::string fontFileWithoutTTF = fontFile->getCString();
-    long extensionPos = fontFileWithoutTTF.find_last_of(".ttf");
-    if(extensionPos != std::string::npos)
-    {
-        fontFileWithoutTTF = fontFileWithoutTTF.substr(0, extensionPos - 3);
-    }
-    long slashPos = fontFileWithoutTTF.find_last_of('/');
-    if(slashPos != std::string::npos)
-    {
-        fontFileWithoutTTF = fontFileWithoutTTF.substr(slashPos+1);
-    }
-#endif
-    delegate->setSystemFontName(fontFile->getCString());
+    fontFile = filename;
+    fullFontFile = filename;
+    delegate->setSystemFontName(filename);
 }
 
 LabelTTF::LabelTTF() :
@@ -137,8 +121,8 @@ loadingValue("")
 {
     name = labelString;
     fitType = ResizeFont;
-    fontFile = new CCString(filename);
-    fullFontFile = new CCString(filename);
+    fontFile = filename;
+    fullFontFile = filename;
     this->alignment = alignment;
     int sizeBegin = -1, sizeEnd = -1;
     for(int i = 0; i < filename.size(); i++)
@@ -158,28 +142,14 @@ loadingValue("")
         log("LabelTTF : incorrect font formating, use : FontnameSizeColor");
         return;
     }
-    CCString* fontFile = CCString::createWithData((const unsigned char*)filename.c_str(), sizeBegin);
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-    //ios doesn't like full path and ttf extension
-    std::string fontFileWithoutTTF = fontFile->getCString();
-    long extensionPos = fontFileWithoutTTF.find_last_of(".ttf");
-    if(extensionPos != std::string::npos)
-    {
-        fontFileWithoutTTF = fontFileWithoutTTF.substr(0, extensionPos - 3);
-    }
-    long slashPos = fontFileWithoutTTF.find_last_of('/');
-    if(slashPos != std::string::npos)
-    {
-        fontFileWithoutTTF = fontFileWithoutTTF.substr(slashPos+1);
-    }
-#endif
-    CCString* fontSize = CCString::createWithData((const unsigned char*)filename.substr(sizeBegin).c_str(), sizeEnd - sizeBegin);
-    CCString* color = CCString::createWithData((const unsigned char*)filename.substr(sizeEnd).c_str(), filename.size() - sizeEnd);
-    delegate = Label::create(labelString, fontFile->getCString(), fontSize->intValue());
+    std::string fontFile = filename.substr(sizeBegin);
+    std::string fontSize = filename.substr(sizeBegin, sizeEnd - sizeBegin);
+    std::string color = filename.substr(sizeEnd);
+    delegate = Label::create(labelString, fontFile, atoi(fontSize.c_str()));
     delegate->retain();
     delegate->setPosition(position);
     delegate->setHorizontalAlignment(alignment);
-    Color3B color3B = color->isEqual(Screate("Gray")) ? Color3B::GRAY : color->isEqual(Screate("White")) ? Color3B::WHITE : Color3B::BLACK;
+    Color3B color3B = color == "Gray" ? Color3B::GRAY : color == "White" ? Color3B::WHITE : Color3B::BLACK;
     delegate->setColor(color3B);
     realDimensions = dimensions;
     delegate->setDimensions(realDimensions.width / this->getScale(), 0);
@@ -192,13 +162,15 @@ loadingValue("")
 {
     name = label->getString();
     fitType = ResizeFont;
-    fontFile = new CCString(label->getSystemFontName().c_str());
+    fontFile = label->getSystemFontName();
     alignment = TextHAlignment::CENTER;
     realDimensions = label->getDimensions();
     delegate = label;
     label->retain();
-    fullFontFile = ScreateF("%s%d%s", label->getSystemFontName().c_str(), (int)label->getSystemFontSize(), isColorEqual(label->getColor() , Color3B::BLACK) ? "Black" : isColorEqual(label->getColor() , Color3B::WHITE) ? "White" : "Gray");
-    fullFontFile->retain();
+    fullFontFile = label->getSystemFontName() +
+        std::to_string((int)label->getSystemFontSize()) +
+        (isColorEqual(label->getColor() , Color3B::BLACK) ? "Black"
+         : isColorEqual(label->getColor() , Color3B::WHITE) ? "White" : "Gray");
     CustomLabel* customLabel = dynamic_cast<CustomLabel*>(label);
     if(customLabel != NULL)
     {
@@ -219,8 +191,6 @@ LabelTTF::~LabelTTF()
     log("Dealloc label %s, font : %s", name.c_str(), fullFontFile->getCString());
 #endif
     delegate->release();
-    fontFile->release();
-    fullFontFile->release();
 }
 
 void LabelTTF::adjustLabel()
@@ -299,7 +269,7 @@ void LabelTTF::update(float deltaTime)
     }
 }
 
-CCString* LabelTTF::getFullFontFile()
+std::string LabelTTF::getFullFontFile()
 {
     return fullFontFile;
 }
