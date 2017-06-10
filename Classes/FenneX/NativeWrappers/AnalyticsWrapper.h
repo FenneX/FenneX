@@ -34,7 +34,6 @@ USING_NS_FENNEX;
 class AnalyticsWrapper
 {
 public:
-    static void init();
     //Start methods and agent version, specific to the platform since the token is different
     static void GAStartSession(const std::string& apiKey);
     static std::string GAGetGAAgentVersion();

@@ -38,12 +38,6 @@ AnalyticsWrapper* AnalyticsWrapper::sharedInstance(void)
     return s_SharedInstance;
 }
 
-void AnalyticsWrapper::init()
-{
-    sharedInstance()->lastPageName = "";
-    sharedInstance()->appVersion = "";
-}
-
 void AnalyticsWrapper::setAppVersion(const std::string& version)
 {
     // automatic with firebase
