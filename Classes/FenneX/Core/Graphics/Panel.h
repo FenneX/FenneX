@@ -66,7 +66,7 @@ protected:
     Node* delegate;
     
     //Array containing graphic objects
-    CCArray* children;
+    Vector<RawObject*> children;
 };
 NS_FENNEX_END
 

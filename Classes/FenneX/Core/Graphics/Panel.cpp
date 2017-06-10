@@ -40,15 +40,16 @@ void Panel::setNode(Node* node)
     node->setScaleY(delegate->getScaleY());
     node->setContentSize(delegate->getContentSize());
     node->setAnchorPoint(delegate->getAnchorPoint());
-    CCArray* childrenNode = Acreate();
-    for(auto child : delegate->getChildren())
+    Vector<Node*> childrenNode;
+    //Deep copy because by default it's a reference
+    for(Node* child : delegate->getChildren())
     {
-        childrenNode->addObject(child);
+        childrenNode.pushBack(child);
     }
     delegate->removeAllChildrenWithCleanup(false);
-    for(int i = 0; i < childrenNode->count(); i++)
+    for(Node* child : childrenNode)
     {
-        node->addChild((Node*)childrenNode->objectAtIndex(i));
+        node->addChild(child);
     }
     delegate->getParent()->addChild(node);
     delegate->removeFromParentAndCleanup(true);
@@ -70,8 +71,6 @@ Panel::Panel(std::string panelName, Vec2 location)
     delegate = Node::create();
     delegate->retain();
     delegate->setPosition(location);
-    children = CCArray::create();
-    children->retain();
     name = panelName;
 }
 
@@ -80,13 +79,10 @@ Panel::Panel(Node* node, std::string panelName)
     name = panelName != "" ? panelName : "Panel";
     delegate = node;
     delegate->retain();
-    children = CCArray::create();
-    children->retain();
 }
 
 Panel::~Panel()
 {
-    children->release();
     delegate->release();
 #if VERBOSE_DEALLOC
     log("Dealloc Panel %s", name.c_str());
@@ -97,7 +93,7 @@ void Panel::addChild(RawObject* child)
 {
     if(child->getNode() != NULL)
     {
-        children->addObject(child);
+        children.pushBack(child);
         if(delegate->getChildren().empty() || !delegate->getChildren().contains(child->getNode()))
         {
             delegate->addChild(child->getNode());
@@ -111,14 +107,14 @@ void Panel::addChild(RawObject* child)
 
 bool Panel::containsObject(RawObject* child)
 {
-    return children->containsObject(child);
+    return children.contains(child);
 }
 
 void Panel::removeChild(RawObject* child)
 {
     if(child->getNode() != NULL)
     {
-        children->removeObject(child);
+        children.eraseObject(child);
         delegate->removeChild(child->getNode(), false);
     }
     else
@@ -137,12 +133,7 @@ void Panel::reorderChild(RawObject* child, int zOrder)
 
 Vector<RawObject*> Panel::getChildren()
 {
-    Vector<RawObject*> result;
-    for(int i = 0; i < children->count(); i++)
-    {
-        result.pushBack((RawObject*)children->objectAtIndex(i));
-    }
-    return result;
+    return children;
 }
 
 void Panel::update(float deltaTime)
