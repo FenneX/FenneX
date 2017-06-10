@@ -120,6 +120,14 @@ public class NativeUtility
         return uniqueIdentifier;
     }
 
+    public static String getAppVersionNumber() throws PackageManager.NameNotFoundException {
+        return getMainActivity().getPackageManager().getPackageInfo(getMainActivity().getPackageName(), 0).versionName;
+    }
+
+    public static int getAppVersionCode() throws PackageManager.NameNotFoundException {
+        return getMainActivity().getPackageManager().getPackageInfo(getMainActivity().getPackageName(), 0).versionCode;
+    }
+
     public static String getUniqueIdentifierByContext(Context context)
     {
         String uniqueIdentifier = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);

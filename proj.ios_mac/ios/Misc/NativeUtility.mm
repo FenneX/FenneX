@@ -65,6 +65,15 @@ std::string getPackageIdentifier()
     return [[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"] UTF8String];
 }
 
+std::string getAppVersionNumber()
+{
+    return [[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"] UTF8String];
+}
+int getAppVersionCode()
+{
+    return -1;
+}
+
 //Code from http://stackoverflow.com/questions/11197509/ios-how-to-get-device-make-and-model
 std::string getDeviceModelIdentifier()
 {

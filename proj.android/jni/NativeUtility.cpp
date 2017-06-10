@@ -141,6 +141,30 @@ std::string getUniqueIdentifier()
     return identifier;
 }
 
+std::string getAppVersionNumber()
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "getAppVersionNumber", "()Ljava/lang/String;");
+    CCAssert(functionExist, "Function doesn't exist");
+    
+    jstring name = (jstring) minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID);
+    std::string versionNumber = JniHelper::jstring2string(name);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(name);
+    return versionNumber;
+}
+
+int getAppVersionCode()
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "getAppVersionCode", "()I");
+    CCAssert(functionExist, "Function doesn't exist");
+
+    int versionCode = minfo.env->CallStaticIntMethod(minfo.classID, minfo.methodID);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    return versionCode;
+}
+
 std::string getDeviceModelIdentifier()
 {
     JniMethodInfo minfo;

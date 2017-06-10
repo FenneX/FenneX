@@ -55,6 +55,12 @@ std::string getOpenUrl();
 std::string getAppName();
 std::string getPackageIdentifier();
 
+//Return the version number, for example 1.2.4
+std::string getAppVersionNumber();
+
+//Return the version code, for example 12, on Android. Always return -1 on iOS because we don't use CFBundleVersion properly, and there is no actual build number
+int getAppVersionCode();
+
 /* Get an unique identifier of the device.
  - on iOS, it uses identifierForVendor, which CAN change if all apps are uninstalled at once then reinstalled. It can also be null at the beginning. If it is, retry later
  - on Android, it uses ANDROID_IT, which CAN change on factory reset and can be different if there are several accounts on the device.
