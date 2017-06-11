@@ -48,10 +48,6 @@ bool Localization::willTranslate()
     return std::find(availableTranslations.begin(), availableTranslations.end(), getLocalLanguage()) != availableTranslations.end();
 }
 
-CCString* Localization::getLocalizedString(CCString* string) {
-    return Screate(getLocalizedString(string->getCString()));
-}
-
 const std::string Localization::getLocalizedString(const std::string& string){
 #if !(USE_TRANSLATION)
     return string;
@@ -122,7 +118,7 @@ bool Localization::loadAvailableTranslations()
 
 void Localization::loadTranslations()
 {
-    translations = ValueConversion::toMapStringString(loadValueFromFile(ScreateF("Strings_%s.plist", currentLanguage.c_str())->getCString(), true));
+    translations = ValueConversion::toMapStringString(loadValueFromFile("Strings_" + currentLanguage + ".plist", true));
     
     if (translations.empty())
     {
