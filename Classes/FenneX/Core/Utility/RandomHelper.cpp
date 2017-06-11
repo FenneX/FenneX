@@ -54,6 +54,7 @@ void randomWithoutRetake(int* array, int count, int max)
     {
         max = count;
     }
+    CCAssert(max >= actualCount, "Can't do a random without a valid max (>= count)");
     for(int i = 0; i < actualCount; i++)
     {
         int r = arc4random() % max;
@@ -61,14 +62,6 @@ void randomWithoutRetake(int* array, int count, int max)
         {
             r++;
         }
-        //insert r so that taken is in increasing order
-        /*int j = 0;
-         while(j < i && r > array[j]) j++;
-         for(int k = i - 1; k >= j; k--)
-         {
-         array[k+1] = array[k];
-         }
-         array[j] = r;*/
         array[i] = r;
 		max--;
 	}
@@ -80,37 +73,6 @@ void randomWithoutRetake(int* array, int count, int max)
 			if(array[i] == array[j])
 			{
 				log("Warning : number %d picked twice during question choice", array[i]);
-			}
-		}
-	}
-}
-
-void randomWithoutRetake(CCArray* array, int count, int max)
-{
-	int actualCount = max != -1 ? (count > max ? max : count) : count;
-    if(max == -1)
-    {
-        max = (int)array->count();
-    }
-    CCAssert(max >= actualCount, "Can't do a random without a valid max (>= count)");
-	for(int i = 0; i < actualCount; i++)
-	{
-		int r = arc4random() % max;
-        while(containsNumber(array, r))
-        {
-            r++;
-        }
-        array->addObject(Icreate(r));
-		max--;
-	}
-	//sanity test
-	for(int i = 0; i < actualCount; i++)
-	{
-		for(int j = i + 1; j < actualCount; j++)
-		{
-			if(TOINT(array->objectAtIndex(i)) == TOINT(array->objectAtIndex(j)))
-			{
-				log("Warning : number %d picked twice during question choice", TOINT(array->objectAtIndex(i)));
 			}
 		}
 	}
