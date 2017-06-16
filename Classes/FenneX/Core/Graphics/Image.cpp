@@ -234,7 +234,7 @@ void Image::loadAnimation(const char* filename, int capacity, bool useLastFrame)
     {
         std::ostringstream spriteFileName;
         spriteFileName << filename << '_' << std::setw(2) << std::setfill('0') << i << ".png";
-        spritesName.push_back(filename);
+        spritesName.push_back(spriteFileName.str());
     }
     SpriteFrame* firstFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(spritesName.at(!useLastFrame ? 0 : spritesName.size() - 1));
     Node* parent = delegate->getParent();
