@@ -20,8 +20,8 @@ import android.graphics.PixelFormat;
 import android.graphics.Bitmap.CompressFormat;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
-import android.opengl.Visibility;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -219,7 +219,7 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 
 						@Override
 						public boolean onError(MediaPlayer mp, int what,
-								int extra) {
+											   int extra) {
 							Log.e(TAG, "VideoView error : " + what + ", " + extra);
                             NativeUtility.getMainActivity().runOnGLThread(new Runnable() {
                                 public void run() {
@@ -572,8 +572,7 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 			//Save the thumbnail in a PNG compressed format, and close everything. If something fails, return null
 			FileOutputStream streamThumbnail = new FileOutputStream(fullThumbPath);
 
-			//Other method to get a thumbnail. The problem is that it doesn't allow to get at a specific time 
-			Bitmap thumb; //= ThumbnailUtils.createVideoThumbnail(videoFile.getAbsolutePath(),MediaStore.Images.Thumbnails.MINI_KIND);
+			Bitmap thumb = null;
 			MediaMetadataRetriever retriever = new MediaMetadataRetriever();
 			try {
 				Uri appUri = NativeUtility.getMainActivity().getUriFromFileName(path);
@@ -585,19 +584,25 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 					retriever.setDataSource(videoFile.getAbsolutePath());
 				}
 		        int timeInSeconds = 1;
-		        thumb = retriever.getFrameAtTime(timeInSeconds * 1000000,
-		                    MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
-                if(thumb != null) {
-                    thumb.compress(CompressFormat.PNG, 80, streamThumbnail);
-                    thumb.recycle(); //ensure the image is freed;
-                }
-                else {
-                    thumbPath = null;
-                }
-		    } catch (Exception ex) {
-		        Log.i(TAG, "MediaMetadataRetriever in getThumbnail got exception:" + ex);
-		        thumbPath = null;
-		    }
+				thumb = retriever.getFrameAtTime(timeInSeconds * 1000000,
+				MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+				if(thumb == null)
+				{
+					// Since the first method dind't work, let's try an other one
+					// The problem is that it doesn't allow to get at a specific time
+					thumb = ThumbnailUtils.createVideoThumbnail(videoFile.getAbsolutePath(), MediaStore.Images.Thumbnails.MINI_KIND);
+				}
+				if(thumb != null) {
+					thumb.compress(CompressFormat.PNG, 80, streamThumbnail);
+					thumb.recycle(); //ensure the image is freed;
+				}
+				else {
+					thumbPath = null;
+				}
+			} catch (Exception ex) {
+				Log.i(TAG, "MediaMetadataRetriever in getThumbnail got exception:" + ex);
+				thumbPath = null;
+			}
 			retriever.release();
 			streamThumbnail.close();
 			Log.d(TAG, "thumbnail saved successfully");
