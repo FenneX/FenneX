@@ -337,7 +337,7 @@ public class VideoPicker implements ActivityResultResponder {
             _fileName += path.substring(path.lastIndexOf("."));
             File destinationFile = new File(NativeUtility.getLocalPath() + java.io.File.separator + _fileName);
 
-            Log.d(TAG, "TRACKING video path : " + path + ", new filename : " + _fileName);
+            Log.d(TAG, "video path : " + path + ", new filename : " + _fileName);
             if(!destinationFile.exists())
             {
                 InputStream in = null;
