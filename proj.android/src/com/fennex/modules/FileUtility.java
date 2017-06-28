@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
 import java.util.HashMap;
 
 /**
@@ -62,7 +63,7 @@ public class FileUtility implements ActivityResultResponder {
         boolean result = true;
         try {
             //Create parent directories recursively
-            if(filename.lastIndexOf("/") != -1) {
+            if (filename.lastIndexOf("/") != -1) {
                 File directory = new File(filename.substring(0, filename.lastIndexOf("/") + 1));
                 directory.mkdirs();
             }
@@ -71,7 +72,7 @@ public class FileUtility implements ActivityResultResponder {
             FileLock lock = file.getChannel().lock();
             getInstance().currentLocks.put(filename, lock);
             getInstance().currentFiles.put(filename, file);
-        } catch (FileNotFoundException e) {
+        } catch (OverlappingFileLockException | FileNotFoundException e) {
             e.printStackTrace();
             result = false;
         } catch (IOException e) {
