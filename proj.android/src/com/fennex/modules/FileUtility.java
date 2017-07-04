@@ -61,23 +61,29 @@ public class FileUtility implements ActivityResultResponder {
 
     public static boolean lockFile(String filename) {
         boolean result = true;
-        try {
-            //Create parent directories recursively
-            if (filename.lastIndexOf("/") != -1) {
-                File directory = new File(filename.substring(0, filename.lastIndexOf("/") + 1));
-                directory.mkdirs();
+        synchronized (FileUtility.class) {
+            try {
+                //Create parent directories recursively
+                if (filename.lastIndexOf("/") != -1) {
+                    File directory = new File(filename.substring(0, filename.lastIndexOf("/") + 1));
+                    directory.mkdirs();
+                }
+                File fileBase = new File(filename);
+                RandomAccessFile file = new RandomAccessFile(fileBase, "rwd");
+                FileLock lock = file.getChannel().lock();
+                getInstance().currentLocks.put(filename, lock);
+                getInstance().currentFiles.put(filename, file);
+            } catch (OverlappingFileLockException | FileNotFoundException e) {
+                e.printStackTrace();
+                Log.e(TAG, "List of currently locked files:");
+                for (HashMap.Entry<String, FileLock> entry : getInstance().currentLocks.entrySet()) {
+                    Log.e(TAG, "    locked file " + entry.getKey());
+                }
+                result = false;
+            } catch (IOException e) {
+                e.printStackTrace();
+                result = false;
             }
-            File fileBase = new File(filename);
-            RandomAccessFile file = new RandomAccessFile(fileBase, "rwd");
-            FileLock lock = file.getChannel().lock();
-            getInstance().currentLocks.put(filename, lock);
-            getInstance().currentFiles.put(filename, file);
-        } catch (OverlappingFileLockException | FileNotFoundException e) {
-            e.printStackTrace();
-            result = false;
-        } catch (IOException e) {
-            e.printStackTrace();
-            result = false;
         }
         return result;
     }
@@ -117,17 +123,19 @@ public class FileUtility implements ActivityResultResponder {
     }
 
     public static void unlockFile(String filename) {
-        FileLock lock = getInstance().currentLocks.get(filename);
-        RandomAccessFile file = getInstance().currentFiles.get(filename);
-        if(lock != null && file != null) {
-            if(!lock.isValid()) Log.i("FileUtility", "Lock is invalid for file : "+ filename);
-            try {
-                lock.release();
-                file.close();
-                getInstance().currentLocks.remove(filename);
-                getInstance().currentFiles.remove(filename);
-            } catch (IOException e) {
-                e.printStackTrace();
+        synchronized (FileUtility.class) {
+            FileLock lock = getInstance().currentLocks.get(filename);
+            RandomAccessFile file = getInstance().currentFiles.get(filename);
+            if (lock != null && file != null) {
+                if (!lock.isValid()) Log.i("FileUtility", "Lock is invalid for file : " + filename);
+                try {
+                    lock.release();
+                    file.close();
+                    getInstance().currentLocks.remove(filename);
+                    getInstance().currentFiles.remove(filename);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
