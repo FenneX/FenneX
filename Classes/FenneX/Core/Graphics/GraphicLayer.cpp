@@ -953,8 +953,8 @@ Vec2 GraphicLayer::getPositionRelativeToObject(Vec2 point, RawObject* obj)
     for(long i = parents.size() - 1; i >= 0; i--)
     {
         parent = parents.at(i);
-        realPosition.x = (realPosition.x - parent->getPosition().x + parent->getNode()->getAnchorPoint().x * parent->getSize().width) / parent->getScale();
-        realPosition.y = (realPosition.y - parent->getPosition().y + parent->getNode()->getAnchorPoint().y * parent->getSize().height) / parent->getScale();
+        realPosition.x = (realPosition.x - parent->getPosition().x + parent->getNode()->getAnchorPoint().x * parent->getSize().width) / parent->getScaleX();
+        realPosition.y = (realPosition.y - parent->getPosition().y + parent->getNode()->getAnchorPoint().y * parent->getSize().height) / parent->getScaleY();
     }
     return realPosition;
 }
@@ -965,8 +965,8 @@ Vec2 GraphicLayer::getRealPosition(RawObject* obj)
     RawObject* parent = this->getContainingPanel(obj);
     while(parent != NULL)
     {
-        realPosition.x = realPosition.x * parent->getScale() + parent->getPosition().x;
-        realPosition.y = realPosition.y * parent->getScale() + parent->getPosition().y;
+        realPosition.x = realPosition.x * parent->getScaleX() + parent->getPosition().x;
+        realPosition.y = realPosition.y * parent->getScaleY() + parent->getPosition().y;
         parent = this->getContainingPanel(parent);
     }
     return realPosition;
@@ -979,8 +979,8 @@ Vec2 GraphicLayer::getCenterRealPosition(RawObject* obj)
     RawObject* parent = this->getContainingPanel(obj);
     while(parent != NULL)
     {
-        realPosition.x = (realPosition.x - parent->getNode()->getAnchorPoint().x * parent->getSize().width) * parent->getScale() + parent->getPosition().x;
-        realPosition.y = (realPosition.y - parent->getNode()->getAnchorPoint().y * parent->getSize().height) * parent->getScale() + parent->getPosition().y;
+        realPosition.x = (realPosition.x - parent->getNode()->getAnchorPoint().x * parent->getSize().width) * parent->getScaleX() + parent->getPosition().x;
+        realPosition.y = (realPosition.y - parent->getNode()->getAnchorPoint().y * parent->getSize().height) * parent->getScaleY() + parent->getPosition().y;
         parent = this->getContainingPanel(parent);
     }
     return realPosition;
