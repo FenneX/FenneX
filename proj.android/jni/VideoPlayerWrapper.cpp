@@ -65,17 +65,18 @@ void VideoPlayer::setUseVLC(bool useVLC)
     minfo.env->DeleteLocalRef(minfo.classID);
 }
 
-void VideoPlayer::setPlayerPosition(CCPoint position, CCSize size)
+void VideoPlayer::setPlayerPosition(Vec2 position, cocos2d::Size size, bool animated)
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"setPlayerPosition", "(FFFF)V");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"setPlayerPosition", "(FFFFZ)V");
     CCAssert(functionExist, "Function doesn't exist");
     minfo.env->CallStaticVoidMethod(minfo.classID,
                                     minfo.methodID,
                                     (jfloat) position.x,
                                     (jfloat) position.y,
                                     (jfloat) size.height,
-                                    (jfloat) size.width);
+                                    (jfloat) size.width,
+                                    (jboolean) animated);
     minfo.env->DeleteLocalRef(minfo.classID);
 }
 

@@ -49,7 +49,7 @@ VideoPlayer::~VideoPlayer()
 }
 
 
-void VideoPlayer::setPlayerPosition(Vec2 position, cocos2d::Size size)
+void VideoPlayer::setPlayerPosition(Vec2 position, cocos2d::Size size, bool animated)
 {
     cocos2d::GLView *glview = cocos2d::Director::getInstance()->getOpenGLView();
     CCEAGLView *eaglview = (CCEAGLView*) glview->getEAGLView();
@@ -57,7 +57,8 @@ void VideoPlayer::setPlayerPosition(Vec2 position, cocos2d::Size size)
     [TYPED_DELEGATE setPlayerPosition:CGPointMake(position.x / scaleFactor,
                                                   position.y / scaleFactor)
                                  size:CGSizeMake(size.width/ scaleFactor,
-                                                 size.height/ scaleFactor)];
+                                                 size.height/ scaleFactor)
+                             animated:animated];
 }
 
 void VideoPlayer::play()

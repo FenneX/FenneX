@@ -172,25 +172,82 @@ USING_NS_FENNEX;
     return self;
 }
 
-- (void) setPlayerPosition:(CGPoint)position size:(CGSize)size
+- (void) setPlayerPosition:(CGPoint)position size:(CGSize)size animated:(BOOL)animated
 {
     _position = position;
-    _size = size;
-    [player.view setBounds:CGRectMake(0, 0, _size.width, _size.height)];
-    
-    CGRect bounds = [[UIScreen mainScreen] bounds];
-    CGPoint newCenter;
-    if(IS_IOS8_OR_NEWER)
+    if(!animated)
     {
-        newCenter = CGPointMake(_position.x,
-                    bounds.size.height - _position.y);
+        [player.view setBounds:CGRectMake(0, 0, _size.width, _size.height)];
+        
+        CGRect bounds = [[UIScreen mainScreen] bounds];
+        CGPoint newCenter;
+        if(IS_IOS8_OR_NEWER)
+        {
+            newCenter = CGPointMake(_position.x,
+                                    bounds.size.height - _position.y);
+        }
+        else
+        {
+            newCenter = CGPointMake((currentOrientation == UIInterfaceOrientationLandscapeRight ? _position.y : bounds.size.width - _position.y),
+                                    (currentOrientation == UIInterfaceOrientationLandscapeLeft ? _position.x : bounds.size.height - _position.x));
+        }
+        player.view.center = newCenter;
     }
     else
     {
-        newCenter = CGPointMake((currentOrientation == UIInterfaceOrientationLandscapeRight ? _position.y : bounds.size.width - _position.y),
-                    (currentOrientation == UIInterfaceOrientationLandscapeLeft ? _position.x : bounds.size.height - _position.x));
+        CGSize originalSize = player.naturalSize;
+        //Force the size to have the same ratio as the original size, otherwise it causes problems
+        if(originalSize.width > 0 && originalSize.height > 0)
+        {
+            if(originalSize.width / originalSize.height > size.width / size.height)
+            {
+                size.height = size.width * originalSize.height / originalSize.width;
+            }
+            else
+            {
+                size.width = size.height * originalSize.width / originalSize.height;
+            }
+        }
+        CGRect bounds = [[UIScreen mainScreen] bounds];
+        
+        CGPoint newCenter;
+        float scale = 0;
+        if(IS_IOS8_OR_NEWER)
+        {
+            newCenter = CGPointMake(_position.x,
+                                    bounds.size.height - _position.y);
+            if(size.height / _size.height > size.width / _size.width)
+            {
+                scale = size.height / _size.height;
+            }
+            else
+            {
+                scale = size.width / _size.width;
+            }
+        }
+        else
+        {
+            newCenter = CGPointMake((currentOrientation == UIInterfaceOrientationLandscapeRight ? _position.y : bounds.size.width - _position.y),
+                                    (currentOrientation == UIInterfaceOrientationLandscapeLeft ? _position.x : bounds.size.height - _position.x));
+            if(size.width / _size.height > size.height / _size.width)
+            {
+                scale = size.width / _size.height;
+            }
+            else
+            {
+                scale = size.height / _size.width;
+            }
+        }
+        
+        [UIView animateWithDuration: 0.5
+                              delay: 0
+                            options: (UIViewAnimationOptionCurveLinear | UIViewAnimationOptionAllowUserInteraction)
+                         animations:^{player.view.center = newCenter ; player.view.transform = CGAffineTransformScale(player.view.transform, scale, scale);}
+                         completion:^(BOOL finished) { }
+         ];
+        
+        _size = size;
     }
-    player.view.center = newCenter;
 }
 
 - (void) play

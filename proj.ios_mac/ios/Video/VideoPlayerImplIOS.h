@@ -45,7 +45,7 @@
 
 //The file extension will be auto-detected. If there is no extension, ".mov" will be assumed
 - (id) initWithPlayFile:(NSString*)file position:(CGPoint)position size:(CGSize)size front:(BOOL)front loop:(BOOL)loop;
-- (void) setPlayerPosition:(CGPoint)position size:(CGSize)size;
+- (void) setPlayerPosition:(CGPoint)position size:(CGSize)size animated:(BOOL)animated;
 - (void) play;
 - (void) pause;
 - (void) stop;

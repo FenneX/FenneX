@@ -273,7 +273,7 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 		});
 	}
 
-	public static void setPlayerPosition(float x, float y, float height, float width)
+	public static void setPlayerPosition(float x, float y, float height, float width, boolean animated)
 	{
 		localX = x;
 		localY = y;
