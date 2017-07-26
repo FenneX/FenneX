@@ -23,11 +23,13 @@
  ****************************************************************************///
 
 #import <UIKit/UIKit.h>
+#import <AVKit/AVKit.h>
+#import <CoreMedia/CoreMedia.h>
 #import <MediaPlayer/MediaPlayer.h>
 
 @interface VideoPlayerImplIOS : NSObject
-{    
-	MPMoviePlayerController* player;
+{
+    AVPlayerViewController* playerController;
     UIInterfaceOrientation currentOrientation;
     CGPoint _position;
     CGSize _size;
@@ -35,6 +37,7 @@
     BOOL isFullScreen;
     NSString* path;
     float desiredPlaybackRate;
+    BOOL _loop;
 }
 
 @property (nonatomic) float playbackRate;
@@ -42,15 +45,19 @@
 @property (nonatomic, readonly) BOOL fullscreen;
 @property (nonatomic, readonly) float duration;
 @property (nonatomic) float position;
+@property (nonatomic, readonly) BOOL loop;
 
 //The file extension will be auto-detected. If there is no extension, ".mov" will be assumed
 - (id) initWithPlayFile:(NSString*)file position:(CGPoint)position size:(CGSize)size front:(BOOL)front loop:(BOOL)loop;
+/*- (void)playerItemDidReachEnd:(NSNotification *)notification;
+ - (void)playerItemFailedToPlay:(NSNotification *)notification;*/
 - (void) setPlayerPosition:(CGPoint)position size:(CGSize)size animated:(BOOL)animated;
 - (void) play;
 - (void) pause;
 - (void) stop;
 
 - (void) setFullscreen:(BOOL)fullscreen animated:(BOOL)animated;
+- (void) setMuted:(BOOL)muted;
 
 + (NSString*) getThumbnail:(NSString*)path;
 + (CGSize) getVideoSize:(NSString*)path;

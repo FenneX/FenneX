@@ -40,9 +40,9 @@ USING_NS_FENNEX;
 - (void) orientationChanged:(NSNotification*)data
 {
     //TODO : fix me
-	UIInterfaceOrientation orientation = ((UIViewController*)[AppController sharedController].viewController).interfaceOrientation;
-	if(UIInterfaceOrientationIsLandscape(orientation) && orientation != currentOrientation)
-	{
+    UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+    if(UIInterfaceOrientationIsLandscape(orientation) && orientation != currentOrientation)
+    {
         CGAffineTransform transform = IS_IOS8_OR_NEWER ? CGAffineTransformIdentity : CGAffineTransformMakeRotation(orientation == UIInterfaceOrientationLandscapeRight ? M_PI / 2 : -M_PI / 2);
         if(isFullScreen)
         {
@@ -73,12 +73,12 @@ USING_NS_FENNEX;
             transform = CGAffineTransformScale(transform, scale, scale);
         }
         //If there is no data, it's called from self at startup : don't animate the transition
-		[UIView transitionWithView:player.view duration:data == nil ? 0 : 0.5 options:UIViewAnimationOptionTransitionNone
-						animations:^{player.view.transform = transform;}
-						completion:NULL];
-		currentOrientation = orientation;
+        [UIView transitionWithView:playerController.view duration:data == nil ? 0 : 0.5 options:UIViewAnimationOptionTransitionNone
+                        animations:^{playerController.view.transform = transform;}
+                        completion:NULL];
+        currentOrientation = orientation;
         [self updateFrame];
-	}
+    }
 }
 
 - (void) updateFrame
@@ -86,38 +86,34 @@ USING_NS_FENNEX;
     CGRect bounds = [[UIScreen mainScreen] bounds];
     if(isFullScreen)
     {
-        [player.view setCenter:CGPointMake(bounds.size.width / 2, bounds.size.height/2)];
+        [playerController.view setCenter:CGPointMake(bounds.size.width / 2, bounds.size.height/2)];
     }
     else
     {
         if(IS_IOS8_OR_NEWER)
         {
             //Y-axis is inverted
-            [player.view setCenter:CGPointMake(_position.x, bounds.size.height - _position.y)];
+            [playerController.view setCenter:CGPointMake(_position.x, bounds.size.height - _position.y)];
         }
         else
         {
-            [player.view setCenter:CGPointMake((currentOrientation == UIInterfaceOrientationLandscapeRight ? _position.y : bounds.size.width - _position.y),
-                                               (currentOrientation == UIInterfaceOrientationLandscapeLeft ? _position.x : bounds.size.height - _position.x))];
+            [playerController.view setCenter:CGPointMake((currentOrientation == UIInterfaceOrientationLandscapeRight ? _position.y : bounds.size.width - _position.y),
+                                                         (currentOrientation == UIInterfaceOrientationLandscapeLeft ? _position.x : bounds.size.height - _position.x))];
         }
     }
 }
 
-- (void) videoEnded:(NSNotification*)data
-{
-    int reason = [[[data userInfo] valueForKey:MPMoviePlayerPlaybackDidFinishReasonUserInfoKey] intValue];
-    if (reason == MPMovieFinishReasonPlaybackEnded)
+- (void)playerItemDidReachEnd:(NSNotification *)notification {
+    [playerController.player seekToTime:kCMTimeZero];
+    if(!_loop)
     {
-        notifyVideoEnded([path UTF8String]);
+        [playerController.player pause];
     }
-    else if (reason == MPMovieFinishReasonPlaybackError)
-    {
-        notifyVideoError([path UTF8String]);
-    }
-    else if (reason == MPMovieFinishReasonUserExited)
-    {
-        //can't happen because user can't exit
-    }
+    notifyVideoEnded([path UTF8String]);
+}
+
+- (void)playerItemFailedToPlay:(NSNotification *)notification {
+    notifyVideoError([path UTF8String]);
 }
 
 @end
@@ -128,46 +124,51 @@ USING_NS_FENNEX;
 
 
 - (id) initWithPlayFile:(NSString*)file position:(CGPoint)position size:(CGSize)size front:(BOOL)front loop:(BOOL)loop
-{    
-	self = [super init];
-	if(self != nil)
-	{
+{
+    self = [super init];
+    if(self != nil)
+    {
         hideOnPause = YES;
         _position = position;
         _size = size;
         isFullScreen = NO;
         path = file;
         [path retain];
-		currentOrientation = UIInterfaceOrientationPortrait;
+        currentOrientation = UIInterfaceOrientationPortrait;
         desiredPlaybackRate = 1;
         NSURL* movieURL = [VideoPlayerImplIOS URLFromPath:file];
         NSLog(@"Movie full path : %@", [movieURL absoluteString]);
-		player = [[MPMoviePlayerController alloc] initWithContentURL:movieURL];
-		
-		player.shouldAutoplay = NO;
-		player.scalingMode = MPMovieScalingModeAspectFit;
-		player.fullscreen = false;
-        player.repeatMode = loop ? MPMovieRepeatModeOne : MPMovieRepeatModeNone;
-		player.controlStyle = MPMovieControlStyleNone;
-		player.view.userInteractionEnabled = NO;
+        playerController = [[AVPlayerViewController alloc] init];
+        playerController.player = [AVPlayer playerWithURL:movieURL];
         
-        [player.view setBounds:CGRectMake(0, 0, _size.width, _size.height)];
+        //player.shouldAutoplay = NO;
+        //player.scalingMode = MPMovieScalingModeAspectFit;
+        //player.fullscreen = false;
+        playerController.player.actionAtItemEnd = AVPlayerActionAtItemEndNone;
+        playerController.showsPlaybackControls = NO;
+        _loop = loop;
+        
+        playerController.view.userInteractionEnabled = NO;
+        
+        [playerController.view setBounds:CGRectMake(0, 0, _size.width, _size.height)];
         UIViewController* rootVC = (UIViewController*)[AppController sharedController].viewController;
         if(front)
         {
-            [rootVC.view.superview addSubview:player.view];
+            [rootVC.view.superview addSubview:playerController.view];
         }
         else
         {
-            [rootVC.view.superview insertSubview:player.view atIndex:0];
+            [rootVC.view.superview insertSubview:playerController.view atIndex:0];
         }
-		[self orientationChanged:nil];
+        [self orientationChanged:nil];
         [self updateFrame];
         [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:@"UIDeviceOrientationDidChangeNotification" object:nil];
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(durationAvailable:) name:@"MPMovieDurationAvailableNotification" object:nil];
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(videoEnded:) name:@"MPMoviePlayerPlaybackDidFinishNotification" object:nil];
-        player.view.hidden = YES;
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:@"UIDeviceOrientationDidChangeNotification" object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(durationAvailable:) name:@"MPMovieDurationAvailableNotification" object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playerItemDidReachEnd:) name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playerItemFailedToPlay:) name:AVPlayerItemFailedToPlayToEndTimeNotification object:nil];
+        playerController.view.hidden = YES;
     }
     return self;
 }
@@ -177,7 +178,7 @@ USING_NS_FENNEX;
     _position = position;
     if(!animated)
     {
-        [player.view setBounds:CGRectMake(0, 0, _size.width, _size.height)];
+        [playerController.view setBounds:CGRectMake(0, 0, _size.width, _size.height)];
         
         CGRect bounds = [[UIScreen mainScreen] bounds];
         CGPoint newCenter;
@@ -191,11 +192,11 @@ USING_NS_FENNEX;
             newCenter = CGPointMake((currentOrientation == UIInterfaceOrientationLandscapeRight ? _position.y : bounds.size.width - _position.y),
                                     (currentOrientation == UIInterfaceOrientationLandscapeLeft ? _position.x : bounds.size.height - _position.x));
         }
-        player.view.center = newCenter;
+        playerController.view.center = newCenter;
     }
     else
     {
-        CGSize originalSize = player.naturalSize;
+        CGSize originalSize = playerController.player.currentItem.tracks.firstObject.assetTrack.naturalSize;
         //Force the size to have the same ratio as the original size, otherwise it causes problems
         if(originalSize.width > 0 && originalSize.height > 0)
         {
@@ -242,7 +243,7 @@ USING_NS_FENNEX;
         [UIView animateWithDuration: 0.5
                               delay: 0
                             options: (UIViewAnimationOptionCurveLinear | UIViewAnimationOptionAllowUserInteraction)
-                         animations:^{player.view.center = newCenter ; player.view.transform = CGAffineTransformScale(player.view.transform, scale, scale);}
+                         animations:^{playerController.view.center = newCenter ; playerController.view.transform = CGAffineTransformScale(playerController.view.transform, scale, scale);}
                          completion:^(BOOL finished) { }
          ];
         
@@ -252,38 +253,35 @@ USING_NS_FENNEX;
 
 - (void) play
 {
-    [player play];
-    player.view.hidden = NO;
-    player.currentPlaybackRate = desiredPlaybackRate;
+    [playerController.player play];
+    playerController.view.hidden = NO;
+    playerController.player.rate = desiredPlaybackRate;
 }
 
 - (void) pause
 {
-    [player pause];
+    [playerController.player pause];
     if(hideOnPause)
     {
-        player.view.hidden = YES;
+        playerController.view.hidden = YES;
     }
 }
 
 - (void) stop
 {
-    [player stop];
-    player.view.hidden = YES;
+    [playerController.player pause];
+    [playerController.player seekToTime:kCMTimeZero];
+    playerController.view.hidden = YES;
 }
 
 - (float) playbackRate
 {
-    return player.playbackState == MPMoviePlaybackStatePlaying ? player.currentPlaybackRate : desiredPlaybackRate;
+    return playerController.player.rate;
 }
 
 - (void) setPlaybackRate:(float)rate
 {
-    BOOL playing = (player.playbackState == MPMoviePlaybackStatePlaying);
-    if(playing)
-    {
-        player.currentPlaybackRate = rate;
-    }
+    playerController.player.rate = rate;
     desiredPlaybackRate = rate;
 }
 
@@ -294,17 +292,17 @@ USING_NS_FENNEX;
 
 - (float) duration
 {
-    return player.duration;
+    return float(CMTimeGetSeconds(playerController.player.currentItem.duration));
 }
 
 - (float) position
 {
-    return player.currentPlaybackTime;
+    return float(CMTimeGetSeconds(playerController.player.currentTime));
 }
 
 - (void) setPosition:(float)position
 {
-    [player setCurrentPlaybackTime:position];
+    [playerController.player seekToTime:CMTimeMake(position, 1)];
 }
 
 - (void) setFullscreen:(BOOL)fullscreen animated:(BOOL)animated
@@ -315,18 +313,18 @@ USING_NS_FENNEX;
         if(fullscreen)
         {
             //For whatever reason, iOS invert height and width ...
-            [player.view setBounds:CGRectMake(0, 0, bounds.size.height, bounds.size.width)];
+            [playerController.view setBounds:CGRectMake(0, 0, bounds.size.height, bounds.size.width)];
         }
         else
         {
             
-            [player.view setBounds:CGRectMake(0, 0, _size.width, _size.height)];
+            [playerController.view setBounds:CGRectMake(0, 0, _size.width, _size.height)];
         }
         [self updateFrame];
     }
     else
     {
-        CGSize originalSize = player.naturalSize;
+        CGSize originalSize = playerController.player.currentItem.tracks.firstObject.assetTrack.naturalSize;
         //Force the size to have the same ratio as the original size, otherwise it causes problems
         if(originalSize.width > 0 && originalSize.height > 0)
         {
@@ -374,16 +372,21 @@ USING_NS_FENNEX;
         [UIView animateWithDuration: 0.5
                               delay: 0
                             options: (UIViewAnimationOptionCurveLinear | UIViewAnimationOptionAllowUserInteraction)
-                         animations:^{player.view.center = newCenter ; player.view.transform = CGAffineTransformScale(player.view.transform, scale, scale);}
+                         animations:^{playerController.view.center = newCenter ; playerController.view.transform = CGAffineTransformScale(playerController.view.transform, scale, scale);}
                          completion:^(BOOL finished) { }
          ];
         
-
+        
     }
     isFullScreen = fullscreen;
     
     //This line prevents touches from going through, which is a big problem. It also put the Video in front
     //[player setFullscreen:fullscreen animated:animated];
+}
+
+- (void) setMuted:(BOOL)muted
+{
+    playerController.player.muted = muted;
 }
 
 - (void) durationAvailable:(NSNotification*)notif
@@ -456,7 +459,7 @@ USING_NS_FENNEX;
                 if(itemArtwork != nil)
                 {
                     thumbnail = [itemArtwork imageWithSize:[itemArtwork bounds].size];
-                }                
+                }
             }
         }
         
@@ -497,15 +500,15 @@ USING_NS_FENNEX;
         ALAssetsLibrary *library = [[[ALAssetsLibrary alloc] init] autorelease];
         [library assetForURL:[self URLFromPath:path]
                  resultBlock:^(ALAsset *asset){
-            if (asset)
-            {
-                notifyVideoExists([path UTF8String]);
-            }
-            else
-            {
-                notifyVideoRemoved([path UTF8String]);
-            }
-        }
+                     if (asset)
+                     {
+                         notifyVideoExists([path UTF8String]);
+                     }
+                     else
+                     {
+                         notifyVideoRemoved([path UTF8String]);
+                     }
+                 }
                 failureBlock:nil];
         return YES;
     }
@@ -542,14 +545,14 @@ USING_NS_FENNEX;
 
 - (void)dealloc
 {
-	[NSObject cancelPreviousPerformRequestsWithTarget:self];
-	[[NSNotificationCenter defaultCenter] removeObserver:self];
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     
-	NSLog(@"Video player impl dealloc");
+    NSLog(@"Video player impl dealloc");
     
-    [player stop];
-    [player.view removeFromSuperview];
-	[player release];
+    [playerController.player pause];
+    [playerController.view removeFromSuperview];
+    [playerController release];
     [path release];
     [super dealloc];
 }

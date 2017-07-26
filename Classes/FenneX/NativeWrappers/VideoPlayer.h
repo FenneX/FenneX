@@ -60,6 +60,8 @@ public:
     float getPosition();
     void setPosition(float position);
     
+    void setMuted(bool muted);
+    
     //Return the path of the thumbnail (use getLocalPath to get the absolute path)
     //May return NULL if there was a problem generating the thumbnail
     static std::string getThumbnail(const std::string& path);

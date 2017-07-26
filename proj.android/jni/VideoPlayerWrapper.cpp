@@ -183,6 +183,15 @@ void VideoPlayer::setPosition(float position)
     minfo.env->DeleteLocalRef(minfo.classID);
 }
 
+void VideoPlayer::setMuted(bool muted)
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"setMuted", "(Z)V");
+    CCAssert(functionExist, "Function doesn't exist");
+    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, (jboolean)muted);
+    minfo.env->DeleteLocalRef(minfo.classID);
+}
+
 std::string VideoPlayer::getThumbnail(const std::string& path)
 {
     JniMethodInfo minfo;

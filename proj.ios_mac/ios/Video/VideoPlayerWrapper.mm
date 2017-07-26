@@ -116,6 +116,11 @@ void VideoPlayer::setPosition(float position)
     [TYPED_DELEGATE setPosition:position];
 }
 
+void VideoPlayer::setMuted(bool muted)
+{
+    TYPED_DELEGATE.muted = muted;
+}
+
 std::string VideoPlayer::getThumbnail(const std::string& path)
 {
     NSString* thumbnailPath = [VideoPlayerImplIOS getThumbnail:[NSString stringWithUTF8String:path.c_str()]];

@@ -71,10 +71,13 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 	private static boolean hideOnPause;
 	private static boolean videoEnded; //Video ended is there because restart is different than play for LibVLC
 	private static float lastPlaybackRate; //Playback rate must be kept between sessions (when restarting video)
+	private static boolean muted = false;
 	private static org.videolan.libvlc.MediaPlayer vlcMediaPlayer;
 	private static org.videolan.libvlc.LibVLC libVLC;
 
 	private static org.videolan.libvlc.MediaPlayer.EventListener mPlayerListener = new MyPlayerListener(getInstance());
+
+	private static MediaPlayer videoViewMediaPlayer = null;
 
 	public static void setUseVLC(boolean use)
 	{
@@ -125,6 +128,8 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 		isPrepared = false;
 		shouldLoop = loop;
 		hideOnPause = false;
+		videoViewMediaPlayer = null;
+
 		final File videoFile = getFile(path);
 		if(videoFile == null)
 		{
@@ -182,7 +187,8 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
     					@Override
     					public void onPrepared(MediaPlayer mp) {
     						Log.i(TAG, "Video is prepared, playing it ...");
-    						isPrepared = true;
+							videoViewMediaPlayer = mp;
+							isPrepared = true;
     						play();
                     		NativeUtility.getMainActivity().runOnGLThread(new Runnable() 
                     		{
@@ -229,6 +235,7 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 							return false;
 						}
     				});
+
     				Uri uri = null;
     				if(videoFile.exists())
     					uri = Uri.fromFile(videoFile);
@@ -333,6 +340,7 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 				}});
 		}
 		videoEnded = false;
+		setMuted(muted);
 	}
 
 
@@ -540,6 +548,39 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 		else
 		{
 			((VideoView)videoView).seekTo((int)(position * 1000));
+		}
+	}
+
+	public static void setMuted(boolean _muted)
+	{
+		if(useVLC)
+		{
+			if(vlcMediaPlayer != null) {
+				vlcMediaPlayer.setVolume(_muted ? 0 : 100);
+			}
+			else
+			{
+				Log.e(TAG, "setMuted vlcMediaPlayer is Null");
+			}
+		}
+		else
+		{
+			muted = _muted;
+			if(videoViewMediaPlayer != null && videoViewMediaPlayer.isPlaying())
+			{
+				try
+				{
+					if (muted)
+						videoViewMediaPlayer.setVolume(0, 0);
+					else
+						videoViewMediaPlayer.setVolume(1.0f, 1.0f);
+				}
+				catch(Exception e)
+				{
+					Log.e(TAG, "setMuted Exception");
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 	
