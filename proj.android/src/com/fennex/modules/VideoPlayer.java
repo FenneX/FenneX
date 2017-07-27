@@ -566,20 +566,20 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 		else
 		{
 			muted = _muted;
-			if(videoViewMediaPlayer != null && videoViewMediaPlayer.isPlaying())
+			try
 			{
-				try
+				if(videoViewMediaPlayer != null && videoViewMediaPlayer.isPlaying())
 				{
 					if (muted)
 						videoViewMediaPlayer.setVolume(0, 0);
 					else
 						videoViewMediaPlayer.setVolume(1.0f, 1.0f);
 				}
-				catch(Exception e)
-				{
-					Log.e(TAG, "setMuted Exception");
-					e.printStackTrace();
-				}
+			}
+			catch(Exception e)
+			{
+				Log.e(TAG, "setMuted Exception");
+				e.printStackTrace();
 			}
 		}
 	}
