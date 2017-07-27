@@ -39,7 +39,6 @@ USING_NS_FENNEX;
 
 - (void) orientationChanged:(NSNotification*)data
 {
-    //TODO : fix me
     UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
     if(UIInterfaceOrientationIsLandscape(orientation) && orientation != currentOrientation)
     {
@@ -141,9 +140,6 @@ USING_NS_FENNEX;
         playerController = [[AVPlayerViewController alloc] init];
         playerController.player = [AVPlayer playerWithURL:movieURL];
         
-        //player.shouldAutoplay = NO;
-        //player.scalingMode = MPMovieScalingModeAspectFit;
-        //player.fullscreen = false;
         playerController.player.actionAtItemEnd = AVPlayerActionAtItemEndNone;
         playerController.showsPlaybackControls = NO;
         _loop = loop;
