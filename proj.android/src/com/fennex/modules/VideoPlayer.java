@@ -210,15 +210,15 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
     						}
     						else
     						{
-                        		NativeUtility.getMainActivity().runOnGLThread(new Runnable() 
-                        		{
-                        			public void run()
-        	            			{
-                        				notifyVideoEnded(path);
-        	            			}
-                        		});
                         		videoEnded = true;
     						}
+    						NativeUtility.getMainActivity().runOnGLThread(new Runnable()
+							{
+								public void run()
+								{
+									notifyVideoEnded(path);
+								}
+							});
     					}
     				});
     				video.setOnErrorListener(new MediaPlayer.OnErrorListener() {
