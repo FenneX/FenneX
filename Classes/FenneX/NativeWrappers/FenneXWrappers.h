@@ -37,5 +37,6 @@ THE SOFTWARE.
 #include "VideoPickerWrapper.h"
 #include "VideoPlayer.h"
 #include "TTSWrapper.h"
+#include "FileUtility.h"
 
 #endif
