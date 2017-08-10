@@ -58,6 +58,13 @@ void deleteFile(std::string filename);
 // Empty implementation in iOS because there is no global shared disk space
 bool moveFileToLocalDirectory(std::string path);
 
+// Move a file from an absolute path to a specific destination folder (it will remove the original)
+// It will ceate the missing directory if needed
+// if the file already exist in the destination folder, it will not be copied, but the original will still be removed. It is considered a success.
+// Return true if it succeed and false otherwise (if the file doesn't exist for exemple)
+// Empty implementation in iOS because there is no global shared disk space
+bool moveFile(std::string path, std::string destinationFolder);
+
 /**
  * launch a pick file activity on android. It can be empty
  * This doesn't launch anything on iOS since ios is not capable of that thing. (you will not receive a "FilePicked" event)

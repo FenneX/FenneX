@@ -142,6 +142,23 @@ bool moveFileToLocalDirectory(std::string path)
     return result;
 }
 
+bool moveFile(std::string path, std::string destinationFolder)
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME,"moveFile", "(Ljava/lang/String;Ljava/lang/String;)Z");
+    CCAssert(functionExist, "Function doesn't exist");
+    jstring jPath = minfo.env->NewStringUTF(path.c_str());
+    jstring jDestinationFolder = minfo.env->NewStringUTF(destinationFolder.c_str());
+    bool result = minfo.env->CallStaticBooleanMethod(minfo.classID,
+                                                     minfo.methodID,
+                                                     jPath,
+                                                     jDestinationFolder);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(jPath);
+    minfo.env->DeleteLocalRef(jDestinationFolder);
+    return result;
+}
+
 bool pickFile()
 {
     JniMethodInfo minfo;

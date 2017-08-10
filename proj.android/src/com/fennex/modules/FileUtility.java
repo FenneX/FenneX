@@ -222,6 +222,82 @@ public class FileUtility implements ActivityResultResponder {
         return true;
     }
 
+    public static boolean moveFile(String path, String destinationFolder)
+    {
+        String filename = path.substring(path.lastIndexOf("/"));
+        File destinationFile = new File(destinationFolder + java.io.File.separator + filename);
+        File destinationFolderFilde = new File(destinationFolder);
+        String[] directory = destinationFolder.split(java.io.File.separator);
+        String constructedPath = "";
+        if(!destinationFolderFilde.exists())
+        {
+            for(int i = 0; i < directory.length; i++)
+            {
+                constructedPath += directory[i] + java.io.File.separator ;
+                File current = new File(constructedPath);
+                if(!current.exists())
+                {
+                    try
+                    {
+                        current.mkdir();
+                    }
+                    catch (Exception e)
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        if(!destinationFile.exists())
+        {
+            InputStream in = null;
+            OutputStream out = null;
+            try
+            {
+                in = new FileInputStream(path);
+                out = new FileOutputStream(destinationFolder + java.io.File.separator + filename);
+                byte[] buffer = new byte[1024];
+                int read;
+                while ((read = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, read);
+                }
+                in.close();
+                in = null;
+
+                // write the output file
+                out.flush();
+                out.close();
+                out = null;
+
+                // delete the original file
+                new File(path).delete();
+            }
+            catch(Exception e)
+            {
+                Log.i("FileUtility", "Could not move file : " + filename);
+                e.printStackTrace();
+                return false;
+            }
+        }
+        else
+        {
+            Log.i("FileUtility", "didn't copied" + filename + ", already exist");
+            try
+            {
+                // delete the original file
+                new File(path).delete();
+            }
+            catch(Exception e)
+            {
+                Log.i("FileUtility", "Couldn't delete file :"+ path);
+                e.printStackTrace();
+            }
+        }
+        return true;
+    }
+
+
     public static boolean pickFile()
     {
         FileUtility.getInstance(); //ensure the instance is created
