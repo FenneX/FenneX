@@ -87,6 +87,14 @@ public class NativeUtility
     	return localPath;
     }
 
+    public static String getLocalPath(Context context)
+    {
+        if(context == null) return getLocalPath();
+        String localPath = context.getFilesDir().getPath();
+        Log.d(TAG, "returning local path : " + localPath);
+        return localPath;
+    }
+
     public static String getOpenUrl()
     {
         String openUrl = getMainActivity().getIntent().getDataString();
