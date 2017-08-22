@@ -950,6 +950,9 @@ Vec2 GraphicLayer::getPositionRelativeToObject(Vec2 point, RawObject* obj)
         parents.pushBack(parent);
         parent = this->getContainingPanel(parent);
     }
+    //In addition to panels, base Layer position and scale must be taken in account
+    realPosition.x = (realPosition.x - layer->getPosition().x) / layer->getScaleX();
+    realPosition.y = (realPosition.y - layer->getPosition().y) / layer->getScaleY();
     for(long i = parents.size() - 1; i >= 0; i--)
     {
         parent = parents.at(i);
@@ -969,6 +972,9 @@ Vec2 GraphicLayer::getRealPosition(RawObject* obj)
         realPosition.y = realPosition.y * parent->getScaleY() + parent->getPosition().y;
         parent = this->getContainingPanel(parent);
     }
+    //In addition to panels, base Layer position and scale must be taken in account
+    realPosition.x = realPosition.x * layer->getScaleX() + layer->getPosition().x;
+    realPosition.y = realPosition.y * layer->getScaleY() + layer->getPosition().y;
     return realPosition;
 }
 
@@ -983,6 +989,9 @@ Vec2 GraphicLayer::getCenterRealPosition(RawObject* obj)
         realPosition.y = (realPosition.y - parent->getNode()->getAnchorPoint().y * parent->getSize().height) * parent->getScaleY() + parent->getPosition().y;
         parent = this->getContainingPanel(parent);
     }
+    //In addition to panels, base Layer position and scale must be taken in account
+    realPosition.x = (realPosition.x) * layer->getScaleX() + layer->getPosition().x;
+    realPosition.y = (realPosition.y) * layer->getScaleY() + layer->getPosition().y;
     return realPosition;
 }
 
@@ -1014,6 +1023,8 @@ float GraphicLayer::getRealScale(RawObject* obj)
         realScale *= parent->getScale();
         parent = this->getContainingPanel(parent);
     }
+    //In addition to panels, base Layer scale must be taken in account
+    realScale *= layer->getScale();
     return realScale;
 }
 
@@ -1026,6 +1037,8 @@ float GraphicLayer::getRealScaleX(RawObject* obj)
         realScale *= parent->getScaleX();
         parent = this->getContainingPanel(parent);
     }
+    //In addition to panels, base Layer scale must be taken in account
+    realScale *= layer->getScaleX();
     return realScale;
 }
 
@@ -1038,6 +1051,8 @@ float GraphicLayer::getRealScaleY(RawObject* obj)
         realScale *= parent->getScaleY();
         parent = this->getContainingPanel(parent);
     }
+    //In addition to panels, base Layer scale must be taken in account
+    realScale *= layer->getScaleY();
     return realScale;
 }
 
