@@ -580,9 +580,9 @@ void ClippingNode::setSquareStencil()
     stencil->clear();
     Vec2 rectangle[4];
     rectangle[0] = Vec2(0, 0);
-    rectangle[1] = Vec2(this->getContentSize().width / this->getScaleX(), 0);
-    rectangle[2] = Vec2(this->getContentSize().width / this->getScaleX(), this->getContentSize().height / this->getScaleY());
-    rectangle[3] = Vec2(0, this->getContentSize().height / this->getScaleY());
+    rectangle[1] = Vec2(this->getContentSize().width, 0);
+    rectangle[2] = Vec2(this->getContentSize().width, this->getContentSize().height);
+    rectangle[3] = Vec2(0, this->getContentSize().height);
     
     Color4F white(1, 1, 1, 1);
     stencil->drawPolygon(rectangle, 4, white, 1, white);
