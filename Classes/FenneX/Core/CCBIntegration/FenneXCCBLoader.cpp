@@ -39,6 +39,7 @@ using namespace cocosbuilder;
 
 NS_FENNEX_BEGIN
 static float _loadingScale = 1;
+static Size _loadSize = Size(-1, -1);
 static bool isPhoneLayout = false;
 
 //Don't retain the CCBAnimationManager, because it's troublesome to release them at the right time. Soft references is enough.
@@ -122,15 +123,19 @@ Panel* loadCCBFromFileToFenneX(std::string file, std::string inPanel, int zIndex
     log("Filepath : %s", filePath.c_str());
     FileUtils::getInstance()->setPopupNotify(shouldNotify);
     Node* myNode = NULL;
+    if(_loadSize.width == -1)
+    {
+        _loadSize = Director::getInstance()->getWinSize();
+    }
     if(FileUtils::getInstance()->isFileExist(filePath))
     {
         log("File exist");
-        myNode = ccbReader->readNodeGraphFromFile(filePath.c_str());
+        myNode = ccbReader->readNodeGraphFromFile(filePath.c_str(), nullptr, _loadSize);
     }
     else if(isPhoneLayout)
     {
         filePath = file + ".ccbi";
-        myNode = ccbReader->readNodeGraphFromFile(filePath.c_str());
+        myNode = ccbReader->readNodeGraphFromFile(filePath.c_str(), nullptr, _loadSize);
     }
     
 #if VERBOSE_PERFORMANCE_TIME
@@ -140,7 +145,7 @@ Panel* loadCCBFromFileToFenneX(std::string file, std::string inPanel, int zIndex
 #endif
     
     //Despite cocosbuilder saying so, Label and Node (for Panel) aren't resized properly, so there it is
-    /*Size frameSize = Director::getInstance()->getWinSize();
+    /*Size frameSize = CCBLoaderGetLoadSize();
      float scaleX = (float)frameSize.width / designResolutionSize.width;
      float scaleY = (float)frameSize.height / designResolutionSize.height;
      float scale = MAX(scaleX, scaleY);
@@ -413,6 +418,16 @@ void linkInputLabels()
             }
         }
     }
+}
+
+void CCBLoaderSetLoadSize(Size loadSize)
+{
+    _loadSize = loadSize;
+}
+
+Size CCBLoaderGetLoadSize()
+{
+    return _loadSize;
 }
 
 void CCBLoaderSetScale(float scale)

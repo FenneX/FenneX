@@ -61,6 +61,12 @@ void linkInputLabels();
 
 void CCBLoaderSetScale(float scale);
 float CCBLoaderGetScale();
+
+//The size in which the CCB will be loaded. By default, it's the size of the screen.
+//You might want to make it smaller to leave some space at the top of the screen for a banner.
+void CCBLoaderSetLoadSize(cocos2d::Size loadSize);
+cocos2d::Size CCBLoaderGetLoadSize();
+
 void CCBLoaderSetPhoneLayout(bool usePhone);
 bool CCBLoaderIsPhoneLayout();
 
