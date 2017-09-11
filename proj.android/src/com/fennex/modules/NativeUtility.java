@@ -109,23 +109,17 @@ public class NativeUtility
     
     public static String getAppName()
     {
-    	String appName = getMainActivity().getClass().getSimpleName();
-    	Log.d(TAG, "returning app name : " + appName);
-    	return appName;
+    	return getMainActivity().getClass().getSimpleName();
     }
 
     public static String getPackageIdentifier()
     {
-        String packageName = getMainActivity().getClass().getPackage().getName();
-        Log.d(TAG, "returning app package identifier : " + packageName);
-        return packageName;
+        return getMainActivity().getClass().getPackage().getName();
     }
 
     public static String getUniqueIdentifier()
     {
-        String uniqueIdentifier = Settings.Secure.getString(getMainActivity().getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-        Log.d(TAG, "returning unique identifier : " + uniqueIdentifier);
-        return uniqueIdentifier;
+        return Settings.Secure.getString(getMainActivity().getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 
     public static String getAppVersionNumber() throws PackageManager.NameNotFoundException {
@@ -138,9 +132,7 @@ public class NativeUtility
 
     public static String getUniqueIdentifierByContext(Context context)
     {
-        String uniqueIdentifier = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-        Log.d(TAG, "returning unique identifier : " + uniqueIdentifier);
-        return uniqueIdentifier;
+        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 
     public static String getDeviceModelIdentifier()
@@ -316,7 +308,7 @@ public class NativeUtility
     	{
     		brightnessValue = android.provider.Settings.System.getInt (getMainActivity().getContentResolver(), android.provider.Settings.System.SCREEN_BRIGHTNESS);
 		}
-    	catch (SettingNotFoundException e) { }
+    	catch (SettingNotFoundException ignored) { }
     	
     	return brightnessValue/255;
     }
@@ -382,7 +374,7 @@ public class NativeUtility
             PackageInfo pInfo = myPackageMgr.getPackageInfo(packageName, 0);
             version = pInfo.versionCode;
         }
-        catch (PackageManager.NameNotFoundException e) {
+        catch (PackageManager.NameNotFoundException ignored) {
 
         }
 
