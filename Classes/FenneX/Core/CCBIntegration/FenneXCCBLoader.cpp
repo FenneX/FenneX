@@ -187,6 +187,7 @@ Panel* loadCCBFromFileToFenneX(std::string file, std::string inPanel, int zIndex
         {
             node->setScaleX(node->getScaleX()*usedScale);
             node->setScaleY(node->getScaleY()*usedScale);
+            node->setContentSize(node->getContentSize() / node->getScaleX());
             Node* parentNode = node;
             
             for(auto nodeChild : node->getChildren())
