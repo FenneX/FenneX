@@ -952,13 +952,13 @@ Vec2 GraphicLayer::getPositionRelativeToObject(Vec2 point, RawObject* obj)
         parent = this->getContainingPanel(parent);
     }
     //In addition to panels, base Layer position and scale must be taken in account
-    realPosition.x = (realPosition.x - layer->getPosition().x) / layer->getScaleX();
-    realPosition.y = (realPosition.y - layer->getPosition().y) / layer->getScaleY();
+    realPosition.x = (realPosition.x) / layer->getScaleX() - layer->getPosition().x;
+    realPosition.y = (realPosition.y) / layer->getScaleY() - layer->getPosition().y;
     for(long i = parents.size() - 1; i >= 0; i--)
     {
         parent = parents.at(i);
-        realPosition.x = (realPosition.x - parent->getPosition().x + parent->getNode()->getAnchorPoint().x * parent->getSize().width) / parent->getScaleX();
-        realPosition.y = (realPosition.y - parent->getPosition().y + parent->getNode()->getAnchorPoint().y * parent->getSize().height) / parent->getScaleY();
+        realPosition.x = (realPosition.x - parent->getPosition().x) / parent->getScaleX() + parent->getNode()->getAnchorPoint().x * parent->getSize().width;
+        realPosition.y = (realPosition.y - parent->getPosition().y) / parent->getScaleY() + parent->getNode()->getAnchorPoint().y * parent->getSize().height;
     }
     return realPosition;
 }
