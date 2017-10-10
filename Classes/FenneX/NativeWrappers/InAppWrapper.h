@@ -50,6 +50,11 @@ void initializePayements();
  - ErrorTransactionFailure (iOS, Android) => app should notify it failed and prompt to retry later
  - AuthenticityErrorTransactionFailure (Android) => cannot be thrown currently because there is no verifyPayload. App should notify the user there is an authenticity problem
  - InAppSystemFailure (Android) => app should prompt user to verify Play Store and retry
+ 
+ All notifications contains:
+ - ProductId (when failure, it might not be the actual ProductID)
+ - PurchaseToken (when failure, it might be empty)
+ - Reason (a displayable reason to troubleshoot)
  */
 
 //Big difference between iOS and Android : iOS handle consumable/not consumable, whereas Android do not, you have to manually consume consumable, and never consume not consumables

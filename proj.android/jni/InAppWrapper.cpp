@@ -144,10 +144,10 @@ ValueMap getProductsInfos()
     return productsInfos;
 }
 
-void notifyInAppEventNative(std::string name, std::string argument, std::string token)
+void notifyInAppEventNative(std::string name, std::string argument, std::string token, std::string reason)
 {
     LOGD("Notifying in app event : %s", name.c_str());
-    DelayedDispatcher::eventAfterDelay(name, DcreateP(Screate(argument), Screate("ProductID"), Screate(token), Screate("PurchaseToken"), NULL), 0.01);
+    DelayedDispatcher::eventAfterDelay(name, DcreateP(Screate(argument), Screate("ProductID"), Screate(token), Screate("PurchaseToken"), Screate(reason), Screate("Reason"), NULL), 0.01);
 }
 
 void notifyLicenseStatusNative(bool authorized)
@@ -158,9 +158,9 @@ void notifyLicenseStatusNative(bool authorized)
 
 extern "C"
 {
-    void Java_com_fennex_modules_InAppManager_notifyInAppEvent(JNIEnv* envParam, jobject thiz, jstring event, jstring argument, jstring token)
+    void Java_com_fennex_modules_InAppManager_notifyInAppEvent(JNIEnv* envParam, jobject thiz, jstring event, jstring argument, jstring token, jstring reason)
     {
-        notifyInAppEventNative(JniHelper::jstring2string(event), JniHelper::jstring2string(argument), JniHelper::jstring2string(token));
+        notifyInAppEventNative(JniHelper::jstring2string(event), JniHelper::jstring2string(argument), JniHelper::jstring2string(token), JniHelper::jstring2string(reason));
     }
     void Java_com_fennex_licensing_LicenseInspector_notifyLicenseStatus(JNIEnv* envParam, jobject thiz, jboolean authorized)
     {
