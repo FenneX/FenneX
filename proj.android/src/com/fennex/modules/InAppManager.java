@@ -143,12 +143,15 @@ public class InAppManager implements ActivityResultResponder {
                 }
 
                 // Hooray, IAB is fully set up. Now, let's get an inventory of stuff we own.
-                Log.d(TAG, "Setup successful. Querying inventory.");
-
                 if (skuToQuery != null) {
+                    Log.d(TAG, "Setup successful. Querying inventory with " + skuToQuery.size() + " SKUs:");
+                    for(String sku : skuToQuery) {
+                        Log.d(TAG, "    SKU: " + sku);
+                    }
                     mHelper.queryInventoryAsync(true, skuToQuery, mGotInventoryListener);
                     skuToQuery = null;
                 } else {
+                    Log.d(TAG, "Setup successful. Querying inventory with no SKU");
                     mHelper.queryInventoryAsync(mGotInventoryListener);
                 }
             }
@@ -173,12 +176,12 @@ public class InAppManager implements ActivityResultResponder {
                     getInstance().notifyInAppEvent(event, argument, "", "InApps system not initialized during buyProductIdentifier");
                     return;
                 } else {
-                    Purchase premiumPurchase = mInventory.getPurchase(productID);
+                    Purchase existingPurchase = mInventory.getPurchase(productID);
                     //Purchase state = 0 means purchased. 1 is canceled (allow to re-buy), 2 is refunded (allow to re-buy)
                     //noinspection ConstantConditions
-                    if (premiumPurchase != null && verifyDeveloperPayload(premiumPurchase) && premiumPurchase.getPurchaseState() == 0) {
+                    if (existingPurchase != null && verifyDeveloperPayload(existingPurchase) && existingPurchase.getPurchaseState() == 0) {
                         Log.d(TAG, "Restoring product");
-                        getInstance().notifyInAppEvent("ProductRestored", productID, premiumPurchase.getToken(), "Restore purchase successful using buyProductIdentifier, skipping purchase flow");
+                        getInstance().notifyInAppEvent("ProductRestored", productID, existingPurchase.getToken(), "Restore purchase successful using buyProductIdentifier, skipping purchase flow");
                         return;
                     }
                 }
@@ -207,17 +210,17 @@ public class InAppManager implements ActivityResultResponder {
                     String argument = "NotInitialized";
                     getInstance().notifyInAppEvent(event, argument, "", "InApps system not initialized during restoreTransaction");
                 } else {
-                    Purchase premiumPurchase = mInventory.getPurchase(productID);
+                    Purchase existingPurchase = mInventory.getPurchase(productID);
                     //noinspection ConstantConditions
-                    if (premiumPurchase != null && verifyDeveloperPayload(premiumPurchase) && premiumPurchase.getPurchaseState() == 0) {
+                    if (existingPurchase != null && verifyDeveloperPayload(existingPurchase) && existingPurchase.getPurchaseState() == 0) {
                         Log.d(TAG, "Restoring product");
-                        getInstance().notifyInAppEvent("ProductRestored", productID, premiumPurchase.getToken(), "Restore purchase successful using restoreTransaction");
+                        getInstance().notifyInAppEvent("ProductRestored", productID, existingPurchase.getToken(), "Restore purchase successful using restoreTransaction");
                     } else {
-                        String purchaseState = (premiumPurchase == null ? "doesn't exist" :
-                                premiumPurchase.getPurchaseState() == 1 ? "canceled" :
-                                        premiumPurchase.getPurchaseState() == 2 ? "refunded" :
-                                                "state " + premiumPurchase.getPurchaseState());
-                        getInstance().notifyInAppEvent("ErrorRestoreFailure", productID, premiumPurchase == null ? "" : premiumPurchase.getToken(), "Restore purchase failed during restoreTransaction, purchase state: " + purchaseState);
+                        String purchaseState = (existingPurchase == null ? "doesn't exist" :
+                                existingPurchase.getPurchaseState() == 1 ? "canceled" :
+                                        existingPurchase.getPurchaseState() == 2 ? "refunded" :
+                                                "state " + existingPurchase.getPurchaseState());
+                        getInstance().notifyInAppEvent("ErrorRestoreFailure", productID, existingPurchase == null ? "" : existingPurchase.getToken(), "Restore purchase failed during restoreTransaction, purchase state: " + purchaseState);
                     }
                 }
             }
@@ -268,19 +271,6 @@ public class InAppManager implements ActivityResultResponder {
             } else {
                 queryFinished = true;
             }
-            
-            /*
-             * Check for items we own. Notice that for each purchase, we check
-             * the developer payload to see if it's correct! See
-             * verifyDeveloperPayload().
-             */
-
-            // Do we have the premium upgrade?
-            /*Purchase premiumPurchase = inventory.getPurchase(SKU_PREMIUM);
-            mIsPremium = (premiumPurchase != null && verifyDeveloperPayload(premiumPurchase));
-            Log.d(TAG, "User is " + (mIsPremium ? "PREMIUM" : "NOT PREMIUM"));
-
-            Log.d(TAG, "Initial inventory query finished.");*/
         }
     };
 
