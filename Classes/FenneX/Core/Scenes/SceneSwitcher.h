@@ -55,6 +55,9 @@ public:
     ~SceneSwitcher();
     
     bool isSwitching();
+    
+    // This function allow you to reload a scene that is already loaded. Be careful, it's your reponsibility to reload the state of the scene.
+    void allowReload();
 protected:
     void init();
     void replaceScene();
@@ -73,6 +76,7 @@ protected:
     float delayReplace;
     //The key for keyboard lock during scene switch
     int keyboardLock;
+    bool reloadAllowed = false;
     
     EventListenerCustom* planSceneSwitchListener;
 };

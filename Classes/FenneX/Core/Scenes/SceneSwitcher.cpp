@@ -89,7 +89,7 @@ void SceneSwitcher::trySceneSwitch(float deltaTime)
 #if VERBOSE_GENERAL_INFO
         log("next scene : %s, current scene : %s", formatSceneToString(nextScene), formatSceneToString(currentSceneName));
 #endif
-        if(nextScene != currentSceneName)
+        if(nextScene != currentSceneName || reloadAllowed)
         {
             //TODO : add delay : requires GraphicLayer : implementation of closePanel needed
             float sceneSwitchDelay = 0;
@@ -208,6 +208,11 @@ bool SceneSwitcher::isSwitching()
     return processingSwitch || isEventFired;
 }
 
+void SceneSwitcher::allowReload()
+{
+    reloadAllowed = true;
+}
+
 void SceneSwitcher::replaceScene()
 {
 #if VERBOSE_PERFORMANCE_TIME
@@ -225,7 +230,7 @@ void SceneSwitcher::replaceScene()
         this->takeQueuedScene();
         sceneSwitchCancelled = false;
     }
-    if(currentSceneName != nextScene && nextScene != None)
+    if((currentSceneName != nextScene && nextScene != None) || reloadAllowed)
     {
         if(currentSceneName != None)
         {
@@ -263,6 +268,7 @@ void SceneSwitcher::replaceScene()
         log("Warning : in replaceScene in SceneSwitcher : same next scene");
     }
     isEventFired = false;
+    reloadAllowed = false;
     
 #if VERBOSE_PERFORMANCE_TIME
     timeval endTime;
