@@ -30,6 +30,7 @@ THE SOFTWARE.
 #include "Shorteners.h"
 #include "AppMacros.h"
 #include "NativeUtility.h"
+#include "InactivityTimer.h"
 
 NS_FENNEX_BEGIN
 void Scene::initScene()
@@ -61,6 +62,9 @@ sceneName(identifier)
     //GraphicLayer is a Ref*, retain it for updateList
     GraphicLayer::sharedLayer()->retain();
     updateList.push_back(GraphicLayer::sharedLayer());
+    InactivityTimer::getInstance()->retain();
+    updateList.push_back(InactivityTimer::getInstance());
+    
     
     //The order is very important : TapRecognized must be registered before InertiaGenerator (generally added in linkToScene), because it can cancel inertia
     this->addTouchreceiver(TapRecognizer::sharedRecognizer());
@@ -289,6 +293,8 @@ bool Scene::onTouchBegan(Touch *touch, Event *pEvent)
     //TODO : cancel selection if needed
     numberOfTouches++;
     //log("onTouchBegan ended");
+    
+    InactivityTimer::resetTimer();
     return true;
 }
 
@@ -312,6 +318,7 @@ void Scene::onTouchMoved(Touch *touch, Event *pEvent)
         if(!receiversToRemove.contains(receiver)) receiver->onTouchMoved(touch, pEvent);
     }
     //log("onTouchMoved ended");
+    InactivityTimer::resetTimer();
 }
 
 void Scene::onTouchEnded(Touch *touch, Event *pEvent)
@@ -339,6 +346,7 @@ void Scene::onTouchEnded(Touch *touch, Event *pEvent)
 #if VERBOSE_TOUCH_RECOGNIZERS
     log("onTouchEnded ended at position : %f, %f, ID : %d", Scene::touchPosition(touch).x, Scene::touchPosition(touch).y, touch->getID());
 #endif
+    InactivityTimer::resetTimer();
 }
 
 void Scene::onTouchCancelled(Touch *touch, Event *pEvent)
@@ -358,6 +366,7 @@ void Scene::switchButton(Vec2 position, bool state, Touch* touch)
     {
         this->switchButton(target, state, touch);
     }
+    InactivityTimer::resetTimer();
 }
 
 void Scene::switchButton(Image* obj, bool state, Touch* touch)

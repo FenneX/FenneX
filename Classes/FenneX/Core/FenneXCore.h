@@ -76,5 +76,6 @@ THE SOFTWARE.
 #include "TMPPoint.h"
 #include "DelayedDispatcher.h"
 #include "ValueConversion.h"
+#include "InactivityTimer.h"
 
 #endif
