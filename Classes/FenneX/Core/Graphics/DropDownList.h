@@ -58,7 +58,7 @@ public:
     void setTitle(std::string title);
 private:
     void init();
-    void showDropDownList();
+    void showDropDownList(EventCustom* event);
     DropDownListWrapper* dropList;
     bool isOpened;
     std::string initialText;

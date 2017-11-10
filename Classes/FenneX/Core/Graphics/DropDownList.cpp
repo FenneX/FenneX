@@ -69,7 +69,7 @@ DropDownList::DropDownList(Sprite* sprite)
     dropList = new DropDownListWrapper();
     this->setEventActivated(true);
     this->setEventName("ShowSelectDropDownList");
-    listeners.pushBack(Director::getInstance()->getEventDispatcher()->addCustomEventListener("ShowSelectDropDownList", std::bind(&DropDownList::showDropDownList, this)));
+    listeners.pushBack(Director::getInstance()->getEventDispatcher()->addCustomEventListener("ShowSelectDropDownList", std::bind(&DropDownList::showDropDownList, this, std::placeholders::_1)));
     listeners.pushBack(Director::getInstance()->getEventDispatcher()->addCustomEventListener("DropDownListSelectionDone", std::bind(&DropDownList::setSelectedValue, this, std::placeholders::_1)));
 }
 
@@ -125,9 +125,13 @@ void DropDownList::setTitle(std::string title)
     dropList->setTitle(title);
 }
 
-void DropDownList::showDropDownList()
+void DropDownList::showDropDownList(EventCustom* event)
 {
-    dropList->show();
+    CCDictionary* infos =  event != NULL ? (CCDictionary*) event->getUserData() : NULL;
+    if(infos != NULL && getID() == TOINT(infos->objectForKey("Sender")))
+    {
+        dropList->show();
+    }
 }
 
 NS_FENNEX_END

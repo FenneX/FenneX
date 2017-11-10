@@ -409,12 +409,10 @@ void linkInputLabels()
             if(dropDownList->getLinkTo() == NULL)
             {
                 std::string linkTo = ((CCString*)child->getEventInfos()->objectForKey("LinkTo"))->getCString();
-                RawObject* match = layer->first([linkTo](RawObject* obj) {
-                    return obj->getName() == linkTo && isKindOfClass(obj, LabelTTF);
-                });
-                if(match != NULL)
+                Panel* parent = layer->getContainingPanel(dropDownList);
+                for(RawObject* obj : parent != NULL ? parent->getChildren() : layer->all())
                 {
-                    dropDownList->setLinkTo((LabelTTF*)match);
+                    if(obj->getName() == linkTo && isKindOfClass(obj, LabelTTF)) dropDownList->setLinkTo((LabelTTF*)obj);
                 }
             }
         }

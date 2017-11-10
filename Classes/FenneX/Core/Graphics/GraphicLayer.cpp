@@ -390,7 +390,12 @@ RawObject* GraphicLayer::duplicateObject(RawObject* otherObject)
 {
     RawObject* obj = NULL;
     //Create the object, set Position + other properties
-    if(isKindOfClass(otherObject, Image))
+    if(isKindOfClass(otherObject, DropDownList))
+    {
+        DropDownList* otherList = (DropDownList*)otherObject;
+        obj = new DropDownList(otherList->getImageFile(), otherList->getPosition());
+    }
+    else if(isKindOfClass(otherObject, Image))
     {
         Image* otherImage = (Image*)otherObject;
         if(otherImage->isAnimation())
@@ -456,11 +461,14 @@ RawObject* GraphicLayer::duplicateObject(RawObject* otherObject)
     //Recursively add children for Panel
     if(isKindOfClass(otherObject, Panel))
     {
+        bool needLink = false;
         for(RawObject* otherChild : ((Panel*)otherObject)->getChildren())
         {
             RawObject* child = duplicateObject(otherChild);
             placeObject(child, (Panel*)obj);
+            if(isKindOfClass(child, DropDownList)) needLink = true;
         }
+        if(needLink) linkInputLabels();
     }
     return obj;
 }
