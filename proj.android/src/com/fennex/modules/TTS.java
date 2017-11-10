@@ -26,11 +26,10 @@ package com.fennex.modules;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 import android.annotation.SuppressLint;
-import android.os.Build;
-import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnUtteranceCompletedListener;
 import android.speech.tts.UtteranceProgressListener;
@@ -44,6 +43,7 @@ public class TTS implements TextToSpeech.OnInitListener
 	private boolean isInit;
 	private boolean available;
 	private float desiredRate;
+	private String engineName;
 	private ArrayList<String> preinitQueue;
 	HashMap<String, String> settings;
 	
@@ -57,6 +57,15 @@ public class TTS implements TextToSpeech.OnInitListener
 		}
 		return instance;
 	}
+
+	static TTS getInstance(String engineName)
+	{
+		if(instance == null)
+		{
+			instance = new TTS(engineName);
+		}
+		return instance;
+	}
 	
 	@SuppressLint("NewApi")
 	private TTS()
@@ -67,6 +76,7 @@ public class TTS implements TextToSpeech.OnInitListener
 		engine.setLanguage(Locale.FRANCE);
 		engine.setPitch(1.0f);
 		engine.setSpeechRate(0.75f);
+		engineName = getTTSDefaultEngineName();
 		preinitQueue = new ArrayList<String>();
 		settings = new HashMap<String, String>();
 		desiredRate = 1.0f;
@@ -105,6 +115,55 @@ public class TTS implements TextToSpeech.OnInitListener
 					onTTSEnd();
 				}
 			
+			});
+		}
+	}
+	@SuppressLint("NewApi")
+	private TTS(String _engineName)
+	{
+		isInit = false;
+		available = false;
+		engineName = _engineName;
+		engine = new TextToSpeech(NativeUtility.getMainActivity(), this, engineName);
+		engine.setLanguage(Locale.FRANCE);
+		engine.setPitch(1.0f);
+		engine.setSpeechRate(0.75f);
+		preinitQueue = new ArrayList<String>();
+		settings = new HashMap<String, String>();
+		desiredRate = 1.0f;
+		if(android.os.Build.VERSION.SDK_INT >= 15 )
+		{
+			engine.setOnUtteranceProgressListener(new UtteranceProgressListener()
+			{
+
+				@Override
+				public void onStart(String utteranceId)
+				{
+					//do nothing
+				}
+
+				@Override
+				public void onError(String utteranceId)
+				{
+					onTTSEnd();
+				}
+
+				@Override
+				public void onDone(String utteranceId)
+				{
+					onTTSEnd();
+				}
+			});
+		}
+		else
+		{
+			engine.setOnUtteranceCompletedListener(new OnUtteranceCompletedListener()
+			{
+				@Override
+				public void onUtteranceCompleted(String utteranceId)
+				{
+					onTTSEnd();
+				}
 			});
 		}
 	}
@@ -190,11 +249,37 @@ public class TTS implements TextToSpeech.OnInitListener
 
 	public String getTTSEngineName()
 	{
-		if(engine != null)
+		if(!engineName.isEmpty())
 		{
-			return engine.getDefaultEngine();
+			return engineName;
 		}
 		return "android.tts.engine";
+	}
+
+	public String[][] getTTSEngines()
+	{
+		if(engine != null && android.os.Build.VERSION.SDK_INT >= 14) // sdk 14 = Android 4.0
+		{
+			List<String[]> toReturn = new ArrayList<String[]>();
+			for(TextToSpeech.EngineInfo currentEngine : engine.getEngines())
+			{
+				toReturn.add(new String[]{currentEngine.name, currentEngine.label});
+			}
+			String[][] tab = new String[toReturn.size()][2];
+			tab = toReturn.toArray(tab);
+			return tab;
+		}
+		return new String[][]{{"android.tts.engine", ""}};
+	}
+
+	public static void setTTSEngine(String ttsEngine)
+	{
+		if(getInstance().engineName != ttsEngine)
+		{
+			float rate = getInstance().getTTSPlayRate();
+			instance = new TTS(ttsEngine);
+			instance.setTTSPlayRate(rate);
+		}
 	}
 
 	public float getTTSPlayRate()
@@ -209,5 +294,14 @@ public class TTS implements TextToSpeech.OnInitListener
 		{
 			engine.setSpeechRate(0.75f * desiredRate);
 		}
+	}
+
+	private String getTTSDefaultEngineName()
+	{
+		if(engine != null)
+		{
+			return engine.getDefaultEngine();
+		}
+		return "android.tts.engine";
 	}
 }

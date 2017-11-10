@@ -66,3 +66,10 @@ std::string getTTSEngineName()
     // We don't need anything realy here, because ios tts engine doesn't have a package name like android has
     return "ios.tts.engine";
 }
+
+std::map<std::string, std::string> getTTSEngines()
+{
+    return {{"ios.tts.engine", "iOS Text To Speech"}};
+}
+
+void setTTSEngine(std::string engineName){}

@@ -138,6 +138,47 @@ std::string getTTSEngineName()
     return ret;
 }
 
+ std::map<std::string, std::string> getTTSEngines()
+{
+    JniMethodInfo minfo;
+    jobject instance = getInstance();
+    bool functionExist = JniHelper::getMethodInfo(minfo,CLASS_NAME, "getTTSEngines", "()[[Ljava/lang/String;");
+    CCAssert(functionExist, "Function doesn't exist");
+    jobjectArray dataArray = (jobjectArray)minfo.env->CallObjectMethod(instance, minfo.methodID);
+    minfo.env->DeleteLocalRef(instance);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    std::map<std::string, std::string> info;
+    jsize count = count = minfo.env->GetArrayLength(dataArray);
+    for(int i = 0;i < count; i++) {
+        //Run through the array, retrieve each type and set it in a vector
+        jobjectArray elementArray = (jobjectArray)minfo.env->GetObjectArrayElement(dataArray, i);
+        jsize elementCount = minfo.env->GetArrayLength(dataArray);
+        std::vector<std::string> elementString;
+        for(int j = 0;j < elementCount; j++) {
+            jobject element = minfo.env->GetObjectArrayElement(elementArray, j);
+            elementString.push_back(JniHelper::jstring2string((jstring)element));
+            minfo.env->DeleteLocalRef(element);
+        }
+        if(elementString.size() > 1) info.insert({elementString.at(0), elementString.at(1)});
+        minfo.env->DeleteLocalRef(elementArray);
+    }
+    minfo.env->DeleteLocalRef(dataArray);
+    return info;
+}
+
+void setTTSEngine(std::string engineName)
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME,"setTTSEngine", "(Ljava/lang/String;)V");
+    CCAssert(functionExist, "Function doesn't exist");
+    jstring jEngineName = minfo.env->NewStringUTF(engineName.c_str());
+    minfo.env->CallStaticVoidMethod(minfo.classID,
+                                    minfo.methodID,
+                                    jEngineName);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(jEngineName);
+}
+
 extern "C"
 {
     void Java_com_fennex_modules_TTS_onTTSEnd(JNIEnv* env, jobject thiz)
