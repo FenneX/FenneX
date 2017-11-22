@@ -145,7 +145,11 @@ loadingValue("")
     std::string fontFile = filename.substr(sizeBegin);
     std::string fontSize = filename.substr(sizeBegin, sizeEnd - sizeBegin);
     std::string color = filename.substr(sizeEnd);
-    delegate = Label::create(labelString, fontFile, atoi(fontSize.c_str()));
+    if(FileUtils::getInstance()->isFileExist(fontFile))
+        delegate = Label::createWithTTF(labelString, fontFile, atoi(fontSize.c_str()));
+    else
+        delegate = Label::createWithSystemFont(labelString, fontFile, atoi(fontSize.c_str()));
+        
     delegate->retain();
     delegate->setPosition(position);
     delegate->setHorizontalAlignment(alignment);

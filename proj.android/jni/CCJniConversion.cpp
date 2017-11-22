@@ -28,174 +28,91 @@ USING_NS_FENNEX;
 
 #define VERBOSE_JNI_CONVERSION 0
 
-jobjectArray jobjectArrayFromCCDictionary(JNIEnv *pEnv, CCDictionary * ccDictionary)
+jobjectArray jobjectArrayFromMap(JNIEnv *pEnv, ValueMap map)
 {
 #if VERBOSE_JNI_CONVERSION
-    CCLOG("converting CCDictionary to native array ....");
+    log("converting ValueMap to native array ....");
 #endif
-    if (ccDictionary == NULL)
+    if (map.size() <= 0)
     {
         return NULL;
     }
-    else if (ccDictionary->allKeys() == NULL)
-    {
-        return NULL;
-    }
-    else if (ccDictionary->allKeys()->count() <= 0)
-    {
-        return NULL;
-    }
-    
+
     jclass jStringCls = 0;
-    
+
     jStringCls = pEnv->FindClass("java/lang/String");
     if(pEnv->ExceptionCheck())
     {
         pEnv->ExceptionDescribe();
-        CCLOG("crashed when looking for String Class");
+        log("crashed when looking for String Class");
         return NULL;
     }
-    
+
     jobjectArray result;
-    
-    result = pEnv->NewObjectArray( 2 * ccDictionary->allKeys()->count(), jStringCls, NULL);
+
+    result = pEnv->NewObjectArray( 2 * map.size(), jStringCls, NULL);
     pEnv->DeleteLocalRef(jStringCls);
-    
+
     if(pEnv->ExceptionCheck())
     {
         pEnv->ExceptionDescribe();
-        CCLOG("crashed when creating array");
+        log("crashed when creating array");
     }
     if (result == NULL) {
-        CCLog("failed to create a new jobjectArray");
+        log("failed to create a new jobjectArray");
         return NULL;
     }
-    
-    for (int i = 0; i < ccDictionary->allKeys()->count(); i++) {
-        
-        CCString* objToString;
-        CCObject* obj = ccDictionary->objectForKey(((CCString*)ccDictionary->allKeys()->objectAtIndex(i))->getCString());
-        if(isKindOfClass(obj, CCDictionary))
+    int i = 0;
+    for(const auto& obj : map)
+    {
+        std::string objToString;
+        if(isValueOfType(obj.second, MAP))
         {
-            objToString = Screate("Dictionary");
+            objToString = "Dictionary";
         }
-        else if(isKindOfClass(obj, CCArray))
+        else if(isValueOfType(obj.second, VECTOR))
         {
-            objToString = Screate("Array");
+            objToString = "Array";
         }
-        else if (isKindOfClass(obj, CCString))
+        else if (isValueOfType(obj.second, STRING))
         {
-            objToString = (CCString*)obj;
+            objToString = obj.second.asString();
         }
-        else if (isKindOfClass(obj, CCInteger))
+        else if (isValueOfType(obj.second, INTEGER))
         {
-            objToString = ScreateF("%d", TOINT(obj));
+            objToString = std::to_string(obj.second.asInt());
         }
-        else if (isKindOfClass(obj, CCFloat))
+        else if (isValueOfType(obj.second, FLOAT))
         {
-            objToString = ScreateF("%f", TOFLOAT(obj));
+            objToString = std::to_string(obj.second.asFloat());
         }
-        else if (isKindOfClass(obj, CCBool))
+        else if (isValueOfType(obj.second, DOUBLE))
         {
-            objToString = ScreateF("%s", TOBOOL(obj) ? "true" : "false");
+            objToString = std::to_string(obj.second.asDouble());
         }
-        
-        jstring keyString = pEnv->NewStringUTF(((CCString *)ccDictionary->allKeys()->objectAtIndex(i))->getCString());
-        
-        jstring objectString = pEnv->NewStringUTF(objToString->getCString());
-        
+        else if (isValueOfType(obj.second, BOOLEAN))
+        {
+            objToString = obj.second.asBool() ? "true" : "false";
+        }
+
+        jstring keyString = pEnv->NewStringUTF(obj.first.c_str());
+
+        jstring objectString = pEnv->NewStringUTF(objToString.c_str());
+
 #if VERBOSE_JNI_CONVERSION
-        CCLOG("%s", ((CCString *)ccDictionary->allKeys()->objectAtIndex(i))->getCString());
+        log("%s", obj.first.c_str());
 #endif
         pEnv->SetObjectArrayElement(result, i * 2, keyString);
         pEnv->DeleteLocalRef(keyString);
 #if VERBOSE_JNI_CONVERSION
-        CCLOG("%s", objToString->getCString());
+        log("%s", objToString.c_str());
 #endif
         pEnv->SetObjectArrayElement(result, i * 2 + 1, objectString);
         pEnv->DeleteLocalRef(objectString);
-        
+        i++;
     }
 #if VERBOSE_JNI_CONVERSION
-    CCLOG("Converted!");
-#endif
-    return result;
-}
-
-jobjectArray jobjectArrayFromCCArray(JNIEnv *pEnv, CCArray * ccArray)
-{
-#if VERBOSE_JNI_CONVERSION
-    CCLOG("converting CCArray to native array ....");
-#endif
-    if (ccArray == NULL) {
-        return NULL;
-    } else if (ccArray->count() <= 0) {
-        return NULL;
-    }
-    
-    jclass jStringCls = 0;
-    
-    jStringCls = pEnv->FindClass("java/lang/String");
-    if(pEnv->ExceptionCheck())
-    {
-        pEnv->ExceptionDescribe();
-        CCLOG("crashed when looking for String Class");
-        return NULL;
-    }
-    
-    jobjectArray result;
-    
-    result = pEnv->NewObjectArray( ccArray->count(), jStringCls, NULL);
-    pEnv->DeleteLocalRef(jStringCls);
-    
-    if(pEnv->ExceptionCheck())
-    {
-        pEnv->ExceptionDescribe();
-        CCLOG("crashed when creating array");
-    }
-    if (result == NULL) {
-        CCLog("failed to create a new jobjectArray");
-        return NULL;
-    }
-    
-    for (int i = 0; i < ccArray->count(); i++) {
-        
-        CCString* objToString;
-        CCObject* obj = ccArray->objectAtIndex(i);
-        if(isKindOfClass(obj, CCDictionary))
-        {
-            objToString = Screate("Dictionary");
-        }
-        else if(isKindOfClass(obj, CCArray))
-        {
-            objToString = Screate("Array");
-        }
-        else if (isKindOfClass(obj, CCString))
-        {
-            objToString = (CCString*)obj;
-        }
-        else if (isKindOfClass(obj, CCInteger))
-        {
-            objToString = ScreateF("%d", TOINT(obj));
-        }
-        else if (isKindOfClass(obj, CCFloat))
-        {
-            objToString = ScreateF("%f", TOFLOAT(obj));
-        }
-        else if (isKindOfClass(obj, CCBool))
-        {
-            objToString = ScreateF("%s", TOBOOL(obj) ? "true" : "false");
-        }
-        
-        jstring objectString = pEnv->NewStringUTF(objToString->getCString());
-#if VERBOSE_JNI_CONVERSION
-        CCLOG("%s", objToString->getCString());
-#endif
-        pEnv->SetObjectArrayElement(result, i, objectString);
-        pEnv->DeleteLocalRef(objectString);
-    }
-#if VERBOSE_JNI_CONVERSION
-    CCLOG("Converted!");
+    log("Converted!");
 #endif
     return result;
 }
@@ -203,7 +120,7 @@ jobjectArray jobjectArrayFromCCArray(JNIEnv *pEnv, CCArray * ccArray)
 jobjectArray jobjectArrayFromStringVector(JNIEnv *pEnv, std::vector<std::string> vector)
 {
 #if VERBOSE_JNI_CONVERSION
-    CCLOG("converting std::vector<std::string> to native array ....");
+    log("converting std::vector<std::string> to native array ....");
 #endif
     if (vector.size() <= 0) {
         return NULL;
@@ -215,7 +132,7 @@ jobjectArray jobjectArrayFromStringVector(JNIEnv *pEnv, std::vector<std::string>
     if(pEnv->ExceptionCheck())
     {
         pEnv->ExceptionDescribe();
-        CCLOG("crashed when looking for String Class");
+        log("crashed when looking for String Class");
         return NULL;
     }
     
@@ -227,10 +144,10 @@ jobjectArray jobjectArrayFromStringVector(JNIEnv *pEnv, std::vector<std::string>
     if(pEnv->ExceptionCheck())
     {
         pEnv->ExceptionDescribe();
-        CCLOG("crashed when creating array");
+        log("crashed when creating array");
     }
     if (result == NULL) {
-        CCLog("failed to create a new jobjectArray");
+        log("failed to create a new jobjectArray");
         return NULL;
     }
     
@@ -238,14 +155,14 @@ jobjectArray jobjectArrayFromStringVector(JNIEnv *pEnv, std::vector<std::string>
     for (std::string str : vector) {
         jstring objectString = pEnv->NewStringUTF(str.c_str());
 #if VERBOSE_JNI_CONVERSION
-        CCLOG("%s", str.c_str());
+        log("%s", str.c_str());
 #endif
         pEnv->SetObjectArrayElement(result, i, objectString);
         pEnv->DeleteLocalRef(objectString);
         i++;
     }
 #if VERBOSE_JNI_CONVERSION
-    CCLOG("Converted!");
+    log("Converted!");
 #endif
     return result;
 }
@@ -258,58 +175,6 @@ typedef enum
     StringType,
     NoType
 }ConvertTypeInfo;
-
-CCObject* CCObjectFromString(std::string string)
-{
-    CCObject* result = NULL;
-    ConvertTypeInfo resolvedType = NoType;
-    bool found = false;
-    if(string.length() > 5)
-    {
-        found = true;
-        if(strncmp(string.c_str(), "[Str]", 5) == 0)
-        {
-            resolvedType = StringType;
-        }
-        else if(strncmp(string.c_str(), "[Int]", 5) == 0)
-        {
-            resolvedType = IntegerType;
-        }
-        else if(strncmp(string.c_str(), "[Flo]", 5) == 0)
-        {
-            resolvedType = FloatType;
-        }
-        else if(strncmp(string.c_str(), "[Boo]", 5) == 0)
-        {
-            resolvedType = BooleanType;
-        }
-        else
-        {
-            found = false;
-        }
-        if(found)
-        {
-            string = string.substr(5, std::string::npos);
-        }
-    }
-    if(resolvedType == BooleanType || (resolvedType == NoType &&  (string == "true" || string == "false")))
-    {
-        result = Bcreate(string == "true");
-    }
-    else if(resolvedType == IntegerType || (resolvedType == NoType &&  (atoi(string.c_str()) != 0 || string == "0")))
-    {
-        result = Icreate(atoi(string.c_str()));
-    }
-    else if(resolvedType == FloatType || (resolvedType == NoType && atof(string.c_str()) != 0))
-    {
-        result = Fcreate(atof(string.c_str()));
-    }
-    else
-    {
-        result = Screate(string);
-    }
-    return result;
-}
 
 Value ValueFromString(std::string string)
 {
@@ -363,54 +228,10 @@ Value ValueFromString(std::string string)
     return result;
 }
 
-CCDictionary* CCDictionaryFromjobjectArray(JNIEnv *pEnv, jobjectArray array)
-{
-#if VERBOSE_JNI_CONVERSION
-    CCLOG("Converting jobjectArray to CCDictionary ....");
-#endif
-    jsize count = 0;
-    
-    if(array == NULL)
-    {
-        CCLOG("jobjectArray is null.");
-        return NULL;
-    }
-    count = pEnv->GetArrayLength(array);
-    if(count <= 0)
-    {
-        CCLOG("jobjectArray is empty.");
-        return NULL;
-    }
-    else if(count % 2 != 0)
-    {
-        CCLOG("The count is not even, last object will be left out");
-        count--;
-    }
-    
-    CCDictionary* myArray = CCDictionary::create();
-    
-    for(int i = 0; i < count; i += 2)
-    {
-        //Run through the array, retrieve each type and set it in a CCDictionary
-        jobject element = pEnv->GetObjectArrayElement(array, i);
-        if(element != NULL)
-        {
-            jobject nextObjectElement = pEnv->GetObjectArrayElement(array, i+1);
-            myArray->setObject(CCObjectFromString(JniHelper::jstring2string((jstring)nextObjectElement)), JniHelper::jstring2string((jstring)element));
-            pEnv->DeleteLocalRef(nextObjectElement);
-            pEnv->DeleteLocalRef(element);
-        }
-    }
-#if VERBOSE_JNI_CONVERSION
-    CCLOG("Converted!");
-#endif
-    return myArray;
-}
-
 ValueMap MapFromjobjectArray(JNIEnv *pEnv, jobjectArray array)
 {
 #if VERBOSE_JNI_CONVERSION
-    CCLOG("Converting jobjectArray to ValueMap ....");
+    log("Converting jobjectArray to ValueMap ....");
 #endif
     jsize count = 0;
     
@@ -418,18 +239,18 @@ ValueMap MapFromjobjectArray(JNIEnv *pEnv, jobjectArray array)
     
     if(array == NULL)
     {
-        CCLOG("jobjectArray is null.");
+        log("jobjectArray is null.");
         return result;
     }
     count = pEnv->GetArrayLength(array);
     if(count <= 0)
     {
-        CCLOG("jobjectArray is empty.");
+        log("jobjectArray is empty.");
         return result;
     }
     else if(count % 2 != 0)
     {
-        CCLOG("The count is not even, last object will be left out");
+        log("The count is not even, last object will be left out");
         count--;
     }
     
@@ -449,62 +270,27 @@ ValueMap MapFromjobjectArray(JNIEnv *pEnv, jobjectArray array)
         }
     }
 #if VERBOSE_JNI_CONVERSION
-    CCLOG("Converted!");
+    log("Converted!");
 #endif
     return result;
-}
-
-CCArray* CCArrayFromjobjectArray(JNIEnv *pEnv, jobjectArray array)
-{
-#if VERBOSE_JNI_CONVERSION
-    CCLOG("Converting jobjectArray to CCArray ....");
-#endif
-    jsize count = 0;
-    
-    if(array == NULL)
-    {
-        CCLOG("jobjectArray is null.");
-        return NULL;
-    }
-    count = pEnv->GetArrayLength(array);
-    if(count <= 0) {
-        CCLOG("jobjectArray is empty.");
-        return NULL;
-    }
-    
-    CCArray* myArray = new CCArray();
-    myArray->autorelease();
-    jboolean flag = false;
-    
-    for(int i = 0;i < count;i++)
-    {
-        //Run through the array, retrieve each type and set it in a CCArray
-        jobject element = pEnv->GetObjectArrayElement(array, i);
-        myArray->addObject(CCObjectFromString(JniHelper::jstring2string((jstring)element)));
-        pEnv->DeleteLocalRef(element);
-    }
-#if VERBOSE_JNI_CONVERSION
-    CCLOG("Converted!");
-#endif
-    return myArray;
 }
 
 std::vector<std::string> StringVectorFromjobjectArray(JNIEnv *pEnv, jobjectArray array)
 {
 #if VERBOSE_JNI_CONVERSION
-    CCLOG("Converting jobjectArray to std::vector<std::string> ....");
+    log("Converting jobjectArray to std::vector<std::string> ....");
 #endif
     jsize count = 0;
     std::vector<std::string> result;
     
     if(array == NULL)
     {
-        CCLOG("jobjectArray is null.");
+        log("jobjectArray is null.");
         return result;
     }
     count = pEnv->GetArrayLength(array);
     if(count <= 0) {
-        CCLOG("jobjectArray is empty.");
+        log("jobjectArray is empty.");
         return result;
     }
     
@@ -518,7 +304,7 @@ std::vector<std::string> StringVectorFromjobjectArray(JNIEnv *pEnv, jobjectArray
         pEnv->DeleteLocalRef(element);
     }
 #if VERBOSE_JNI_CONVERSION
-    CCLOG("Converted!");
+    log("Converted!");
 #endif
     return result;
 }

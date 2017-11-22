@@ -118,7 +118,7 @@ public:
         - Duration (CCInteger, as seconds)
      Anything can be NULL, including the returned Dictionary if something went wrong or not implemented
      */
-    static CCDictionary* getFileMetadata(const std::string& path);
+    static ValueMap getFileMetadata(const std::string& path);
 protected:
     AudioPlayerRecorder();
     void init();

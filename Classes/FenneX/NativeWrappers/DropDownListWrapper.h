@@ -56,7 +56,7 @@ static inline void notifySelectionDone(int identifier, std::string value)
 {
     if(identifier != -1)
     {
-        DelayedDispatcher::eventAfterDelay("DropDownListSelectionDone", DcreateP(Icreate(identifier), Screate("Identifier"), Screate(value), Screate("SelectedValue"), NULL), 0.01);
+        DelayedDispatcher::eventAfterDelay("DropDownListSelectionDone", Value(ValueMap({{"Identifier", Value(identifier)}, {"SelectedValue", Value(value)}})), 0.01);
     }
 }
 

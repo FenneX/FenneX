@@ -55,7 +55,7 @@ void SceneSwitcher::init()
     currentScene = NULL;
     sceneSwitchCancelled = false;
     currentSceneName = None;
-    nextSceneParam = NULL;
+    nextSceneParam = ValueMap();
     isEventFired = false;
     keyboardLock = -1;
     delayReplace = 0;
@@ -63,21 +63,13 @@ void SceneSwitcher::init()
     planSceneSwitchListener = Director::getInstance()->getEventDispatcher()->addCustomEventListener("PlanSceneSwitch", std::bind(&SceneSwitcher::planSceneSwitch, this, std::placeholders::_1));
 }
 
-void SceneSwitcher::initWithScene(SceneName nextSceneType, CCDictionary* param)
+void SceneSwitcher::initWithScene(SceneName nextSceneType, ValueMap param)
 {
     CCAssert(currentSceneName == None, "in initWithScene in SceneSwitcher : cannot init : a scene already exist");
     CCAssert(nextSceneType != None, "in initWithScene in SceneSwitcher : cannot init to None scene");
     nextScene = nextSceneType;
     frameDelay = true;
-    if(param == NULL)
-    {
-        nextSceneParam = new CCDictionary();
-    }
-    else
-    {
-        nextSceneParam = param;
-        nextSceneParam->retain();
-    }
+    nextSceneParam = param;
     processingSwitch = true;
     this->trySceneSwitch();
 }
@@ -146,10 +138,7 @@ void SceneSwitcher::takeQueuedScene()
 #endif
         nextScene = queuedScene;
         frameDelay = false;
-        if(queuedParam != NULL)
-        {
-            nextSceneParam = queuedParam;
-        }
+        nextSceneParam = queuedParam;
     }
     else
     {
@@ -157,38 +146,33 @@ void SceneSwitcher::takeQueuedScene()
         log("Queued scene is the same as current : %s", formatSceneToString(queuedScene));
 #endif
         nextScene = None;
-        if(queuedParam != NULL)
-        {
-            queuedParam->release();
-        }
+        queuedParam.clear();
     }
     queuedScene = None;
-    queuedParam = NULL;
+    queuedParam.clear();
 }
 
 void SceneSwitcher::planSceneSwitch(EventCustom* event)
 {
-    CCDictionary* infos = (CCDictionary*)event->getUserData();
+    ValueMap infos = ((Value*)event->getUserData())->asValueMap();
     if(!processingSwitch && nextScene == None)
     {
         //Unbind all async texture load: since the scene will be replaced, the image won't need their new texture
         Director::getInstance()->getTextureCache()->unbindAllImageAsync();
-        nextScene = (SceneName) ((CCInteger*) infos->objectForKey("Scene"))->getValue();
+        nextScene = (SceneName) infos["Scene"].asInt();
 #if VERBOSE_GENERAL_INFO
         log("Planning Scene Switch to %s", formatSceneToString(nextScene));
 #endif
         frameDelay = false;
-        nextSceneParam = CCDictionary::createWithDictionary(infos);
-        nextSceneParam->retain();
+        nextSceneParam = ValueMap(infos);
         processingSwitch = true;
         isEventFired = false;
         keyboardLock = InputLabel::preventKeyboardOpen();
     }
     else
     {
-        queuedScene = (SceneName) ((CCInteger*) infos->objectForKey("Scene"))->getValue();
-        queuedParam = CCDictionary::createWithDictionary(infos);
-        queuedParam->retain();
+        queuedScene = (SceneName) infos["Scene"].asInt();
+        queuedParam = ValueMap(infos);
 #if VERBOSE_GENERAL_INFO
         log("Queuing scene change as a scene switch is already happening");
 #endif
@@ -254,14 +238,11 @@ void SceneSwitcher::replaceScene()
         {
             Director::getInstance()->replaceScene(currentScene->getCocosScene());
         }
-        if(nextSceneParam != NULL)
-        {
-            nextSceneParam->release();
-            nextSceneParam = NULL;
-        }
+        nextSceneParam.clear();
         currentSceneName = nextScene;
         this->takeQueuedScene();
-        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("SceneSwitched", DcreateP(Icreate(currentSceneName), Screate("Scene"), NULL));
+        Value infos = Value(ValueMap({{"Scene", Value(currentSceneName)}}));
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("SceneSwitched", &infos);
     }
     else
     {

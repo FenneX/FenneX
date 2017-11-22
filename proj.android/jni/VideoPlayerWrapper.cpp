@@ -35,7 +35,7 @@ VideoPlayer::VideoPlayer(std::string file, CCPoint position, CCSize size, bool f
     bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"initVideoPlayer", "(Ljava/lang/String;FFFFZZ)V");
     CCAssert(functionExist, "Function doesn't exist");
     
-    CCLOG("VideoPlayer: file = %s, position.x = %f, position.y = %f, size.height = %f, position.width = %f, front = %i", file.c_str(), position.x, position.y, size.height, size.width, front);
+    log("VideoPlayer: file = %s, position.x = %f, position.y = %f, size.height = %f, position.width = %f, front = %i", file.c_str(), position.x, position.y, size.height, size.width, front);
     jstring jFile = minfo.env->NewStringUTF(file.c_str());
     
     minfo.env->CallStaticVoidMethod(minfo.classID,
@@ -214,7 +214,7 @@ CCSize VideoPlayer::getVideoSize(const std::string& path)
     JniMethodInfo minfo;
     bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"getVideoSize", "(Ljava/lang/String;)[F");
     CCAssert(functionExist, "Function doesn't exist");
-    CCLOG("path is: %s", path.c_str());
+    log("path is: %s", path.c_str());
     jstring stringArg = minfo.env->NewStringUTF(path.c_str());
     jfloatArray result = (jfloatArray)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID, stringArg);
     minfo.env->DeleteLocalRef(minfo.classID);

@@ -125,7 +125,6 @@ public:
     
     //Convenience method for DelayedDispatcher::funcAfterDelay method. Will check the type before passing.
     void destroyObjectEvent(EventCustom* event);
-    void destroyObjectsEvent(EventCustom* event);
     
     /**********************************************************************************
      Methods to retrieve objects

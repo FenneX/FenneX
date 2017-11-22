@@ -37,16 +37,6 @@ bool containsNumber(int* array, int number, int count)
     return false;
 }
 
-bool containsNumber(CCArray* array, int number)
-{
-    for(int j = 0; j < array->count(); j++)
-    {
-        if(number == TOINT(array->objectAtIndex(j)))
-            return true;
-    }
-    return false;
-}
-
 void randomWithoutRetake(int* array, int count, int max)
 {
     int actualCount = max != -1 ? (count > max ? max : count) : count;

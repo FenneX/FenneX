@@ -428,7 +428,7 @@ RawObject* GraphicLayer::duplicateObject(RawObject* otherObject)
     else if(isKindOfClass(otherObject, CustomObject) && isKindOfClass(otherObject->getNode(), ui::Scale9Sprite))
     {
         ui::Scale9Sprite* otherNode = (ui::Scale9Sprite*)otherObject->getNode();
-        ui::Scale9Sprite* node = ui::Scale9Sprite::create(TOCSTRING(otherObject->getEventInfos()->objectForKey("spriteFrame")), Rect(0, 0, 0, 0), otherNode->getCapInsets());
+        ui::Scale9Sprite* node = ui::Scale9Sprite::create(otherObject->getEventInfos()["spriteFrame"].asString(), Rect(0, 0, 0, 0), otherNode->getCapInsets());
         node->setPosition(otherNode->getPosition());
         node->setPreferredSize(otherNode->getPreferredSize());
         node->setAnchorPoint(otherNode->getAnchorPoint());
@@ -620,35 +620,6 @@ void GraphicLayer::destroyObjectEvent(EventCustom* event)
         else
         {
             log("Warning : sent a non RawObject to destroyObject, ignoring it");
-        }
-#endif
-    }
-}
-void GraphicLayer::destroyObjectsEvent(EventCustom* event)
-{
-    if(event != NULL && event->getUserData() != NULL)
-    {
-        if(isKindOfClass((Ref*)event->getUserData(), CCArray))
-        {
-            CCArray* array = (CCArray*)event->getUserData();
-            for(long i = 0; i < array->count(); i++)
-            {
-                if(isKindOfClass(array->objectAtIndex(i), RawObject))
-                {
-                    this->destroyObject((RawObject*)array->objectAtIndex(i));
-                }
-#if VERBOSE_WARNING
-                else
-                {
-                    log("Warning : array contains non RawObject in destroyObjects, ignoring that value");
-                }
-#endif
-            }
-        }
-#if VERBOSE_WARNING
-        else
-        {
-            log("Warning : sent a non CCArray to destroyObjects, ignoring it");
         }
 #endif
     }
@@ -1114,20 +1085,23 @@ bool GraphicLayer::touchObject(RawObject* obj, bool event, Vec2 position)
     {
         if(event)
         {
-            CCDictionary* infos = obj->getEventInfos();
-            infos->setObject(Pcreate(position), "TouchPosition");
-            Director::getInstance()->getEventDispatcher()->dispatchCustomEvent(obj->getEventName(), infos);
-            CCString* trackingName = (CCString*)obj->getEventInfos()->objectForKey("TrackingName");
+            ValueMap infos = obj->getEventInfos();
+            infos["TouchPositionX"] = Value(position.x);
+            infos["TouchPositionY"] = Value(position.y);
+            Value val = Value(infos);
+            Director::getInstance()->getEventDispatcher()->dispatchCustomEvent(obj->getEventName(), &val);
             //In VideoView, buttons are only tracked if the video meet the minimum duration
-            if(trackingName != NULL)
+            if(isValueOfType(obj->getEventInfos()["TrackingName"], STRING))
             {
-                CCString* trackingInfo = (CCString*) obj->getEventInfos()->objectForKey("TrackingInfo");
-                if(trackingInfo != NULL)
+                std::string trackingName = obj->getEventInfos()["TrackingName"].asString();
+                std::string trackingInfo = "";
+                if(isValueOfType(obj->getEventInfos()["TrackingInfo"], STRING))
                 {
-                    trackingInfo = (CCString*) obj->getEventInfos()->objectForKey(trackingInfo->getCString());
+                    trackingInfo = obj->getEventInfos()["TrackingInfo"].asString();
+                    trackingInfo = isValueOfType(obj->getEventInfos()[trackingInfo], STRING) ? obj->getEventInfos()[trackingInfo].asString() : "";
                 }
-                CCString* trackingLabel = (CCString*) obj->getEventInfos()->objectForKey("TrackingLabel");
-                AnalyticsWrapper::logEvent(trackingName->_string, trackingInfo != NULL ? trackingInfo->getCString() : trackingLabel != NULL ? trackingLabel->_string : "");
+                std::string trackingLabel = isValueOfType(obj->getEventInfos()["TrackingLabel"], STRING) ? obj->getEventInfos()["TrackingLabel"].asString() : "";
+                AnalyticsWrapper::logEvent(trackingName, !trackingInfo.empty() ? trackingInfo : !trackingLabel.empty() ? trackingLabel : "");
             }
         }
         return true;
@@ -1368,7 +1342,7 @@ void GraphicLayer::loadBaseNodeAttributes(CustomBaseNode* node, RawObject* obj)
 #if VERBOSE_LOAD_CCB
             log("setting scene : %d", node->getScene());
 #endif
-            obj->setEventInfo(Icreate(node->getScene()), "Scene");
+            obj->setEventInfo("Scene", Value(node->getScene()));
         }
         if(node->getZindex() != 0)
         {

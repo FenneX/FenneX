@@ -73,7 +73,7 @@ bool pickFile();
 
 static inline void notifyFilePicked(std::string fullPath)
 {
-    DelayedDispatcher::eventAfterDelay("FilePicked", DcreateP(Screate(fullPath), Screate("Path"), NULL), 0.01);
+    DelayedDispatcher::eventAfterDelay("FilePicked", Value(ValueMap({{"Path", Value(fullPath)}})), 0.01);
 }
 
 #endif

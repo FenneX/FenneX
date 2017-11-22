@@ -144,7 +144,7 @@ int getApplicationVersion(const std::string& packageName);
 //On Android, they are always on
 static inline void notifyVolumeChanged()
 {
-	DelayedDispatcher::eventAfterDelay("VolumeChanged", DcreateP(Fcreate(getDeviceVolume()), Screate("Volume"), NULL), 0.01);
+	DelayedDispatcher::eventAfterDelay("VolumeChanged", Value(ValueMap({{"Volume", Value(getDeviceVolume())}})), 0.01);
 }
 
 inline void notifyMemoryWarning(){
@@ -155,7 +155,7 @@ inline void notifyMemoryWarning(){
 
 static inline void notifyUrlOpened(std::string url)
 {
-    DelayedDispatcher::eventAfterDelay("UrlOpened", DcreateP(Screate(url.c_str()), Screate("Url"), NULL), 0.01);
+    DelayedDispatcher::eventAfterDelay("UrlOpened", Value(ValueMap({{"Url", Value(url.c_str())}})), 0.01);
 }
 
 NS_FENNEX_END

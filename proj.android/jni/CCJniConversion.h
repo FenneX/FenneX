@@ -30,19 +30,10 @@ THE SOFTWARE.
 #include "platform/android/jni/JniHelper.h"
 
 //Warning: you must DeleteLocalRef the result jobjectArray once it's used
-jobjectArray jobjectArrayFromCCDictionary(JNIEnv *pEnv, cocos2d::CCDictionary * ccDictionary);
-jobjectArray jobjectArrayFromCCArray(JNIEnv *pEnv, cocos2d::CCArray * ccArray);
+jobjectArray jobjectArrayFromMap(JNIEnv *pEnv, ValueMap map);
 jobjectArray jobjectArrayFromStringVector(JNIEnv *pEnv, std::vector<std::string> vector);
 
-/*You can force a specific type with :
- * [Str]
- * [Int]
- * [Flo]
- * [Boo]
- */
-CCDictionary* CCDictionaryFromjobjectArray(JNIEnv *pEnv, jobjectArray array);
 ValueMap MapFromjobjectArray(JNIEnv *pEnv, jobjectArray array);
-CCArray* CCArrayFromjobjectArray(JNIEnv *pEnv, jobjectArray array);
 std::vector<std::string> StringVectorFromjobjectArray(JNIEnv *pEnv, jobjectArray array);
 
 #endif

@@ -87,25 +87,19 @@ void AudioPlayerRecorder::stopAll()
 
 void AudioPlayerRecorder::playObject(EventCustom* event)
 {
-    CCDictionary* infos = (CCDictionary*)event->getUserData();
-    Ref* linkTo = infos->objectForKey("Object");
-    CCString* file = (CCString*) infos->objectForKey("File");
-    if(linkTo == NULL)
+    ValueMap infos = ((Value*)event->getUserData())->asValueMap();
+    RawObject* linkTo = NULL;
+    if(isValueOfType(infos["Object"], INTEGER))
     {
-        linkTo = infos->objectForKey("Sender");
-        if(isKindOfClass(linkTo, CCInteger))
-        {
-            RawObject* target = GraphicLayer::sharedLayer()->first(TOINT(linkTo));
-            if(target != NULL) linkTo = target;
-        }
+        linkTo = GraphicLayer::sharedLayer()->first(infos["Object"].asInt());
     }
-    if(linkTo == NULL)
+    if(isValueOfType(infos["Sender"], INTEGER))
     {
-        linkTo = noLinkObject;
+        linkTo = GraphicLayer::sharedLayer()->first(infos["Sender"].asInt());
     }
-    if(file != NULL)
+    if(isValueOfType(infos["File"], STRING))
     {
-        this->play(file->_string, linkTo);
+        this->play(infos["File"].asString(), linkTo);
     }
 }
 
@@ -116,16 +110,16 @@ void AudioPlayerRecorder::recordObject(EventCustom* event)
     {
         this->stopPlaying();
     }
-    CCDictionary* infos = (CCDictionary*)event->getUserData();
-    Ref* linkTo = infos->objectForKey("Object");
-    CCString* oldFile = (CCString*) infos->objectForKey("File");
-    if(linkTo == NULL)
+    ValueMap infos = ((Value*)event->getUserData())->asValueMap();
+    RawObject* linkTo = NULL;
+    
+    if(isValueOfType(infos["Object"], INTEGER))
     {
-        linkTo = infos->objectForKey("Sender");
+        linkTo = GraphicLayer::sharedLayer()->first(infos["Object"].asInt());
     }
-    if(linkTo == NULL)
+    if(isValueOfType(infos["Sender"], INTEGER))
     {
-        linkTo = noLinkObject;
+        linkTo = GraphicLayer::sharedLayer()->first(infos["Sender"].asInt());
     }
     
     time_t rawtime;
@@ -143,8 +137,12 @@ void AudioPlayerRecorder::recordObject(EventCustom* event)
     
     if(!file.empty())
     {
+        std::string oldFile = infos["File"].asString();
         this->record(file, linkTo);
-        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("RecordingStarted", DcreateP(linkTo, Screate("Object"), oldFile, Screate("OldFile"), NULL));
+        ValueMap map = {{"OldFile", Value(oldFile)}};
+        if(linkTo != NULL) map["Object"] = linkTo->getID();
+        Value toSend = Value(map);
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("RecordingStarted", &toSend);
     }
 }
 
@@ -193,7 +191,7 @@ void AudioPlayerRecorder::onSoundEnded()
                 {
                     this->restart();
                 }
-            }, NULL, pauseBetween);
+            }, Value(), pauseBetween);
         }
         if(loops != -1)
         {
@@ -203,7 +201,7 @@ void AudioPlayerRecorder::onSoundEnded()
     else
     {
         pauseBetween = 0;
-        DelayedDispatcher::eventAfterDelay("PlayingSoundEnded", Dcreate(), 0.01);
+        DelayedDispatcher::eventAfterDelay("PlayingSoundEnded", Value(), 0.01);
     }
 }
 

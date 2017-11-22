@@ -152,7 +152,12 @@ static InAppPurchaseManager* _sharedManager = nil;
 	NSLog(@"Product purchased : %@", transaction.payment.productIdentifier);
     NSString* number = [transaction.payment.productIdentifier substringFromSet:[NSCharacterSet decimalDigitCharacterSet]
                                                            options:NSBackwardsSearch|NSAnchoredSearch];
-    Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ProductPurchased", DcreateP(ScreateF("%s", [transaction.payment.productIdentifier UTF8String]), Screate("ProductID"), Icreate([number intValue]), Screate("Number"), Screate([[self getAppleReceipt] UTF8String]), Screate("PurchaseToken"), Screate("Purchase successful"), Screate("Reason"), NULL));
+    
+    Value toSend = Value(ValueMap({{"ProductID", Value([transaction.payment.productIdentifier UTF8String])},
+                                   {"Number", Value([number intValue])},
+                                   {"PurchaseToken", Value([[self getAppleReceipt] UTF8String])},
+                                   {"Reason", Value("Purchase successful")}}));
+    Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ProductPurchased", &toSend);
     //[[NSNotificationCenter defaultCenter] postNotificationName:@"ProductPurchased" object:transaction.payment.productIdentifier];
     [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
 	
@@ -165,26 +170,34 @@ static InAppPurchaseManager* _sharedManager = nil;
     [self recordTransaction: transaction];
 	NSLog(@"Product restored : %@", transaction.originalTransaction.payment.productIdentifier);
     
-    Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ProductRestored", DcreateP(ScreateF("%s", [transaction.payment.productIdentifier UTF8String]), Screate("ProductID"), Screate([[self getAppleReceipt] UTF8String]), Screate("PurchaseToken"), Screate("Restore purchase successful"), Screate("Reason"), NULL));
+    Value toSend = Value(ValueMap({{"ProductID", Value([transaction.payment.productIdentifier UTF8String])},
+        {"PurchaseToken", Value([[self getAppleReceipt] UTF8String])},
+        {"Reason", Value("Restore purchase successful")}}));
+    Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ProductRestored", &toSend);
     //[[NSNotificationCenter defaultCenter] postNotificationName:@"ProductRestored" object:transaction.originalTransaction.payment.productIdentifier];
     [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
 	
 }
 
 - (void)failedTransaction:(SKPaymentTransaction *)transaction {
-	
+    
+    ValueMap infos = {{"ProductID", Value([transaction.payment.productIdentifier UTF8String])},
+                      {"PurchaseToken", Value([[self getAppleReceipt] UTF8String])}};
     if (transaction.error.code != SKErrorPaymentCancelled)
     {
 		//[[NSNotificationCenter defaultCenter] postNotificationName:@"ErrorTransactionFailure" object:self userInfo:[NSDictionary dictionaryWithObject:transaction.error.localizedDescription forKey:@"Description"]];
         
-        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ErrorTransactionFailure", DcreateP(ScreateF("%s", [transaction.payment.productIdentifier UTF8String]), Screate("ProductID"), Screate([[self getAppleReceipt] UTF8String]), Screate("PurchaseToken"), Screate(std::string("Transaction error: ") + [transaction.error.localizedDescription UTF8String] + ", code: " + std::to_string(transaction.error.code)), Screate("Reason"), NULL));
+        infos["Reason"] = Value(std::string("Transaction error: ") + [transaction.error.localizedDescription UTF8String] + ", code: " + std::to_string(transaction.error.code));
+        Value toSend = Value(infos);
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ErrorTransactionFailure",&toSend);
         NSLog(@"Transaction error: %@, code: %ld", transaction.error.localizedDescription, (long)transaction.error.code);
     }
 	else 
 	{
 		//[[NSNotificationCenter defaultCenter] postNotificationName:@"PayementCanceledTransactionFailure" object:self userInfo:nil];
-        
-        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("PayementCanceledTransactionFailure", DcreateP(ScreateF("%s", [transaction.payment.productIdentifier UTF8String]), Screate("ProductID"), Screate([[self getAppleReceipt] UTF8String]), Screate("PurchaseToken"), Screate("Purchase cancelled by user"), Screate("Reason"), NULL));
+        infos["Reason"] = Value("Purchase cancelled by user");
+        Value toSend = Value(infos);
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("PayementCanceledTransactionFailure", &toSend);
 	}
 	
     [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
@@ -226,7 +239,9 @@ static InAppPurchaseManager* _sharedManager = nil;
             if (!isConnected())
             {
                 //[[NSNotificationCenter defaultCenter] postNotificationName:@"NoConnectionTransactionFailure" object:self userInfo:nil];
-                Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("NoConnectionTransactionFailure", DcreateP(ScreateF("%s", [productIdentifier UTF8String]), Screate("ProductID"), Screate("No connection"), Screate("Reason"), NULL));
+                
+                Value toSend = Value(ValueMap({{"ProductID", Value([productIdentifier UTF8String])}, {"Reason", Value("No connection")}}));
+                Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("NoConnectionTransactionFailure", &toSend);
             }
             else
             {
@@ -237,7 +252,8 @@ static InAppPurchaseManager* _sharedManager = nil;
         else
         {
             //[[NSNotificationCenter defaultCenter] postNotificationName:@"CantPayTransactionFailure" object:self userInfo:nil];
-            Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("CantPayTransactionFailure", DcreateP(ScreateF("%s", [productIdentifier UTF8String]), Screate("ProductID"), Screate("Payement disabled on this device"), Screate("Reason"), NULL));
+            Value toSend = Value(ValueMap({{"ProductID", Value([productIdentifier UTF8String])}, {"Reason", Value("Payement disabled on this device")}}));
+            Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("CantPayTransactionFailure", &toSend);
         }
 	}
     else
@@ -245,7 +261,8 @@ static InAppPurchaseManager* _sharedManager = nil;
         NSLog(@"Invalid product identifier");
 		//[[NSNotificationCenter defaultCenter] postNotificationName:@"ErrorTransactionFailure" object:self userInfo:[NSDictionary dictionaryWithObject:@"Internal error" forKey:@"Description"]];
         
-        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ErrorTransactionFailure", DcreateP(ScreateF("%s", [productIdentifier UTF8String]), Screate("ProductID"), Screate("Invalid product identifier"), Screate("Reason"), NULL));
+        Value toSend = Value(ValueMap({{"ProductID", Value([productIdentifier UTF8String])}, {"Reason", Value("Invalid product identifier")}}));
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ErrorTransactionFailure", &toSend);
     }
 }
 

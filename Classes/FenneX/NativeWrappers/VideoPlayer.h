@@ -83,27 +83,27 @@ private:
 
 static inline void notifyVideoDurationAvailable(std::string path, float duration)
 {
-    DelayedDispatcher::eventAfterDelay("VideoDurationAvailable", DcreateP(Screate(path), Screate("Path"), Fcreate(duration), Screate("Duration"), NULL), 0.01);
+    DelayedDispatcher::eventAfterDelay("VideoDurationAvailable", Value(ValueMap({{"Path", Value(path)}, {"Duration", Value(duration)}})), 0.01);
 }
 
 static inline void notifyVideoEnded(std::string path)
 {
-    DelayedDispatcher::eventAfterDelay("VideoEnded", DcreateP(Screate(path), Screate("Path"), NULL), 0.01);
+    DelayedDispatcher::eventAfterDelay("VideoEnded", Value(ValueMap({{"Path", Value(path)}})), 0.01);
 }
 
 static inline void notifyVideoError(std::string path)
 {
-    DelayedDispatcher::eventAfterDelay("VideoError", DcreateP(Screate(path), Screate("Path"), NULL), 0.01);
+    DelayedDispatcher::eventAfterDelay("VideoError", Value(ValueMap({{"Path", Value(path)}})), 0.01);
 }
 
 static inline void notifyVideoExists(std::string path)
 {
-    DelayedDispatcher::eventAfterDelay("VideoExists", DcreateP(Screate(path), Screate("Path"), NULL), 0.01);
+    DelayedDispatcher::eventAfterDelay("VideoExists", Value(ValueMap({{"Path", Value(path)}})), 0.01);
 }
 
 static inline void notifyVideoRemoved(std::string path)
 {
-    DelayedDispatcher::eventAfterDelay("VideoRemoved", DcreateP(Screate(path), Screate("Path"), NULL), 0.01);
+    DelayedDispatcher::eventAfterDelay("VideoRemoved", Value(ValueMap({{"Path", Value(path)}})), 0.01);
 }
 
 #endif /* defined(__FenneX__VideoPlayer__) */

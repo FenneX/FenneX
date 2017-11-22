@@ -399,9 +399,10 @@ bool Image::generateScaledImage(std::string fileToScale, std::string fileToSave,
                               [fileToScale, fileToSave, extension] (RenderTexture* texture, const std::string& filename){
                                   //DO NOT USE FILENAME. It is corrupted on iOS. Use lambda capture instead.
                                   Director::getInstance()->getTextureCache()->removeTextureForKey(fileToSave + extension);
-                                  Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ImageScaled", DcreateP(Screate(fileToScale), Screate("Original"), Screate(fileToSave), Screate("Name"), NULL));
+                                  Value toSend = Value(ValueMap({{"Original", Value(fileToScale)}, {"Name", Value(fileToSave)}}));
+                                  Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ImageScaled", &toSend);
                               });
-    }, NULL, 0.01);
+    }, Value(), 0.01);
     return true;
 }
 NS_FENNEX_END

@@ -403,12 +403,12 @@ void linkInputLabels()
                 input->setFontSize(input->getOriginalInfos()->getFontSize());
             }
         }
-        if((isKindOfClass(child, DropDownList)) && child->getEventInfos()->objectForKey("LinkTo") != NULL && isKindOfClass(child->getEventInfos()->objectForKey("LinkTo"), CCString))
+        if((isKindOfClass(child, DropDownList)) && isValueOfType(child->getEventInfos()["LinkTo"], STRING))
         {
             DropDownList* dropDownList = (DropDownList*)child;
             if(dropDownList->getLinkTo() == NULL)
             {
-                std::string linkTo = ((CCString*)child->getEventInfos()->objectForKey("LinkTo"))->getCString();
+                std::string linkTo = child->getEventInfos()["LinkTo"].asString();
                 Panel* parent = layer->getContainingPanel(dropDownList);
                 for(RawObject* obj : parent != NULL ? parent->getChildren() : layer->all())
                 {

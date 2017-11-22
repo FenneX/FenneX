@@ -147,9 +147,9 @@ bool Panel::collision(Vec2 point)
     {
         return true;
     }
-    else if(isKindOfClass(eventInfos->objectForKey("InfiniteScrolling"), CCBool) && TOBOOL(eventInfos->objectForKey("InfiniteScrolling")))
+    else if(isValueOfType(eventInfos["InfiniteScrolling"], BOOLEAN) && eventInfos["InfiniteScrolling"].asBool())
     {
-        bool vertical = isKindOfClass(eventInfos->objectForKey("isVertical"), CCBool) && TOBOOL(eventInfos->objectForKey("isVertical"));
+        bool vertical = isValueOfType(eventInfos["isVertical"], BOOLEAN) && eventInfos["isVertical"].asBool();
         if(vertical
            && point.x > this->getPosition().x - this->getSize().width * this->getNode()->getAnchorPoint().x  * this->getScaleX()
            && point.x < this->getPosition().x + this->getSize().width * (1-this->getNode()->getAnchorPoint().x)  * this->getScaleX())

@@ -34,6 +34,7 @@ USING_NS_CC;
 #include "GenericRecognizer.h"
 #include "Image.h"
 #include "FenneXMacros.h"
+#include "TapRecognizer.h"
 
 #define LAYER (GraphicLayer::sharedLayer())
 #define ADD_OBSERVER(func, notifName) (eventListeners.pushBack(Director::getInstance()->getEventDispatcher()->addCustomEventListener(notifName, std::bind(&func, this, std::placeholders::_1))))
@@ -41,7 +42,7 @@ USING_NS_CC;
 
 NS_FENNEX_BEGIN
 //Warning : it is mandatory to stop() a scene before stopping using it, because there is a cyclic reference
-class Scene : public Pausable, public Layer
+class Scene : public Pausable, public Layer, public TapDelegate
 {
     CC_SYNTHESIZE(SceneName, sceneName, SceneName);
     CC_SYNTHESIZE_READONLY(cocos2d::Scene*, delegate, CocosScene);
@@ -49,12 +50,12 @@ class Scene : public Pausable, public Layer
     CC_SYNTHESIZE_READONLY_PASS_BY_REF(Vector<GenericRecognizer*>, touchReceiversList, TouchReceiversList);
     //TODO : add touchlinker
     CC_SYNTHESIZE_READONLY(float, currentTime, CurrentTime);
-    CC_SYNTHESIZE_READONLY(CCDictionary*, parameters, Parameters);
+    CC_SYNTHESIZE_READONLY(ValueMap, parameters, Parameters);
 public:
-    Scene(SceneName identifier, CCDictionary* parameters);
+    Scene(SceneName identifier, ValueMap parameters);
     virtual ~Scene();
     
-    static Scene* createScene(SceneName name, CCDictionary* param);
+    static Scene* createScene(SceneName name, ValueMap param);
     
     virtual void update(float deltaTime);
     virtual void pause();
@@ -70,7 +71,7 @@ public:
     void switchButton(Image* obj, bool state, Touch* touch = NULL);
     
     
-    void tapRecognized(EventCustom* event);
+    virtual void tapRecognized(Touch* touch);
     void dropAllTouches(EventCustom* event);
     
     //Pausable will be retain/released if they are of type Ref*
@@ -105,7 +106,6 @@ protected:
     int frameNumber;
     EventListenerTouchOneByOne* touchListener;
     EventListenerKeyboard* keyboardListener;
-    EventListenerCustom* tapListener;
     EventListenerCustom* appWillResignListener;
     
     Vector<EventListenerCustom*> eventListeners;
