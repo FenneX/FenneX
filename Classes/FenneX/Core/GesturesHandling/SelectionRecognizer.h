@@ -31,6 +31,15 @@ USING_NS_CC;
 #include "FenneXMacros.h"
 
 NS_FENNEX_BEGIN
+
+class SelectionDelegate
+{
+public:
+    virtual void selectionRecognized(Touch* touch, RawObject* target) = 0;
+    virtual void selectionStarted(Touch* touch) {};
+    virtual void selectionMoved(Touch* touch) {};
+    virtual void selectionCanceled(Touch* touch, Vec2 origin, RawObject* target = NULL) {};
+};
 /*Send events (they all contains the Touch):
  - SelectionStarted
  - SelectionMoved
@@ -50,12 +59,16 @@ public:
     virtual void cleanTouches();
     bool isTouchInSelection(Touch *touch);
     void cancelSelectionForTouch(Touch *touch);
+    
+    void addDelegate(SelectionDelegate* delegate);
+    void removeDelegate(SelectionDelegate* delegate);
 protected:
     void init();
     
 protected:
     std::map<int, Vec2> storedTouches;//key : touch ID, value : origin
     void checkForSelection(EventCustom* event);
+    std::vector<SelectionDelegate*> delegates;
 };
 NS_FENNEX_END
 
