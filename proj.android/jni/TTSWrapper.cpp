@@ -152,7 +152,7 @@ std::string getTTSEngineName()
     for(int i = 0;i < count; i++) {
         //Run through the array, retrieve each type and set it in a vector
         jobjectArray elementArray = (jobjectArray)minfo.env->GetObjectArrayElement(dataArray, i);
-        jsize elementCount = minfo.env->GetArrayLength(dataArray);
+        jsize elementCount = minfo.env->GetArrayLength(elementArray);
         std::vector<std::string> elementString;
         for(int j = 0;j < elementCount; j++) {
             jobject element = minfo.env->GetObjectArrayElement(elementArray, j);
