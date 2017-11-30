@@ -173,15 +173,6 @@ protected:
     void downloadAndUncompress();
 
 private:
-    /** @brief Initializes storage path.
-     */
-    void createStoragePath();
-    
-    /** @brief Destroys storage path.
-     */
-    void destroyStoragePath();
-    
-private:
     //! The path to store downloaded resources.
     std::string _storagePath;
     

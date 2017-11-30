@@ -647,45 +647,4 @@ AssetsManager* AssetsManager::create(const char* packageUrl, const char* version
     return manager;
 }
 
-void AssetsManager::createStoragePath()
-{
-    // Remove downloaded files
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
-    FileUtils::getInstance()->createDirectory(_storagePath.c_str());
-#elif (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
-    if ((GetFileAttributesA(_storagePath.c_str())) == INVALID_FILE_ATTRIBUTES)
-    {
-        CreateDirectoryA(_storagePath.c_str(), 0);
-    }
-#else
-    DIR *dir = nullptr;
-    dir = opendir (_storagePath.c_str());
-    if (!dir)
-    {
-        mkdir(_storagePath.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
-    }
-#endif
-}
-
-void AssetsManager::destroyStoragePath()
-{
-    // Delete recorded version codes.
-    deleteVersion();
-    
-    // Remove downloaded files
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
-    FileUtils::getInstance()->removeDirectory(_storagePath.c_str());
-#elif (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
-    string command = "rd /s /q ";
-    // Path may include space.
-    command += "\"" + _storagePath + "\"";
-    system(command.c_str());
-#else
-    string command = "rm -r ";
-    // Path may include space.
-    command += "\"" + _storagePath + "\"";
-    system(command.c_str());    
-#endif
-}
-
 NS_CC_EXT_END;
