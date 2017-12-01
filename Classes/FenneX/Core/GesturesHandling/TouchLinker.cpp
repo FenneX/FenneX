@@ -135,4 +135,14 @@ long TouchLinker::count()
 {
     return touches.size();
 }
+
+Touch* TouchLinker::getTouch(int index)
+{
+    for(Touch* touch : touches)
+    {
+        if(touch->getID() == index) return touch;
+    }
+    return NULL;
+}
+
 NS_FENNEX_END

@@ -55,6 +55,8 @@ public:
     //return all objects, without duplicate
     Vector<RawObject*> allObjects();
     long count();
+    
+    Touch* getTouch(int index);
 protected:
     Map<int, RawObject*> touchLinker;
     Vector<Touch*> touches;
