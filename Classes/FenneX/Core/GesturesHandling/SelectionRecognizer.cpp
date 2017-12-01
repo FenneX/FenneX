@@ -55,7 +55,7 @@ void SelectionRecognizer::init()
 bool SelectionRecognizer::onTouchBegan(Touch *touch, Event *pEvent)
 {
     storedTouches.insert(std::make_pair(touch->getID(), Scene::touchPosition(touch)));
-    DelayedDispatcher::funcAfterDelay(std::bind(&SelectionRecognizer::checkForSelection, this, std::placeholders::_1), Value(touch), duration);
+    DelayedDispatcher::funcAfterDelay(std::bind(&SelectionRecognizer::checkForSelection, this, std::placeholders::_1), Value(touch->getID()), duration);
     for(SelectionDelegate* delegate : delegates)
     {
         delegate->selectionStarted(touch);
@@ -111,9 +111,9 @@ void SelectionRecognizer::cancelSelectionForTouch(Touch* touch)
 
 void SelectionRecognizer::checkForSelection(EventCustom* event)
 {
-    Touch* touch = (Touch*)event->getUserData();
+    Touch* touch = mainLinker->getTouch(((Value*)event->getUserData())->asInt());
     //the touch could have been discarded in the meantime
-    if(isTouchInSelection(touch))
+    if(touch != NULL && isTouchInSelection(touch))
     {
         Vec2 currentLocation = Scene::touchPosition(touch);
         Vec2 touchOrigin = storedTouches.at(touch->getID());

@@ -36,9 +36,9 @@ class SelectionDelegate
 {
 public:
     virtual void selectionRecognized(Touch* touch, RawObject* target) = 0;
-    virtual void selectionStarted(Touch* touch) {};
-    virtual void selectionMoved(Touch* touch) {};
-    virtual void selectionCanceled(Touch* touch, Vec2 origin, RawObject* target = NULL) {};
+    virtual void selectionStarted(Touch* touch) = 0;
+    virtual void selectionMoved(Touch* touch) = 0;
+    virtual void selectionCanceled(Touch* touch, Vec2 origin, RawObject* target = NULL) = 0;
 };
 /*Send events (they all contains the Touch):
  - SelectionStarted
