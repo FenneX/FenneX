@@ -165,14 +165,4 @@ Vec2 ScrollingRecognizer::offsetFromLastPosition(RawObject* target)
     return currentPosition - previousPosition;
 }
 
-void ScrollingRecognizer::addDelegate(ScrollingDelegate* delegate)
-{
-    if(std::find(delegates.begin(), delegates.end(), delegate) == delegates.end()) delegates.push_back(delegate);
-}
-
-void ScrollingRecognizer::removeDelegate(ScrollingDelegate* delegate)
-{
-    delegates.erase(std::remove(delegates.begin(), delegates.end(), delegate), delegates.end());
-}
-
 NS_FENNEX_END

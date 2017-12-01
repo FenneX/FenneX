@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 #include "cocos2d.h"
 USING_NS_CC;
-#include "GenericRecognizer.h"
+#include "DelegatingRecognizer.h"
 #include "Pausable.h"
 #include "FenneXMacros.h"
 
@@ -48,7 +48,7 @@ public:
 //ScrollingRecognizer responds better in a real multi-touch context if every touch is linked to its target receiver, using mainLinker from super
 //it will not change any link on this linker
 //You need to subscribe to the recognizer by adding a delegate
-class ScrollingRecognizer : public GenericRecognizer, public Pausable
+class ScrollingRecognizer : public DelegatingRecognizer<ScrollingDelegate>, public Pausable
 {
 public:
     static ScrollingRecognizer* sharedRecognizer(void);
@@ -61,8 +61,6 @@ public:
     virtual void update(float delta);
     void cancelRecognitionForTouch(Touch* touch);
     void adjustTargetPosition(Ref* obj);
-    void addDelegate(ScrollingDelegate* delegate);
-    void removeDelegate(ScrollingDelegate* delegate);
 private:
     std::map<int, Vec2> lastPositions;//key : touch ID, value : last position
     float lastScrollingNotificationTime;
@@ -71,8 +69,6 @@ private:
     //last indicate to use the lastPosition instead of Scene::touchPosition
     Vec2 positionWithTouches(Vector<Touch*> touches, bool last = false);
     Vec2 offsetFromLastPosition(RawObject* target);
-    
-    std::vector<ScrollingDelegate*> delegates;
 };
 
 NS_FENNEX_END

@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 #include "cocos2d.h"
 USING_NS_CC;
-#include "GenericRecognizer.h"
+#include "DelegatingRecognizer.h"
 #include "FenneXMacros.h"
 
 NS_FENNEX_BEGIN
@@ -40,7 +40,7 @@ public:
 
 //Doesn't need to be updated
 // You need to subscribe to the recognizer by adding a delegate (it'll launch the tapRecognized method)
-class TapRecognizer : public GenericRecognizer
+class TapRecognizer : public DelegatingRecognizer<TapDelegate>
 {
 public:
     static TapRecognizer* sharedRecognizer(void);
@@ -50,15 +50,12 @@ public:
     virtual void onTouchEnded(Touch *touch, Event *pEvent);
     virtual void cleanTouches();
     void cancelRecognitionForTouch(Touch* touch);
-    void addDelegate(TapDelegate* delegate);
-    void removeDelegate(TapDelegate* delegate);
 protected:
     void init();
     
 protected:
     std::map<int, float> touchStart;
     std::map<int, Vec2> touchInitialPosition;
-    std::vector<TapDelegate*> delegates;
 };
 NS_FENNEX_END
 

@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 #include "cocos2d.h"
 USING_NS_CC;
-#include "GenericRecognizer.h"
+#include "DelegatingRecognizer.h"
 #include "FenneXMacros.h"
 
 NS_FENNEX_BEGIN
@@ -46,7 +46,7 @@ public:
  - SelectionCanceled (also contains the Origin)
  - SelectionRecognized
  */
-class SelectionRecognizer : public GenericRecognizer
+class SelectionRecognizer : public DelegatingRecognizer<SelectionDelegate>
 {
     CC_SYNTHESIZE(float, maxMovement, MaxMovement);
     CC_SYNTHESIZE(float, duration, Duration);
@@ -59,9 +59,7 @@ public:
     virtual void cleanTouches();
     bool isTouchInSelection(Touch *touch);
     void cancelSelectionForTouch(Touch *touch);
-    
-    void addDelegate(SelectionDelegate* delegate);
-    void removeDelegate(SelectionDelegate* delegate);
+
 protected:
     void init();
     

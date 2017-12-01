@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 #include "cocos2d.h"
 USING_NS_CC;
-#include "GenericRecognizer.h"
+#include "DelegatingRecognizer.h"
 #include "FenneXMacros.h"
 
 NS_FENNEX_BEGIN
@@ -42,7 +42,7 @@ public:
 //support multi-touch context, and will ignore any touch linked in the given mainLinker
 //currently only recognize horizontal swipes
 // You need to subscribe to the recognizer by adding a delegate (it'll launch the swipeRecognized method)
-class SwipeRecognizer : public GenericRecognizer
+class SwipeRecognizer : public DelegatingRecognizer<SwipeDelegate>
 {
     CC_SYNTHESIZE(float, minSpeed, MinSpeed);
     CC_SYNTHESIZE(float, minMovement, MinMovement);
@@ -54,15 +54,12 @@ public:
     virtual void onTouchEnded(Touch *touch, Event *pEvent);
     virtual void cleanTouches();
     void cancelRecognitionForTouch(Touch *touch);
-    void addDelegate(SwipeDelegate* delegate);
-    void removeDelegate(SwipeDelegate* delegate);
 protected:
     void init();
     
 protected:
     std::map<int, float> touchStart;
     std::map<int, Vec2> touchInitialPosition;
-    std::vector<SwipeDelegate*> delegates;
     
 };
 NS_FENNEX_END

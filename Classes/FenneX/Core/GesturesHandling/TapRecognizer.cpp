@@ -99,14 +99,4 @@ void TapRecognizer::cancelRecognitionForTouch(Touch* touch)
     touchInitialPosition.erase(touch->getID());
 }
 
-void TapRecognizer::addDelegate(TapDelegate* delegate)
-{
-    if(std::find(delegates.begin(), delegates.end(), delegate) == delegates.end()) delegates.push_back(delegate);
-}
-
-void TapRecognizer::removeDelegate(TapDelegate* delegate)
-{
-    delegates.erase(std::remove(delegates.begin(), delegates.end(), delegate), delegates.end());
-}
-
 NS_FENNEX_END

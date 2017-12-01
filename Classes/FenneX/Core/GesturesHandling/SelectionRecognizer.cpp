@@ -137,13 +137,4 @@ void SelectionRecognizer::checkForSelection(EventCustom* event)
     }
 }
 
-void SelectionRecognizer::addDelegate(SelectionDelegate* delegate)
-{
-    if(std::find(delegates.begin(), delegates.end(), delegate) == delegates.end()) delegates.push_back(delegate);
-}
-
-void SelectionRecognizer::removeDelegate(SelectionDelegate* delegate)
-{
-    delegates.erase(std::remove(delegates.begin(), delegates.end(), delegate), delegates.end());
-}
 NS_FENNEX_END

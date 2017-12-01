@@ -106,14 +106,4 @@ void SwipeRecognizer::cancelRecognitionForTouch(Touch* touch)
     touchInitialPosition.erase(touch->getID());
 }
 
-void SwipeRecognizer::addDelegate(SwipeDelegate* delegate)
-{
-    if(std::find(delegates.begin(), delegates.end(), delegate) == delegates.end()) delegates.push_back(delegate);
-}
-
-void SwipeRecognizer::removeDelegate(SwipeDelegate* delegate)
-{
-    delegates.erase(std::remove(delegates.begin(), delegates.end(), delegate), delegates.end());
-}
-
 NS_FENNEX_END
