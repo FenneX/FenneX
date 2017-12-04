@@ -66,7 +66,6 @@ protected:
 protected:
     std::map<int, Vec2> storedTouches;//key : touch ID, value : origin
     void checkForSelection(EventCustom* event);
-    std::vector<SelectionDelegate*> delegates;
 };
 NS_FENNEX_END
 
