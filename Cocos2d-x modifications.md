@@ -119,4 +119,5 @@ Cocos2d-x V3.16 Modifications
 * cocos2d/ui/UIEditBox/UIEditBox.h/.cpp => add closeKeyboard()
 * cocos2d/ui/UIEditBox/UIEditBox.h/platform impl => add date and time pickers
 * cocos/ui/UIEditBox.cpp => add editBoxEditingWillBegin to UIEditBoxDelegate
+* remove cocos2d/web folder and cocos2d/templates folder
 
