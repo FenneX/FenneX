@@ -311,14 +311,6 @@ void loadNodeToFenneX(Node* baseNode, Panel* parent)
             Sprite* sprite = (Sprite*)node;
             result = layer->createDropDownListFromSprite(sprite, parent);
         }
-        else if(isKindOfClass(node, Sprite))
-        {
-#if VERBOSE_LOAD_CCB
-            log("image");
-#endif
-            Sprite* sprite = (Sprite*)node;
-            result = layer->createImageFromSprite(sprite, parent);
-        }
         else if(isKindOfClass(node, CustomInput))
         {
 #if VERBOSE_LOAD_CCB
@@ -353,6 +345,14 @@ void loadNodeToFenneX(Node* baseNode, Panel* parent)
 #endif
             ui::Scale9Sprite* sprite = (ui::Scale9Sprite*)node;
             result = layer->createCustomObjectFromNode(sprite, parent);
+        }
+        else if(isKindOfClass(node, Sprite))
+        {
+#if VERBOSE_LOAD_CCB
+            log("image");
+#endif
+            Sprite* sprite = (Sprite*)node;
+            result = layer->createImageFromSprite(sprite, parent);
         }
         else if(!isKindOfClass(node, ui::EditBox))
         {
