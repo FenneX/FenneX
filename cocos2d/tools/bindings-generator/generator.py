@@ -152,6 +152,7 @@ class NativeType(object):
         self.is_object = False
         self.is_function = False
         self.is_enum = False
+        self.is_numeric = False
         self.not_supported = False
         self.param_types = []
         self.ret_type = None
@@ -240,7 +241,7 @@ class NativeType(object):
                 nt.is_enum = ntype.get_canonical().kind == cindex.TypeKind.ENUM
 
                 if nt.name == "std::function":
-                    nt.namespaced_name = get_namespaced_name(cdecl)                    
+                    nt.namespaced_name = get_namespaced_name(cdecl)
                     r = re.compile('function<(.+) .*\((.*)\)>').search(cdecl.displayname)
                     (ret_type, params) = r.groups()
                     params = filter(None, params.split(", "))
@@ -252,6 +253,9 @@ class NativeType(object):
         # mark argument as not supported
         if nt.name == INVALID_NATIVE_TYPE:
             nt.not_supported = True
+
+        if re.search("(short|int|double|float|long|ssize_t)$", nt.name) != None:
+            nt.is_numeric = True;
 
         return nt
 
@@ -452,8 +456,6 @@ class NativeField(object):
 
     @staticmethod
     def can_parse(ntype):
-        if ntype.kind == cindex.TypeKind.POINTER:
-            return False
         native_type = NativeType.from_type(ntype)
         if ntype.kind == cindex.TypeKind.UNEXPOSED and native_type.name != "std::string":
             return False
@@ -541,9 +543,9 @@ class NativeFunction(object):
             ("\r\n", "\n"),
             ("\n(\s)*\*", "\n"),
             ("\n(\s)*@","\n"),
-            ("\n(\s)*","\n"), 
+            ("\n(\s)*","\n"),
             ("\n(\s)*\n", "\n"),
-            ("^(\s)*\n",""), 
+            ("^(\s)*\n",""),
             ("\n(\s)*$", ""),
             ("\n","<br>\n"),
             ("\n", "\n-- ")
@@ -556,6 +558,7 @@ class NativeFunction(object):
         return replaceStr
 
     def generate_code(self, current_class=None, generator=None, is_override=False, is_ctor=False):
+        self.is_ctor = is_ctor
         gen = current_class.generator if current_class else generator
         config = gen.config
         if not is_ctor:
@@ -617,6 +620,7 @@ class NativeOverloadedFunction(object):
         self.min_args = 100
         self.is_constructor = False
         self.is_overloaded = True
+        self.is_ctor = False
         for m in func_array:
             self.min_args = min(self.min_args, m.min_args)
 
@@ -637,9 +641,9 @@ class NativeOverloadedFunction(object):
             ("\r\n", "\n"),
             ("\n(\s)*\*", "\n"),
             ("\n(\s)*@","\n"),
-            ("\n(\s)*","\n"), 
+            ("\n(\s)*","\n"),
             ("\n(\s)*\n", "\n"),
-            ("^(\s)*\n",""), 
+            ("^(\s)*\n",""),
             ("\n(\s)*$", ""),
             ("\n","<br>\n"),
             ("\n", "\n-- ")
@@ -655,6 +659,7 @@ class NativeOverloadedFunction(object):
         self.implementations.append(func)
 
     def generate_code(self, current_class=None, is_override=False, is_ctor=False):
+        self.is_ctor = is_ctor
         gen = current_class.generator
         config = gen.config
         static = self.implementations[0].static
@@ -817,7 +822,7 @@ class NativeClass(object):
             m['impl'].generate_code(self)
         for m in self.static_methods_clean():
             m['impl'].generate_code(self)
-        if self.generator.script_type == "lua":  
+        if self.generator.script_type == "lua":
             for m in self.override_methods_clean():
                 m['impl'].generate_code(self, is_override = True)
         for m in self.public_fields:
@@ -968,6 +973,7 @@ class Generator(object):
     def __init__(self, opts):
         self.index = cindex.Index.create()
         self.outdir = opts['outdir']
+        self.search_path = opts['search_path']
         self.prefix = opts['prefix']
         self.headers = opts['headers'].split(' ')
         self.classes = opts['classes']
@@ -987,6 +993,7 @@ class Generator(object):
         self.generated_classes = {}
         self.rename_functions = {}
         self.rename_classes = {}
+        self.replace_headers = {}
         self.out_file = opts['out_file']
         self.script_control_cpp = opts['script_control_cpp'] == "yes"
         self.script_type = opts['script_type']
@@ -1050,6 +1057,12 @@ class Generator(object):
             for rename in list_of_class_renames:
                 class_name, renamed_class_name = rename.split("::")
                 self.rename_classes[class_name] = renamed_class_name
+
+        if opts['replace_headers']:
+            list_of_replace_headers = re.split(",\n?", opts['replace_headers'])
+            for replace in list_of_replace_headers:
+                header, replaced_header = replace.split("::")
+                self.replace_headers[header] = replaced_header
 
 
     def should_rename_function(self, class_name, method_name):
@@ -1172,7 +1185,7 @@ class Generator(object):
             docfilepath = os.path.join(docfiledir, self.out_file + "_api.lua")
         else:
             docfilepath = os.path.join(docfiledir, self.out_file + "_api.js")
-        
+
         self.impl_file = open(implfilepath, "w+")
         self.head_file = open(headfilepath, "w+")
         self.doc_file = open(docfilepath, "w+")
@@ -1206,13 +1219,19 @@ class Generator(object):
 
 
     def _pretty_print(self, diagnostics):
+        errors=[]
+        for idx, d in enumerate(diagnostics):
+            if d.severity > 2:
+                errors.append(d)
+        if len(errors) == 0:
+            return
         print("====\nErrors in parsing headers:")
         severities=['Ignored', 'Note', 'Warning', 'Error', 'Fatal']
-        for idx, d in enumerate(diagnostics):
+        for idx, d in enumerate(errors):
             print "%s. <severity = %s,\n    location = %r,\n    details = %r>" % (
                 idx+1, severities[d.severity], d.location, d.spelling)
         print("====\n")
-        
+
     def _parse_headers(self):
         for header in self.headers:
             tu = self.index.parse(header, self.clang_args)
@@ -1446,6 +1465,9 @@ def main():
     userconfig.read('userconf.ini')
     print 'Using userconfig \n ', userconfig.items('DEFAULT')
 
+    clang_lib_path = os.path.join(userconfig.get('DEFAULT', 'cxxgeneratordir'), 'libclang')
+    cindex.Config.set_library_path(clang_lib_path);
+
     config = ConfigParser.SafeConfigParser()
     config.read(args[0])
 
@@ -1495,11 +1517,13 @@ def main():
             gen_opts = {
                 'prefix': config.get(s, 'prefix'),
                 'headers':    (config.get(s, 'headers'        , 0, dict(userconfig.items('DEFAULT')))),
+                'replace_headers': config.get(s, 'replace_headers') if config.has_option(s, 'replace_headers') else None,
                 'classes': config.get(s, 'classes').split(' '),
                 'classes_need_extend': config.get(s, 'classes_need_extend').split(' ') if config.has_option(s, 'classes_need_extend') else [],
                 'clang_args': (config.get(s, 'extra_arguments', 0, dict(userconfig.items('DEFAULT'))) or "").split(" "),
                 'target': os.path.join(workingdir, "targets", t),
                 'outdir': outdir,
+                'search_path': os.path.abspath(os.path.join(userconfig.get('DEFAULT', 'cocosdir'), 'cocos')),
                 'remove_prefix': config.get(s, 'remove_prefix'),
                 'target_ns': config.get(s, 'target_namespace'),
                 'cpp_ns': config.get(s, 'cpp_namespace').split(' ') if config.has_option(s, 'cpp_namespace') else None,

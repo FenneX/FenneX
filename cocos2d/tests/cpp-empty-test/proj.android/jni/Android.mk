@@ -6,6 +6,8 @@ LOCAL_MODULE := cpp_empty_test_shared
 
 LOCAL_MODULE_FILENAME := libcpp_empty_test
 
+LOCAL_ARM_MODE := arm
+
 LOCAL_SRC_FILES := main.cpp \
                    ../../Classes/AppDelegate.cpp \
                    ../../Classes/HelloWorldScene.cpp
@@ -15,13 +17,7 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../Classes \
                     $(LOCAL_PATH)/../../../.. \
                     $(LOCAL_PATH)/../../../../cocos/editor-support
 
-LOCAL_CFLAGS += -fexceptions
-
-LOCAL_WHOLE_STATIC_LIBRARIES := cocos2dx_static
-LOCAL_WHOLE_STATIC_LIBRARIES := cocos_ui_static
-LOCAL_WHOLE_STATIC_LIBRARIES += cocos2dxandroid_static
-LOCAL_WHOLE_STATIC_LIBRARIES += cocosbuilder_static
-LOCAL_WHOLE_STATIC_LIBRARIES += spine_static
+LOCAL_STATIC_LIBRARIES := cocos2dx_static
 
 include $(BUILD_SHARED_LIBRARY)
 

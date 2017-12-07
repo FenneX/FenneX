@@ -94,10 +94,10 @@ class TemplateModifier(object):
             # pbx_proj.remove_group_by_name("JS Common")
 
         # add libraries search path
-        libs_path = "/Applications/Cocos/frameworks/%s/prebuilt" % self.version
-        ios_template_prebuilt_path = os.path.join(libs_path, "ios")
+        libs_path = "/Applications/Cocos/Cocos2d-x/%s/prebuilt" % self.version
+        ios_template_prebuilt_path = "%s/%s" % (libs_path, "ios")
         pbx_proj.add_library_search_paths(ios_template_prebuilt_path, target_name=ios_target_name, recursive=False)
-        mac_template_prebuilt_path = os.path.join(libs_path, "mac")
+        mac_template_prebuilt_path = "%s/%s" % (libs_path, "mac")
         pbx_proj.add_library_search_paths(mac_template_prebuilt_path, target_name=mac_target_name, recursive=False)
 
         # add libraries for targets
@@ -106,10 +106,10 @@ class TemplateModifier(object):
         for lib in link_libs:
             ios_lib_name = "%s iOS.a" % lib
             mac_lib_name = "%s Mac.a" % lib
-            ios_lib_path = os.path.join(ios_template_prebuilt_path, ios_lib_name)
+            ios_lib_path = "%s/%s" % (ios_template_prebuilt_path, ios_lib_name)
             pbx_proj.add_file_if_doesnt_exist(ios_lib_path, ios_lib_group, tree="<group>", target=ios_target_name)
 
-            mac_lib_path = os.path.join(mac_template_prebuilt_path, mac_lib_name)
+            mac_lib_path = "%s/%s" % (mac_template_prebuilt_path, mac_lib_name)
             pbx_proj.add_file_if_doesnt_exist(mac_lib_path, mac_lib_group, tree="<group>", target=mac_target_name)
 
         # add studio resources to the xcode project of cpp template
@@ -133,7 +133,7 @@ class TemplateModifier(object):
         file_content = f.read()
         f.close()
 
-        install_path = "/Applications/Cocos/frameworks/%s" % self.version
+        install_path = "/Applications/Cocos/Cocos2d-x/%s" % self.version
         for old_engine_path in replace_engine_strs:
             file_content = file_content.replace(old_engine_path, install_path)
 
@@ -158,7 +158,7 @@ class TemplateModifier(object):
         # remove the project references
         vcx_proj.remove_proj_reference()
 
-        install_path = "$(COCOS_FRAMEWORKS)\\%s\\" % self.version
+        install_path = "$(COCOS_X_ROOT)\\%s\\" % self.version
 
         copy_libs_cmd = "if not exist \"$(OutDir)\" mkdir \"$(OutDir)\"\n" \
                         "xcopy /Y /Q \"$(EngineRoot)\\prebuilt\\win32\\*.*\" \"$(OutDir)\"\n"
@@ -217,6 +217,8 @@ class TemplateModifier(object):
             file_content = file_content.replace(str, install_path)
         file_content = file_content.replace('%s\\' % install_path, install_path)
 
+        file_content = file_content.replace("%scocos\\2d\\cocos2dx.props" % install_path, "cocos2dx.props")
+        
         f = open(proj_file_path, "w")
         f.write(file_content)
         f.close()

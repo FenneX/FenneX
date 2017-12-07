@@ -1,7 +1,7 @@
 /****************************************************************************
 Copyright (c) 2010      ForzeField Studios S.L. http://forzefield.com
 Copyright (c) 2010-2012 cocos2d-x.org
-Copyright (c) 2013-2015 Chukong Technologies Inc.
+Copyright (c) 2013-2017 Chukong Technologies Inc.
 
 http://www.cocos2d-x.org
 
@@ -169,7 +169,7 @@ I found that it's not work in C++. So it keep what it's look like in version 1.0
 #else // ! CC_USE_ARRAY_VECTOR --------------------------
 
 #define CCARRAY_FOREACH(__array__, __object__)                                                                         \
-    if ((__array__) && (__array__)->data != NULL && (__array__)->data->num > 0)                                                                     \
+    if ((__array__) && (__array__)->data->num > 0)                                                                     \
     for(Ref** __arr__ = (__array__)->data->arr, **__end__ = (__array__)->data->arr + (__array__)->data->num-1;    \
     __arr__ <= __end__ && (((__object__) = *__arr__) != NULL/* || true*/);                                             \
     __arr__++)
@@ -316,7 +316,7 @@ public:
 #if CC_USE_ARRAY_VECTOR
         return data.size();
 #else
-        return data != NULL ? data->num : 0;
+        return data->num;
 #endif
     }
     /** Returns capacity of the array 
@@ -327,7 +327,7 @@ public:
 #if CC_USE_ARRAY_VECTOR
         return data.capacity();
 #else
-        return data != NULL ? data->max : 7;
+        return data->max;
 #endif
     }
     /** Returns index of a certain object, return UINT_MAX if doesn't contain the object 
@@ -502,7 +502,7 @@ public:
      * @js NA
      * @lua NA
      */
-    virtual __Array* clone() const;
+    virtual __Array* clone() const override;
 
     // ------------------------------------------
     // Iterators

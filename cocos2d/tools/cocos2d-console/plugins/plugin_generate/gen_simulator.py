@@ -82,6 +82,9 @@ class SimulatorCompiler(cocos.CCPlugin):
 
         self.simulator_abs_path = os.path.join(self.engine_root, SimulatorCompiler.SIMULATOR_PROJ_PATH)
         self.cocos_bin = os.path.join(self.engine_root, SimulatorCompiler.COCOS_CMD_PATH)
+        engine_version = utils.get_engine_version(self.engine_root)
+        # get the short version after "cocos2d-x-"
+        self.engine_version = engine_version[10:]
 
         # get the full path of output dir.
         if args.out_dir is None:
@@ -266,9 +269,6 @@ class SimulatorCompiler(cocos.CCPlugin):
         if not os.path.isdir(win32_output_dir):
             os.makedirs(win32_output_dir)
 
-        lang_file_path = os.path.join(self.simulator_abs_path, "frameworks/runtime-src/Classes/ide-support/lang")
-        lang_copy_command = "xcopy /Y %s %s" % (self.convert_path_to_win32(lang_file_path), win32_output_dir)
-
         # get the vs version should be used
         if self.vs_version is None:
             ver_param = ''
@@ -283,14 +283,10 @@ class SimulatorCompiler(cocos.CCPlugin):
                 " %s compile -p win32 -m debug --no-res --compile-script 0 %s" % (self.cocos_bin, ver_param),
                 " && xcopy /Y %s*.dll %s" % (win32_src_dir, win32_output_dir),
                 " && xcopy /Y %s*.exe %s" % (win32_src_dir, win32_output_dir),
-                " && %s" % (lang_copy_command),
                 " && if exist %s*.dll xcopy /Y %s*.dll %s" % (win32_dll_dir,win32_dll_dir,win32_output_dir)
             ])
         else:
-            command = ' '.join([
-                " %s compile -p win32 -m release --no-res --compile-script 0 -o %s %s" % (self.cocos_bin,win32_output_dir,ver_param),
-                " && %s" % (lang_copy_command),
-                ])
+            command = " %s compile -p win32 -m release --no-res --compile-script 0 -o %s %s" % (self.cocos_bin,win32_output_dir,ver_param)
 
         self._run_cmd(command, self.simulator_abs_path)
         self.build_log += MultiLanguage.get_string('GEN_SIM_BUILD_SUCCESS_FMT', ('Win32', self.mode))
@@ -344,6 +340,12 @@ class SimulatorCompiler(cocos.CCPlugin):
                 keyword_map = { build_date_tag : "<string>%s</string>" % build_date }
                 self.replace_keyword_with_file(info_plist_path, keyword_map)
 
+            match = re.compile('<key>CFBundleShortVersionString</key>(\s)*<string>(.*?)</string>').findall(info_plist_content)
+            if len(match):
+                build_date_tag = "<string>%s</string>" % match[0][1]
+                keyword_map = { build_date_tag : "<string>%s</string>" % self.engine_version }
+                self.replace_keyword_with_file(info_plist_path, keyword_map)
+
         if cocos.os_is_win32() and self.build_win:
             # win32
             game_rc_path = os.path.join(self.simulator_abs_path,"frameworks/runtime-src/proj.win32/game.rc")
@@ -351,8 +353,7 @@ class SimulatorCompiler(cocos.CCPlugin):
             match = re.compile('"Version[^\(]*\(.*\)"').findall(game_rc_content)
             if len(match):
                 build_info_str = match[0]
-                m = re.match(r'"(Version[^\(]*)\(.*\)', build_info_str)
-                target_str = '"%s(%s)"' % (m.group(1), build_date)
+                target_str = '"Version %s (%s)"' % (self.engine_version, build_date)
                 keyword_map = { build_info_str : target_str}
                 self.replace_keyword_with_file(game_rc_path,keyword_map)
 

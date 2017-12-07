@@ -1,7 +1,7 @@
 /****************************************************************************
 Copyright (c) 2010      ForzeField Studios S.L. http://forzefield.com
 Copyright (c) 2010-2012 cocos2d-x.org
-Copyright (c) 2013-2014 Chukong Technologies Inc.
+Copyright (c) 2013-2017 Chukong Technologies Inc.
 
 http://www.cocos2d-x.org
 
@@ -24,8 +24,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-#include "CCArray.h"
+#include "deprecated/CCArray.h"
 #include "deprecated/CCString.h"
+#include "base/ccUTF8.h"
 #include "platform/CCFileUtils.h"
 
 NS_CC_BEGIN
@@ -44,7 +45,7 @@ __Array::__Array()
 
 __Array* __Array::create()
 {
-    __Array* array = new __Array();
+    __Array* array = new (std::nothrow) __Array();
 
     if (array && array->initWithCapacity(7))
     {
@@ -60,7 +61,7 @@ __Array* __Array::create()
 
 __Array* __Array::createWithObject(Ref* object)
 {
-    __Array* array = new __Array();
+    __Array* array = new (std::nothrow) __Array();
 
     if (array && array->initWithObject(object))
     {
@@ -109,7 +110,7 @@ __Array* __Array::createWithCapacity(int capacity)
 {
     CCASSERT(capacity>=0, "Invalid capacity");
 
-    __Array* array = new __Array();
+    __Array* array = new (std::nothrow) __Array();
     
     if (array && array->initWithCapacity(capacity))
     {
@@ -342,14 +343,15 @@ __Array::~Array()
 
 __Array* __Array::clone() const
 {
-    __Array* ret = new __Array();
+    __Array* ret = new (std::nothrow) __Array();
     ret->autorelease();
     ret->initWithCapacity(this->data.size() > 0 ? this->data.size() : 1);
 
     Ref* obj = nullptr;
     Ref* tmpObj = nullptr;
     Clonable* clonable = nullptr;
-    CCARRAY_FOREACH(this, obj)
+    const __Array* self( this );
+    CCARRAY_FOREACH(self, obj)
     {
         clonable = dynamic_cast<Clonable*>(obj);
         if (clonable)
@@ -387,7 +389,7 @@ __Array::__Array()
 
 __Array* __Array::create()
 {
-    __Array* array = new __Array();
+    __Array* array = new (std::nothrow) __Array();
 
     if (array && array->initWithCapacity(7))
     {
@@ -403,7 +405,7 @@ __Array* __Array::create()
 
 __Array* __Array::createWithObject(Ref* object)
 {
-    __Array* array = new __Array();
+    __Array* array = new (std::nothrow) __Array();
 
     if (array && array->initWithObject(object))
     {
@@ -452,7 +454,7 @@ __Array* __Array::createWithCapacity(ssize_t capacity)
 {
     CCASSERT(capacity>=0, "Invalid capacity");
 
-    __Array* array = new __Array();
+    __Array* array = new (std::nothrow) __Array();
 
     if (array && array->initWithCapacity(capacity))
     {
@@ -588,7 +590,6 @@ Ref* __Array::getRandomObject()
 
 bool __Array::containsObject(Ref* object) const
 {
-    if(!data) return false;
     return ccArrayContainsObject(data, object);
 }
 
@@ -607,21 +608,18 @@ bool __Array::isEqualToArray(__Array* otherArray)
 
 void __Array::addObject(Ref* object) 
 {
-    if(!data) init();
     CCASSERT(data, "Array not initialized");
     ccArrayAppendObjectWithResize(data, object);
 }
 
 void __Array::addObjectsFromArray(__Array* otherArray)
 {
-    if(!data) init();
     CCASSERT(data, "Array not initialized");
     ccArrayAppendArrayWithResize(data, otherArray->data);
 }
 
 void __Array::insertObject(Ref* object, ssize_t index)
 {
-    if(!data) init();
     CCASSERT(data, "Array not initialized");
     ccArrayInsertObjectAtIndex(data, object, index);
 }
@@ -646,22 +644,22 @@ void __Array::removeLastObject(bool releaseObj)
 
 void __Array::removeObject(Ref* object, bool releaseObj/* = true*/)
 {
-    if(data) ccArrayRemoveObject(data, object, releaseObj);
+    ccArrayRemoveObject(data, object, releaseObj);
 }
 
 void __Array::removeObjectAtIndex(ssize_t index, bool releaseObj)
 {
-    if(data) ccArrayRemoveObjectAtIndex(data, index, releaseObj);
+    ccArrayRemoveObjectAtIndex(data, index, releaseObj);
 }
 
 void __Array::removeObjectsInArray(__Array* otherArray)
 {
-    if(data) ccArrayRemoveArray(data, otherArray->data);
+    ccArrayRemoveArray(data, otherArray->data);
 }
 
 void __Array::removeAllObjects()
 {
-    if(data) ccArrayRemoveAllObjects(data);
+    ccArrayRemoveAllObjects(data);
 }
 
 void __Array::fastRemoveObjectAtIndex(ssize_t index)
@@ -699,7 +697,7 @@ void __Array::exchangeObjectAtIndex(ssize_t index1, ssize_t index2)
 void __Array::replaceObjectAtIndex(ssize_t index, Ref* object, bool releaseObject/* = true*/)
 {
     ccArrayInsertObjectAtIndex(data, object, index);
-    ccArrayRemoveObjectAtIndex(data, index + 1);
+    ccArrayRemoveObjectAtIndex(data, index + 1, releaseObject);
 }
 
 void __Array::reverseObjects()
@@ -732,14 +730,20 @@ __Array::~__Array()
 
 __Array* __Array::clone() const
 {
-    __Array* ret = new __Array();
+    __Array* ret = new (std::nothrow) __Array();
     ret->autorelease();
     ret->initWithCapacity(this->data->num > 0 ? this->data->num : 1);
+
+    if (data->num <= 0) {
+        return ret;
+    }
 
     Ref* obj = nullptr;
     Ref* tmpObj = nullptr;
     Clonable* clonable = nullptr;
-    CCARRAY_FOREACH(this, obj)
+    CC_ASSERT(data->num > 0);
+    for (Ref** arr = data->arr, **end = data->arr + data->num - 1;
+        arr <= end && ((obj = *arr) != nullptr); arr++)
     {
         clonable = dynamic_cast<Clonable*>(obj);
         if (clonable)

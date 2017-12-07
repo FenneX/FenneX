@@ -22,10 +22,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-#include "CCFileUtilsWinRT.h"
+#include "platform/winrt/CCFileUtilsWinRT.h"
 #include <regex>
-#include "CCWinRTUtils.h"
+#include "platform/winrt/CCWinRTUtils.h"
 #include "platform/CCCommon.h"
+#include "tinydir/tinydir.h"
 using namespace std;
 
 NS_CC_BEGIN
@@ -36,63 +37,14 @@ static std::string s_pszResourcePath;
 static inline std::string convertPathFormatToUnixStyle(const std::string& path)
 {
     std::string ret = path;
-    int len = ret.length();
-    for (int i = 0; i < len; ++i)
+    size_t len = ret.length();
+    for (size_t i = 0; i < len; ++i)
     {
         if (ret[i] == '\\')
         {
             ret[i] = '/';
         }
     }
-    return ret;
-}
-
-static std::wstring StringUtf8ToWideChar(const std::string& strUtf8)
-{
-    std::wstring ret;
-    if (!strUtf8.empty())
-    {
-        int nNum = MultiByteToWideChar(CP_UTF8, 0, strUtf8.c_str(), -1, nullptr, 0);
-        if (nNum)
-        {
-            WCHAR* wideCharString = new WCHAR[nNum + 1];
-            wideCharString[0] = 0;
-
-            nNum = MultiByteToWideChar(CP_UTF8, 0, strUtf8.c_str(), -1, wideCharString, nNum + 1);
-
-            ret = wideCharString;
-            delete[] wideCharString;
-        }
-        else
-        {
-            CCLOG("Wrong convert to WideChar code:0x%x", GetLastError());
-        }
-    }
-    return ret;
-}
-
-static std::string StringWideCharToUtf8(const std::wstring& strWideChar)
-{
-    std::string ret;
-    if (!strWideChar.empty())
-    {
-        int nNum = WideCharToMultiByte(CP_UTF8, 0, strWideChar.c_str(), -1, nullptr, 0, nullptr, FALSE);
-        if (nNum)
-        {
-            char* utf8String = new char[nNum + 1];
-            utf8String[0] = 0;
-
-            nNum = WideCharToMultiByte(CP_UTF8, 0, strWideChar.c_str(), -1, utf8String, nNum + 1, nullptr, FALSE);
-
-            ret = utf8String;
-            delete[] utf8String;
-        }
-        else
-        {
-            CCLOG("Wrong convert to Utf8 code:0x%x", GetLastError());
-        }
-    }
-
     return ret;
 }
 
@@ -133,13 +85,13 @@ static void _checkPath()
 
 FileUtils* FileUtils::getInstance()
 {
-    if (s_sharedFileUtils == NULL)
+    if (s_sharedFileUtils == nullptr)
     {
         s_sharedFileUtils = new CCFileUtilsWinRT();
         if(!s_sharedFileUtils->init())
         {
           delete s_sharedFileUtils;
-          s_sharedFileUtils = NULL;
+          s_sharedFileUtils = nullptr;
           CCLOG("ERROR: Could not init CCFileUtilsWinRT");
         }
     }
@@ -178,10 +130,62 @@ std::string CCFileUtilsWinRT::getSuitableFOpen(const std::string& filenameUtf8) 
     return UTF8StringToMultiByte(filenameUtf8);
 }
 
+long CCFileUtilsWinRT::getFileSize(const std::string &filepath)
+{
+    WIN32_FILE_ATTRIBUTE_DATA fad;
+    if (!GetFileAttributesEx(StringUtf8ToWideChar(filepath).c_str(), GetFileExInfoStandard, &fad))
+    {
+        return 0; // error condition, could call GetLastError to find out more
+    }
+    LARGE_INTEGER size;
+    size.HighPart = fad.nFileSizeHigh;
+    size.LowPart = fad.nFileSizeLow;
+    return (long)size.QuadPart;
+}
+
+FileUtils::Status CCFileUtilsWinRT::getContents(const std::string& filename, ResizableBuffer* buffer)
+{
+    if (filename.empty())
+        return FileUtils::Status::NotExists;
+
+    // read the file from hardware
+    std::string fullPath = FileUtils::getInstance()->fullPathForFilename(filename);
+
+    HANDLE fileHandle = ::CreateFile2(StringUtf8ToWideChar(fullPath).c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, OPEN_EXISTING, nullptr);
+    if (fileHandle == INVALID_HANDLE_VALUE)
+        return FileUtils::Status::OpenFailed;
+
+    FILE_STANDARD_INFO info = {0};
+    if (::GetFileInformationByHandleEx(fileHandle, FileStandardInfo, &info, sizeof(info)) == 0)
+    {
+        ::CloseHandle(fileHandle);
+        return FileUtils::Status::OpenFailed;
+    }
+
+    if (info.EndOfFile.HighPart > 0)
+    {
+        ::CloseHandle(fileHandle);
+        return FileUtils::Status::TooLarge;
+    }
+
+    buffer->resize(info.EndOfFile.LowPart);
+    DWORD sizeRead = 0;
+    BOOL successed = ::ReadFile(fileHandle, buffer->buffer(), info.EndOfFile.LowPart, &sizeRead, nullptr);
+    ::CloseHandle(fileHandle);
+
+    if (!successed)
+    {
+        buffer->resize(sizeRead);
+        CCLOG("Get data from file(%s) failed, error code is %s", filename.data(), std::to_string(::GetLastError()).data());
+        return FileUtils::Status::ReadFailed;
+    }
+    return FileUtils::Status::OK;
+}
+
 bool CCFileUtilsWinRT::isFileExistInternal(const std::string& strFilePath) const
 {
     bool ret = false;
-    FILE * pf = 0;
+    FILE * pf = nullptr;
 
     std::string strPath = strFilePath;
     if (!isAbsolutePath(strPath))
@@ -202,7 +206,7 @@ bool CCFileUtilsWinRT::isFileExistInternal(const std::string& strFilePath) const
 bool CCFileUtilsWinRT::isDirectoryExistInternal(const std::string& dirPath) const
 {
     WIN32_FILE_ATTRIBUTE_DATA wfad;
-    std::wstring wdirPath(dirPath.begin(), dirPath.end());
+    std::wstring wdirPath = StringUtf8ToWideChar(dirPath);
     if (GetFileAttributesEx(wdirPath.c_str(), GetFileExInfoStandard, &wfad))
     {
         return true;
@@ -244,17 +248,16 @@ bool CCFileUtilsWinRT::createDirectory(const std::string& path)
     }
 
     WIN32_FILE_ATTRIBUTE_DATA wfad;
-    std::wstring wpath(path.begin(), path.end());
-    if (!(GetFileAttributesEx(wpath.c_str(), GetFileExInfoStandard, &wfad)))
+
+    if (!(GetFileAttributesEx(StringUtf8ToWideChar(path).c_str(), GetFileExInfoStandard, &wfad)))
     {
         subpath = "";
-        for (unsigned int i = 0; i < dirs.size(); ++i)
+        for (unsigned int i = 0, size = dirs.size(); i < size; ++i)
         {
             subpath += dirs[i];
             if (i > 0 && !isDirectoryExist(subpath))
             {
-                std::wstring wsubpath(subpath.begin(), subpath.end());
-                BOOL ret = CreateDirectory(wsubpath.c_str(), NULL);
+                BOOL ret = CreateDirectory(StringUtf8ToWideChar(subpath).c_str(), NULL);
                 if (!ret && ERROR_ALREADY_EXISTS != GetLastError())
                 {
                     return false;
@@ -267,7 +270,7 @@ bool CCFileUtilsWinRT::createDirectory(const std::string& path)
 
 bool CCFileUtilsWinRT::removeDirectory(const std::string& path)
 {
-    std::wstring wpath = std::wstring(path.begin(), path.end());
+    std::wstring wpath = StringUtf8ToWideChar(path);
     std::wstring files = wpath + L"*.*";
     WIN32_FIND_DATA wfd;
     HANDLE  search = FindFirstFileEx(files.c_str(), FindExInfoStandard, &wfd, FindExSearchNameMatch, NULL, 0);
@@ -284,7 +287,7 @@ bool CCFileUtilsWinRT::removeDirectory(const std::string& path)
                 if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
                 {
                     temp += '/';
-                    ret = ret && this->removeDirectory(std::string(temp.begin(), temp.end()));
+                    ret = ret && this->removeDirectory(StringWideCharToUtf8(temp));
                 }
                 else
                 {
@@ -316,12 +319,16 @@ bool CCFileUtilsWinRT::isAbsolutePath(const std::string& strPath) const
 
 bool CCFileUtilsWinRT::removeFile(const std::string &path)
 {
-    std::wstring wpath(path.begin(), path.end());
+    std::wstring wpath = StringUtf8ToWideChar(path);
     if (DeleteFile(wpath.c_str()))
     {
         return true;
     }
-    return false;
+    else
+    {
+        CCLOG("Remove file failed with error: %d", GetLastError());
+        return false;
+    }
 }
 
 bool CCFileUtilsWinRT::renameFile(const std::string &oldfullpath, const std::string& newfullpath)
@@ -329,16 +336,30 @@ bool CCFileUtilsWinRT::renameFile(const std::string &oldfullpath, const std::str
     CCASSERT(!oldfullpath.empty(), "Invalid path");
     CCASSERT(!newfullpath.empty(), "Invalid path");
 
-    std::wstring oldfile(oldfullpath.begin(), oldfullpath.end());
-    std::wstring newfile(newfullpath.begin(), newfullpath.end());
+    std::regex pat("\\/");
+    std::string _oldfullpath = std::regex_replace(oldfullpath, pat, "\\");
+    std::string _newfullpath = std::regex_replace(newfullpath, pat, "\\");
 
-    if (MoveFileEx(oldfile.c_str(), newfile.c_str(),
-        MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
+    std::wstring _wNewfullpath = StringUtf8ToWideChar(_newfullpath);
+
+    if (FileUtils::getInstance()->isFileExist(_newfullpath))
+    {
+        if (!DeleteFile(_wNewfullpath.c_str()))
+        {
+            CCLOGERROR("Fail to delete file %s !Error code is 0x%x", newfullpath.c_str(), GetLastError());
+        }
+    }
+
+    if (MoveFileEx(StringUtf8ToWideChar(_oldfullpath).c_str(), _wNewfullpath.c_str(),
+        MOVEFILE_REPLACE_EXISTING & MOVEFILE_WRITE_THROUGH))
     {
         return true;
     }
-    CCLOG("Rename failed with error: %d", GetLastError());
-    return false;
+    else
+    {
+        CCLOGERROR("Fail to rename file %s to %s !Error code is 0x%x", oldfullpath.c_str(), newfullpath.c_str(), GetLastError());
+        return false;
+    }
 }
 
 bool CCFileUtilsWinRT::renameFile(const std::string &path, const std::string &oldname, const std::string &name)
@@ -347,78 +368,98 @@ bool CCFileUtilsWinRT::renameFile(const std::string &path, const std::string &ol
     std::string oldPath = path + oldname;
     std::string newPath = path + name;
 
-    std::regex pat("\\/");
-    std::string _old = std::regex_replace(oldPath, pat, "\\");
-    std::string _new = std::regex_replace(newPath, pat, "\\");
-    return renameFile(_old, _new);
-}
-
-static Data getData(const std::string& filename, bool forString)
-{
-    if (filename.empty())
-    {
-        CCASSERT(!filename.empty(), "Invalid filename!");
-    }
-
-    Data ret;
-    unsigned char* buffer = nullptr;
-    ssize_t size = 0;
-    const char* mode = nullptr;
-    mode = "rb";
-
-    do
-    {
-        // Read the file from hardware
-        std::string fullPath = FileUtils::getInstance()->fullPathForFilename(filename);
-        FILE *fp = fopen(fullPath.c_str(), mode);
-        CC_BREAK_IF(!fp);
-        fseek(fp,0,SEEK_END);
-        size = ftell(fp);
-        fseek(fp,0,SEEK_SET);
-
-        if (forString)
-        {
-            buffer = (unsigned char*)malloc(sizeof(unsigned char) * (size + 1));
-            buffer[size] = '\0';
-        }
-        else
-        {
-            buffer = (unsigned char*)malloc(sizeof(unsigned char) * size);
-        }
-
-        size = fread(buffer, sizeof(unsigned char), size, fp);
-        fclose(fp);
-    } while (0);
-
-    if (nullptr == buffer || 0 == size)
-    {
-        std::string msg = "Get data from file(";
-        msg.append(filename).append(") failed!");
-        CCLOG("%s", msg.c_str());
-    }
-    else
-    {
-        ret.fastSet(buffer, size);
-    }
-
-    return ret;
-}
-
-std::string CCFileUtilsWinRT::getStringFromFile(const std::string& filename)
-{
-    Data data = getData(filename, true);
-    if (data.isNull())
-    {
-        return "";
-    }
-    std::string ret((const char*)data.getBytes());
-    return ret;
+    return renameFile(oldPath, newPath);
 }
 
 string CCFileUtilsWinRT::getWritablePath() const
 {
     auto localFolderPath = Windows::Storage::ApplicationData::Current->LocalFolder->Path;
     return convertPathFormatToUnixStyle(std::string(PlatformStringToString(localFolderPath)) + '\\');
+}
+
+void CCFileUtilsWinRT::listFilesRecursively(const std::string& dirPath, std::vector<std::string> *files) const
+{
+    std::string fullpath = fullPathForFilename(dirPath);
+    if (isDirectoryExist(fullpath))
+    {
+        tinydir_dir dir;
+        std::wstring fullpathstr = StringUtf8ToWideChar(fullpath);
+
+        if (tinydir_open(&dir, &fullpathstr[0]) != -1)
+        {
+            while (dir.has_next)
+            {
+                tinydir_file file;
+                if (tinydir_readfile(&dir, &file) == -1)
+                {
+                    // Error getting file
+                    break;
+                }
+                std::string fileName = StringWideCharToUtf8(file.name);
+
+                if (fileName != "." && fileName != "..")
+                {
+                    std::string filepath = StringWideCharToUtf8(file.path);
+                    if (file.is_dir)
+                    {
+                        filepath.append("/");
+                        files->push_back(filepath);
+                        listFilesRecursively(filepath, files);
+                    }
+                    else
+                    {
+                        files->push_back(filepath);
+                    }
+                }
+
+                if (tinydir_next(&dir) == -1)
+                {
+                    // Error getting next file
+                    break;
+                }
+            }
+        }
+        tinydir_close(&dir);
+    }
+}
+
+std::vector<std::string> CCFileUtilsWinRT::listFiles(const std::string& dirPath) const
+{
+    std::string fullpath = fullPathForFilename(dirPath);
+    std::vector<std::string> files;
+    if (isDirectoryExist(fullpath))
+    {
+        tinydir_dir dir;
+        std::wstring fullpathstr = StringUtf8ToWideChar(fullpath);
+
+        if (tinydir_open(&dir, &fullpathstr[0]) != -1)
+        {
+            while (dir.has_next)
+            {
+                tinydir_file file;
+                if (tinydir_readfile(&dir, &file) == -1)
+                {
+                    // Error getting file
+                    break;
+                }
+
+                std::string filepath = StringWideCharToUtf8(file.path);
+                if (file.is_dir)
+                {
+                    filepath.append("/");
+                }
+                files.push_back(filepath);
+
+                if (tinydir_next(&dir) == -1)
+                {
+                    // Error getting next file
+                    break;
+                }
+            }
+        }
+        tinydir_close(&dir);
+    }
+    return files;
 }
 
 string CCFileUtilsWinRT::getAppPath()
