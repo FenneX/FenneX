@@ -99,12 +99,10 @@ std::string DropDownList::getSelectedValue()
 void DropDownList::setSelectedValue(EventCustom* event)
 {
     CCDictionary* infos =  event != NULL ? (CCDictionary*) event->getUserData() : NULL;
-    std::string value = initialText;
     if(infos != NULL && linkTo != NULL && linkTo->getID() == TOINT(infos->objectForKey("Identifier")))
     {
-        value = TOCSTRING(infos->objectForKey("SelectedValue"));
+        setLabelSelectedValue(TOCSTRING(infos->objectForKey("SelectedValue")));
     }
-    setLabelSelectedValue(value);
 }
 
 void DropDownList::setLabelSelectedValue(std::string selectedValue)
