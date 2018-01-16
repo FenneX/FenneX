@@ -150,6 +150,14 @@ void appendObject(Value& val, xml_node& node)
                 appendObject(it->second, children);
             }
             break;
+        case Value::Type::INT_KEY_MAP:
+            children = node.append_child("intKeydict");
+            for(ValueMapIntKey::iterator it = val.asIntKeyMap().begin(); it != val.asIntKeyMap().end(); ++it)
+            {
+                children.append_child("key").append_child(node_pcdata).set_value(std::to_string(it->first).c_str());
+                appendObject(it->second, children);
+            }
+            break;
         case Value::Type::VECTOR:
             children = node.append_child("array");
             for(ValueVector::iterator it = val.asValueVector().begin(); it < val.asValueVector().end(); it++) {
@@ -353,6 +361,29 @@ Value loadValue(xml_node node)
                 if(result.getType() != Value::Type::NONE)
                 {
                     map[key] = result;
+                }
+            }
+            isKey = !isKey;
+        }
+        val = map;
+    }
+    else if(strcmp(name, "intKeydict") == 0)
+    {
+        ValueMapIntKey map;
+        char* key;
+        bool isKey = true;
+        for(xml_node child = node.first_child(); child; child = child.next_sibling())
+        {
+            if(isKey)
+            {
+                key = const_cast<char*>(child.first_child().value());//remove const while reading value, easier that way
+            }
+            else
+            {
+                Value result = loadValue(child);
+                if(result.getType() != Value::Type::NONE)
+                {
+                    map[std::atoi(key)] = result;
                 }
             }
             isKey = !isKey;
