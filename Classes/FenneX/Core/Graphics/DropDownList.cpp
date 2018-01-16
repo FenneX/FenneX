@@ -99,15 +99,13 @@ std::string DropDownList::getSelectedValue()
 void DropDownList::setSelectedValue(EventCustom* event)
 {
     ValueMap infos = (event != NULL && event->getUserData() != NULL) ? ((Value*)event->getUserData())->asValueMap() : ValueMap();
-    std::string value = initialText;
     if(linkTo != NULL &&
        isValueOfType(infos["Identifier"], INTEGER) &&
        isValueOfType(infos["SelectedValue"], STRING) &&
        linkTo->getID() == infos["Identifier"].asInt())
     {
-        value = infos["SelectedValue"].asString();
+        setLabelSelectedValue(infos["SelectedValue"].asString());
     }
-    setLabelSelectedValue(value);
 }
 
 void DropDownList::setLabelSelectedValue(std::string selectedValue)
