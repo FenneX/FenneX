@@ -57,7 +57,8 @@ public:
     GLubyte getOpacity();
     void setOpacityRecursive(GLubyte opacity);
     
-    ValueMap getEventInfos() const;//Warning : the returned CCDictionary is copied, changes will not affect RawObject
+    ValueMap getEventInfos() const;//Warning : the returned ValueMap is copied, changes will not affect RawObject
+    Value getEventInfo(std::string key) const;
     //Will not copy Sender automatically. Do it manually if required
     void addEventInfos(ValueMap infos);
     void setEventInfo(std::string key, Value obj);

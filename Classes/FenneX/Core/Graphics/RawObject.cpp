@@ -111,6 +111,11 @@ ValueMap RawObject::getEventInfos() const
     return infos;
 }
 
+Value RawObject::getEventInfo(std::string key) const
+{
+    return getEventInfos()[key];
+}
+
 void RawObject::setEventInfo(std::string key, Value obj)
 {
     eventInfos[key] = obj;
