@@ -73,7 +73,6 @@ THE SOFTWARE.
 #include "SynchronousReleaser.h"
 #include "SynthesizeString.h"
 #include "StringUtility.h"
-#include "TMPPoint.h"
 #include "DelayedDispatcher.h"
 #include "ValueConversion.h"
 #include "InactivityTimer.h"

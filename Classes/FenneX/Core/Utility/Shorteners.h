@@ -28,7 +28,6 @@ THE SOFTWARE.
 #include "cocos2d.h"
 #include "SceneSwitcher.h"
 #include "FenneXMacros.h"
-#include "TMPPoint.h"
 #include "DelayedDispatcher.h"
 #include <string>
 #include <sstream>
@@ -46,14 +45,12 @@ NS_FENNEX_BEGIN
 #define TOFLOAT(obj) (((CCFloat*)obj)->getValue())
 #define TOBOOL(obj) (((CCBool*)obj)->getValue())
 #define TOCSTRING(obj) (((CCString*)obj)->getCString())
-#define TOPOINT(obj) Vec2(((TMPPoint*)obj)->x, ((TMPPoint*)obj)->y)
 #define TOINT2(obj) ((Value*)obj)->asInt()
 #define TOFLOAT2(obj) ((Value*)obj)->asFloat()
 #define TOCSTRING2(obj) ((Value*)obj)->asString()
 
 /* creation shorteners : since those are widly used, shortening the name makes sense (much like ccp), as well as uniformizing the format
  * format *create where * is the type
- P = Point
  I = Integer
  F = Float
  B = Bool
@@ -62,7 +59,6 @@ NS_FENNEX_BEGIN
  A = Array, append P for parameters
  */
 
-#define Pcreate TMPPoint::create
 
 std::string getResourcesPath(const std::string& file);
 
