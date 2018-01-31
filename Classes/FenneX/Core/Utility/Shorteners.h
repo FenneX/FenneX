@@ -41,14 +41,6 @@ NS_FENNEX_BEGIN
 
 #define IFEXIST(obj) if(obj != NULL) (obj)
 
-#define TOINT(obj) (((CCInteger*)obj)->getValue())
-#define TOFLOAT(obj) (((CCFloat*)obj)->getValue())
-#define TOBOOL(obj) (((CCBool*)obj)->getValue())
-#define TOCSTRING(obj) (((CCString*)obj)->getCString())
-#define TOINT2(obj) ((Value*)obj)->asInt()
-#define TOFLOAT2(obj) ((Value*)obj)->asFloat()
-#define TOCSTRING2(obj) ((Value*)obj)->asString()
-
 /* creation shorteners : since those are widly used, shortening the name makes sense (much like ccp), as well as uniformizing the format
  * format *create where * is the type
  I = Integer
