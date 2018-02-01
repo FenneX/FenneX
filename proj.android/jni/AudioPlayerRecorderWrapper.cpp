@@ -69,7 +69,7 @@ bool AudioPlayerRecorder::isPlaying()
 }
 
 
-void AudioPlayerRecorder::record(const std::string& file, CCObject* linkTo)
+void AudioPlayerRecorder::record(const std::string& file, Ref* linkTo)
 {
     JniMethodInfo minfo;
     std::string withExtension = file + ".3gp";
@@ -107,7 +107,7 @@ void AudioPlayerRecorder::stopRecording()
     this->setPath("");
 }
 
-float AudioPlayerRecorder::play(const std::string& file, CCObject* linkTo, bool independent, float volume)
+float AudioPlayerRecorder::play(const std::string& file, Ref* linkTo, bool independent, float volume)
 {
     JniMethodInfo minfo;
     
