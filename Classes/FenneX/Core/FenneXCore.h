@@ -50,21 +50,23 @@ THE SOFTWARE.
 
 //Graphics
 #include "CustomObject.h"
+#include "DropDownList.h"
 #include "GraphicLayer.h"
 #include "Image.h"
 #include "InputLabel.h"
 #include "InputLabelProtocol.h"
 #include "LabelTTF.h"
 #include "LayoutHandler.h"
+#include "LazyLoader.h"
 #include "Panel.h"
 #include "RawObject.h"
-#include "DropDownList.h"
 
 //Scenes
 #include "SceneSwitcher.h"
 #include "Scene.h"
 
 //Utility
+#include "InactivityTimer.h"
 #include "Localization.h"
 #include "Pausable.h"
 #include "PListPersist.h"
@@ -75,6 +77,5 @@ THE SOFTWARE.
 #include "StringUtility.h"
 #include "DelayedDispatcher.h"
 #include "ValueConversion.h"
-#include "InactivityTimer.h"
 
 #endif
