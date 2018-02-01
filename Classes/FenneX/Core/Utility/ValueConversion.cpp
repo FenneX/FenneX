@@ -114,9 +114,9 @@ std::vector<bool> ValueConversion::toBoolVector(Value val)
 
 time_t ValueConversion::convertToTimeT(Value val, time_t defaultValue)
 {
-    return isValueOfType(val, Value::Type::INTEGER) ? val.asInt() :
-           isValueOfType(val, Value::Type::STRING) ? std::atol(val.asString().c_str()) :
-           isValueOfType(val, Value::Type::FLOAT) ? (time_t) val.asFloat() : defaultValue; // Float is a legacy from old saves
+    return !val.isNull() && val.getType() == Value::Type::INTEGER ? val.asInt() :
+           !val.isNull() && val.getType() == Value::Type::STRING ? std::atol(val.asString().c_str()) :
+           !val.isNull() && val.getType() == Value::Type::FLOAT ? (time_t) val.asFloat() : defaultValue; // Float is a legacy from old saves
 }
 
 NS_FENNEX_END
