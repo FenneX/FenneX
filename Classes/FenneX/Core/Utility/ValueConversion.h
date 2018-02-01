@@ -38,8 +38,12 @@ NS_FENNEX_BEGIN
 class ValueConversion
 {
 public:
+    static Value fromStringVector(std::vector<std::string> vec);
     static std::vector<std::string> toVectorString(Value val);
+    static Value fromStringStringMap(std::map<std::string, std::string> m);
     static std::map<std::string, std::string> toMapStringString(Value val);
+    static Value fromStringFloatMap(std::map<std::string, float> m);
+    static std::map<std::string, float> toMapStringFloat(Value val);
     static Value fromDaysVector(std::vector<struct tm> vec);
     static std::vector<struct tm> toDaysVector(Value val);
     static Value fromBoolVector(std::vector<bool> vec);
