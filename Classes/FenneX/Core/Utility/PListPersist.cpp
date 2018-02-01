@@ -141,7 +141,7 @@ Value loadValue(xml_node node)
             else
             {
                 Value result = loadValue(child);
-                if(result.getType() != Value::Type::NONE)
+                if(!result.isNull())
                 {
                     map[key] = result;
                 }
@@ -164,7 +164,7 @@ Value loadValue(xml_node node)
             else
             {
                 Value result = loadValue(child);
-                if(result.getType() != Value::Type::NONE)
+                if(!result.isNull())
                 {
                     map[std::atoi(key)] = result;
                 }
@@ -179,7 +179,7 @@ Value loadValue(xml_node node)
         for(xml_node child = node.first_child(); child; child = child.next_sibling())
         {
             Value result = loadValue(child);
-            if(result.getType() != Value::Type::NONE)
+            if(!result.isNull())
             {
                 vector.push_back(result);
             }

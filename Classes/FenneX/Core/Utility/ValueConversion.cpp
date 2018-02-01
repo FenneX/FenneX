@@ -28,7 +28,7 @@ NS_FENNEX_BEGIN
 
 std::vector<std::string> ValueConversion::toVectorString(Value val)
 {
-    if(val.getType() == Value::Type::NONE)
+    if(val.isNull())
     {
         return {};
     }
@@ -50,7 +50,7 @@ std::vector<std::string> ValueConversion::toVectorString(Value val)
 
 std::map<std::string, std::string> ValueConversion::toMapStringString(Value val)
 {
-    if(val.getType() == Value::Type::NONE)
+    if(val.isNull())
     {
         return {};
     }
