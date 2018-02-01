@@ -24,6 +24,7 @@ THE SOFTWARE.
 
 #include "AudioPlayerRecorder.h"
 #include "NativeUtility.h"
+#include "GraphicLayer.h"
 
 USING_NS_FENNEX;
 

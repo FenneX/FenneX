@@ -25,7 +25,9 @@ THE SOFTWARE.
 #ifndef FenneX_VideoPlayer_h
 #define FenneX_VideoPlayer_h
 
-#include "FenneX.h"
+#include "FenneXMacros.h"
+#include "cocos2d.h"
+#include "DelayedDispatcher.h"
 USING_NS_CC;
 USING_NS_FENNEX;
 

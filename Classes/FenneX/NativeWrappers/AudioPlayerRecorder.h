@@ -25,7 +25,8 @@ THE SOFTWARE.
 #ifndef FenneX_AudioPlayerRecorder_h
 #define FenneX_AudioPlayerRecorder_h
 
-#include "FenneX.h"
+#include "FenneXMacros.h"
+#include "cocos2d.h"
 #include "Shorteners.h"
 USING_NS_CC;
 USING_NS_FENNEX;

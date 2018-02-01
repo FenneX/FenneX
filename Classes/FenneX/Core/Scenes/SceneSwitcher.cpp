@@ -214,7 +214,7 @@ void SceneSwitcher::replaceScene()
         this->takeQueuedScene();
         sceneSwitchCancelled = false;
     }
-    if((currentSceneName != nextScene && nextScene != None) || reloadAllowed)
+    if((currentSceneName != nextScene && nextScene != None) || reloadAllowed)
     {
         if(currentSceneName != None)
         {
