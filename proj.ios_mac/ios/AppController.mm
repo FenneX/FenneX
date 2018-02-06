@@ -217,7 +217,8 @@ void uncaughtExceptionHandler(NSException *exception)
         if([notif.userInfo objectForKey:@"CallbackEvent"] != nil)
         {
             NSLog(@"local notif with callback event");
-            Director::getInstance()->getEventDispatcher()->dispatchCustomEvent([[notif.userInfo objectForKey:@"CallbackEvent"] UTF8String], [NSCCConverter ccDictionaryFromNSDictionary:notif.userInfo]);
+            Value val = Value([NSCCConverter valueMapFromNSDictionary:notif.userInfo]);
+            Director::getInstance()->getEventDispatcher()->dispatchCustomEvent([[notif.userInfo objectForKey:@"CallbackEvent"] UTF8String], &val);
         }
     }
 }
