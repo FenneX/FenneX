@@ -35,17 +35,12 @@ NS_FENNEX_BEGIN
 class SelectionDelegate
 {
 public:
-    virtual void selectionRecognized(Touch* touch, RawObject* target) = 0;
-    virtual void selectionStarted(Touch* touch) = 0;
-    virtual void selectionMoved(Touch* touch) = 0;
-    virtual void selectionCanceled(Touch* touch, Vec2 origin, RawObject* target = NULL) = 0;
+    virtual void selectionRecognized(Touch* touch, RawObject* target) = 0; // When a selection is detected
+    virtual void selectionStarted(Touch* touch) = 0;  // When a touch event start, which might be a selection
+    virtual void selectionMoved(Touch* touch) = 0; // When a touch event moved, which might be a selection
+    virtual void selectionCanceled(Touch* touch, Vec2 origin, RawObject* target = NULL) = 0; // When the touch event can no longer be a selection, either because it moved too far or because the touch ended
 };
-/*Send events (they all contains the Touch):
- - SelectionStarted
- - SelectionMoved
- - SelectionCanceled (also contains the Origin)
- - SelectionRecognized
- */
+
 class SelectionRecognizer : public DelegatingRecognizer<SelectionDelegate>
 {
     CC_SYNTHESIZE(float, maxMovement, MaxMovement);
