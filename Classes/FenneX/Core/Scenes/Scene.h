@@ -41,6 +41,7 @@ USING_NS_CC;
 #define ADD_SIMPLE_OBSERVER(func, notifName) (eventListeners.pushBack(Director::getInstance()->getEventDispatcher()->addCustomEventListener(notifName, std::bind(&func, this))))
 
 NS_FENNEX_BEGIN
+
 //Warning : it is mandatory to stop() a scene before stopping using it, because there is a cyclic reference
 class Scene : public Pausable, public Layer, public TapDelegate
 {
@@ -91,6 +92,13 @@ public:
     TouchLinker* getLinker();
     
     int getFrameNumber();
+    
+    //Will launch a PlanSceneSwitch event
+    static inline void goToScene(SceneName scene)
+    { //Do not use shorteners here since it trips the compiler
+        Value toSend = Value(ValueMap({{"Scene", Value(scene)}}));
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("PlanSceneSwitch", &toSend);
+    }
     
     //TODO : interface mode ?
     //TODO : on selection recognized, cancel tap recognition of that touch
