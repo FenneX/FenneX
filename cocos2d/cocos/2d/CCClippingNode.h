@@ -32,6 +32,7 @@
 #include "platform/CCGL.h"
 #include "renderer/CCGroupCommand.h"
 #include "renderer/CCCustomCommand.h"
+#include "2d/CCActionTween.h"
 
 NS_CC_BEGIN
 
@@ -45,7 +46,7 @@ class StencilStateManager;
  * The stencil is an other Node that will not be drawn.
  * The clipping is done using the alpha part of the stencil (adjusted with an alphaThreshold).
  */
-class CC_DLL ClippingNode : public Node
+class CC_DLL ClippingNode : public Node, public ActionTweenDelegate
 {
 public:
     /** Creates and initializes a clipping node without a stencil.
@@ -144,7 +145,7 @@ public:
     /* CUSTOM METHOD
      allow to use a tween action for width/height
      */
-    virtual void updateTweenAction(float value, const std::string& key);
+    virtual void updateTweenAction(float value, const std::string& key) override;
     
 CC_CONSTRUCTOR_ACCESS:
     ClippingNode();
