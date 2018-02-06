@@ -114,7 +114,7 @@ std::map<std::string, float> ValueConversion::toMapStringFloat(Value val)
     for(auto iter = val.asValueMap().begin(); iter != val.asValueMap().end(); iter++)
     {
         Value::Type type = iter->second.getType();
-        if(iter->second.getType() != Value::Type::FLOAT && iter->second.getType() != Value::Type::DOUBLE)
+        if(type != Value::Type::FLOAT && type != Value::Type::DOUBLE)
         {
             throw std::bad_cast();
         }
