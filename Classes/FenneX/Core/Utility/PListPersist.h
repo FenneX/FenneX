@@ -36,7 +36,7 @@ USING_NS_CC;
 NS_FENNEX_BEGIN
 void saveValueToFile(Value& val, std::string fileName, bool external = false);
 Value loadValueFromFile(std::string fileName, bool resource = false);
-void deleteFile(const char* name);
+void deleteLocalFile(std::string name);
 NS_FENNEX_END
 
 #endif /* defined(__FenneX__PListPersist__) */

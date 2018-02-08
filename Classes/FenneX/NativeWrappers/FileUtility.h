@@ -49,7 +49,7 @@ void unlockFile(std::string filename);
 // Return all files from a folder in Android. Doesn't do anything on iOS, just return an empty vector.
 std::vector<std::string> getFilesInFolder(std::string folderPath);
 
-// Delete the file. Need a complete path. Not quite tested on iOS
+// Delete the file. Need a complete path (use getLocalPath for local files)
 void deleteFile(std::string filename);
 
 // Move a file from an absolute path to the local Directory (it will remove the original)

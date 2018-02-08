@@ -99,9 +99,6 @@ public:
     void pause();
     void restart();
     
-    //deleteFile requires the full path including the extension
-    void deleteFile(const std::string& file);
-    
     //Must be called before playing a sound. The rate is global for all subsequent play sound
     float getPlaybackRate();
     void setPlaybackRate(float rate);

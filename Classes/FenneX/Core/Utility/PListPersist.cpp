@@ -279,7 +279,7 @@ Value loadValueFromFile(std::string fileName, bool resource)
     return result;
 }
 
-void deleteFile(const char* name)
+void deleteLocalFile(std::string name)
 {
     std::string path = getLocalPath(name);
 #if VERBOSE_SAVE_PLIST

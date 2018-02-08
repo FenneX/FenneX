@@ -162,18 +162,6 @@ void AudioPlayerRecorder::stopPlaying(EventCustom* event)
     this->setPath("");
 }
 
-void AudioPlayerRecorder::deleteFile(const std::string& file)
-{
-    JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"deleteFile", "(Ljava/lang/String;)V");
-    CCAssert(functionExist, "Function doesn't exist");
-    jstring string0 = minfo.env->NewStringUTF(file.c_str());
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, string0);
-    minfo.env->DeleteLocalRef(minfo.classID);
-    minfo.env->DeleteLocalRef(string0);
-}
-
-
 void AudioPlayerRecorder::play()
 {
     JniMethodInfo minfo;
