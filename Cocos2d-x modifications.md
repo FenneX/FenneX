@@ -107,7 +107,6 @@ Cocos2d-x V3.16 Modifications
 * extanstions/android.mk => remove all Particle3D files from LOCAL_SRC_FILES
 * Remove all code between //Enhance comment and "import com.enhance.gameservice.IGameTuningService;" in cocos2d/cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHelper.java
 * cocos2d/cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHelper.java remove if (!sInited) condition in init procedure
-* Scale9Sprite::updateWithSprite  => comment _preferredSize = size; cause it erase information for some reason.
 * cocos2d/network/HttpClient/HttpRequest => change _requestData from std::vector<char> to std::string and add inline void setRequestData(const std::string& data)
 * cocos2d/network/* => add POSTFILE request type (include the add of set/getFilePath)
 * Remove AudioEngine

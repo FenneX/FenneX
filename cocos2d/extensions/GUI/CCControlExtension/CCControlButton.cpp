@@ -237,7 +237,7 @@ void ControlButton::setPreferredSize(const Size& size)
         }
     }
 
-    //_preferredSize = size;
+    _preferredSize = size;
     needsLayout();
 }
 
