@@ -543,7 +543,7 @@ private:
         if (JniHelper::getStaticMethodInfo(methodInfo,
             "org/cocos2dx/lib/Cocos2dxHttpURLConnection",
             "setVerifySSL",
-            "(Ljava/net/HttpURLConnection;Ljava/lang/String;)V"))
+            "(Ljava/net/HttpURLConnection;Ljava/lang/String;)Z"))
         {
             jstring jstrfullpath = methodInfo.env->NewStringUTF(fullpath.c_str());
             bool result = methodInfo.env->CallStaticBooleanMethod(
