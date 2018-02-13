@@ -54,7 +54,7 @@ Scene::Scene(SceneName identifier, ValueMap parameters) :
 sceneName(identifier)
 {
     this->initScene();
-    this->parameters = ValueMap(parameters);
+    this->parameters = parameters;
     numberOfTouches = 0;
     
     //GraphicLayer is a Ref*, retain it for updateList
