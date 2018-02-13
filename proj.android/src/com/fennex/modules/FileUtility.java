@@ -63,7 +63,7 @@ public class FileUtility implements ActivityResultResponder {
                 if (filename.lastIndexOf(File.separator) != -1) {
                     String directoryPath = filename.substring(0, filename.lastIndexOf(File.separator));
                     File directory = new File(directoryPath);
-                    if(!directory.mkdirs()) {
+                    if(!directory.exists() && !directory.mkdirs()) {
                         Log.e(TAG, "Error creating directory " + directoryPath + ", cannot lock it");
                         return false;
                     }
@@ -234,7 +234,7 @@ public class FileUtility implements ActivityResultResponder {
         File destinationFile = new File(destinationFilename);
         File destinationFolderFile = new File(destinationFolder);
 
-        if(!destinationFolderFile.mkdirs()) {
+        if(!destinationFolderFile.exists() && !destinationFolderFile.mkdirs()) {
             Log.e(TAG, "Error creating directory " + destinationFolder + ", cannot lock move file " + path + " to this directory");
             return false;
         }
