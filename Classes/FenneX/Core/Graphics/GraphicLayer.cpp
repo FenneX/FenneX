@@ -1040,9 +1040,9 @@ bool GraphicLayer::touchAtPosition(Vec2 position, bool event)
 {
 #if VERBOSE_GENERAL_INFO
     log("Before trying touchAtPosition, obj order :");
-    for(long i =  storedObjects->count() - 1; i >= 0; i--)
+    for(long i =  storedObjects.size() - 1; i >= 0; i--)
     {
-        RawObject* obj = (RawObject*)storedObjects->objectAtIndex(i);
+        RawObject* obj = storedObjects.at(i);;
         log("obj name: %s", obj->getName().c_str());
     }
 #endif
