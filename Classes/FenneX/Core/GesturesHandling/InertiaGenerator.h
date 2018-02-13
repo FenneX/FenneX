@@ -45,7 +45,7 @@ public:
     
     void planSceneSwitch(EventCustom* event);
     void scrolling(Vec2 offset, Vec2 position, Vector<Touch*> touches, float deltaTime, RawObject* target = NULL, bool inertia = false);
-    void scrollingEnded(Vec2 offset, Vec2 position, Vector<Touch*> touches, float deltaTime, RawObject* target = NULL);
+    void scrollingEnded(Vec2 offset, Vec2 position, Vector<Touch*> touches, float deltaTime, RawObject* target = NULL, bool inertia = false);
     void stopInertia(RawObject* obj);
     virtual void update(float delta);
     

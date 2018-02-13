@@ -164,7 +164,7 @@ void InertiaGenerator::scrolling(Vec2 offset, Vec2 position, Vector<Touch*> touc
     }
 }
 
-void InertiaGenerator::scrollingEnded(Vec2 offset, Vec2 position, Vector<Touch*> touches, float deltaTime, RawObject* target)
+void InertiaGenerator::scrollingEnded(Vec2 offset, Vec2 position, Vector<Touch*> touches, float deltaTime, RawObject* target, bool inertia)
 {
     int touches_count = (int)touches.size();
     if(touches_count == 1 && possibleTargets.size() > 0)
@@ -244,7 +244,7 @@ void InertiaGenerator::stopInertia(RawObject* obj)
         inertiaTargets.erase(index);
         for(ScrollingDelegate* delegate : delegates)
         {
-            delegate->scrollingEnded(Vec2(0,0), Vec2(0,0), {}, TIME - lastInertiaNotificationTime, obj);
+            delegate->scrollingEnded(Vec2(0,0), Vec2(0,0), {}, TIME - lastInertiaNotificationTime, obj, true);
         }
     }
 }
