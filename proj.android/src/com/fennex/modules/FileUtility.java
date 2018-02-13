@@ -18,19 +18,16 @@ import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 import java.util.HashMap;
 
-/**
- * Created by Fradow on 10/06/15.
- */
 public class FileUtility implements ActivityResultResponder {
     private static final int FILE_PICK = 50;
     private static final String TAG = "FileUtility";
-    HashMap<String, FileLock> currentLocks;
-    HashMap<String, RandomAccessFile> currentFiles;
+    private HashMap<String, FileLock> currentLocks;
+    private HashMap<String, RandomAccessFile> currentFiles;
     private static volatile FileUtility instance = null;
     private static boolean isPending = false;
     private FileUtility() {
-        currentLocks = new HashMap<String, FileLock>();
-        currentFiles = new HashMap<String, RandomAccessFile>();
+        currentLocks = new HashMap<>();
+        currentFiles = new HashMap<>();
     }
 
     public static FileUtility getInstance()
@@ -60,13 +57,16 @@ public class FileUtility implements ActivityResultResponder {
     }
 
     public static boolean lockFile(String filename) {
-        boolean result = true;
         synchronized (FileUtility.class) {
             try {
                 //Create parent directories recursively
-                if (filename.lastIndexOf("/") != -1) {
-                    File directory = new File(filename.substring(0, filename.lastIndexOf("/") + 1));
-                    directory.mkdirs();
+                if (filename.lastIndexOf(File.separator) != -1) {
+                    String directoryPath = filename.substring(0, filename.lastIndexOf(File.separator));
+                    File directory = new File(directoryPath);
+                    if(!directory.mkdirs()) {
+                        Log.e(TAG, "Error creating directory " + directoryPath + ", cannot lock it");
+                        return false;
+                    }
                 }
                 File fileBase = new File(filename);
                 RandomAccessFile file = new RandomAccessFile(fileBase, "rwd");
@@ -79,13 +79,13 @@ public class FileUtility implements ActivityResultResponder {
                 for (HashMap.Entry<String, FileLock> entry : getInstance().currentLocks.entrySet()) {
                     Log.e(TAG, "    locked file " + entry.getKey());
                 }
-                result = false;
+                return false;
             } catch (IOException e) {
                 e.printStackTrace();
-                result = false;
+                return false;
             }
         }
-        return result;
+        return true;
     }
 
     public static String getLockedFileContents(String filename)
@@ -144,10 +144,12 @@ public class FileUtility implements ActivityResultResponder {
         if (fileOrDirectory.isDirectory())
             for (File child : fileOrDirectory.listFiles())
                 deleteRecursive(child);
-        
+
+        //noinspection ResultOfMethodCallIgnored
         fileOrDirectory.delete();
     }
 
+    @SuppressWarnings("unused")
     public static String[] getFilesInFolder(String folderPath)
     {
         File dir = new File(folderPath);
@@ -159,6 +161,7 @@ public class FileUtility implements ActivityResultResponder {
         return files;
     }
 
+    @SuppressWarnings("unused")
     public static void deleteFile(String filename)
     {
         unlockFile(filename);
@@ -169,6 +172,7 @@ public class FileUtility implements ActivityResultResponder {
         }
     }
 
+    @SuppressWarnings("unused")
     public static boolean moveFileToLocalDirectory(String path)
     {
         String filename = path.substring(path.lastIndexOf("/"));
@@ -176,8 +180,8 @@ public class FileUtility implements ActivityResultResponder {
 
         if(!destinationFile.exists())
         {
-            InputStream in = null;
-            OutputStream out = null;
+            InputStream in;
+            OutputStream out;
             try
             {
                 in = new FileInputStream(path);
@@ -188,14 +192,13 @@ public class FileUtility implements ActivityResultResponder {
                     out.write(buffer, 0, read);
                 }
                 in.close();
-                in = null;
 
                 // write the output file
                 out.flush();
                 out.close();
-                out = null;
 
                 // delete the original file
+                //noinspection ResultOfMethodCallIgnored
                 new File(path).delete();
             }
             catch(Exception e)
@@ -211,6 +214,7 @@ public class FileUtility implements ActivityResultResponder {
             try
             {
                 // delete the original file
+                //noinspection ResultOfMethodCallIgnored
                 new File(path).delete();
             }
             catch(Exception e)
@@ -222,55 +226,40 @@ public class FileUtility implements ActivityResultResponder {
         return true;
     }
 
+    @SuppressWarnings("unused")
     public static boolean moveFile(String path, String destinationFolder)
     {
         String filename = path.substring(path.lastIndexOf("/"));
-        File destinationFile = new File(destinationFolder + java.io.File.separator + filename);
-        File destinationFolderFilde = new File(destinationFolder);
-        String[] directory = destinationFolder.split(java.io.File.separator);
-        String constructedPath = "";
-        if(!destinationFolderFilde.exists())
-        {
-            for(int i = 0; i < directory.length; i++)
-            {
-                constructedPath += directory[i] + java.io.File.separator ;
-                File current = new File(constructedPath);
-                if(!current.exists())
-                {
-                    try
-                    {
-                        current.mkdir();
-                    }
-                    catch (Exception e)
-                    {
-                        return false;
-                    }
-                }
-            }
+        String destinationFilename = destinationFolder + java.io.File.separator + filename;
+        File destinationFile = new File(destinationFilename);
+        File destinationFolderFile = new File(destinationFolder);
+
+        if(!destinationFolderFile.mkdirs()) {
+            Log.e(TAG, "Error creating directory " + destinationFolder + ", cannot lock move file " + path + " to this directory");
+            return false;
         }
 
         if(!destinationFile.exists())
         {
-            InputStream in = null;
-            OutputStream out = null;
+            InputStream in;
+            OutputStream out;
             try
             {
                 in = new FileInputStream(path);
-                out = new FileOutputStream(destinationFolder + java.io.File.separator + filename);
+                out = new FileOutputStream(destinationFilename);
                 byte[] buffer = new byte[1024];
                 int read;
                 while ((read = in.read(buffer)) != -1) {
                     out.write(buffer, 0, read);
                 }
                 in.close();
-                in = null;
 
                 // write the output file
                 out.flush();
                 out.close();
-                out = null;
 
                 // delete the original file
+                //noinspection ResultOfMethodCallIgnored
                 new File(path).delete();
             }
             catch(Exception e)
@@ -286,6 +275,7 @@ public class FileUtility implements ActivityResultResponder {
             try
             {
                 // delete the original file
+                //noinspection ResultOfMethodCallIgnored
                 new File(path).delete();
             }
             catch(Exception e)
@@ -297,7 +287,7 @@ public class FileUtility implements ActivityResultResponder {
         return true;
     }
 
-
+    @SuppressWarnings("unused")
     public static boolean pickFile()
     {
         FileUtility.getInstance(); //ensure the instance is created
@@ -337,5 +327,6 @@ public class FileUtility implements ActivityResultResponder {
         return false;
     }
 
+    @SuppressWarnings("JniMissingFunction")
     public native static void notifyFilePicked(String path);
 }
