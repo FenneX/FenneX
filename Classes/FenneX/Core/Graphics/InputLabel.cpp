@@ -263,7 +263,7 @@ void InputLabel::editBoxEditingDidBegin(ui::EditBox* editBox)
 void InputLabel::editBoxReturn(ui::EditBox* editBox)
 {
     log("ui::EditBoxReturn : Close InputLabel keyboard");
-    DelayedDispatcher::eventAfterDelay("InputLabelReturn", Value(), 0.01);
+    DelayedDispatcher::eventAfterDelay("InputLabelReturn", Value(ValueMap({{"Sender", Value(getID())}})), 0.01);
 }
 
 
