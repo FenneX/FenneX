@@ -38,6 +38,7 @@ NS_FENNEX_BEGIN
 //Warning: it doesn't work well in Fast mode when trying to check for non-cocos class. You should inline the dynamic cast in this case.
 #define isKindOfClass(obj,class) (dynamic_cast<class*>((Ref*)obj) != NULL)
 #define isValueOfType(obj,type) (!obj.isNull() && obj.getType() == Value::Type::type)
+#define valueMapContains(obj, name, type) obj.find(name) != obj.end() && obj.at(name).getType() == Value::Type::type
 
 #define IFEXIST(obj) if(obj != NULL) (obj)
 
