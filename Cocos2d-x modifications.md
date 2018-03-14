@@ -93,3 +93,30 @@ Cocos2d-x V3.8.1 Modifications
 * cocos2D/build/cocos2d_libs.xcodeproj/project.pbxproj => Update to Xcode 8.0 project, inhibit all warnings
 * cocos2d/cocos/network/HttpAsynConnection-apple.m  => Fix crash issue due to a release (backported from cocos2d-x 3.11, commit 200c9fda59f7a5fbece4ba4fa3a3729e38de6998)
 
+Cocos2d-x V3.16 Modifications
+====
+
+* cocos/math/CCGeometry.h => Size now subclass Ref (to allow using it in structures)
+* cocos/base/CCDirector.h/.cpp => add support for build version via setDisplayStats (setDisplayStatsWithBuild, with add of _buildLabel and _buildLabelString)
+* cocos/renderer/CCTextureCache.h/.cpp => add std::string getKeyForTexture(Texture2D* tex) const;
+* cocos2d/cocos/base/CCEventCustom.h/cpp => add EventCustom::create
+* cocos/base/ccConfig.h => disable physics, tiff, webp, script binding
+* cocos/Android.mk => disable tiff, webp, chipmunk and cocostudio
+* cocos/Android.mk => add cpu-feature
+* cocos/base/ccConfig.h => disable physics, tiff, webp, script binding
+* extanstions/android.mk => remove all Particle3D files from LOCAL_SRC_FILES
+* Remove all code between //Enhance comment and "import com.enhance.gameservice.IGameTuningService;" in cocos2d/cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHelper.java
+* cocos2d/cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHelper.java remove if (!sInited) condition in init procedure
+* cocos2d/network/HttpClient/HttpRequest => change _requestData from std::vector<char> to std::string and add inline void setRequestData(const std::string& data)
+* cocos2d/network/* => add POSTFILE request type (include the add of set/getFilePath)
+* Remove AudioEngine
+* cocos2d/cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHttpURLConnection.java => change setVerifySSL to return a boolean with true when succeed and false otherwise
+* cocos2d/cocos/network/HttpClient-android.cpp => change setVerifySSL to return a boolean with true when succeed and false otherwise
+* cocos/2d/misc-nodes/CCClippingNode.h/.cpp => subclass CCActionTweenDelegate to be able to change width/height, add setSquareStencil() to use a square the size of ContentSize
+* Moves all libs from cocos2d/cocos/platform/android/java/libs/ to proj.android/libs/
+* Remove AudioFocusManager and all usages in cocos2dxActivity
+* cocos2d/ui/UIEditBox/UIEditBox.h/.cpp => add closeKeyboard()
+* cocos2d/ui/UIEditBox/UIEditBox.h/platform impl => add date and time pickers
+* cocos/ui/UIEditBox.cpp => add editBoxEditingWillBegin to UIEditBoxDelegate
+* remove cocos2d/web folder and cocos2d/templates folder
+

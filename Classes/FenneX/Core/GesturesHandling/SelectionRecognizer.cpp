@@ -55,8 +55,11 @@ void SelectionRecognizer::init()
 bool SelectionRecognizer::onTouchBegan(Touch *touch, Event *pEvent)
 {
     storedTouches.insert(std::make_pair(touch->getID(), Scene::touchPosition(touch)));
-    DelayedDispatcher::funcAfterDelay(std::bind(&SelectionRecognizer::checkForSelection, this, std::placeholders::_1), touch, duration);
-    Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("SelectionStarted", DcreateP(touch, Screate("Touch"), NULL));
+    DelayedDispatcher::funcAfterDelay(std::bind(&SelectionRecognizer::checkForSelection, this, std::placeholders::_1), Value(touch->getID()), duration);
+    for(SelectionDelegate* delegate : delegates)
+    {
+        delegate->selectionStarted(touch);
+    }
     return true;
 }
 
@@ -71,7 +74,10 @@ void SelectionRecognizer::onTouchMoved(Touch *touch, Event *pEvent)
         }
         else
         {
-            Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("SelectionMoved", DcreateP(touch, Screate("Touch"), NULL));
+            for(SelectionDelegate* delegate : delegates)
+            {
+                delegate->selectionMoved(touch);
+            }
         }
     }
 }
@@ -95,30 +101,40 @@ void SelectionRecognizer::cancelSelectionForTouch(Touch* touch)
 {
     if(isTouchInSelection(touch))
     {
-        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("SelectionCanceled", DcreateP(touch, Screate("Touch"), Pcreate(storedTouches.at(touch->getID())), Screate("Origin"), NULL));
+        for(SelectionDelegate* delegate : delegates)
+        {
+            delegate->selectionCanceled(touch, storedTouches.at(touch->getID()));
+        }
         storedTouches.erase(touch->getID());
     }
 }
 
 void SelectionRecognizer::checkForSelection(EventCustom* event)
 {
-    Touch* touch = (Touch*)event->getUserData();
+    Touch* touch = mainLinker->getTouch(((Value*)event->getUserData())->asInt());
     //the touch could have been discarded in the meantime
-    if(isTouchInSelection(touch))
+    if(touch != NULL && isTouchInSelection(touch))
     {
         Vec2 currentLocation = Scene::touchPosition(touch);
         Vec2 touchOrigin = storedTouches.at(touch->getID());
-        Ref* target = mainLinker->linkedObjectOf(touch);
+        RawObject* target = mainLinker->linkedObjectOf(touch);
         if(Scene::touchPosition(touch).getDistance(touchOrigin) <= maxMovement)
         {
-            Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("SelectionRecognized", DcreateP(touch, Screate("Touch"), target, Screate("Target"), NULL));
+            for(SelectionDelegate* delegate : delegates)
+            {
+                delegate->selectionRecognized(touch, target);
+            }
         }
         else
         {
-            Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("SelectionCanceled", DcreateP(touch, Screate("Touch"), Pcreate(storedTouches.at(touch->getID())), Screate("Origin"), target, Screate("Target"), NULL));
+            for(SelectionDelegate* delegate : delegates)
+            {
+                delegate->selectionCanceled(touch, storedTouches.at(touch->getID()), target);
+            }
         }
         
         storedTouches.erase(touch->getID());
     }
 }
+
 NS_FENNEX_END

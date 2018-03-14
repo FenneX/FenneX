@@ -27,12 +27,20 @@ THE SOFTWARE.
 
 #include "cocos2d.h"
 USING_NS_CC;
-#include "GenericRecognizer.h"
+#include "DelegatingRecognizer.h"
 #include "FenneXMacros.h"
 
 NS_FENNEX_BEGIN
+
+class TapDelegate
+{
+public:
+    virtual void tapRecognized(Touch* touch) = 0;
+};
+
 //Doesn't need to be updated
-class TapRecognizer : public GenericRecognizer
+// You need to subscribe to the recognizer by adding a delegate (it'll launch the tapRecognized method)
+class TapRecognizer : public DelegatingRecognizer<TapDelegate>
 {
 public:
     static TapRecognizer* sharedRecognizer(void);

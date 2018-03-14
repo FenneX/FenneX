@@ -437,16 +437,6 @@ public class AudioPlayerRecorder extends Handler {
         }
     }
     
-    public static void deleteFile(String fileName) 
-    {
-    	currentFile = NativeUtility.getLocalPath() + "/" + fileName;
-    	File file = new File(currentFile);
-    	if(!file.delete())
-    	{
-    		Log.e(TAG, "Couldn't delete file : " + currentFile);
-    	}
-    }
-    
     public static void fadeVolumeOut()
     {
     	final float speed = 0.010f;

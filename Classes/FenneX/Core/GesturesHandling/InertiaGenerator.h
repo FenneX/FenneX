@@ -30,31 +30,34 @@ THE SOFTWARE.
 #include "FenneXMacros.h"
 #include "RawObject.h"
 #include "Panel.h"
+#include "ScrollingRecognizer.h"
+#include "TapRecognizer.h"
 
 USING_NS_CC;
 
 
 NS_FENNEX_BEGIN
 class Inertia;
-class InertiaGenerator : public Ref, public Pausable
+class InertiaGenerator : public Ref, public Pausable, public ScrollingDelegate, public TapDelegate
 {
 public:
     static InertiaGenerator* sharedInertia(void);
     
     void planSceneSwitch(EventCustom* event);
-    void scrolling(EventCustom* eventj);
-    void scrollingEnded(EventCustom* event);
+    void scrolling(Vec2 offset, Vec2 position, Vector<Touch*> touches, float deltaTime, RawObject* target = NULL, bool inertia = false);
+    void scrollingEnded(Vec2 offset, Vec2 position, Vector<Touch*> touches, float deltaTime, RawObject* target = NULL, bool inertia = false);
     void stopInertia(RawObject* obj);
     virtual void update(float delta);
     
     //If a tap is recognized, no inertia is generated
-    void tapRecognized(EventCustom* event);
-    void ignoreTouch(Touch* touch);
+    void tapRecognized(Touch* touch);
     
     void addPossibleTarget(RawObject* target);
     void addPossibleTargets(Vector<RawObject*> target);
     void addPossibleTargets(Vector<Panel*> target);
     
+    void addDelegate(ScrollingDelegate* delegate);
+    void removeDelegate(ScrollingDelegate* delegate);
 protected:
     void init();
     ~InertiaGenerator();
@@ -69,6 +72,7 @@ protected:
     float currentTime;
     float lastInertiaNotificationTime;
     Vector<EventListenerCustom*> eventListeners;
+    std::vector<ScrollingDelegate*> delegates;
 };
 NS_FENNEX_END
 

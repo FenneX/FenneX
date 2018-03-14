@@ -37,6 +37,11 @@
 
 
 --------------------------------------------------------
+-- the cc Component
+-- @field [parent=#cc] Component#Component Component preloaded module
+
+
+--------------------------------------------------------
 -- the cc Node
 -- @field [parent=#cc] Node#Node Node preloaded module
 
@@ -89,6 +94,26 @@
 --------------------------------------------------------
 -- the cc Follow
 -- @field [parent=#cc] Follow#Follow Follow preloaded module
+
+
+--------------------------------------------------------
+-- the cc Image
+-- @field [parent=#cc] Image#Image Image preloaded module
+
+
+--------------------------------------------------------
+-- the cc GLProgramState
+-- @field [parent=#cc] GLProgramState#GLProgramState GLProgramState preloaded module
+
+
+--------------------------------------------------------
+-- the cc PolygonInfo
+-- @field [parent=#cc] PolygonInfo#PolygonInfo PolygonInfo preloaded module
+
+
+--------------------------------------------------------
+-- the cc AutoPolygon
+-- @field [parent=#cc] AutoPolygon#AutoPolygon AutoPolygon preloaded module
 
 
 --------------------------------------------------------
@@ -312,6 +337,11 @@
 
 
 --------------------------------------------------------
+-- the cc EventListenerController
+-- @field [parent=#cc] EventListenerController#EventListenerController EventListenerController preloaded module
+
+
+--------------------------------------------------------
 -- the cc EventListenerTouchOneByOne
 -- @field [parent=#cc] EventListenerTouchOneByOne#EventListenerTouchOneByOne EventListenerTouchOneByOne preloaded module
 
@@ -319,6 +349,11 @@
 --------------------------------------------------------
 -- the cc EventListenerTouchAllAtOnce
 -- @field [parent=#cc] EventListenerTouchAllAtOnce#EventListenerTouchAllAtOnce EventListenerTouchAllAtOnce preloaded module
+
+
+--------------------------------------------------------
+-- the cc EventController
+-- @field [parent=#cc] EventController#EventController EventController preloaded module
 
 
 --------------------------------------------------------
@@ -362,21 +397,6 @@
 
 
 --------------------------------------------------------
--- the cc EaseIn
--- @field [parent=#cc] EaseIn#EaseIn EaseIn preloaded module
-
-
---------------------------------------------------------
--- the cc EaseOut
--- @field [parent=#cc] EaseOut#EaseOut EaseOut preloaded module
-
-
---------------------------------------------------------
--- the cc EaseInOut
--- @field [parent=#cc] EaseInOut#EaseInOut EaseInOut preloaded module
-
-
---------------------------------------------------------
 -- the cc EaseExponentialIn
 -- @field [parent=#cc] EaseExponentialIn#EaseExponentialIn EaseExponentialIn preloaded module
 
@@ -404,26 +424,6 @@
 --------------------------------------------------------
 -- the cc EaseSineInOut
 -- @field [parent=#cc] EaseSineInOut#EaseSineInOut EaseSineInOut preloaded module
-
-
---------------------------------------------------------
--- the cc EaseElastic
--- @field [parent=#cc] EaseElastic#EaseElastic EaseElastic preloaded module
-
-
---------------------------------------------------------
--- the cc EaseElasticIn
--- @field [parent=#cc] EaseElasticIn#EaseElasticIn EaseElasticIn preloaded module
-
-
---------------------------------------------------------
--- the cc EaseElasticOut
--- @field [parent=#cc] EaseElasticOut#EaseElasticOut EaseElasticOut preloaded module
-
-
---------------------------------------------------------
--- the cc EaseElasticInOut
--- @field [parent=#cc] EaseElasticInOut#EaseElasticInOut EaseElasticInOut preloaded module
 
 
 --------------------------------------------------------
@@ -459,11 +459,6 @@
 --------------------------------------------------------
 -- the cc EaseBackInOut
 -- @field [parent=#cc] EaseBackInOut#EaseBackInOut EaseBackInOut preloaded module
-
-
---------------------------------------------------------
--- the cc EaseBezierAction
--- @field [parent=#cc] EaseBezierAction#EaseBezierAction EaseBezierAction preloaded module
 
 
 --------------------------------------------------------
@@ -539,6 +534,46 @@
 --------------------------------------------------------
 -- the cc EaseCubicActionInOut
 -- @field [parent=#cc] EaseCubicActionInOut#EaseCubicActionInOut EaseCubicActionInOut preloaded module
+
+
+--------------------------------------------------------
+-- the cc EaseIn
+-- @field [parent=#cc] EaseIn#EaseIn EaseIn preloaded module
+
+
+--------------------------------------------------------
+-- the cc EaseOut
+-- @field [parent=#cc] EaseOut#EaseOut EaseOut preloaded module
+
+
+--------------------------------------------------------
+-- the cc EaseInOut
+-- @field [parent=#cc] EaseInOut#EaseInOut EaseInOut preloaded module
+
+
+--------------------------------------------------------
+-- the cc EaseElastic
+-- @field [parent=#cc] EaseElastic#EaseElastic EaseElastic preloaded module
+
+
+--------------------------------------------------------
+-- the cc EaseElasticIn
+-- @field [parent=#cc] EaseElasticIn#EaseElasticIn EaseElasticIn preloaded module
+
+
+--------------------------------------------------------
+-- the cc EaseElasticOut
+-- @field [parent=#cc] EaseElasticOut#EaseElasticOut EaseElasticOut preloaded module
+
+
+--------------------------------------------------------
+-- the cc EaseElasticInOut
+-- @field [parent=#cc] EaseElasticInOut#EaseElasticInOut EaseElasticInOut preloaded module
+
+
+--------------------------------------------------------
+-- the cc EaseBezierAction
+-- @field [parent=#cc] EaseBezierAction#EaseBezierAction EaseBezierAction preloaded module
 
 
 --------------------------------------------------------
@@ -742,11 +777,6 @@
 
 
 --------------------------------------------------------
--- the cc GLProgramState
--- @field [parent=#cc] GLProgramState#GLProgramState GLProgramState preloaded module
-
-
---------------------------------------------------------
 -- the cc AtlasNode
 -- @field [parent=#cc] AtlasNode#AtlasNode AtlasNode preloaded module
 
@@ -789,6 +819,11 @@
 --------------------------------------------------------
 -- the cc LayerGradient
 -- @field [parent=#cc] LayerGradient#LayerGradient LayerGradient preloaded module
+
+
+--------------------------------------------------------
+-- the cc LayerRadialGradient
+-- @field [parent=#cc] LayerRadialGradient#LayerRadialGradient LayerRadialGradient preloaded module
 
 
 --------------------------------------------------------
@@ -849,6 +884,11 @@
 --------------------------------------------------------
 -- the cc ParticleBatchNode
 -- @field [parent=#cc] ParticleBatchNode#ParticleBatchNode ParticleBatchNode preloaded module
+
+
+--------------------------------------------------------
+-- the cc ParticleData
+-- @field [parent=#cc] ParticleData#ParticleData ParticleData preloaded module
 
 
 --------------------------------------------------------
@@ -924,21 +964,6 @@
 --------------------------------------------------------
 -- the cc ProtectedNode
 -- @field [parent=#cc] ProtectedNode#ProtectedNode ProtectedNode preloaded module
-
-
---------------------------------------------------------
--- the cc Image
--- @field [parent=#cc] Image#Image Image preloaded module
-
-
---------------------------------------------------------
--- the cc PolygonInfo
--- @field [parent=#cc] PolygonInfo#PolygonInfo PolygonInfo preloaded module
-
-
---------------------------------------------------------
--- the cc AutoPolygon
--- @field [parent=#cc] AutoPolygon#AutoPolygon AutoPolygon preloaded module
 
 
 --------------------------------------------------------
@@ -1307,8 +1332,13 @@
 
 
 --------------------------------------------------------
--- the cc Component
--- @field [parent=#cc] Component#Component Component preloaded module
+-- the cc MotionStreak3D
+-- @field [parent=#cc] MotionStreak3D#MotionStreak3D MotionStreak3D preloaded module
+
+
+--------------------------------------------------------
+-- the cc ComponentLua
+-- @field [parent=#cc] ComponentLua#ComponentLua ComponentLua preloaded module
 
 
 return nil

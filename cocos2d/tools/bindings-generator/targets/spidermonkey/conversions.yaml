@@ -36,8 +36,8 @@ conversions:
     "unsigned short": "ok &= jsval_to_ushort(cx, ${in_value}, &${out_value})"
     char: "ok &= jsval_to_int32(cx, ${in_value}, &${out_value})"
     bool: "${out_value} = JS::ToBoolean(${in_value})"
-    float: "ok &= JS::ToNumber( cx, ${in_value}, &${out_value}) && !isnan(${out_value})"
-    double: "ok &= JS::ToNumber( cx, ${in_value}, &${out_value}) && !isnan(${out_value})"
+    float: "ok &= JS::ToNumber( cx, ${in_value}, &${out_value}) && !std::isnan(${out_value})"
+    double: "ok &= JS::ToNumber( cx, ${in_value}, &${out_value}) && !std::isnan(${out_value})"
     long: "ok &= jsval_to_long(cx, ${in_value}, &${out_value})"
     "unsigned long": "ok &= jsval_to_ulong(cx, ${in_value}, &${out_value})"
     "ssize_t": "ok &= jsval_to_ssize(cx, ${in_value}, &${out_value})"
@@ -69,6 +69,7 @@ conversions:
     "Mat4": "ok &= jsval_to_matrix(cx, ${in_value}, &${out_value})"
     "Vec2": "ok &= jsval_to_vector2(cx, ${in_value}, &${out_value})"
     "Vec3": "ok &= jsval_to_vector3(cx, ${in_value}, &${out_value})"
+    "Vec2*": "std::vector<cocos2d::Vec2> tempData;ok &= jsval_to_vector_vec2(cx, ${in_value}, &tempData);${out_value}=tempData.data()"
     "BlendFunc": "ok &= jsval_to_blendfunc(cx, ${in_value}, &${out_value})"
     "AnimationInfo": "ok &= jsval_to_animationInfo(cx, ${in_value}, &${out_value})"
     "Quaternion": "ok &= jsval_to_quaternion(cx, ${in_value}, &${out_value})"
@@ -78,12 +79,15 @@ conversions:
     "TerrainData": "ok &= jsval_to_TerrainData(cx, ${in_value}, &${out_value})"
     "TMXTileFlags_": "ok &= jsval_to_uint32(cx, ${in_value}, (uint32_t *)&${out_value})"
     "TMXTileFlags_*": "uint32_t tempData;${out_value}=(cocos2d::TMXTileFlags_*)&tempData;ok &= jsval_to_uint32(cx, ${in_value}, (uint32_t *)&${out_value})"
+    "ResourceData": "ok &= jsval_to_resourcedata(cx, ${in_value}, &${out_value})"
+    "ListenerID": "ok &= jsval_to_std_string(cx, ${in_value}, &${out_value})"
+    "DownloaderHints": "ok &= jsval_to_DownloaderHints(cx, ${in_value}, &${out_value})"
     object: |
       do {
       ${($level + 1) * '    '}if (${in_value}.isNull()) { ${out_value} = nullptr; break; }
       ${($level + 1) * '    '}if (!${in_value}.isObject()) { ok = false; break; }
       ${($level + 1) * '    '}js_proxy_t *jsProxy;
-      ${($level + 1) * '    '}JSObject *tmpObj = ${in_value}.toObjectOrNull();
+      ${($level + 1) * '    '}JS::RootedObject tmpObj(cx, ${in_value}.toObjectOrNull());
       ${($level + 1) * '    '}jsProxy = jsb_get_js_proxy(tmpObj);
       ${($level + 1) * '    '}${out_value} = (${ntype})(jsProxy ? jsProxy->ptr : NULL);
       ${($level + 1) * '    '}JSB_PRECONDITION2( ${out_value}, cx, false, "Invalid Native Object");
@@ -146,12 +150,16 @@ conversions:
     "spTrackEntry*": "${out_value} = sptrackentry_to_jsval(cx, *${in_value})"
     "Quaternion": "${out_value} = quaternion_to_jsval(cx, ${in_value})"
     "OffMeshLinkData": "${out_value} = offMeshLinkData_to_jsval(cx, ${in_value})"
+    "Uniform*": "${out_value} = uniform_to_jsval(cx, ${in_value})"
+    "ResourceData": "${out_value} = resourcedata_to_jsval(cx, ${in_value})"
+    "TouchEventType": "${out_value} = int32_to_jsval(cx, (int)${in_value})"
+    "EventType": "${out_value} = int32_to_jsval(cx, (int)${in_value})"
+    "ManifestAsset": "${out_value} = asset_to_jsval(cx, ${in_value})"
+    "@DownloadTask.*": "${out_value} = downloadTask_to_jsval(cx, ${in_value})"
+    "@shared_ptr<.*DownloadTask.*": "${out_value} = downloadTask_to_jsval(cx, *${in_value})"
     object: |
-      do {
-      ${($level + 1) * '    '}if (${in_value}) {
-      ${($level + 2) * '    '}js_proxy_t *jsProxy = js_get_or_create_proxy<${ntype.replace("*", "").replace("const ", "")}>(cx, (${ntype.replace("const ", "")})${in_value});
-      ${($level + 2) * '    '}${out_value} = OBJECT_TO_JSVAL(jsProxy->obj);
-      ${($level + 1) * '    '}} else {
-      ${($level + 2) * '    '}${out_value} = JSVAL_NULL;
-      ${($level + 1) * '    '}}
-      ${($level) * '    '}} while (0)
+      if (${in_value}) {
+      ${($level + 1) * '    '}${out_value} = OBJECT_TO_JSVAL(js_get_or_create_jsobject<${ntype.replace("*", "").replace("const ", "")}>(cx, (${ntype.replace("const ", "")})${in_value}));
+      ${($level    ) * '    '}} else {
+      ${($level + 1) * '    '}${out_value} = JSVAL_NULL;
+      ${($level    ) * '    '}}

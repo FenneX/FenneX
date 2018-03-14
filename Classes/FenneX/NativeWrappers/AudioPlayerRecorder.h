@@ -25,7 +25,8 @@ THE SOFTWARE.
 #ifndef FenneX_AudioPlayerRecorder_h
 #define FenneX_AudioPlayerRecorder_h
 
-#include "FenneX.h"
+#include "FenneXMacros.h"
+#include "cocos2d.h"
 #include "Shorteners.h"
 USING_NS_CC;
 USING_NS_FENNEX;
@@ -98,9 +99,6 @@ public:
     void pause();
     void restart();
     
-    //deleteFile requires the full path including the extension
-    void deleteFile(const std::string& file);
-    
     //Must be called before playing a sound. The rate is global for all subsequent play sound
     float getPlaybackRate();
     void setPlaybackRate(float rate);
@@ -118,7 +116,7 @@ public:
         - Duration (CCInteger, as seconds)
      Anything can be NULL, including the returned Dictionary if something went wrong or not implemented
      */
-    static CCDictionary* getFileMetadata(const std::string& path);
+    static ValueMap getFileMetadata(const std::string& path);
 protected:
     AudioPlayerRecorder();
     void init();

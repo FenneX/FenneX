@@ -32,7 +32,7 @@ USING_NS_FENNEX;
 #define  CLASS_NAME "com/fennex/modules/AudioPlayerRecorder"
 
 //Cache sounds duration here because a call to Java getSoundDuration requires a MediaPlayer prepare, which is slow
-CCDictionary* soundsDuration = NULL;
+ValueMap soundsDuration = ValueMap();
 
 void AudioPlayerRecorder::setUseVLC(bool useVLC)
 {
@@ -69,7 +69,7 @@ bool AudioPlayerRecorder::isPlaying()
 }
 
 
-void AudioPlayerRecorder::record(const std::string& file, CCObject* linkTo)
+void AudioPlayerRecorder::record(const std::string& file, Ref* linkTo)
 {
     JniMethodInfo minfo;
     std::string withExtension = file + ".3gp";
@@ -107,7 +107,7 @@ void AudioPlayerRecorder::stopRecording()
     this->setPath("");
 }
 
-float AudioPlayerRecorder::play(const std::string& file, CCObject* linkTo, bool independent, float volume)
+float AudioPlayerRecorder::play(const std::string& file, Ref* linkTo, bool independent, float volume)
 {
     JniMethodInfo minfo;
     
@@ -126,7 +126,7 @@ float AudioPlayerRecorder::play(const std::string& file, CCObject* linkTo, bool 
         if(linkTo == link && this->isPlaying())
         {
             this->stopPlaying();
-            CCLOG(" END AudioPlayerRecorder::play");
+            log(" END AudioPlayerRecorder::play");
             return 0;
         }
         else
@@ -146,7 +146,7 @@ float AudioPlayerRecorder::play(const std::string& file, CCObject* linkTo, bool 
             minfo.env->DeleteLocalRef(string0);
         }
     }
-    CCLOG("sound %s duration : %f", file.c_str(), getSoundDuration(file));
+    log("sound %s duration : %f", file.c_str(), getSoundDuration(file));
     return getSoundDuration(file);
 }
 
@@ -161,18 +161,6 @@ void AudioPlayerRecorder::stopPlaying(EventCustom* event)
     link = NULL; //don't call setLink to avoid infinite recursion
     this->setPath("");
 }
-
-void AudioPlayerRecorder::deleteFile(const std::string& file)
-{
-    JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"deleteFile", "(Ljava/lang/String;)V");
-    CCAssert(functionExist, "Function doesn't exist");
-    jstring string0 = minfo.env->NewStringUTF(file.c_str());
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, string0);
-    minfo.env->DeleteLocalRef(minfo.classID);
-    minfo.env->DeleteLocalRef(string0);
-}
-
 
 void AudioPlayerRecorder::play()
 {
@@ -234,22 +222,15 @@ void AudioPlayerRecorder::setPlaybackRate(float rate)
 float AudioPlayerRecorder::getSoundDuration(const std::string& file)
 {
     JniMethodInfo minfo;
-    
-    if(soundsDuration == NULL)
+    Value soundDurationValue = Value();
+    if(soundsDuration.empty())
     {
-        soundsDuration = (CCDictionary*)loadObjectFromFile("__SoundsDuration.plist");
-        if(soundsDuration == NULL)
-        {
-            soundsDuration = new CCDictionary();
-        }
-        else
-        {
-            soundsDuration->retain();
-        }
+        soundDurationValue = loadValueFromFile("__SoundsDuration.plist");
+        soundsDuration = soundDurationValue.getType() == Value::Type::MAP ? soundDurationValue.asValueMap() : ValueMap();
     }
-    CCObject* result = soundsDuration->objectForKey(file.c_str());
+    Value result = soundsDuration[file.c_str()];
     //If the saved result is at 0, there was probably a problem during last try
-    if(result == NULL || TOFLOAT(result) == 0)
+    if(!isValueOfType(result, FLOAT))
     {
         bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"getSoundDuration", "(Ljava/lang/String;)F");
         CCAssert(functionExist, "Function doesn't exist");
@@ -258,11 +239,12 @@ float AudioPlayerRecorder::getSoundDuration(const std::string& file)
         float duration = minfo.env->CallStaticFloatMethod(minfo.classID, minfo.methodID, minfo.env->NewStringUTF(file.c_str()));
         minfo.env->DeleteLocalRef(minfo.classID);
         minfo.env->DeleteLocalRef(string0);
-        soundsDuration->setObject(Fcreate(duration), file.c_str());
-        saveObjectToFile(soundsDuration, "__SoundsDuration.plist");
+        soundsDuration[file.c_str()] = Value(duration);
+        soundDurationValue = Value(soundsDuration);
+        saveValueToFile(soundDurationValue, "__SoundsDuration.plist");
         return duration;
     }
-    return TOFLOAT(result);
+    return result.asFloat();
 }
 
 std::string AudioPlayerRecorder::getSoundsSavePath()
@@ -295,18 +277,18 @@ void AudioPlayerRecorder::setRecordEnabled(bool enabled)
             
             if(!permissionOK)
             {
-                CCLOG("Warning : microphone permission missing, the app may crash on next record");
+                log("Warning : microphone permission missing, the app may crash on next record");
             }
         }
         recordEnabled = enabled;
     }
 }
 
-CCDictionary* AudioPlayerRecorder::getFileMetadata(const std::string& path)
+ValueMap AudioPlayerRecorder::getFileMetadata(const std::string& path)
 {
     JniMethodInfo minfo;
-    CCDictionary* metadata = Dcreate();
-    metadata->setObject(Icreate(getSoundDuration(path)), "Duration");
+    ValueMap metadata = ValueMap();
+    metadata["Duration"] = Value(getSoundDuration(path));
     
     bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"getAuthor", "(Ljava/lang/String;)Ljava/lang/String;");
     CCAssert(functionExist, "Function doesn't exist");
@@ -316,7 +298,7 @@ CCDictionary* AudioPlayerRecorder::getFileMetadata(const std::string& path)
     minfo.env->DeleteLocalRef(minfo.classID);
     if(result != NULL)
     {
-        metadata->setObject(Screate(JniHelper::jstring2string(result)), "Author");
+        metadata["Author"] = Value(JniHelper::jstring2string(result));
         minfo.env->DeleteLocalRef(result);
     }
     
@@ -327,7 +309,7 @@ CCDictionary* AudioPlayerRecorder::getFileMetadata(const std::string& path)
     minfo.env->DeleteLocalRef(minfo.classID);
     if(result != NULL)
     {
-        metadata->setObject(Screate(JniHelper::jstring2string(result)), "Title");
+        metadata["Title"] = Value(JniHelper::jstring2string(result));
         minfo.env->DeleteLocalRef(result);
     }
     

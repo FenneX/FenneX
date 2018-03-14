@@ -101,54 +101,39 @@ void RawObject::setOpacityRecursive(GLubyte opacity)
     }
 }
 
-CCDictionary* RawObject::getEventInfos() const
+ValueMap RawObject::getEventInfos() const
 {
-    CCDictionary* infos = CCDictionary::createWithDictionary(eventInfos);
-    if(infos->objectForKey("Sender") == NULL)
+    ValueMap infos = eventInfos;
+    if(infos["Sender"].isNull())
     {
-        infos->setObject(Icreate(identifier), "Sender");
+        infos["Sender"] = Value(identifier);
     }
     return infos;
 }
 
-void RawObject::setEventInfo(Ref* obj, std::string key)
+Value RawObject::getEventInfo(std::string key) const
 {
-    eventInfos->setObject(obj, key);
-}
-
-void RawObject::addEventInfos(CCDictionary* infos)
-{
-    CCArray* keys = infos->allKeys();
-    Ref* keyObj;
-    CCARRAY_FOREACH(keys, keyObj)
-    {
-        std::string key = ((CCString*)keyObj)->getCString();
-        if(key != "Sender")
-        {
-            this->setEventInfo(infos->objectForKey(key), key);
-        }
-    }
+    return getEventInfos()[key];
 }
 
 void RawObject::setEventInfo(std::string key, Value obj)
 {
-    setEventInfo(valueToRef(obj), key);
+    eventInfos[key] = obj;
 }
 
 void RawObject::addEventInfos(ValueMap infos)
 {
-    for(auto iter = infos.begin(); iter != infos.end(); iter++)
-    {
-        if(iter->first != "Sender")
+    for(ValueMap::iterator it = infos.begin(); it != infos.end(); ++it) {
+        if(it->first != "Sender")
         {
-            this->setEventInfo(iter->first, iter->second);
+            eventInfos[it->first] = it->second;
         }
     }
 }
 
 void RawObject::removeEventInfo(std::string key)
 {
-    eventInfos->removeObjectForKey(key);
+    eventInfos.erase(key);
 }
 
 RawObject::RawObject():
@@ -156,14 +141,13 @@ name(""),
 eventName(""),
 isEventActivated(true)
 {
-    eventInfos = CCDictionary::create();
-    eventInfos->retain();
+    eventInfos = ValueMap();
     identifier = GraphicLayer::sharedLayer()->getNextId();
 }
 
 RawObject::~RawObject()
 {
-    eventInfos->release();
+    eventInfos.clear();
 }
 
 bool RawObject::collision(Vec2 point)
@@ -204,16 +188,18 @@ bool RawObject::containsRect(Rect rect)
 
 bool operator<(const RawObject& obj1, const RawObject& obj2)
 {
-    if(isKindOfClass(obj1.getEventInfos()->objectForKey("Order"), CCInteger) && isKindOfClass(obj2.getEventInfos()->objectForKey("Order"), CCInteger))
+    if(isValueOfType(obj1.getEventInfos()["Order"], INTEGER) &&
+       isValueOfType(obj2.getEventInfos()["Order"], INTEGER))
     {
-        int obj1Order = TOINT(obj1.getEventInfos()->objectForKey("Order"));
-        int obj2Order = TOINT(obj2.getEventInfos()->objectForKey("Order"));
+        int obj1Order = obj1.getEventInfos()["Order"].asInt();
+        int obj2Order = obj2.getEventInfos()["Order"].asInt();
         return obj1Order < obj2Order;
     }
-    if(isKindOfClass(obj1.getEventInfos()->objectForKey("Index"), CCInteger) && isKindOfClass(obj2.getEventInfos()->objectForKey("Index"), CCInteger))
+    if(isValueOfType(obj1.getEventInfos()["Index"], INTEGER) &&
+       isValueOfType(obj2.getEventInfos()["Index"], INTEGER))
     {
-        int obj1Order = TOINT(obj1.getEventInfos()->objectForKey("Index"));
-        int obj2Order = TOINT(obj2.getEventInfos()->objectForKey("Index"));
+        int obj1Order = obj1.getEventInfos()["Index"].asInt();
+        int obj2Order = obj2.getEventInfos()["Index"].asInt();
         return obj1Order < obj2Order;
     }
     //If all else fails, order them by screen zorder

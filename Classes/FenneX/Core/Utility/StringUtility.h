@@ -34,33 +34,6 @@ NS_FENNEX_BEGIN
 
 //Replacement suggestion assume std::vector<std::string> list; and std::string string;
 
-/*
- Replace by 
- std::find(list.begin(), list.end(), string) != list.end();
- */
-CC_DEPRECATED_ATTRIBUTE bool arrayContainsString(CCArray* list, CCString* string);
-
-/* 
- Replace by
- std::vector<std::string>::iterator iter = std::find_if(list.begin(), list.end(), string);
- if(iter != list.end()) size_t index = std::distance(list.begin(), iter);
- */
-CC_DEPRECATED_ATTRIBUTE int arrayGetStringIndex(CCArray* list, CCString* string);
-
-/*
- Replace by
- list.erase(std::remove(list.begin(), list.end(), string), list.end())
- */
-CC_DEPRECATED_ATTRIBUTE void arrayRemoveString(CCArray* list, CCString* string);
-
-/*
- Replace by
- list.erase(std::remove_if(list.begin(), list.end(), [other](const std::string& string) {
-    std::find(other.begin(), other.end(), string) != other.end()
- }), list.end())
- */
-CC_DEPRECATED_ATTRIBUTE void arrayRemoveStringFromOther(CCArray* list, CCArray* other);
-
 //Those methods are UTF-8 aware and require letters_conversion.txt resource to work (add it to project on iOS)
 std::string upperCase(std::string text);
 std::string lowerCase(std::string text);
@@ -75,12 +48,15 @@ std::string urlEncode(const std::string& str);
 //Do a substring with utf8 aware code
 std::string utf8_substr(const std::string& str, long start, long leng);
 //Get the size of a single character
-long utf8_chsize( const char* source );
+long utf8_chsize( const char* source);
 //Get the size of an utf8 string
-long utf8_len( const std::string& s );
+long utf8_len( const std::string& s);
 
 //Split the string s to a vector using separator separator
 std::vector<std::string> split(const std::string& s, char seperator);
+
+// Format string, code from https://stackoverflow.com/questions/2342162/stdstring-formatting-like-sprintf
+std::string string_format(const std::string fmt, ...);
 
 NS_FENNEX_END
 

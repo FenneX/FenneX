@@ -25,115 +25,114 @@
 #import "NSCCConverter.h"
 #include "Shorteners.h"
 
+using namespace cocos2d;
+
 @implementation NSCCConverter
 
-+ (NSDictionary *)nsDictionaryFromCCDictionary:(cocos2d::CCDictionary *)ccDictionary {
-    if (ccDictionary == NULL) {
-        return NULL;
-    } else if (ccDictionary->allKeys() == NULL) {
-        return NULL;
-    } else if (ccDictionary->allKeys()->count() <= 0) {
++ (NSDictionary *)nsDictionaryFromValueMap:(ValueMap)map {
+    if (map.size()>0) {
         return NULL;
     }
     
     
-    NSMutableDictionary *nsDict = [NSMutableDictionary dictionaryWithCapacity:ccDictionary->allKeys()->count()];
-    
-    
-    for (int i = 0; i < ccDictionary->allKeys()->count(); i++) {
-        cocos2d::CCString* key = (cocos2d::CCString *)ccDictionary->allKeys()->objectAtIndex(i);
-        cocos2d::Ref* obj = ccDictionary->objectForKey(key->getCString());
+    NSMutableDictionary *nsDict = [NSMutableDictionary dictionaryWithCapacity:map.size()];
+    for(ValueMap::iterator it = map.begin(); it != map.end(); ++it) {
         NSObject* nsObject;
-        if(isKindOfClass(obj, CCDictionary))
+        Value obj = it->second;
+        if(obj.getType() == Value::Type::MAP)
         {
             nsObject = @"Dictionary";
         }
-        else if(isKindOfClass(obj, CCArray))
+        else if(obj.getType() == Value::Type::VECTOR)
         {
             nsObject = @"Array";
         }
-        else if (isKindOfClass(obj, CCString))
+        else if(obj.getType() == Value::Type::STRING)
         {
-            const char* cstring = ((CCString*)obj)->getCString();
+            const char* cstring = obj.asString().c_str();
             nsObject = [[[NSString alloc] initWithBytes:cstring length:strlen(cstring) encoding:NSUTF8StringEncoding] autorelease];
         }
-        else if (isKindOfClass(obj, CCInteger))
+        else if(obj.getType() == Value::Type::INTEGER)
         {
-            nsObject = [NSNumber numberWithInt:TOINT(obj)];
+            nsObject = [NSNumber numberWithInt:obj.asInt()];
         }
-        else if (isKindOfClass(obj, CCFloat))
+        else if(obj.getType() == Value::Type::FLOAT)
         {
-            nsObject = [NSNumber numberWithFloat:TOFLOAT(obj)];
+            nsObject = [NSNumber numberWithFloat:obj.asFloat()];
         }
-        else if (isKindOfClass(obj, CCBool))
+        else if(obj.getType() == Value::Type::DOUBLE)
         {
-            nsObject =  [NSNumber numberWithBool:TOBOOL(obj)];
+            nsObject = [NSNumber numberWithFloat:obj.asDouble()];
+        }
+        else if(obj.getType() == Value::Type::BOOLEAN)
+        {
+            nsObject =  [NSNumber numberWithBool:obj.asBool()];
         }
         else
         {
             nsObject = @"Unknown Object";
         }
-        [nsDict setValue:nsObject forKey:[NSString stringWithFormat:@"%s", key->getCString()]];
+        [nsDict setValue:nsObject forKey:[NSString stringWithFormat:@"%s", it->first.c_str()]];
     }
     
     return nsDict;
 }
 
 
-+ (cocos2d::CCDictionary *)ccDictionaryFromNSDictionary:(NSDictionary *)nsDictionary
++ (ValueMap)valueMapFromNSDictionary:(NSDictionary *)nsDictionary
 {
     if (nsDictionary == nil) {
-        return NULL;
+        return ValueMap();
     } else if ([nsDictionary allKeys] == NULL) {
-        return NULL;
+        return ValueMap();
     } else if ([nsDictionary allKeys].count <= 0) {
-        return NULL;
+        return ValueMap();
     }
     
-    CCDictionary* ccDict = Dcreate();
+    ValueMap map = ValueMap();
     
     
     for (int i = 0; i < [nsDictionary allKeys].count; i++) {
         NSString* key = [[nsDictionary allKeys] objectAtIndex:i];
         NSObject* obj = [nsDictionary objectForKey:key];
-        cocos2d::Ref* ccObject;
+        Value val;
         if([obj isKindOfClass:[NSDictionary class]])
         {
-            ccObject = Screate("Dictionary");
+            val = Value("Dictionary");
         }
         else if([obj isKindOfClass:[NSArray class]])
         {
-            ccObject = Screate("Array");
+            val = Value("Array");
         }
         else if ([obj isKindOfClass:[NSString class]])
         {
-            ccObject = Screate([(NSString*)obj UTF8String]);
+            val = Value([(NSString*)obj UTF8String]);
         }
         else if ([obj isKindOfClass:[NSNumber class]])
         {
             NSNumber* aNumber = (NSNumber*)obj;
             if((strcmp([aNumber objCType], @encode(int))) == 0) {
-                ccObject = Icreate([aNumber intValue]);
+                val = Value([aNumber intValue]);
             } else if((strcmp([aNumber objCType], @encode(float))) == 0) {
-                ccObject = Fcreate([aNumber floatValue]);
+                val = Value([aNumber floatValue]);
             } else if((strcmp([aNumber objCType], @encode(BOOL))) == 0) {
-                ccObject = Bcreate([aNumber boolValue]);
+                val = Value([aNumber boolValue]);
             } else {
                 if([aNumber floatValue] - (int)[aNumber floatValue] < 0.00001) {   
-                    ccObject = Icreate([aNumber intValue]);
+                    val = Value([aNumber intValue]);
                 } else {
-                    ccObject = Fcreate([aNumber floatValue]);                    
+                    val = Value([aNumber floatValue]);
                 }
             }
         }
         else
         {
-            ccObject = Screate("Unknown Object");
+            val = Value("Unknown Object");
         }
-        ccDict->setObject(ccObject, [key UTF8String]);
+        map.insert({[key UTF8String], val});
     }
     
-    return ccDict;
+    return map;
 }
 
 @end

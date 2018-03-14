@@ -12,7 +12,13 @@ static bool ${signature_name}(JSContext *cx, uint32_t argc, jsval *vp)
     #end if
     #while $count < $arg_idx
         #set $arg = $arguments[$count]
+        #if $arg.is_numeric
+    ${arg.to_string($generator)} arg${count} = 0;
+        #elif $arg.is_pointer
+    ${arg.to_string($generator)} arg${count} = nullptr;
+        #else
     ${arg.to_string($generator)} arg${count};
+        #end if
         #set $count = $count + 1
     #end while
     #set $count = 0
@@ -34,13 +40,10 @@ static bool ${signature_name}(JSContext *cx, uint32_t argc, jsval *vp)
     #end if
     #set $arg_list = ", ".join($arg_array)
     ${namespaced_class_name} *nobj = new (std::nothrow) ${namespaced_class_name}($arg_list);
-#if not $generator.script_control_cpp and $is_ref_class
-    if (nobj) {
-        nobj->autorelease();
-    }
-#end if
     js_proxy_t* p = jsb_new_proxy(nobj, obj);
-#if not $generator.script_control_cpp
+#if $is_ref_class
+    jsb_ref_init(cx, &p->obj, nobj, "${namespaced_class_name}");
+#else
     AddNamedObjectRoot(cx, &p->obj, "${namespaced_class_name}");
 #end if
     bool isFound = false;

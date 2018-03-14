@@ -72,10 +72,6 @@ void resizeChildren(Node* parentNode, Node* resizeNode, float usedScale, int dep
             log("input font size : %d, parent node scale : %f, dimensions : %f, %f, depth : %d", input->getFontSize(), parentNode->getScale(), input->getPreferredSize().width, input->getPreferredSize().height, depth);
 #endif
         }
-        else if(isKindOfClass(node, Sprite))
-        {
-            
-        }
         else if(isKindOfClass(node, ui::Scale9Sprite))
         {
             ui::Scale9Sprite* sprite = (ui::Scale9Sprite*)node;
@@ -84,6 +80,9 @@ void resizeChildren(Node* parentNode, Node* resizeNode, float usedScale, int dep
             sprite->setInsetLeft(sprite->getInsetRight() * usedScale);
             sprite->setInsetRight(sprite->getInsetRight() * usedScale);
             sprite->setInsetTop(sprite->getInsetTop() * usedScale);
+        }
+        else if(isKindOfClass(node, Sprite))
+        {
         }
         else  //Panel
         {
@@ -215,16 +214,16 @@ Panel* loadCCBFromFileToFenneX(std::string file, std::string inPanel, int zIndex
                     log("input font size : %d, parent node scale : %f, dimensions : %f, %f, depth 1", input->getFontSize() , parentNode->getScale(), input->getPreferredSize().width, input->getPreferredSize().height);
 #endif
                 }
-                else if(isKindOfClass(nodeChild, Sprite))
-                {
-                    nodeChild->setScaleX(nodeChild->getScaleX() / usedScale);
-                    nodeChild->setScaleY(nodeChild->getScaleY() / usedScale);
-                }
                 else if(isKindOfClass(nodeChild, ui::Scale9Sprite))
                 {
                     nodeChild->setScaleX(nodeChild->getScaleX() / usedScale);
                     nodeChild->setScaleY(nodeChild->getScaleY() / usedScale);
                     nodeChild->setContentSize(SizeMult(nodeChild->getContentSize(), usedScale));
+                }
+                else if(isKindOfClass(nodeChild, Sprite))
+                {
+                    nodeChild->setScaleX(nodeChild->getScaleX() / usedScale);
+                    nodeChild->setScaleY(nodeChild->getScaleY() / usedScale);
                 }
                 else if(!nodeChild->getChildren().empty())//Panel
                 {
@@ -311,14 +310,6 @@ void loadNodeToFenneX(Node* baseNode, Panel* parent)
             Sprite* sprite = (Sprite*)node;
             result = layer->createDropDownListFromSprite(sprite, parent);
         }
-        else if(isKindOfClass(node, Sprite))
-        {
-#if VERBOSE_LOAD_CCB
-            log("image");
-#endif
-            Sprite* sprite = (Sprite*)node;
-            result = layer->createImageFromSprite(sprite, parent);
-        }
         else if(isKindOfClass(node, CustomInput))
         {
 #if VERBOSE_LOAD_CCB
@@ -353,6 +344,14 @@ void loadNodeToFenneX(Node* baseNode, Panel* parent)
 #endif
             ui::Scale9Sprite* sprite = (ui::Scale9Sprite*)node;
             result = layer->createCustomObjectFromNode(sprite, parent);
+        }
+        else if(isKindOfClass(node, Sprite))
+        {
+#if VERBOSE_LOAD_CCB
+            log("image");
+#endif
+            Sprite* sprite = (Sprite*)node;
+            result = layer->createImageFromSprite(sprite, parent);
         }
         else if(!isKindOfClass(node, ui::EditBox))
         {
@@ -403,12 +402,12 @@ void linkInputLabels()
                 input->setFontSize(input->getOriginalInfos()->getFontSize());
             }
         }
-        if((isKindOfClass(child, DropDownList)) && child->getEventInfos()->objectForKey("LinkTo") != NULL && isKindOfClass(child->getEventInfos()->objectForKey("LinkTo"), CCString))
+        if((isKindOfClass(child, DropDownList)) && isValueOfType(child->getEventInfos()["LinkTo"], STRING))
         {
             DropDownList* dropDownList = (DropDownList*)child;
             if(dropDownList->getLinkTo() == NULL)
             {
-                std::string linkTo = ((CCString*)child->getEventInfos()->objectForKey("LinkTo"))->getCString();
+                std::string linkTo = child->getEventInfos()["LinkTo"].asString();
                 Panel* parent = layer->getContainingPanel(dropDownList);
                 for(RawObject* obj : parent != NULL ? parent->getChildren() : layer->all())
                 {

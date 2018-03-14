@@ -184,12 +184,12 @@ InputLabel::~InputLabel()
 
 void InputLabel::openKeyboard(EventCustom* event)
 {
-    CCDictionary* infos = (CCDictionary*)event->getUserData();
+    ValueMap infos = (event != NULL && event->getUserData() != NULL) ? ((Value*)event->getUserData())->asValueMap() : ValueMap();
     if(locks.size() == 0
-       && ((isKindOfClass(infos->objectForKey("Sender"), CCInteger)
-            && TOINT(infos->objectForKey("Sender")) == identifier)
-           || (isKindOfClass(infos->objectForKey("Target"), CCInteger)
-               && TOINT(infos->objectForKey("Target")) == identifier)))
+       && ((isValueOfType(infos["Sender"], INTEGER)
+            && infos["Sender"].asInt() == identifier)
+           || (isValueOfType(infos["Target"], INTEGER)
+               && infos["Target"].asInt() == identifier)))
     {
         log("Open InputLabel keyboard");
         delegate->touchDownAction(this, cocos2d::ui::Widget::TouchEventType::ENDED);//open keyboard by simulating a touch inside
@@ -199,11 +199,11 @@ void InputLabel::openKeyboard(EventCustom* event)
 
 void InputLabel::closeKeyboard(EventCustom* event)
 {
-    CCDictionary* infos = (CCDictionary*)event->getUserData();
-    if((isKindOfClass(infos->objectForKey("Sender"), CCInteger)
-        && TOINT(infos->objectForKey("Sender")) == identifier)
-       || (isKindOfClass(infos->objectForKey("Target"), CCInteger)
-           && TOINT(infos->objectForKey("Target")) == identifier))
+    ValueMap infos = (event != NULL && event->getUserData() != NULL) ? ((Value*)event->getUserData())->asValueMap() : ValueMap();
+    if((isValueOfType(infos["Sender"], INTEGER)
+        && infos["Sender"].asInt() == identifier)
+        || (isValueOfType(infos["Target"], INTEGER)
+            && infos["Target"].asInt() == identifier))
     {
         log("Close InputLabel keyboard");
         delegate->detachWithIME();
@@ -247,13 +247,15 @@ void InputLabel::editBoxEditingDidBegin(ui::EditBox* editBox)
 {
     if(locks.size() > 0)
     {
-        closeKeyboard(EventCustom::create("CloseKeyboard", DcreateP(Icreate(this->getID()), Screate("Sender"), NULL)));
+        Value infos = Value(ValueMap({{"Sender", Value(this->getID())}}));
+        closeKeyboard(EventCustom::create("CloseKeyboard", &infos));
         return;
     }
     if(!isOpened && delegate->isEnabled())
     {
         isOpened = true;
-        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("InputLabelBeginEdit", DcreateP(Icreate(identifier), Screate("Sender"), NULL));
+        Value infos = Value(ValueMap({{"Sender", Value(identifier)}}));
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("InputLabelBeginEdit", &infos);
     }
 }
 
@@ -261,7 +263,7 @@ void InputLabel::editBoxEditingDidBegin(ui::EditBox* editBox)
 void InputLabel::editBoxReturn(ui::EditBox* editBox)
 {
     log("ui::EditBoxReturn : Close InputLabel keyboard");
-    DelayedDispatcher::eventAfterDelay("InputLabelReturn", this->getEventInfos(), 0.01);
+    DelayedDispatcher::eventAfterDelay("InputLabelReturn", Value(ValueMap({{"Sender", Value(getID())}})), 0.01);
 }
 
 
@@ -271,9 +273,10 @@ void InputLabel::editBoxEditingDidEnd(ui::EditBox* editBox)
     if(isOpened)
     { //on dealloc, the isOpened flag will be false to prevent this code from being executed (could be used for a cancel method too)
         isOpened = false;
-        CCDictionary* param = this->getEventInfos();
-        param->setObject(Screate(this->getLabelValue()), "Text");
-        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("TextAdded", param);
+        ValueMap param = this->getEventInfos();
+        param["Text"] = Value(this->getLabelValue());
+        Value val = Value(param);
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("TextAdded", &val);
     }
     delegate->detachWithIME();
 }

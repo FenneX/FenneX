@@ -27,17 +27,22 @@ THE SOFTWARE.
 
 #include "cocos2d.h"
 USING_NS_CC;
-#include "GenericRecognizer.h"
+#include "DelegatingRecognizer.h"
 #include "FenneXMacros.h"
 
 NS_FENNEX_BEGIN
 //use http://devblog.wm-innovations.com/2010/03/30/custom-swipe-uitableviewcell/ for the algorithm
 
+class SwipeDelegate{
+public:
+    virtual void swipeRecognized(Touch* touch, std::string direction, Vec2 initialPosition) = 0;
+};
+
 //instead of evaluating a swipe at each movement, swipe are evaluated only at touchEnded
-//throw event Swipe with Touch, Direction (CCString : Left or Right) and InitialPosition (Vec2) as argument
 //support multi-touch context, and will ignore any touch linked in the given mainLinker
 //currently only recognize horizontal swipes
-class SwipeRecognizer : public GenericRecognizer
+// You need to subscribe to the recognizer by adding a delegate (it'll launch the swipeRecognized method)
+class SwipeRecognizer : public DelegatingRecognizer<SwipeDelegate>
 {
     CC_SYNTHESIZE(float, minSpeed, MinSpeed);
     CC_SYNTHESIZE(float, minMovement, MinMovement);
@@ -55,6 +60,7 @@ protected:
 protected:
     std::map<int, float> touchStart;
     std::map<int, Vec2> touchInitialPosition;
+    
 };
 NS_FENNEX_END
 

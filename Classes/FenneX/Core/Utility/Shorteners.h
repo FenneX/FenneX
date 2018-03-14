@@ -28,7 +28,6 @@ THE SOFTWARE.
 #include "cocos2d.h"
 #include "SceneSwitcher.h"
 #include "FenneXMacros.h"
-#include "TMPPoint.h"
 #include "DelayedDispatcher.h"
 #include <string>
 #include <sstream>
@@ -38,18 +37,13 @@ NS_FENNEX_BEGIN
 
 //Warning: it doesn't work well in Fast mode when trying to check for non-cocos class. You should inline the dynamic cast in this case.
 #define isKindOfClass(obj,class) (dynamic_cast<class*>((Ref*)obj) != NULL)
+#define isValueOfType(obj,type) (!obj.isNull() && obj.getType() == Value::Type::type)
+#define valueMapContains(obj, name, type) obj.find(name) != obj.end() && obj.at(name).getType() == Value::Type::type
 
 #define IFEXIST(obj) if(obj != NULL) (obj)
 
-#define TOINT(obj) (((CCInteger*)obj)->getValue())
-#define TOFLOAT(obj) (((CCFloat*)obj)->getValue())
-#define TOBOOL(obj) (((CCBool*)obj)->getValue())
-#define TOCSTRING(obj) (((CCString*)obj)->getCString())
-#define TOPOINT(obj) Vec2(((TMPPoint*)obj)->x, ((TMPPoint*)obj)->y)
-
 /* creation shorteners : since those are widly used, shortening the name makes sense (much like ccp), as well as uniformizing the format
  * format *create where * is the type
- P = Point
  I = Integer
  F = Float
  B = Bool
@@ -58,23 +52,11 @@ NS_FENNEX_BEGIN
  A = Array, append P for parameters
  */
 
-#define Pcreate TMPPoint::create
-#define Icreate CCInteger::create
-#define Fcreate CCFloat::create
-#define Bcreate CCBool::create
-#define Screate CCString::create
-#define ScreateF CCString::createWithFormat
-#define Dcreate CCDictionary::create
-#define DcreateP createDictionaryWithParameters
-#define Acreate CCArray::create
-#define AcreateP createArrayWithParameters
 
 std::string getResourcesPath(const std::string& file);
 
 cocos2d::Size* sizeCreate(float width = 0, float height = 0);
 //note : keys have to be passed as CCString, unfortunately. Must be NULL terminated
-CCDictionary* createDictionaryWithParameters(Ref* firstObject, ... );
-CCArray* createArrayWithParameters(Ref* firstObject, ... );
 
 static inline cocos2d::Size
 SizeMult(const cocos2d::Size& v, const float s)
@@ -99,25 +81,6 @@ static inline bool hasEnding (const std::string &fullString, const std::string &
 static inline float getTimeDifferenceMS(const timeval& start, const timeval& end)
 {
     return (end.tv_sec - start.tv_sec) * 1000.0f + (end.tv_usec - start.tv_usec) / 1000.0f;
-}
-
-static inline Ref* valueToRef(Value val)
-{
-    switch(val.getType())
-    { //Only support primitive types
-        case Value::Type::INTEGER:
-            return Icreate(val.asInt());
-        case Value::Type::FLOAT:
-            return Fcreate(val.asFloat());
-        case Value::Type::DOUBLE:
-            return Fcreate(val.asDouble());
-        case Value::Type::BOOLEAN:
-            return Bcreate(val.asBool());
-        case Value::Type::STRING:
-            return Screate(val.asString());
-        default:
-            return NULL;
-    }
 }
 
 //std::to_string isn't always defined on Android, use this method as a replacement.

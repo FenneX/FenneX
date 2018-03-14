@@ -1,5 +1,5 @@
 /****************************************************************************
-Copyright (c) 2013-2014 Chukong Technologies Inc.
+Copyright (c) 2013-2017 Chukong Technologies Inc.
 
 http://www.cocos2d-x.org
 
@@ -24,10 +24,9 @@ THE SOFTWARE.
 
 #include "2d/CCComponent.h"
 
-
 NS_CC_BEGIN
 
-Component::Component(void)
+Component::Component()
 : _owner(nullptr)
 , _enabled(true)
 {
@@ -37,7 +36,7 @@ Component::Component(void)
 #endif
 }
 
-Component::~Component(void)
+Component::~Component()
 {
 }
 
@@ -109,7 +108,7 @@ void Component::onRemove()
 #endif
 }
 
-void Component::update(float delta)
+void Component::update(float /*delta*/)
 {
 #if CC_ENABLE_SCRIPT_BINDING
     if (_scriptType == kScriptTypeJavascript)
@@ -119,15 +118,16 @@ void Component::update(float delta)
 #endif
 }
 
-bool Component::serialize(void *ar)
+bool Component::serialize(void* /*ar*/)
 {
     return true;
 }
 
-Component* Component::create(void)
+Component* Component::create()
 {
     Component * ret = new (std::nothrow) Component();
-    if (ret != nullptr && ret->init())
+
+    if (ret && ret->init())
     {
         ret->autorelease();
     }
@@ -135,22 +135,8 @@ Component* Component::create(void)
     {
         CC_SAFE_DELETE(ret);
     }
+
     return ret;
-}
-
-const std::string& Component::getName() const
-{
-    return _name;
-}
-
-void Component::setName(const std::string& name)
-{
-    _name = name;
-}
-
-Node* Component::getOwner() const
-{
-    return _owner;
 }
 
 void Component::setOwner(Node *owner)
@@ -158,14 +144,9 @@ void Component::setOwner(Node *owner)
     _owner = owner;
 }
 
-bool Component::isEnabled() const
+void Component::setEnabled(bool enabled)
 {
-    return _enabled;
-}
-
-void Component::setEnabled(bool b)
-{
-    _enabled = b;
+    _enabled = enabled;
 }
 
 NS_CC_END

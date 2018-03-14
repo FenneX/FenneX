@@ -56,7 +56,7 @@ void setTTSEngine(std::string engineName);
 
 static inline void notifyTTSDone(int speechID)
 {
-    DelayedDispatcher::eventAfterDelay("TTSDone", DcreateP(Icreate(speechID), Screate("Identifier"), NULL), 0.01);
+    DelayedDispatcher::eventAfterDelay("TTSDone", Value(ValueMap({{"Identifier", Value(speechID)}})), 0.01);
 }
 
 #endif /* defined(__FenneX__TTSWrapper_h) */

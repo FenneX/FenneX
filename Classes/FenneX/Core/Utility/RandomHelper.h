@@ -29,7 +29,6 @@ THE SOFTWARE.
 
 NS_FENNEX_BEGIN
 bool containsNumber(int* array, int number, int count);
-bool containsNumber(int* array, int number);
 void randomWithoutRetake(int* array, int count, int max);
 NS_FENNEX_END
 

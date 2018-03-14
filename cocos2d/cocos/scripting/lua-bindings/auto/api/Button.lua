@@ -18,11 +18,24 @@
 -- @return string#string ret (return value: string)
         
 --------------------------------
+--  replaces the current Label node with a new one 
+-- @function [parent=#Button] setTitleLabel 
+-- @param self
+-- @param #cc.Label label
+-- @return Button#Button self (return value: ccui.Button)
+        
+--------------------------------
 -- Change the font size of button's title<br>
 -- param size Title font size in float.
 -- @function [parent=#Button] setTitleFontSize 
 -- @param self
 -- @param #float size
+-- @return Button#Button self (return value: ccui.Button)
+        
+--------------------------------
+-- 
+-- @function [parent=#Button] resetPressedRender 
+-- @param self
 -- @return Button#Button self (return value: ccui.Button)
         
 --------------------------------
@@ -34,12 +47,32 @@
 -- @return Button#Button self (return value: ccui.Button)
         
 --------------------------------
+-- 
+-- @function [parent=#Button] resetDisabledRender 
+-- @param self
+-- @return Button#Button self (return value: ccui.Button)
+        
+--------------------------------
 -- Return the inner title renderer of Button.<br>
 -- return The button title.<br>
 -- since v3.3
 -- @function [parent=#Button] getTitleRenderer 
 -- @param self
 -- @return Label#Label ret (return value: cc.Label)
+        
+--------------------------------
+-- brief Return the nine-patch sprite of clicked state<br>
+-- return the nine-patch sprite of clicked state<br>
+-- since v3.9
+-- @function [parent=#Button] getRendererClicked 
+-- @param self
+-- @return Scale9Sprite#Scale9Sprite ret (return value: ccui.Scale9Sprite)
+        
+--------------------------------
+-- 
+-- @function [parent=#Button] getDisabledFile 
+-- @param self
+-- @return ResourceData#ResourceData ret (return value: cc.ResourceData)
         
 --------------------------------
 -- brief Return a zoom scale<br>
@@ -63,6 +96,26 @@
 -- @param self
 -- @param #color3b_table color
 -- @return Button#Button self (return value: ccui.Button)
+        
+--------------------------------
+-- 
+-- @function [parent=#Button] getNormalFile 
+-- @param self
+-- @return ResourceData#ResourceData ret (return value: cc.ResourceData)
+        
+--------------------------------
+-- 
+-- @function [parent=#Button] resetNormalRender 
+-- @param self
+-- @return Button#Button self (return value: ccui.Button)
+        
+--------------------------------
+-- brief Return the nine-patch sprite of disabled state<br>
+-- return the nine-patch sprite of disabled state<br>
+-- since v3.9
+-- @function [parent=#Button] getRendererDisabled 
+-- @param self
+-- @return Scale9Sprite#Scale9Sprite ret (return value: ccui.Scale9Sprite)
         
 --------------------------------
 -- Sets capInsets for button, only the disabled state scale9 renderer will be affected.<br>
@@ -198,11 +251,31 @@
 -- @return Button#Button self (return value: ccui.Button)
         
 --------------------------------
+-- 
+-- @function [parent=#Button] getPressedFile 
+-- @param self
+-- @return ResourceData#ResourceData ret (return value: cc.ResourceData)
+        
+--------------------------------
+--  returns the current Label being used 
+-- @function [parent=#Button] getTitleLabel 
+-- @param self
+-- @return Label#Label ret (return value: cc.Label)
+        
+--------------------------------
 -- Query the font size of button title<br>
 -- return font size in float.
 -- @function [parent=#Button] getTitleFontSize 
 -- @param self
 -- @return float#float ret (return value: float)
+        
+--------------------------------
+-- brief Return the nine-patch sprite of normal state<br>
+-- return the nine-patch sprite of normal state<br>
+-- since v3.9
+-- @function [parent=#Button] getRendererNormal 
+-- @param self
+-- @return Scale9Sprite#Scale9Sprite ret (return value: ccui.Scale9Sprite)
         
 --------------------------------
 -- Query the font name of button's title<br>

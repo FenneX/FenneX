@@ -57,10 +57,9 @@ public:
     GLubyte getOpacity();
     void setOpacityRecursive(GLubyte opacity);
     
-    CCDictionary* getEventInfos() const;//Warning : the returned CCDictionary is copied, changes will not affect RawObject
+    ValueMap getEventInfos() const;//Warning : the returned ValueMap is copied, changes will not affect RawObject
+    Value getEventInfo(std::string key) const;
     //Will not copy Sender automatically. Do it manually if required
-    CC_DEPRECATED_ATTRIBUTE void addEventInfos(CCDictionary* infos);
-    CC_DEPRECATED_ATTRIBUTE void setEventInfo(Ref* obj, std::string key);
     void addEventInfos(ValueMap infos);
     void setEventInfo(std::string key, Value obj);
     void removeEventInfo(std::string key);
@@ -90,7 +89,7 @@ public:
     }
     
 protected:
-    CCDictionary* eventInfos;
+    ValueMap eventInfos;
 };
 
 bool operator<(const RawObject& obj1, const RawObject& obj2);

@@ -39,17 +39,15 @@ DelayedDispatcher::~DelayedDispatcher()
     temporaryInstanceScene = NULL;
 }
 
-void DelayedDispatcher::eventAfterDelay(std::string eventName, Ref* userData, float delay)
+void DelayedDispatcher::eventAfterDelay(std::string eventName, Value userData, float delay)
 {
     DelayedDispatcher* instance = getInstance();
-    IFEXIST(userData)->retain();
     instance->events.push_back(EventTuple(delay, eventName, userData));
 }
 
-void DelayedDispatcher::funcAfterDelay(std::function<void(EventCustom*)> func, Ref* userData, float delay, std::string eventName)
+void DelayedDispatcher::funcAfterDelay(std::function<void(EventCustom*)> func, Value userData, float delay, std::string eventName)
 {
     DelayedDispatcher* instance = getInstance();
-    IFEXIST(userData)->retain();
     instance->funcs.push_back(FuncTuple(delay, func, userData, eventName));
 }
 
@@ -88,8 +86,7 @@ void DelayedDispatcher::update(float deltaTime)
 #if VERBOSE_GENERAL_INFO
         log("Launching event %s", std::get<1>(tuple).c_str());
 #endif
-        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent(std::get<1>(tuple), std::get<2>(tuple));
-        IFEXIST(std::get<2>(tuple))->release();
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent(std::get<1>(tuple), &std::get<2>(tuple));
     }
     if(events.size() > 0)
     {
@@ -107,12 +104,11 @@ void DelayedDispatcher::update(float deltaTime)
     }
     for(FuncTuple& tuple : funcsToCall)
     {
-        EventCustom* event = EventCustom::create(std::get<3>(tuple), std::get<2>(tuple));
+        EventCustom* event = EventCustom::create(std::get<3>(tuple), &std::get<2>(tuple));
 #if VERBOSE_GENERAL_INFO
             log("Launching func named %s", std::get<3>(tuple).c_str());
 #endif
         std::get<1>(tuple)(event);
-        IFEXIST(std::get<2>(tuple))->release();
     }
     if(funcs.size() > 0)
     {

@@ -98,10 +98,13 @@ std::string DropDownList::getSelectedValue()
 
 void DropDownList::setSelectedValue(EventCustom* event)
 {
-    CCDictionary* infos =  event != NULL ? (CCDictionary*) event->getUserData() : NULL;
-    if(infos != NULL && linkTo != NULL && linkTo->getID() == TOINT(infos->objectForKey("Identifier")))
+    ValueMap infos = (event != NULL && event->getUserData() != NULL) ? ((Value*)event->getUserData())->asValueMap() : ValueMap();
+    if(linkTo != NULL &&
+       isValueOfType(infos["Identifier"], INTEGER) &&
+       isValueOfType(infos["SelectedValue"], STRING) &&
+       linkTo->getID() == infos["Identifier"].asInt())
     {
-        setLabelSelectedValue(TOCSTRING(infos->objectForKey("SelectedValue")));
+        setLabelSelectedValue(infos["SelectedValue"].asString());
     }
 }
 
@@ -125,8 +128,8 @@ void DropDownList::setTitle(std::string title)
 
 void DropDownList::showDropDownList(EventCustom* event)
 {
-    CCDictionary* infos =  event != NULL ? (CCDictionary*) event->getUserData() : NULL;
-    if(infos != NULL && getID() == TOINT(infos->objectForKey("Sender")))
+    ValueMap infos = (event != NULL && event->getUserData() != NULL) ? ((Value*)event->getUserData())->asValueMap() : ValueMap();
+    if(isValueOfType(infos["Sender"], INTEGER) && getID() == infos["Sender"].asInt())
     {
         dropList->show();
     }

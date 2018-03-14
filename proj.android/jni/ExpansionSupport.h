@@ -66,22 +66,22 @@ bool expansionExists(bool main);
 
 static inline void notifyServiceConnected()
 {
-    DelayedDispatcher::eventAfterDelay("DownloadServiceConnected", Dcreate(), 0.01);
+    DelayedDispatcher::eventAfterDelay("DownloadServiceConnected", Value(), 0.01);
 }
 
 static inline void notifyDownloadStateChanged(std::string status, int code, std::string translationKey)
 {
-    DelayedDispatcher::eventAfterDelay("DownloadStateChanged", DcreateP(Screate(status), Screate("Status"), Icreate(code), Screate("Code"), Screate(translationKey), Screate("TranslationKey"), NULL), 0.01);
+    DelayedDispatcher::eventAfterDelay("DownloadStateChanged", Value(ValueMap({{"Status", Value(status)}, {"Code", Value(code)}, {"TranslationKey", Value(translationKey)}})), 0.01);
 }
 
 static inline void notifyDownloadCompleted()
 {
-    DelayedDispatcher::eventAfterDelay("DownloadCompleted", Dcreate(), 0.01);
+    DelayedDispatcher::eventAfterDelay("DownloadCompleted", Value(), 0.01);
 }
 
 static inline void notifyDownloadProgress(float percent, long totalSize)
 {
-    DelayedDispatcher::eventAfterDelay("DownloadProgressUpdate", DcreateP(Fcreate(percent), Screate("Percent"), Icreate((int)totalSize), Screate("TotalSize"), NULL), 0.01);
+    DelayedDispatcher::eventAfterDelay("DownloadProgressUpdate", Value(ValueMap({{"Percent", Value(percent)}, {"TotalSize", Value((int)totalSize)}})), 0.01);
 }
 
 #endif

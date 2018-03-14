@@ -22,11 +22,11 @@
  THE SOFTWARE.
  ****************************************************************************///
 
-#include "cocos2d.h"
+#import "cocos2d.h"
 
 @interface NSCCConverter : NSObject
 
-+ (NSDictionary *)nsDictionaryFromCCDictionary:(cocos2d::CCDictionary *)ccDictionary;
-+ (cocos2d::CCDictionary *)ccDictionaryFromNSDictionary:(NSDictionary *)nsDictionary;
++ (NSDictionary *)nsDictionaryFromValueMap:(cocos2d::ValueMap)map;
++ (cocos2d::ValueMap)valueMapFromNSDictionary:(NSDictionary *)nsDictionary;
 
 @end

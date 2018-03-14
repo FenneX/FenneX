@@ -13,23 +13,31 @@ ${current_class.methods.constructor.generate_code($current_class)}
 extern JSObject *jsb_${current_class.parents[0].underlined_class_name}_prototype;
 
 #end if
+#if (not $current_class.is_ref_class and $has_constructor)
 void js_${current_class.underlined_class_name}_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (${current_class.class_name})", obj);
-#if (not $current_class.is_ref_class and $has_constructor) or $generator.script_control_cpp
     js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
-    jsproxy = jsb_get_js_proxy(obj);
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+    JS::RootedObject jsobj(cx, obj);
+    jsproxy = jsb_get_js_proxy(jsobj);
     if (jsproxy) {
+        ${current_class.namespaced_class_name} *nobj = static_cast<${current_class.namespaced_class_name} *>(jsproxy->ptr);
         nproxy = jsb_get_native_proxy(jsproxy->ptr);
 
-        ${current_class.namespaced_class_name} *nobj = static_cast<${current_class.namespaced_class_name} *>(nproxy->ptr);
-        if (nobj)
-            delete nobj;
-        
-        jsb_remove_proxy(nproxy, jsproxy);
+        if (nobj) {
+            jsb_remove_proxy(nproxy, jsproxy);
+            JS::RootedValue flagValue(cx);
+            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
+            if (flagValue.isNullOrUndefined()){
+                delete nobj;
+            }
+        }
+        else
+            jsb_remove_proxy(nullptr, jsproxy);
     }
-#end if
 }
+#end if
 #if $generator.in_listed_extend_classed($current_class.class_name) and $has_constructor
 #if not $constructor.is_overloaded
     ${constructor.generate_code($current_class, None, False, True)}
@@ -47,11 +55,12 @@ void js_register_${generator.prefix}_${current_class.class_name}(JSContext *cx, 
     jsb_${current_class.underlined_class_name}_class->enumerate = JS_EnumerateStub;
     jsb_${current_class.underlined_class_name}_class->resolve = JS_ResolveStub;
     jsb_${current_class.underlined_class_name}_class->convert = JS_ConvertStub;
+#if (not $current_class.is_ref_class and $has_constructor)
     jsb_${current_class.underlined_class_name}_class->finalize = js_${current_class.underlined_class_name}_finalize;
+#end if
     jsb_${current_class.underlined_class_name}_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
 
     static JSPropertySpec properties[] = {
-        JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 #for m in public_fields
     #if $generator.should_bind_field($current_class.class_name, m.name)
         JS_PSGS("${m.name}", ${m.signature_name}_get_${m.name}, ${m.signature_name}_set_${m.name}, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -83,12 +92,15 @@ void js_register_${generator.prefix}_${current_class.class_name}(JSContext *cx, 
     JSFunctionSpec *st_funcs = NULL;
     #end if
 
+#if len($current_class.parents) > 0
+    JS::RootedObject parent_proto(cx, jsb_${current_class.parents[0].underlined_class_name}_prototype);
+#end if
     jsb_${current_class.underlined_class_name}_prototype = JS_InitClass(
         cx, global,
 #if len($current_class.parents) > 0
-        JS::RootedObject(cx, jsb_${current_class.parents[0].underlined_class_name}_prototype),
+        parent_proto,
 #else
-        JS::NullPtr(), // parent proto
+        JS::NullPtr(),
 #end if
         jsb_${current_class.underlined_class_name}_class,
 #if has_constructor
@@ -102,27 +114,22 @@ void js_register_${generator.prefix}_${current_class.class_name}(JSContext *cx, 
         funcs,
         NULL, // no static properties
         st_funcs);
-    // make the class enumerable in the registered namespace
-//  bool found;
-//FIXME: Removed in Firefox v27 
-//  JS_SetPropertyAttributes(cx, global, "${current_class.target_class_name}", JSPROP_ENUMERATE | JSPROP_READONLY, &found);
 
-    // add the proto and JSClass to the type->js info hash table
-    TypeTest<${current_class.namespaced_class_name}> t;
-    js_type_class_t *p;
-    std::string typeName = t.s_name();
-    if (_js_global_type_map.find(typeName) == _js_global_type_map.end())
-    {
-        p = (js_type_class_t *)malloc(sizeof(js_type_class_t));
-        p->jsclass = jsb_${current_class.underlined_class_name}_class;
-        p->proto = jsb_${current_class.underlined_class_name}_prototype;
-#if len($current_class.parents) > 0
-        p->parentProto = jsb_${current_class.parents[0].underlined_class_name}_prototype;
+    JS::RootedObject proto(cx, jsb_${current_class.underlined_class_name}_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "${current_class.class_name}"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+#if $current_class.is_ref_class
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
 #else
-        p->parentProto = NULL;
+    JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
 #end if
-        _js_global_type_map.insert(std::make_pair(typeName, p));
-    }
+    // add the proto and JSClass to the type->js info hash table
+#if len($current_class.parents) > 0
+    jsb_register_class<${current_class.namespaced_class_name}>(cx, jsb_${current_class.underlined_class_name}_class, proto, parent_proto);
+#else
+    jsb_register_class<${current_class.namespaced_class_name}>(cx, jsb_${current_class.underlined_class_name}_class, proto, JS::NullPtr());
+#end if
 #if $generator.in_listed_extend_classed($current_class.class_name) and not $current_class.is_abstract
     anonEvaluate(cx, global, "(function () { ${generator.target_ns}.${current_class.target_class_name}.extend = cc.Class.extend; })()");
 #end if

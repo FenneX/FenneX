@@ -34,18 +34,18 @@ USING_NS_FENNEX;
 
 #define  CLASS_NAME "com/fennex/modules/LocalNotification"
 
-void scheduleNotification(float timeFromNow, const std::string& alertBody, const std::string& alertAction, const std::string& soundName, CCDictionary* userInfo)
+void scheduleNotification(float timeFromNow, const std::string& alertBody, const std::string& alertAction, const std::string& soundName, ValueMap userInfo)
 {
     JniMethodInfo minfo;
     bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"scheduleNotification", "(FLjava/lang/String;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)V");
     CCAssert(functionExist, "Function doesn't exist");
-    
-    saveObjectToFile(userInfo, "userInfo.plist");
+    Value userInfoValue = Value(userInfo);
+    saveValueToFile(userInfoValue, "userInfo.plist");
     
     jstring stringArg1 = minfo.env->NewStringUTF(alertBody.c_str());
     jstring stringArg2 = minfo.env->NewStringUTF(alertAction.c_str());
     jstring stringArg3 = minfo.env->NewStringUTF(soundName.c_str());
-    jobjectArray array = jobjectArrayFromCCDictionary(minfo.env, userInfo);
+    jobjectArray array = jobjectArrayFromMap(minfo.env, userInfo);
     minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, (jfloat)timeFromNow, stringArg1, stringArg2, stringArg3, array);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(stringArg1);
@@ -74,12 +74,12 @@ void stopService()
 
 void notifyNotifClicked(jobjectArray array)
 {
-    CCDictionary* infos = CCDictionaryFromjobjectArray(JniHelper::getEnv(), array);
-    CCString* callBackEvent = (CCString*)infos->objectForKey("CallbackEvent");
+    ValueMap infos = MapFromjobjectArray(JniHelper::getEnv(), array);
+    std::string callBackEvent = infos["CallbackEvent"].asString();
     
-    if(callBackEvent != NULL)
+    if(!callBackEvent.empty())
     {
-        DelayedDispatcher::eventAfterDelay(callBackEvent->getCString(), infos, 0.01);
+        DelayedDispatcher::eventAfterDelay(callBackEvent, Value(infos), 0.01);
     }
     
     notifyDeletePListFiles();
@@ -87,7 +87,7 @@ void notifyNotifClicked(jobjectArray array)
 
 void notifyDeletePListFiles()
 {
-    CCLOG("LocalNotificationWrapper->notifyDeletePListFiles");
+    log("LocalNotificationWrapper->notifyDeletePListFiles");
     deleteFile("exitDate.plist");
     deleteFile("lastScene.plist");
     deleteFile("userInfo.plist");

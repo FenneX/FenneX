@@ -188,7 +188,7 @@ void uncaughtExceptionHandler(NSException *exception)
         if([notif.userInfo objectForKey:@"CallbackEvent"] != nil)
         {
             NSLog(@"local notif with callback event");
-            DelayedDispatcher::eventAfterDelay([[notif.userInfo objectForKey:@"CallbackEvent"] UTF8String], [NSCCConverter ccDictionaryFromNSDictionary:notif.userInfo], 0.01);
+            DelayedDispatcher::eventAfterDelay([[notif.userInfo objectForKey:@"CallbackEvent"] UTF8String], Value([NSCCConverter valueMapFromNSDictionary:notif.userInfo]), 0.01);
         }
     }
     return YES;
@@ -217,7 +217,8 @@ void uncaughtExceptionHandler(NSException *exception)
         if([notif.userInfo objectForKey:@"CallbackEvent"] != nil)
         {
             NSLog(@"local notif with callback event");
-            Director::getInstance()->getEventDispatcher()->dispatchCustomEvent([[notif.userInfo objectForKey:@"CallbackEvent"] UTF8String], [NSCCConverter ccDictionaryFromNSDictionary:notif.userInfo]);
+            Value val = Value([NSCCConverter valueMapFromNSDictionary:notif.userInfo]);
+            Director::getInstance()->getEventDispatcher()->dispatchCustomEvent([[notif.userInfo objectForKey:@"CallbackEvent"] UTF8String], &val);
         }
     }
 }
@@ -285,7 +286,6 @@ void uncaughtExceptionHandler(NSException *exception)
     _sharedController = NULL;
     [super dealloc];
 }
-
 
 @end
 

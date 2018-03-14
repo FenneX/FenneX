@@ -62,10 +62,11 @@ bool isCameraAvailable();
 
 static inline void notifyImagePicked(std::string name, std::string identifier)
 {
+    Value toSend = Value(ValueMap({{"Name", Value(name)}, {"Identifier", Value(identifier)}}));
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
-    DelayedDispatcher::eventAfterDelay("ImagePicked", DcreateP(Screate(name), Screate("Name"), Screate(identifier), Screate("Identifier"), NULL), 0.001);
+    DelayedDispatcher::eventAfterDelay("ImagePicked", toSend, 0.001);
 #else
-    Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ImagePicked", DcreateP(Screate(name), Screate("Name"), Screate(identifier), Screate("Identifier"), NULL) );
+    Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ImagePicked", &toSend);
 #endif
 }
 #endif
@@ -74,7 +75,7 @@ static inline void notifyImagePicked(std::string name, std::string identifier)
 
 static inline void notifyImagePickCancelled()
 {
-    DelayedDispatcher::eventAfterDelay("ImagePickerCancelled", Dcreate(), 0.01);
+    DelayedDispatcher::eventAfterDelay("ImagePickerCancelled", Value(), 0.01);
 }
 
 

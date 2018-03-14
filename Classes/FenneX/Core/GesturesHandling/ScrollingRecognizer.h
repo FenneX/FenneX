@@ -27,20 +27,28 @@ THE SOFTWARE.
 
 #include "cocos2d.h"
 USING_NS_CC;
-#include "GenericRecognizer.h"
+#include "DelegatingRecognizer.h"
 #include "Pausable.h"
 #include "FenneXMacros.h"
 
 //WARNING : do not copy this ScrollingRecognizer version, because it ignore if the touch is already linked to another object
 
 NS_FENNEX_BEGIN
+
+class ScrollingDelegate
+{
+public:
+    virtual void scrolling(Vec2 offset, Vec2 position, Vector<Touch*> touches, float deltaTime, RawObject* target = NULL, bool inertia = false) = 0;
+    virtual void scrollingEnded(Vec2 offset, Vec2 position, Vector<Touch*> touches, float deltaTime, RawObject* target = NULL, bool inertia = false) = 0;
+};
 //throw events Scrolling with argument Offset, Position (as Vec2), DeltaTime (as CCFloat) and TouchesCount (as CCInteger
 // and ScrollingEnded
 //if there is a Target, only the associated target should respond
 //must be updated, as Scrolling events are generated on update (for performance issues, the events are throttled)
 //ScrollingRecognizer responds better in a real multi-touch context if every touch is linked to its target receiver, using mainLinker from super
 //it will not change any link on this linker
-class ScrollingRecognizer : public GenericRecognizer, public Pausable
+//You need to subscribe to the recognizer by adding a delegate
+class ScrollingRecognizer : public DelegatingRecognizer<ScrollingDelegate>, public Pausable
 {
 public:
     static ScrollingRecognizer* sharedRecognizer(void);
@@ -60,21 +68,9 @@ private:
     
     //last indicate to use the lastPosition instead of Scene::touchPosition
     Vec2 positionWithTouches(Vector<Touch*> touches, bool last = false);
-    Vec2 offsetFromLastPosition(Ref* target);
-    
-    /* Currently, do not support inertia because it's a mess. Think about supporting it on the receiver part (that would allow multi-touch inertia too)
-     Perhaps a ScrollableDelegate that takes a list of scrollable objects to give them inertia
-     //inertia only trigerred when the last touch is released
-     //inertia properties
-     Ref* inertiaTarget; //the target (if the last touch had one)
-     Vec2 inertiaPosition; //always the position of the last touchEnded, but the offset varies (observers should use position to detect boundaries and offset to do the scrolling)
-     Vec2 lastTouchMovedPosition;
-     float lastTouchMovedTime;
-     Vec2 previousLastTouchMovedPosition;
-     float previousLastTouchMovedTime;
-     Vec2 inertiaOffset;
-     float inertiaLocked; //used to lock the inertia during a scene switch*/
+    Vec2 offsetFromLastPosition(RawObject* target);
 };
+
 NS_FENNEX_END
 
 #endif /* defined(__FenneX__ScrollingRecognizer__) */

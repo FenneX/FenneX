@@ -27,6 +27,8 @@ THE SOFTWARE.
 
 #include "cocos2d.h"
 #include "FenneXMacros.h"
+#include "RawObject.h"
+
 USING_NS_CC;
 
 NS_FENNEX_BEGIN
@@ -39,22 +41,24 @@ public:
     //call remove on touchEnded/Cancelled if it was recorded (any touch can safely be passsed)
     void removeTouch(Touch* touch);
     
-    void linkTouch(Touch* touch, Ref* object);
-    bool isTouchLinkedTo(Touch* touch, Ref* object);
-    Ref* linkedObjectOf(Touch* touch);
-    Vector<Touch*> touchesLinkedTo(Ref* object);
+    void linkTouch(Touch* touch, RawObject* object);
+    bool isTouchLinkedTo(Touch* touch, RawObject* object);
+    RawObject* linkedObjectOf(Touch* touch);
+    Vector<Touch*> touchesLinkedTo(RawObject* object);
     void unlinkTouch(Touch* touch);
     
     //return the touches which were unlinked
-    Vector<Touch*> unlinkObject(Ref* object);
+    Vector<Touch*> unlinkObject(RawObject* object);
     
     //return all touches, even unlinked ones
     Vector<Touch*> allTouches();
     //return all objects, without duplicate
-    Vector<Ref*> allObjects();
+    Vector<RawObject*> allObjects();
     long count();
+    
+    Touch* getTouch(int index);
 protected:
-    Map<int, Ref*> touchLinker;
+    Map<int, RawObject*> touchLinker;
     Vector<Touch*> touches;
 };
 NS_FENNEX_END

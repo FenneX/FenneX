@@ -26,9 +26,19 @@
 
 NS_FENNEX_BEGIN
 
+Value ValueConversion::fromStringVector(std::vector<std::string> vec)
+{
+    ValueVector val;
+    for(std::string s : vec)
+    {
+        val.push_back(Value(s));
+    }
+    return Value(val);
+}
+
 std::vector<std::string> ValueConversion::toVectorString(Value val)
 {
-    if(val.getType() == Value::Type::NONE)
+    if(val.isNull())
     {
         return {};
     }
@@ -48,9 +58,19 @@ std::vector<std::string> ValueConversion::toVectorString(Value val)
     return result;
 }
 
+Value ValueConversion::fromStringStringMap(std::map<std::string, std::string> m)
+{
+    ValueMap val;
+    for (auto const& x : m)
+    {
+        val[x.first] = Value(x.second);
+    }
+    return Value(val);
+}
+
 std::map<std::string, std::string> ValueConversion::toMapStringString(Value val)
 {
-    if(val.getType() == Value::Type::NONE)
+    if(val.isNull())
     {
         return {};
     }
@@ -66,6 +86,39 @@ std::map<std::string, std::string> ValueConversion::toMapStringString(Value val)
             throw std::bad_cast();
         }
         result[iter->first] = iter->second.asString();
+    }
+    return result;
+}
+
+Value ValueConversion::fromStringFloatMap(std::map<std::string, float> m)
+{
+    ValueMap val;
+    for (auto const& x : m)
+    {
+        val[x.first] = Value(x.second);
+    }
+    return Value(val);
+}
+
+std::map<std::string, float> ValueConversion::toMapStringFloat(Value val)
+{
+    if(val.isNull())
+    {
+        return {};
+    }
+    else if(val.getType() != Value::Type::MAP)
+    {
+        throw std::bad_cast();
+    }
+    std::map<std::string, float> result;
+    for(auto iter = val.asValueMap().begin(); iter != val.asValueMap().end(); iter++)
+    {
+        Value::Type type = iter->second.getType();
+        if(type != Value::Type::FLOAT && type != Value::Type::DOUBLE)
+        {
+            throw std::bad_cast();
+        }
+        result[iter->first] = iter->second.asFloat();
     }
     return result;
 }
@@ -110,6 +163,13 @@ std::vector<bool> ValueConversion::toBoolVector(Value val)
         vec.push_back(v.asBool());
     }
     return vec;
+}
+
+time_t ValueConversion::convertToTimeT(Value val, time_t defaultValue)
+{
+    return !val.isNull() && val.getType() == Value::Type::INTEGER ? val.asInt() :
+           !val.isNull() && val.getType() == Value::Type::STRING ? std::atol(val.asString().c_str()) :
+           !val.isNull() && val.getType() == Value::Type::FLOAT ? (time_t) val.asFloat() : defaultValue; // Float is a legacy from old saves
 }
 
 NS_FENNEX_END

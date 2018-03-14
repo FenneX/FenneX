@@ -78,7 +78,10 @@ void TapRecognizer::onTouchEnded(Touch *touch, Event *pEvent)
        && (TIME - touchStart.at(touch->getID())) < 2.0
        && Scene::touchPosition(touch).getDistance(touchInitialPosition.at(touch->getID())) < 50 * RESOLUTION_MULTIPLIER)
     {
-        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("TapRecognized", DcreateP(touch, Screate("Touch"), NULL));
+        for(TapDelegate* delegate : delegates)
+        {
+            delegate->tapRecognized(touch);
+        }
     }
     touchStart.erase(touch->getID());
     touchInitialPosition.erase(touch->getID());
@@ -95,4 +98,5 @@ void TapRecognizer::cancelRecognitionForTouch(Touch* touch)
     touchStart.erase(touch->getID());
     touchInitialPosition.erase(touch->getID());
 }
+
 NS_FENNEX_END

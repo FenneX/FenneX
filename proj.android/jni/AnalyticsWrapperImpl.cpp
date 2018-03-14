@@ -143,7 +143,7 @@ void AnalyticsWrapper::GALogEvent(const std::string& eventName, const std::strin
 
 void AnalyticsWrapper::GAEndSession()
 {
-    CCLOG("Google Analytics: GAEndSession().");
+    log("Google Analytics: GAEndSession().");
     JniMethodInfo minfo;
     bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"GAEndSession", "()V");
     CCAssert(functionExist, "Function doesn't exist");

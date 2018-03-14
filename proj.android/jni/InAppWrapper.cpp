@@ -112,7 +112,7 @@ ValueMap getProductsInfos()
     JniMethodInfo minfo, minfo2;
     bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"getProductsIds", "()[Ljava/lang/String;");
     CCAssert(functionExist, "Function doesn't exist");
-    CCLOG("Starting getProductsInfos ...");
+    log("Starting getProductsInfos ...");
     jobjectArray productsIdNative = (jobjectArray)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID);
     minfo.env->DeleteLocalRef(minfo.classID);
     std::vector<std::string> productsIds = StringVectorFromjobjectArray(minfo.env, productsIdNative);
@@ -125,7 +125,7 @@ ValueMap getProductsInfos()
     {
         if(productsInfos.find(productId) == productsInfos.end())
         {
-            CCLOG("getting product \"%s\" infos", productId.c_str());
+            log("getting product \"%s\" infos", productId.c_str());
             jstring jproductID = minfo2.env->NewStringUTF(productId.c_str());
             jobjectArray nativeArray = (jobjectArray)minfo2.env->CallStaticObjectMethod(minfo2.classID, minfo2.methodID, jproductID);
             minfo2.env->DeleteLocalRef(jproductID);
@@ -136,24 +136,24 @@ ValueMap getProductsInfos()
         }
         else
         {
-            CCLOG("product \"%s\" infos are already in C++ code", productId.c_str());
+            log("product \"%s\" infos are already in C++ code", productId.c_str());
         }
     }
     minfo2.env->DeleteLocalRef(minfo2.classID);
-    CCLOG("Returning product infos successfully");
+    log("Returning product infos successfully");
     return productsInfos;
 }
 
 void notifyInAppEventNative(std::string name, std::string argument, std::string token, std::string reason)
 {
     LOGD("Notifying in app event : %s", name.c_str());
-    DelayedDispatcher::eventAfterDelay(name, DcreateP(Screate(argument), Screate("ProductID"), Screate(token), Screate("PurchaseToken"), Screate(reason), Screate("Reason"), NULL), 0.01);
+    DelayedDispatcher::eventAfterDelay(name, Value(ValueMap({{"ProductID", Value(argument)}, {"PurchaseToken", Value(token)},{"Reason", Value(reason)}})), 0.01);
 }
 
 void notifyLicenseStatusNative(bool authorized)
 {
     LOGD("Notifying license status : %s", authorized ? "Authorized" : "Locked");
-    DelayedDispatcher::eventAfterDelay("LicenseStatusUpdate", DcreateP(Bcreate(authorized), Screate("Authorized"), NULL), 0.01);
+    DelayedDispatcher::eventAfterDelay("LicenseStatusUpdate", Value(ValueMap({{"Authorized", Value(authorized)}})), 0.01);
 }
 
 extern "C"

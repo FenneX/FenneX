@@ -62,7 +62,7 @@ void DropDownListWrapper::setPossibleValues(std::vector<std::string> values)
         if(minfo.env->ExceptionCheck())
         {
             minfo.env->ExceptionDescribe();
-            CCLOG("crashed when looking for String Class");
+            log("crashed when looking for String Class");
             return ;
         }
         
@@ -74,10 +74,10 @@ void DropDownListWrapper::setPossibleValues(std::vector<std::string> values)
         if(minfo.env->ExceptionCheck())
         {
             minfo.env->ExceptionDescribe();
-            CCLOG("crashed when creating array");
+            log("crashed when creating array");
         }
         if (vector == NULL) {
-            CCLog("failed to create a new jobjectArray");
+            log("failed to create a new jobjectArray");
             return ;
         }
         

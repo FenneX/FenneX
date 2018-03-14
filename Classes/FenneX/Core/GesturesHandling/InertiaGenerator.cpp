@@ -27,6 +27,7 @@ THE SOFTWARE.
 #include "Shorteners.h"
 #include "AppMacros.h"
 #include "Inertia.h"
+#include "ScrollingRecognizer.h"
 
 #define TIME GraphicLayer::sharedLayer()->getClock()
 #define TIME_BETWEEN_NOTIFICATIONS 0.015
@@ -55,14 +56,15 @@ void InertiaGenerator::init()
     currentTime = 0;
     lastInertiaNotificationTime = 0;
     
+    ScrollingRecognizer::sharedRecognizer()->addDelegate(this);
+    TapRecognizer::sharedRecognizer()->addDelegate(this);
+    
     ADD_OBSERVER(InertiaGenerator::planSceneSwitch, "PlanSceneSwitch");
-    ADD_OBSERVER(InertiaGenerator::scrollingEnded, "ScrollingEnded");
-    ADD_OBSERVER(InertiaGenerator::scrolling, "Scrolling");
-    ADD_OBSERVER(InertiaGenerator::tapRecognized, "TapRecognized");
 }
 
 InertiaGenerator::~InertiaGenerator()
 {
+    ScrollingRecognizer::sharedRecognizer()->removeDelegate(this);
     for(EventListenerCustom* listener : eventListeners)
     {
         Director::getInstance()->getEventDispatcher()->removeEventListener(listener);
@@ -113,13 +115,12 @@ void InertiaGenerator::update(float delta)
             Inertia* inertia = inertiaParameters.at(i);
             inertia->retain(); //retain inertia in case stopInertia is called during the notification
             inertia->setOffset(inertia->getOffset() * (1-INERTIA_FRICTION));
-            CCDictionary* arguments = DcreateP(Pcreate(inertia->getOffset()), Screate("Offset"),
-                                               Icreate(0), Screate("TouchesCount"),
-                                               Pcreate(inertia->getPosition()), Screate("Position"),
-                                               Fcreate(TIME - lastInertiaNotificationTime), Screate("DeltaTime"),
-                                               Bcreate(true), Screate("Inertia"),
-                                               target, Screate("Target"), NULL);
-            Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("Inertia", arguments);
+            
+            for(ScrollingDelegate* delegate : delegates)
+            {
+                delegate->scrolling(inertia->getOffset(), inertia->getPosition(), {}, TIME - lastInertiaNotificationTime, target, true);
+            }
+            
             if (fabs(inertia->getOffset().x) < MIN_SCROLL && fabs(inertia->getOffset().y) < MIN_SCROLL)
             {
                 toRemove.pushBack(target);
@@ -136,26 +137,16 @@ void InertiaGenerator::update(float delta)
 }
 
 //If a tap is recognized, no inertia is generated
-void InertiaGenerator::tapRecognized(EventCustom* event)
-{
-    CCDictionary* infos = (CCDictionary*)event->getUserData();
-    Touch* touch = (Touch*)infos->objectForKey("Touch");
-    this->ignoreTouch(touch);
-}
-
-void InertiaGenerator::ignoreTouch(Touch* touch)
+void InertiaGenerator::tapRecognized(Touch* touch)
 {
     lastOffsets.erase(touch->getID());
     ignoredTouches.pushBack(touch);
 }
 
-void InertiaGenerator::scrolling(EventCustom* event)
+void InertiaGenerator::scrolling(Vec2 offset, Vec2 position, Vector<Touch*> touches, float deltaTime, RawObject* target, bool inertia)
 {
-    CCDictionary* infos = (CCDictionary*)event->getUserData();
-    CCArray* touches = (CCArray*)infos->objectForKey("Touches");
-    for(int i = 0; i < touches->count(); i++)
+    for(Touch* touch : touches)
     {
-        Touch* touch = (Touch*)touches->objectAtIndex(i);
         if(!ignoredTouches.contains(touch))
         {
             Vec2 offset = Scene::touchOffset(touch);
@@ -173,29 +164,28 @@ void InertiaGenerator::scrolling(EventCustom* event)
     }
 }
 
-void InertiaGenerator::scrollingEnded(EventCustom* event)
+void InertiaGenerator::scrollingEnded(Vec2 offset, Vec2 position, Vector<Touch*> touches, float deltaTime, RawObject* target, bool inertia)
 {
-    CCDictionary* infos = (CCDictionary*)event->getUserData();
-    int touches_count = TOINT(infos->objectForKey("TouchesCount"));
+    int touches_count = (int)touches.size();
     if(touches_count == 1 && possibleTargets.size() > 0)
     {
         Vec2 inertiaOffset = Vec2(0, 0);
-        Touch* touch = (Touch*)((CCArray*)infos->objectForKey("Touches"))->objectAtIndex(0);
+        Touch* touch = touches.at(0);
         if(!ignoredTouches.contains(touch))
         {
             if(lastOffsets.find(touch->getID()) != lastOffsets.end())
             {
                 std::vector<Vec2>& offsets = lastOffsets.at(touch->getID());
-                for(Vec2 offset : offsets)
+                for(Vec2 touchOffset : offsets)
                 {
-                    inertiaOffset += offset;
+                    inertiaOffset += touchOffset;
                 }
                 inertiaOffset *= 1.0/offsets.size();
                 lastOffsets.erase(lastOffsets.find(touch->getID()));
             }
             else
             {
-                inertiaOffset = TOPOINT(infos->objectForKey("Offset"));
+                inertiaOffset = offset;
             }
             if(fabs(inertiaOffset.x) > MAX_SCROLL)
             {
@@ -205,9 +195,7 @@ void InertiaGenerator::scrollingEnded(EventCustom* event)
             {
                 inertiaOffset.y = inertiaOffset.y > 0 ? MAX_SCROLL : -MAX_SCROLL;
             }
-            Vec2 position = TOPOINT(infos->objectForKey("Position"));
             Vector<RawObject*> intersectingObjects = GraphicLayer::sharedLayer()->all(position);
-            RawObject* target = (RawObject*)infos->objectForKey("Target");
             bool originalTarget = true;
             if(target == NULL)
             {
@@ -229,11 +217,15 @@ void InertiaGenerator::scrollingEnded(EventCustom* event)
                 log("inertiaOffset : %f, %f", inertiaOffset.x, inertiaOffset.y);
 #endif
                 inertiaTargets.pushBack(target);
-                inertiaParameters.pushBack(Inertia::create(inertiaOffset, position, target->getEventInfos()->objectForKey("isVertical") != NULL && TOBOOL(target->getEventInfos()->objectForKey("isVertical"))));
+                inertiaParameters.pushBack(Inertia::create(inertiaOffset, position, !target->getEventInfos()["isVertical"].isNull()
+                                                                                    && target->getEventInfos()["isVertical"].asBool()));
             }
             else
             {
-                Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("NoInertia", DcreateP(target, Screate("Target"), NULL));
+                for(ScrollingDelegate* delegate : delegates)
+                {
+                    delegate->scrollingEnded(Vec2(0,0), Vec2(0,0), {}, TIME - lastInertiaNotificationTime);
+                }
             }
         }
         else
@@ -250,7 +242,21 @@ void InertiaGenerator::stopInertia(RawObject* obj)
         long index = inertiaTargets.getIndex(obj);
         inertiaParameters.erase(index);
         inertiaTargets.erase(index);
-        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("InertiaEnded", DcreateP(obj, Screate("Target"), NULL));
+        for(ScrollingDelegate* delegate : delegates)
+        {
+            delegate->scrollingEnded(Vec2(0,0), Vec2(0,0), {}, TIME - lastInertiaNotificationTime, obj, true);
+        }
     }
 }
+
+void InertiaGenerator::addDelegate(ScrollingDelegate* delegate)
+{
+    if(std::find(delegates.begin(), delegates.end(), delegate) == delegates.end()) delegates.push_back(delegate);
+}
+
+void InertiaGenerator::removeDelegate(ScrollingDelegate* delegate)
+{
+    delegates.erase(std::remove(delegates.begin(), delegates.end(), delegate), delegates.end());
+}
+
 NS_FENNEX_END

@@ -34,11 +34,9 @@ USING_NS_CC;
 // NOT HANDLED : Date and Data
 
 NS_FENNEX_BEGIN
-CC_DEPRECATED_ATTRIBUTE void saveObjectToFile(Ref* obj, const char* name);
 void saveValueToFile(Value& val, std::string fileName, bool external = false);
-CC_DEPRECATED_ATTRIBUTE Ref* loadObjectFromFile(const char* name, bool resource = false);
 Value loadValueFromFile(std::string fileName, bool resource = false);
-void deleteFile(const char* name);
+void deleteLocalFile(std::string name);
 NS_FENNEX_END
 
 #endif /* defined(__FenneX__PListPersist__) */

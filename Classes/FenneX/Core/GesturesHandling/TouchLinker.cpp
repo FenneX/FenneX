@@ -57,7 +57,7 @@ void TouchLinker::removeTouch(Touch* touch)
     }
 }
 
-void TouchLinker::linkTouch(Touch* touch, Ref* object)
+void TouchLinker::linkTouch(Touch* touch, RawObject* object)
 {
     if(touch != NULL && object != NULL)
     {
@@ -66,7 +66,7 @@ void TouchLinker::linkTouch(Touch* touch, Ref* object)
     }
 }
 
-bool TouchLinker::isTouchLinkedTo(Touch* touch, Ref* object)
+bool TouchLinker::isTouchLinkedTo(Touch* touch, RawObject* object)
 {
     if(touchLinker.at(touch->getID()) == object)
     {
@@ -75,12 +75,12 @@ bool TouchLinker::isTouchLinkedTo(Touch* touch, Ref* object)
     return false;
 }
 
-Ref* TouchLinker::linkedObjectOf(Touch* touch)
+RawObject* TouchLinker::linkedObjectOf(Touch* touch)
 {
     return touchLinker.at(touch->getID());
 }
 
-Vector<Touch*> TouchLinker::touchesLinkedTo(Ref* object)
+Vector<Touch*> TouchLinker::touchesLinkedTo(RawObject* object)
 {
     Vector<Touch*> linked;
     for(Touch* touch : touches)
@@ -98,7 +98,7 @@ void TouchLinker::unlinkTouch(Touch* touch)
     touchLinker.erase(touch->getID());
 }
 
-Vector<Touch*> TouchLinker::unlinkObject(Ref* object)
+Vector<Touch*> TouchLinker::unlinkObject(RawObject* object)
 {
     Vector<Touch*> linked;
     for(Touch* touch : touches)
@@ -117,12 +117,12 @@ Vector<Touch*> TouchLinker::allTouches()
     return touches;
 }
 
-Vector<Ref*> TouchLinker::allObjects()
+Vector<RawObject*> TouchLinker::allObjects()
 {
-    Vector<Ref*> objects;
+    Vector<RawObject*> objects;
     for(Touch* touch : touches)
     {
-        Ref* linked = touchLinker.at(touch->getID());
+        RawObject* linked = touchLinker.at(touch->getID());
         if(linked != NULL && !objects.contains(linked))
         {
             objects.pushBack(linked);
@@ -135,4 +135,14 @@ long TouchLinker::count()
 {
     return touches.size();
 }
+
+Touch* TouchLinker::getTouch(int index)
+{
+    for(Touch* touch : touches)
+    {
+        if(touch->getID() == index) return touch;
+    }
+    return NULL;
+}
+
 NS_FENNEX_END

@@ -69,20 +69,16 @@ void ScrollingRecognizer::onTouchEnded(Touch *touch, Event *pEvent)
 {
     if(lastPositions.find(touch->getID()) != lastPositions.end())
     {
-        Ref* object = mainLinker->linkedObjectOf(touch);
+        RawObject* object = mainLinker->linkedObjectOf(touch);
         Vector<Touch*> touches = this->mainLinker->touchesLinkedTo(object);
         Vec2 currentPosition = this->positionWithTouches(touches);
         Vec2 previousPosition = this->positionWithTouches(touches, true);
         Vec2 offset = currentPosition - previousPosition;
-        CCArray* touchesConvert = Acreate();
-        for(Touch* touch : touches) touchesConvert->addObject(touch);
-        CCDictionary* arguments = DcreateP(Pcreate(offset), Screate("Offset"),
-                                           Icreate((int)touches.size()), Screate("TouchesCount"),
-                                           Pcreate(currentPosition), Screate("Position"),
-                                           Fcreate(TIME - lastScrollingNotificationTime), Screate("DeltaTime"),
-                                           touchesConvert, Screate("Touches"),
-                                           object, Screate("Target"), NULL);//Note : target have to be last because it can be NULL
-        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ScrollingEnded", arguments);
+        
+        for(ScrollingDelegate* delegate : delegates)
+        {
+            delegate->scrollingEnded(offset, currentPosition, touches, TIME - lastScrollingNotificationTime, object);
+        }
         
         if(lastPositions.find(touch->getID()) != lastPositions.end())
         {
@@ -100,10 +96,10 @@ void ScrollingRecognizer::update(float delta)
 {
     if(TIME > lastScrollingNotificationTime + TIME_BETWEEN_NOTIFICATIONS && touchMoved)
     {
-        Vector<Ref*> objects = mainLinker->allObjects();
+        Vector<RawObject*> objects = mainLinker->allObjects();
         for(int i = -1; i < objects.size(); i++)
         {
-            Ref* object = i == -1 ? NULL : objects.at(i);
+            RawObject* object = i == -1 ? NULL : objects.at(i);
             
             Vector<Touch*> touches = this->mainLinker->touchesLinkedTo(object);
             Vec2 currentPosition = this->positionWithTouches(touches);
@@ -111,15 +107,10 @@ void ScrollingRecognizer::update(float delta)
             if(currentPosition.x != previousPosition.x || currentPosition.y != previousPosition.y)
             {
                 Vec2 offset = currentPosition - previousPosition;
-                CCArray* touchesConvert = Acreate();
-                for(Touch* touch : touches) touchesConvert->addObject(touch);
-                CCDictionary* arguments = DcreateP(Pcreate(offset), Screate("Offset"),
-                                                   Icreate((int)touches.size()), Screate("TouchesCount"),
-                                                   Pcreate(currentPosition), Screate("Position"),
-                                                   Fcreate(TIME - lastScrollingNotificationTime), Screate("DeltaTime"),
-                                                   touchesConvert, Screate("Touches"),
-                                                   object, Screate("Target"), NULL);//Note : target have to be last because it can be NULL
-                Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("Scrolling", arguments);
+                for(ScrollingDelegate* delegate : delegates)
+                {
+                    delegate->scrolling(offset, currentPosition, touches, TIME - lastScrollingNotificationTime, object);
+                }
             }
         }
         Vector<Touch*> touches = mainLinker->allTouches();
@@ -166,11 +157,12 @@ Vec2 ScrollingRecognizer::positionWithTouches(Vector<Touch*> touches, bool last)
     return Vec2(x, y);
 }
 
-Vec2 ScrollingRecognizer::offsetFromLastPosition(Ref* target)
+Vec2 ScrollingRecognizer::offsetFromLastPosition(RawObject* target)
 {
     Vector<Touch*> touches = this->mainLinker->touchesLinkedTo(target);
     Vec2 currentPosition = this->positionWithTouches(touches);
     Vec2 previousPosition = this->positionWithTouches(touches, true);
     return currentPosition - previousPosition;
 }
+
 NS_FENNEX_END

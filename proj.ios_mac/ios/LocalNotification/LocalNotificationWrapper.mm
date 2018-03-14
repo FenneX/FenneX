@@ -26,13 +26,13 @@
 #import "NSCCConverter.h"
 #import <UIKit/UIKit.h>
 
-void scheduleNotification(float timeFromNow, const std::string& alertBody, const std::string& alertAction, const std::string& soundName, CCDictionary* userInfo)
+void scheduleNotification(float timeFromNow, const std::string& alertBody, const std::string& alertAction, const std::string& soundName, ValueMap userInfo)
 {
     UILocalNotification* notif = [UILocalNotification new];
     notif.fireDate = [NSDate dateWithTimeIntervalSinceNow:timeFromNow];
     notif.alertBody = !alertBody.empty() ? [NSString stringWithCString:alertBody.c_str() encoding:NSUTF8StringEncoding] : nil;
     notif.alertAction = !alertAction.empty() ? [NSString stringWithCString:alertAction.c_str() encoding:NSUTF8StringEncoding] : nil;
-    notif.userInfo = [NSCCConverter nsDictionaryFromCCDictionary:userInfo];
+    notif.userInfo = [NSCCConverter nsDictionaryFromValueMap:userInfo];
     if(!soundName.empty())
     {
         if([[NSBundle mainBundle] pathForResource:[[NSString stringWithCString:soundName.c_str() encoding:NSUTF8StringEncoding]stringByDeletingPathExtension] ofType:@"mp3"] != NULL)

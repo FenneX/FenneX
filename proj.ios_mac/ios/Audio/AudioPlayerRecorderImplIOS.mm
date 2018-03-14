@@ -305,12 +305,6 @@ static AudioPlayerRecorderImpl* _sharedAudio = nil;
     }
 }
 
-- (void) deleteFile:(NSString*)file
-{
-    NSString* path = [[[NSFileManager defaultManager] applicationSupportDirectory] stringByAppendingPathComponent:file];
-    [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
-}
-
 - (float) play:(float)startTime volume:(float)volume
 {
 	if(audioPlayer != nil)

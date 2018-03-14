@@ -83,12 +83,10 @@ void SwipeRecognizer::onTouchEnded(Touch *touch, Event *pEvent)
            fabsf(initialPosition.x - currentPosition.x) > fabsf(initialPosition.y - currentPosition.y) &&
            fabsf(initialPosition.x - currentPosition.x) / (TIME - touchStart.at(touch->getID())) > minSpeed * RESOLUTION_MULTIPLIER)
         {
-            CCDictionary* infos = CCDictionary::create();
-            infos->setObject(touch, "Touch");
-            infos->setObject(initialPosition.x > currentPosition.x ? Screate("Left") : Screate("Right"), "Direction");
-            infos->setObject(Fcreate(initialPosition.x), "InitialPositionX");
-            infos->setObject(Fcreate(initialPosition.y), "InitialPositionY");
-            Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("SwipeRecognized", infos);
+            for(SwipeDelegate* delegate : delegates)
+            {
+                delegate->swipeRecognized(touch, initialPosition.x > currentPosition.x ? "Left" : "Right", initialPosition);
+            }
         }
         
     }
@@ -107,4 +105,5 @@ void SwipeRecognizer::cancelRecognitionForTouch(Touch* touch)
     touchStart.erase(touch->getID());
     touchInitialPosition.erase(touch->getID());
 }
+
 NS_FENNEX_END
