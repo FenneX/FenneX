@@ -38,6 +38,7 @@ NS_FENNEX_BEGIN
 std::string upperCase(std::string text);
 std::string lowerCase(std::string text);
 
+bool stringStartsWith(std::string str, std::string prefix);
 bool stringEndsWith(std::string str, std::string suffix);
 
 //Use Percent-encoding as defined in https://en.wikipedia.org/wiki/Percent-encoding
