@@ -257,11 +257,9 @@ void setDeviceLuminosity(float percent) {
 bool openSystemSettings()
 {
     //Only available since iOS8
-    if (&UIApplicationOpenSettingsURLString != NULL) {
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
-        return true;
-    }
-    return false;
+    //removed condition if (&UIApplicationOpenSettingsURLString != NULL) as we target iOS 8.0 minimum now
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+    return true;
 }
 
 void launchYoutube()
