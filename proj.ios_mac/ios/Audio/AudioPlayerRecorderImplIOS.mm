@@ -28,10 +28,12 @@
 #include "cocos2d.h"
 #include "AppMacros.h"
 #include "AudioPlayerRecorder.h"
+#include "FileUtility.h"
 
 @interface AudioPlayerRecorderImpl (Private)
 
 - (void) prepareNextRecording;
++ (NSURL*) getFullPath:(NSString*)file;
 
 @end
 
@@ -55,6 +57,26 @@
 		NSLog(@"Error with recording : %@ [%4.4s])" , [error localizedDescription], (char*)&errorCode);
 	}
 #endif
+}
+
++ (NSURL*) getFullPath:(NSString*)file
+{
+    //try sound in bundle first (legacy behavior)
+    NSURL* url = [[NSBundle mainBundle] URLForResource:[file stringByDeletingPathExtension] withExtension:@"mp3"];
+    if(url == nil)
+    {
+        //try to load recorded sound if it's not in bundle
+        std::string fullPath = findFullPath([file UTF8String]);
+        if(fullPath.empty())
+        {
+#if VERBOSE_AUDIO
+            CCLOG("Warning : audio file %s does not exist", [file UTF8String]);
+#endif
+            return nil;
+        }
+        url = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%s", fullPath.c_str()]];
+    }
+    return url;
 }
 
 @end
@@ -92,20 +114,8 @@ static AudioPlayerRecorderImpl* _sharedAudio = nil;
 + (float) getSoundDuration:(NSString*)file
 {
     NSError *error;
-    //try sound in bundle first
-    NSURL* url = [[NSBundle mainBundle] URLForResource:[file stringByDeletingPathExtension] withExtension:@"mp3"];
-    if(url == nil)
-    {
-        //try to load recorded sound if it's not in bundle
-        url = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] applicationSupportDirectory] stringByAppendingPathComponent:file]];
-        if(url == nil)
-        {
-#if VERBOSE_AUDIO
-            NSLog(@"Warning : file %@ does not exist in getSoundDuration", file);
-#endif
-            return 0;
-        }
-    }
+    NSURL* url = [AudioPlayerRecorderImpl getFullPath:file];
+    if(url == nil) return 0;
     AVAudioPlayer* avAudioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:&error];
     
     double duration = avAudioPlayer.duration;
@@ -227,7 +237,7 @@ static AudioPlayerRecorderImpl* _sharedAudio = nil;
 #endif
 }
 
-- (void) stopRecording:(NSString*)file
+- (void) stopRecording:(NSString*)fullPath
 {
     error = nil;
 #if VERBOSE_AUDIO
@@ -242,20 +252,19 @@ static AudioPlayerRecorderImpl* _sharedAudio = nil;
     }
     NSLog(@"Audio recorder url : %@", audioRecorder.url);
 #endif
-    NSURL* url = nextRecorder ? url1 : url2;
-    NSURL* newUrl = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] applicationSupportDirectory] stringByAppendingPathComponent:file]];
-    if([[NSFileManager defaultManager] fileExistsAtPath:[[[NSFileManager defaultManager] applicationSupportDirectory] stringByAppendingPathComponent:file]])
+    if([[NSFileManager defaultManager] fileExistsAtPath:fullPath])
     {
-        [[NSFileManager defaultManager] removeItemAtPath:[[[NSFileManager defaultManager] applicationSupportDirectory] stringByAppendingPathComponent:file] error:nil];
+        [[NSFileManager defaultManager] removeItemAtPath:fullPath error:nil];
     }
-    BOOL result = [[NSFileManager defaultManager] moveItemAtURL:url toURL:newUrl error:&error];
+    NSURL* recordUrl = nextRecorder ? url1 : url2;
+    BOOL result = [[NSFileManager defaultManager] moveItemAtURL:recordUrl toURL:[NSURL fileURLWithPath:fullPath] error:&error];
 #if VERBOSE_AUDIO
     if(!result)
     {
         NSLog(@"Error when moving item : %@, source exists : %@", error.localizedDescription, [[NSFileManager defaultManager] fileExistsAtPath:url.absoluteString] ? @"YES" : @"NO");
     }
 #endif
-    [self setPlayFile:file];
+    [self setPlayFile:fullPath];
 	[self prepareNextRecording];
 }
 
@@ -273,20 +282,8 @@ static AudioPlayerRecorderImpl* _sharedAudio = nil;
 		[audioPlayer release];
         audioPlayer = nil;
 	}
-    //try sound in bundle first
-    NSURL* url = [[NSBundle mainBundle] URLForResource:[file stringByDeletingPathExtension] withExtension:@"mp3"];
-    if(url == nil)
-    {
-        //try to load recorded sound if it's not in bundle
-        url = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] applicationSupportDirectory] stringByAppendingPathComponent:file]];
-        if(url == nil)
-        {
-#if VERBOSE_AUDIO
-            NSLog(@"Warning : file %@ does not exist", file);
-#endif
-            return;
-        }
-    }
+    NSURL* url = [AudioPlayerRecorderImpl getFullPath:file];
+    if(url == nil) return;
 	audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:&error];
 #if VERBOSE_AUDIO
     if(error)
@@ -335,20 +332,8 @@ static AudioPlayerRecorderImpl* _sharedAudio = nil;
 
 - (float) playIndependentFile:(NSString*)file volume:(float)volume
 {
-    //try sound in bundle first
-    NSURL* url = [[NSBundle mainBundle] URLForResource:[file stringByDeletingPathExtension] withExtension:@"mp3"];
-    if(url == nil)
-    {
-        //try to load recorded sound if it's not in bundle
-        url = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] applicationSupportDirectory] stringByAppendingPathComponent:file]];
-        if(url == nil)
-        {
-#if VERBOSE_AUDIO
-            NSLog(@"Warning : file %@ does not exist", file);
-#endif
-            return 0;
-        }
-    }
+    NSURL* url = [AudioPlayerRecorderImpl getFullPath:file];
+    if(url == nil) return 0;
 	AVAudioPlayer* player = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:&error];
 #if VERBOSE_AUDIO
     if(error)

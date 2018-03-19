@@ -25,6 +25,7 @@ THE SOFTWARE.
 
 #include "platform/CCFileUtils.h"
 
+#include <errno.h>
 #include <stack>
 
 #include "base/CCData.h"
@@ -1391,7 +1392,7 @@ bool FileUtils::renameFile(const std::string &oldfullpath, const std::string &ne
 
     if (0 != errorCode)
     {
-        CCLOGERROR("Fail to rename file %s to %s !Error code is %d", oldfullpath.c_str(), newfullpath.c_str(), errorCode);
+        CCLOGERROR("Fail to rename file %s to %s !Error code is %d, errno is %d: %s", oldfullpath.c_str(), newfullpath.c_str(), errorCode, errno, strerror(errno));
         return false;
     }
     return true;

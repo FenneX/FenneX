@@ -28,6 +28,8 @@ THE SOFTWARE.
 #include "FenneXMacros.h"
 #include "cocos2d.h"
 #include "DelayedDispatcher.h"
+#include "FileUtility.h"
+
 USING_NS_CC;
 USING_NS_FENNEX;
 
@@ -38,6 +40,7 @@ USING_NS_FENNEX;
 class VideoPlayer : public Ref
 {
 public:
+    // Use an absolute path
     VideoPlayer(std::string file, Vec2 position, cocos2d::Size size, bool front = true, bool loop = true);
     ~VideoPlayer();
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
@@ -64,16 +67,13 @@ public:
     
     void setMuted(bool muted);
     
-    //Return the path of the thumbnail (use getLocalPath to get the absolute path)
+    //Return the path of the thumbnail (PNG file), relative to location passed in parameter, without extension
     //May return NULL if there was a problem generating the thumbnail
-    static std::string getThumbnail(const std::string& path);
+    static std::string getThumbnail(const std::string& path, FileLocation location = FileLocation::Absolute);
     
     //Return the size of the video
     //May return (0,0) if there was a problem with the video
-    static cocos2d::Size getVideoSize(const std::string& path);
-    
-    //TODO : Add iOS implementation
-    static bool isValidVideo(const std::string& filePath);
+    static cocos2d::Size getVideoSize(const std::string& path, FileLocation location = FileLocation::Absolute);
     
     //On iOS, always returns true for external videos and will notify VideoExists/VideoRemoved with a CCDictionary containing Path key with a CCString
     //For trimmed video (picked from library) on iOS and all video on Android, directly return the right value

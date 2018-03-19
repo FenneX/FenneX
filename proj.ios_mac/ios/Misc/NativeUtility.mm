@@ -30,7 +30,6 @@
 #import <AudioToolbox/AudioServices.h>
 #import <sys/utsname.h>
 
-
 NS_FENNEX_BEGIN
 
 MPVolumeView *invisibleVolumeView = NULL;
@@ -39,17 +38,6 @@ bool isPhone()
 {
     return [[UIDevice currentDevice] userInterfaceIdiom] != UIUserInterfaceIdiomPad;
 }
-
-std::string getPublicPath(const std::string& name)
-{
-    return std::string(getenv("HOME"))+"/Documents/"+name;
-}
-
-std::string getLocalPath(const std::string& name)
-{
-    return std::string(getenv("HOME"))+"/Documents/"+name;
-}
-
 std::string getOpenUrl()
 {
     return [[AppController sharedController].openUrl UTF8String];

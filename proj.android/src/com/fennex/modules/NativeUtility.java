@@ -25,19 +25,14 @@ THE SOFTWARE.
 
 package com.fennex.modules;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.media.AudioManager;
@@ -48,6 +43,11 @@ import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.util.Log;
 import android.view.WindowManager;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class NativeUtility 
@@ -73,26 +73,6 @@ public class NativeUtility
     public static void discardSplashScreen()
     {
         getMainActivity().discardSplashDialog();
-    }
-
-    public static String getPublicPath()
-    {
-        return Environment.getExternalStorageDirectory().getAbsolutePath();
-    }
-
-    public static String getLocalPath()
-    {
-    	String localPath = getMainActivity().getFilesDir().getPath();
-    	Log.d(TAG, "returning local path : " + localPath);
-    	return localPath;
-    }
-
-    public static String getLocalPath(Context context)
-    {
-        if(context == null) return getLocalPath();
-        String localPath = context.getFilesDir().getPath();
-        Log.d(TAG, "returning local path : " + localPath);
-        return localPath;
     }
 
     @SuppressWarnings("unused")
@@ -176,12 +156,12 @@ public class NativeUtility
     public static void copyResourceFileToLocal(String path)
     {
     	Log.d(TAG, "copying resource file to local : " + path);
-        File destinationFile = new File(NativeUtility.getLocalPath() + java.io.File.separator + path);    
+        File destinationFile = new File(FileUtility.getLocalPath() + java.io.File.separator + path);    
     	if(!destinationFile.exists())
     	{
             if(path.contains("/"))
             {
-                File parentFolder = new File(NativeUtility.getLocalPath() + java.io.File.separator + path.substring(0, path.lastIndexOf("/")));
+                File parentFolder = new File(FileUtility.getLocalPath() + java.io.File.separator + path.substring(0, path.lastIndexOf("/")));
                 parentFolder.mkdirs();
             }
          	Log.i(TAG, "File doesn't exist, doing the copy to " + destinationFile.getAbsolutePath());
@@ -195,7 +175,7 @@ public class NativeUtility
                     f.write(buffer, 0, len1);
                 }
                 f.close();
-             	Log.i(TAG, "Copied " + path + " to " + NativeUtility.getLocalPath() + java.io.File.separator + path);
+             	Log.i(TAG, "Copied " + path + " to " + FileUtility.getLocalPath() + java.io.File.separator + path);
             } catch (IOException e) {
                 e.printStackTrace();
             }

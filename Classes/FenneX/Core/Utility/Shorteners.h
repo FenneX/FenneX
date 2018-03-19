@@ -52,9 +52,6 @@ NS_FENNEX_BEGIN
  A = Array, append P for parameters
  */
 
-
-std::string getResourcesPath(const std::string& file);
-
 cocos2d::Size* sizeCreate(float width = 0, float height = 0);
 //note : keys have to be passed as CCString, unfortunately. Must be NULL terminated
 

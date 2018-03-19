@@ -1,10 +1,22 @@
 package com.fennex.modules;
 
+import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
+import android.content.Intent;
+import android.database.Cursor;
+import android.media.MediaMetadataRetriever;
+import android.net.Uri;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.util.Log;
+import android.widget.Toast;
+
+import org.videolan.libvlc.util.Extensions;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -17,20 +29,7 @@ import java.util.Locale;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
-import org.videolan.libvlc.util.Extensions;
-
-import android.content.ActivityNotFoundException;
-import android.content.ContentResolver;
-import android.content.Intent;
-import android.database.Cursor;
-import android.media.MediaMetadataRetriever;
-import android.net.Uri;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.util.Log;
-import android.widget.Toast;
-
-import static android.app.Activity.*;
+import static android.app.Activity.RESULT_CANCELED;
 
 public class VideoPicker implements ActivityResultResponder {
 
@@ -38,11 +37,10 @@ public class VideoPicker implements ActivityResultResponder {
     private static final int VIDEO_GALLERY = 40;
     private static final int CAMERA_CAPTURE = 41;
     private static volatile VideoPicker instance = null;
-    
-    private static String storageDirectory;
-    private static boolean stateStorage = false;
+
     private static boolean isPending = false;
     private static String _fileName;
+    private static FileUtility.FileLocation _location;
     
     private VideoPicker() { }
 
@@ -73,17 +71,18 @@ public class VideoPicker implements ActivityResultResponder {
         instance = null;
     }
 
-    public native static void notifyVideoPickedWrap(String name);
+    public native static void notifyVideoPickedWrap(String name, int location);
     public native static void notifyVideoFound(String path);
     public native static void notifyVideoName(String path, String name);
     public native static void notifyGetAllVideosFinished();
     public native static void notifyVideoPickCancelled();
 
     
-    public static boolean pickVideoFromLibrary(String saveName)
+    public static boolean pickVideoFromLibrary(String saveName, int location)
     {
     	VideoPicker.getInstance(); //ensure the instance is created
         _fileName = saveName;
+        _location = FileUtility.FileLocation.valueOf(location);
     	boolean error = false;
 		try
 		{
@@ -100,10 +99,11 @@ public class VideoPicker implements ActivityResultResponder {
     	return error;
     }
 
-    public static boolean pickVideoFromCamera(String saveName)
+    public static boolean pickVideoFromCamera(String saveName, int location)
     {
         VideoPicker.getInstance(); //ensure the instance is created
         _fileName = saveName;
+        _location = FileUtility.FileLocation.valueOf(location);
         boolean error = false;
         try
         {
@@ -299,7 +299,9 @@ public class VideoPicker implements ActivityResultResponder {
             // Copy file into the app
             String path = getFullPathFromURI(videoUri);
             _fileName += path.substring(path.lastIndexOf("."));
-            File destinationFile = new File(NativeUtility.getLocalPath() + java.io.File.separator + _fileName);
+            String destinationPath = FileUtility.getFullPath(_fileName, _location);
+            File destinationFile = new File(destinationPath);
+            destinationFile.getParentFile().mkdirs();
 
             Log.d(TAG, "video path : " + path + ", new filename : " + _fileName);
             if(!destinationFile.exists())
@@ -309,7 +311,7 @@ public class VideoPicker implements ActivityResultResponder {
                 try
                 {
                     in = new FileInputStream(path);
-                    out = new FileOutputStream(NativeUtility.getLocalPath() + java.io.File.separator + _fileName);
+                    out = new FileOutputStream(destinationPath);
                     byte[] buffer = new byte[1024];
                     int read;
                     while ((read = in.read(buffer)) != -1) {
@@ -331,11 +333,12 @@ public class VideoPicker implements ActivityResultResponder {
                 }
             }
             final String name = _fileName; // In case we relaunch with a new filename before the thread run
+            final FileUtility.FileLocation location = _location;
     		NativeUtility.getMainActivity().runOnGLThread(new Runnable() 
     		{
     			public void run()
     			{
-    				notifyVideoPickedWrap(name);
+    				notifyVideoPickedWrap(name, location.getValue());
     			}
     		});
 			return true;

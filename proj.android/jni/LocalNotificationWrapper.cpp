@@ -88,9 +88,9 @@ void notifyNotifClicked(jobjectArray array)
 void notifyDeletePListFiles()
 {
     log("LocalNotificationWrapper->notifyDeletePListFiles");
-    deleteFile("exitDate.plist");
-    deleteFile("lastScene.plist");
-    deleteFile("userInfo.plist");
+    deleteFile("exitDate.plist", FileLocation::Local);
+    deleteFile("lastScene.plist", FileLocation::Local);
+    deleteFile("userInfo.plist", FileLocation::Local);
 }
 
 extern "C"

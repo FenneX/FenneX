@@ -26,8 +26,10 @@ THE SOFTWARE.
 package com.fennex.modules;
 
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -42,6 +44,7 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 import java.util.HashMap;
+import java.util.Map;
 
 public class FileUtility implements ActivityResultResponder {
     private static final int FILE_PICK = 50;
@@ -53,6 +56,40 @@ public class FileUtility implements ActivityResultResponder {
     private FileUtility() {
         currentLocks = new HashMap<>();
         currentFiles = new HashMap<>();
+    }
+
+    // Match FileUtility.cpp enum values, see that file for details
+    @SuppressWarnings("WeakerAccess")
+    public enum FileLocation {
+        Local(0),
+        PreconfiguredPath(1),
+        Public(2),
+        ApplicationSupport(3),
+        Absolute(4),
+        Resources(5),
+        Unknown(-1);
+
+        private int value;
+        private static Map map = new HashMap<>();
+
+        FileLocation(int value) {
+            this.value = value;
+        }
+
+        static {
+            for (FileLocation location : FileLocation.values()) {
+                //noinspection unchecked
+                map.put(location.value, location);
+            }
+        }
+
+        public static FileLocation valueOf(int location) {
+            return (FileLocation) map.get(location);
+        }
+
+        public int getValue() {
+            return value;
+        }
     }
 
     public static FileUtility getInstance()
@@ -80,6 +117,31 @@ public class FileUtility implements ActivityResultResponder {
         }
         instance = null;
     }
+
+    public static String getLocalPath()
+    {
+    	return NativeUtility.getMainActivity().getFilesDir().getPath();
+    }
+
+    public static String getLocalPath(Context context)
+    {
+        if(context == null) return getLocalPath();
+        return context.getFilesDir().getPath();
+    }
+
+    public static String getPublicPath()
+    {
+        return Environment.getExternalStorageDirectory().getAbsolutePath();
+    }
+
+    public static String getFullPath(String filename, FileLocation location)
+    {
+        return getFullPath(filename, location.getValue());
+    }
+
+    public native static String getFullPath(String filename, int location);
+
+    public native static String findFullPath(String filename);
 
     public static boolean lockFile(String filename) {
         synchronized (FileUtility.class) {
@@ -187,21 +249,10 @@ public class FileUtility implements ActivityResultResponder {
     }
 
     @SuppressWarnings("unused")
-    public static void deleteFile(String filename)
-    {
-        unlockFile(filename);
-        File file = new File(filename);
-        if(!file.delete())
-        {
-            Log.i("FileUtility", "Could not delete file : " + filename);
-        }
-    }
-
-    @SuppressWarnings("unused")
     public static boolean moveFileToLocalDirectory(String path)
     {
         String filename = path.substring(path.lastIndexOf("/"));
-        File destinationFile = new File(NativeUtility.getLocalPath() + java.io.File.separator + filename);
+        File destinationFile = new File(FileUtility.getLocalPath() + java.io.File.separator + filename);
 
         if(!destinationFile.exists())
         {
@@ -210,7 +261,7 @@ public class FileUtility implements ActivityResultResponder {
             try
             {
                 in = new FileInputStream(path);
-                out = new FileOutputStream(NativeUtility.getLocalPath() + java.io.File.separator + filename);
+                out = new FileOutputStream(FileUtility.getLocalPath() + java.io.File.separator + filename);
                 byte[] buffer = new byte[1024];
                 int read;
                 while ((read = in.read(buffer)) != -1) {

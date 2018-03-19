@@ -413,7 +413,8 @@ USING_NS_FENNEX;
 + (NSString*) getThumbnail:(NSString*)path
 {
     NSString* thumbnailName = [NSString stringWithFormat:@"%@-thumbnail", [path lastPathComponent]];
-    NSString* thumbnailPath = [NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"Documents/%@.png", thumbnailName]];
+    NSString* thumbnailFileName = [NSString stringWithFormat:@"%@-thumbnail.png", [path lastPathComponent]];
+    NSString* thumbnailPath = [path stringByReplacingOccurrencesOfString:[path lastPathComponent] withString:thumbnailFileName];
     UIImage *thumbnail = NULL;
     //Only generate it if it doesn't exist
     //This method is badly named, it will check for ANY file, not just videos
@@ -465,8 +466,7 @@ USING_NS_FENNEX;
             NSLog(@"Write result for thumbnail %@ : %@, fullPath : %@", thumbnailName, (result ? @"OK" : @"Problem"), thumbnailPath);
             if(result)
             {
-                std::string fullPath =  std::string(getenv("HOME")) + "/Documents/"+[thumbnailName UTF8String]+".png";
-                Director::getInstance()->getTextureCache()->removeTextureForKey(fullPath.c_str());
+                Director::getInstance()->getTextureCache()->removeTextureForKey([thumbnailPath UTF8String]);
             }
             else
             {

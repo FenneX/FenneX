@@ -121,21 +121,16 @@ void VideoPlayer::setMuted(bool muted)
     TYPED_DELEGATE.muted = muted;
 }
 
-std::string VideoPlayer::getThumbnail(const std::string& path)
+std::string VideoPlayer::getThumbnail(const std::string& path, FileLocation location)
 {
-    NSString* thumbnailPath = [VideoPlayerImplIOS getThumbnail:[NSString stringWithUTF8String:path.c_str()]];
+    NSString* thumbnailPath = [VideoPlayerImplIOS getThumbnail:[NSString stringWithUTF8String:getFullPath(path, location).c_str()]];
     return thumbnailPath != nil ? [thumbnailPath UTF8String] : "";
 }
 
-cocos2d::Size VideoPlayer::getVideoSize(const std::string& path)
+cocos2d::Size VideoPlayer::getVideoSize(const std::string& path, FileLocation location)
 {
-    CGSize size = [VideoPlayerImplIOS getVideoSize:[NSString stringWithUTF8String:path.c_str()]];
+    CGSize size = [VideoPlayerImplIOS getVideoSize:[NSString stringWithUTF8String:getFullPath(path, location).c_str()]];
     return cocos2d::Size(size.width, size.height);
-}
-
-bool VideoPlayer::isValidVideo(const std::string& filePath)
-{
-    return true;
 }
 
 bool VideoPlayer::videoExists(const std::string& file)

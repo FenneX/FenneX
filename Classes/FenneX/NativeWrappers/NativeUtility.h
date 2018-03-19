@@ -38,14 +38,6 @@ bool isPhone();
 void discardSplashScreen();
 #endif
 
-/* Return a public writable path on Android. On iOS, it is the same as getLocalPath
- */
-std::string getPublicPath(const std::string& name);
-
-/* Return a local (inside the app) writable path.
- */
-std::string getLocalPath(const std::string& name);
-
 /* Return the URL the app was opened with, or an empty string
  You also get notified with "UrlOpened" event when app is opened with an url during run (not at startup)
  */

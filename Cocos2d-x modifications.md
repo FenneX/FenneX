@@ -120,3 +120,5 @@ Cocos2d-x V3.16 Modifications
 * cocos/ui/UIEditBox.cpp => add editBoxEditingWillBegin to UIEditBoxDelegate
 * remove cocos2d/web folder and cocos2d/templates folder
 
+* cocos/2d/CCRenderTexture.cpp => in saveToFile, avoid using writable path when it's already an absolute path
+* cocos/platform/CCFileUtils.cpp => in renameFile, make the cclogerror useful by showing errno

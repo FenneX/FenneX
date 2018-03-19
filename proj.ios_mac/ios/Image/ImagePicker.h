@@ -23,12 +23,13 @@
  ****************************************************************************///
 
 #import <UIKit/UIKit.h>
-
+#include "FileUtility.h"
 
 @interface ImagePicker : NSObject <UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIPopoverControllerDelegate>
 {
     UIImagePickerController* controller;
     NSString* saveName;
+    FenneX::FileLocation saveLocation;
     NSString* identifier;
     int width;
     int height;
@@ -39,6 +40,7 @@
 
 @property (nonatomic, readonly) UIImagePickerController* controller;
 @property (nonatomic, retain) NSString* saveName;
+@property (nonatomic, assign) FenneX::FileLocation saveLocation;
 @property (nonatomic, retain) NSString* identifier;
 @property (nonatomic, assign) int width;
 @property (nonatomic, assign) int height;

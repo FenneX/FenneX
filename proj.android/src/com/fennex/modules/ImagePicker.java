@@ -25,13 +25,6 @@ THE SOFTWARE.
 
 package com.fennex.modules;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
-
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -48,6 +41,12 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import static android.app.Activity.RESULT_CANCELED;
 
 public class ImagePicker implements ActivityResultResponder
@@ -56,9 +55,9 @@ public class ImagePicker implements ActivityResultResponder
     private static final int PICTURE_GALLERY = 30;
     private static final int CAMERA_CAPTURE = 31;
     private static final int CROP = 32;
-    private static String storageDirectory;
     
 	private static String _fileName;
+    private static FileUtility.FileLocation _location;
 	private static int _width;
 	private static int _height;
 	private static String _identifier;
@@ -82,7 +81,6 @@ public class ImagePicker implements ActivityResultResponder
                 {
                 	instance = new ImagePicker ();
         			NativeUtility.getMainActivity().addResponder(instance);
-        			getStorageDirectory();
                 }
             }
         }
@@ -112,10 +110,9 @@ public class ImagePicker implements ActivityResultResponder
             try {
                 if (requestCode == CROP || !_rescale) {
                     Bitmap original;
-                    if(requestCode == CROP) {
-                        original = BitmapFactory.decodeFile(storageDirectory+"/cropped.png");
-                    }
-                    else if(requestCode == PICTURE_GALLERY) {
+                    if (requestCode == CROP) {
+                        original = BitmapFactory.decodeFile(getStorageDirectory() + "/cropped.png");
+                    } else if (requestCode == PICTURE_GALLERY) {
                         Uri selectedImage = data.getData();
                         String[] orientationColumn = {MediaStore.Images.Media.ORIENTATION};
                         Cursor cur = NativeUtility.getMainActivity().getContentResolver().query(selectedImage, orientationColumn, null, null, null);
@@ -131,7 +128,7 @@ public class ImagePicker implements ActivityResultResponder
                         /* When not using EXTRA_OUTPUT, the Intent will produce a small image, depending on device and app used
                         original = data.getParcelableExtra("data");*/
                         //The EXTRA_OUTPUT parameter of Intent
-                        File file = new File(storageDirectory +  "/" + _fileName.substring(0, _fileName.length() - 4) + ".jpg");
+                        File file = new File(getStorageDirectory(), _fileName + ".jpg");
                         ExifInterface exif = new ExifInterface(file.getAbsolutePath());
                         int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
                         int rotation = 0;
@@ -164,58 +161,58 @@ public class ImagePicker implements ActivityResultResponder
                         if (requestCode != CAMERA_CAPTURE && original != bitmap) {
                             original.recycle(); //this one may be huge, might as well free it right now
                         }
-                        _fileName = _fileName.replaceAll(".png", "");
-                        if(_thumbnailScale > 0 && bitmap != null) {
-                            Bitmap bitmapThumbnail = scaleToFill(bitmap, (int)(_width * _thumbnailScale), (int)(_height * _thumbnailScale));
-                            if(bitmapThumbnail != null) {
-                                saveBitmap(bitmapThumbnail, NativeUtility.getMainActivity().getFilesDir().getPath() + "/" + _fileName + "-thumbnail.png");
-                                if (bitmapThumbnail != bitmap) {
-                                    bitmapThumbnail.recycle();
+
+                        //Ensure folder is created
+                        new File(FileUtility.getFullPath(_fileName, _location)).getParentFile().mkdirs();
+
+                        if (bitmap != null) {
+                            //Save thumbnail if it was asked
+                            if(_thumbnailScale > 0) {
+                                Bitmap bitmapThumbnail = scaleToFill(bitmap, (int) (_width * _thumbnailScale), (int) (_height * _thumbnailScale));
+                                if (bitmapThumbnail != null) {
+                                    saveBitmap(bitmapThumbnail, FileUtility.getFullPath(_fileName + "-thumbnail.png", _location));
+                                    if (bitmapThumbnail != bitmap) {
+                                        bitmapThumbnail.recycle();
+                                    }
                                 }
                             }
-                        }
-                        if(bitmap != null) {
-                            saveBitmap(bitmap, NativeUtility.getMainActivity().getFilesDir().getPath() + "/" + _fileName + ".png");
+                            //Save main image
+                            saveBitmap(bitmap, FileUtility.getFullPath(_fileName + ".png", _location));
                             bitmap.recycle();
                         }
                         NativeUtility.getMainActivity().runOnGLThread(new Runnable() {
                             public void run() {
-                                notifyImagePickedWrap(_fileName, _identifier);
+                                notifyImagePickedWrap(_fileName, _location.getValue(), _identifier);
                             }
                         });
                     }
-                } catch (IOException e) {
-                    Log.d(TAG, "IOException while handling Intent result");
-                    e.printStackTrace();
-                }
-            }
-			else if(requestCode == PICTURE_GALLERY || requestCode == CAMERA_CAPTURE)
-			{
-				/**
-				 * Store the picture in a specific folder to prevent the apps crashing when the cropped picture
-				 * is too big and to avoid black borders in the cropped picture when it is too small
+                } else {
+                /*
+				  Store the picture in a specific folder to prevent the apps crashing when the cropped picture
+				  is too big and to avoid black borders in the cropped picture when it is too small
 				 */
-				Intent cropIntent = new Intent("com.android.camera.action.CROP");
-				if(requestCode == PICTURE_GALLERY)
-					cropIntent.setDataAndType(Uri.parse(data.getDataString()), "image/png");
-				else
-				{
-					insertPhotoIntoGallery(data);
-					cropIntent.setDataAndType(uriOfSavedPhoto, "image/png");
-				}
-				cropIntent.putExtra("aspectX", 1);
-				cropIntent.putExtra("aspectY", 1);
-				Log.i(TAG, "Will save in " + storageDirectory + "/cropped.png");
-				cropIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(storageDirectory, "cropped.png")));
-                isPending = true;
-				NativeUtility.getMainActivity().startActivityForResult(cropIntent, CROP);
-			}
-			return true;
-		}		
-		else 
-		{
-			Log.d(TAG, "not image picker activity");
-		}
+                    Intent cropIntent = new Intent("com.android.camera.action.CROP");
+                    if (requestCode == PICTURE_GALLERY)
+                        cropIntent.setDataAndType(Uri.parse(data.getDataString()), "image/png");
+                    else {
+                        insertPhotoIntoGallery(data);
+                        cropIntent.setDataAndType(uriOfSavedPhoto, "image/png");
+                    }
+                    cropIntent.putExtra("aspectX", 1);
+                    cropIntent.putExtra("aspectY", 1);
+                    Log.i(TAG, "Will save in " + getStorageDirectory() + "/cropped.png");
+                    cropIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(getStorageDirectory(), "cropped.png")));
+                    isPending = true;
+                    NativeUtility.getMainActivity().startActivityForResult(cropIntent, CROP);
+                }
+            } catch (IOException e) {
+                Log.d(TAG, "IOException while handling Intent result");
+                e.printStackTrace();
+            }
+            return true;
+        } else {
+            Log.d(TAG, "not image picker activity");
+        }
         return false;
     }
 
@@ -259,11 +256,12 @@ public class ImagePicker implements ActivityResultResponder
         public int getValue() { return value; }
     }
     
-    public static boolean pickImageFrom(String saveName, int pickOption, int width, int height, String identifier, float thumbnailScale, boolean rescale)
     @SuppressWarnings("unused")
+    public static boolean pickImageFrom(String saveName, int location, int pickOption, int width, int height, String identifier, float thumbnailScale, boolean rescale)
     {
     	ImagePicker.getInstance(); //ensure the instance is created
-    	_fileName = saveName.concat(".png");
+    	_fileName = saveName;
+        _location = FileUtility.FileLocation.valueOf(location);
     	_width = width;
     	_height = height;
     	_identifier = identifier;
@@ -276,7 +274,7 @@ public class ImagePicker implements ActivityResultResponder
     		{
 	       		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 if(!rescale) {
-                    File file = new File(storageDirectory +  "/" + saveName + ".jpg");
+                    File file = new File(getStorageDirectory(), saveName + ".jpg");
                     Uri outputFileUri = Uri.fromFile(file);
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
                 }
@@ -287,8 +285,10 @@ public class ImagePicker implements ActivityResultResponder
     		{
     	    	Log.d(TAG, "intent for image capture not found : " + e.getMessage());
     	    	error = true;
-    		}
-    	}
+    		} catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     	else
     	{
     		try
@@ -318,33 +318,28 @@ public class ImagePicker implements ActivityResultResponder
     	return error;
     }
     
-    static public void getStorageDirectory() {
-    	if((Environment.getExternalStorageState() != Environment.MEDIA_BAD_REMOVAL &&
-        		Environment.getExternalStorageState() != Environment.MEDIA_MOUNTED_READ_ONLY &&
-        		Environment.getExternalStorageState() != Environment.MEDIA_NOFS &&
-        		Environment.getExternalStorageState() != Environment.MEDIA_REMOVED &&
-        		Environment.getExternalStorageState() != Environment.MEDIA_UNMOUNTABLE &&
-        		Environment.getExternalStorageState() != Environment.MEDIA_UNMOUNTED))
+    private static String getStorageDirectory() throws IOException {
+    	if((Environment.getExternalStorageState().equals(Environment.MEDIA_BAD_REMOVAL) ||
+        		Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED_READ_ONLY) ||
+        		Environment.getExternalStorageState().equals(Environment.MEDIA_NOFS) ||
+        		Environment.getExternalStorageState().equals(Environment.MEDIA_REMOVED) ||
+        		Environment.getExternalStorageState().equals(Environment.MEDIA_UNMOUNTABLE) ||
+        		Environment.getExternalStorageState().equals(Environment.MEDIA_UNMOUNTED)))
         {
-        	/**
-        	 * Use getExternalStorageDirectory() to save the cropped picture because we cannot use 
-        	 * the folder /data/data/... to save temporary picture.
-        	 */
-        	storageDirectory = Environment.getExternalStorageDirectory().toString();
-        	File directory = new File(storageDirectory + "/" + NativeUtility.getAppName());
-        	if(!directory.exists())
-        	{        		
-        		if(directory.mkdir())
-        		{
-        			storageDirectory = storageDirectory + "/" + NativeUtility.getAppName();
-        			Log.d(TAG, "Folder " + storageDirectory + " does not exist, folder created.");
-        		}
-        		else
-        			Log.d(TAG, "Folder " + storageDirectory + " does not exist, cannot create folder.");
-        	}
-        	else
-        		storageDirectory = storageDirectory + "/" + NativeUtility.getAppName();
+            throw new IOException("External storage is not accessible");
         }
+        /*
+          Use external cache dir to save the cropped picture because we cannot use
+          the internal folder to save temporary picture, as it must be accessed by other apps.
+          Ensure the directory is created
+         */
+        File tmpDirectoryPath = new File(Environment.getExternalStorageDirectory() + "/tmp");
+        if(!tmpDirectoryPath.mkdirs() && !tmpDirectoryPath.isDirectory())
+        {
+            throw new IOException("Cannot create temporary folder for ImagePicker");
+        }
+        //noinspection ConstantConditions
+        return tmpDirectoryPath.getAbsolutePath();
     }
     
     // Scale and keep aspect ratio 
@@ -366,15 +361,12 @@ public class ImagePicker implements ActivityResultResponder
         return result;
     }
 
-    public void insertPhotoIntoGallery(Intent data)
-    {
+    private void insertPhotoIntoGallery(Intent data) throws IOException {
         insertPhotoIntoGallery((Bitmap) data.getParcelableExtra("data"));
     }
     
-    public void insertPhotoIntoGallery(Bitmap image)
-    {
-        new File(storageDirectory).mkdirs();
-        File fi = new File(storageDirectory, "photo.png");
+    private void insertPhotoIntoGallery(Bitmap image) throws IOException {
+        File fi = new File(getStorageDirectory(), "photo.png");
         fi.setReadable(true, false);
 		FileOutputStream stream;
 		try {
@@ -416,6 +408,6 @@ public class ImagePicker implements ActivityResultResponder
         }
     }
     
-    private native static void notifyImagePickedWrap(String name, String identifier);
+    private native static void notifyImagePickedWrap(String name, int location, String identifier);
     private native static void notifyImagePickCancelled();
 }

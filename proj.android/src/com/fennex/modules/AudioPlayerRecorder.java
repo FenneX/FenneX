@@ -56,6 +56,7 @@ public class AudioPlayerRecorder extends Handler {
     private static MediaPlayer   mPlayer = null;
     private static FileInputStream input = null;
     private static String currentFile = null;
+    private static FileUtility.FileLocation _location;
     private static float volume = 1;
     private static String[] audioTypes = {"mp3", "3gp", "flac", "ogg", "wav"};
 
@@ -203,11 +204,11 @@ public class AudioPlayerRecorder extends Handler {
     	//try to load from data
     	String relativeName = file;
     	if(getFileExtension(file) == null) relativeName += ".mp3";
-    	String fullName = NativeUtility.getLocalPath() + "/" + relativeName;
+    	String fullName = FileUtility.findFullPath(relativeName);
     	
-    	Log.d(TAG, "start MediaPlayer from local : " + fullName);
+    	Log.d(TAG, "start MediaPlayer with path: " + fullName);
         File target = new File(fullName);
-        //Try to load from local path
+        //Try to load from full path
         if(target.exists())
         {
             try 
@@ -228,7 +229,7 @@ public class AudioPlayerRecorder extends Handler {
             	{
                 	fullName = null;
             	}
-                Log.e(TAG, "prepare() from local failed, exception : " + e.getLocalizedMessage());
+                Log.e(TAG, "prepare() from full path failed, exception : " + e.getLocalizedMessage());
                 notifyPlayingSoundEnded();
             }
         }
@@ -314,7 +315,7 @@ public class AudioPlayerRecorder extends Handler {
                 {
                     fullName = null;
                 }
-                Log.e(TAG, "prepare() from local failed, exception : " + e.getLocalizedMessage());
+                Log.e(TAG, "prepare() from full path failed, exception : " + e.getLocalizedMessage());
             }
         }
     }
@@ -324,12 +325,12 @@ public class AudioPlayerRecorder extends Handler {
         //try to load from data
         String relativeName = file;
         if(getFileExtension(file) == null) relativeName += ".mp3";
-        String fullName = NativeUtility.getLocalPath() + java.io.File.separator + relativeName;
+        String fullName = FileUtility.findFullPath(relativeName);
 
         //Use Environment.getExternalStorageDirectory().toString() ?
         Log.d(TAG, "start VLC Player with path: " + fullName);
         File target = new File(fullName);
-        //Try to load from local path
+        //Try to load from full path path
         if(target.exists())
         {
             //We have to implement a runnable to pass data, and because EventHandler can only be accessed on UI Thread
@@ -402,17 +403,19 @@ public class AudioPlayerRecorder extends Handler {
     	}
     }
 
-    public static void startRecording(String fileName) 
     @SuppressWarnings("unused")
+    public static void startRecording(String fileName, int location)
     {
-    	currentFile = NativeUtility.getLocalPath() + "/" + fileName;
-    	Log.d(TAG, "start recording : " + currentFile);
+    	currentFile = fileName;
+        _location = FileUtility.FileLocation.valueOf(location);
+        String fullPath = FileUtility.getFullPath(currentFile, _location);
+    	Log.d(TAG, "start recording : " + fullPath);
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         mRecorder.setAudioChannels(1);
         mRecorder.setAudioSamplingRate(44100);
-        mRecorder.setOutputFile(currentFile);
+        mRecorder.setOutputFile(fullPath);
         mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 
         try 
@@ -660,10 +663,10 @@ public class AudioPlayerRecorder extends Handler {
     {
     	String relativeName = file;
     	if(getFileExtension(file) == null) relativeName += ".mp3";
-    	String fullName = NativeUtility.getLocalPath() + "/" + relativeName;
+    	String fullName = FileUtility.findFullPath(relativeName);
     	
         File target = new File(fullName);
-        //Try to load from local path
+        //Try to load from full path path
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         if(target.exists())
         {
@@ -674,7 +677,7 @@ public class AudioPlayerRecorder extends Handler {
             } 
             catch (IOException e) 
             {
-                Log.e(TAG, "MediaMetadataRetriever from local failed, exception : " + e.getLocalizedMessage());
+                Log.e(TAG, "MediaMetadataRetriever from full path failed, exception : " + e.getLocalizedMessage());
             }
         }
         //try to load from package using assets
