@@ -34,19 +34,19 @@
  Since there is no way to have a file shared between apps on iOS, there is no iOS implementation, just placeholders.
 */
 
-//Return true if the file is properly locked, otherwise false. iOS will always return false
+// Return true if the file is properly locked, otherwise false. iOS will always return false
 bool lockFile(std::string filename);
 
-//Return the file contents, which must be locked otherwise. If it's not locked or on iOS, it will return an empty reponse
+// Return the file contents, which must be locked otherwise. If it's not locked or on iOS, it will return an empty reponse
 std::string getLockedFileContents(std::string filename);
 
-//Write on a locked file and return true if it's successful. If it's not locked or on iOS, it will return false
+// Write on a locked file and return true if it's successful. If it's not locked or on iOS, it will return false
 bool writeLockedFile(std::string filename, std::string content);
 
-//Unlock a previously locked file
+// Unlock a previously locked file
 void unlockFile(std::string filename);
 
-// Return all files from a folder in Android. Doesn't do anything on iOS, just return an empty vector.
+// Return all files from a folder (using absolute path)
 std::vector<std::string> getFilesInFolder(std::string folderPath);
 
 // Delete the file. Need a complete path (use getLocalPath for local files)
@@ -59,14 +59,14 @@ void deleteFile(std::string filename);
 bool moveFileToLocalDirectory(std::string path);
 
 // Move a file from an absolute path to a specific destination folder (it will remove the original)
-// It will ceate the missing directory if needed
-// if the file already exist in the destination folder, it will not be copied, but the original will still be removed. It is considered a success.
+// It will create the missing directories if needed
+// if the file already exists in the destination folder, it will not be copied, but the original will still be removed. It is considered a success.
 // Return true if it succeed and false otherwise (if the file doesn't exist for exemple)
 // Empty implementation in iOS because there is no global shared disk space
 bool moveFile(std::string path, std::string destinationFolder);
 
 /**
- * launch a pick file activity on android. It can be empty
+ * Launch a pick file activity on Android. It can be empty
  * This doesn't launch anything on iOS since ios is not capable of that thing. (you will not receive a "FilePicked" event)
  **/
 bool pickFile();
