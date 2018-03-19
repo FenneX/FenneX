@@ -1,4 +1,5 @@
-/****************************************************************************
+/*
+***************************************************************************
 Copyright (c) 2013-2014 Auticiel SAS
 
 http://www.fennex.org
@@ -62,7 +63,7 @@ public class AudioPlayerRecorder extends Handler {
     private static LibVLC libVLC = null;
     private static org.videolan.libvlc.MediaPlayer vlcMediaPlayer = null;
 
-    public static boolean useVLC = false;
+    private static boolean useVLC = false;
     private static float desiredPlaybackRate; //Playback rate must be kept between sessions (when restarting video)
     
     public static native void notifyPlayingSoundEnded();
@@ -76,6 +77,7 @@ public class AudioPlayerRecorder extends Handler {
         return instance;
     }
 
+    @SuppressWarnings("unused")
     public static void setUseVLC(boolean use)
     {
         if(mPlayer != null)
@@ -100,6 +102,7 @@ public class AudioPlayerRecorder extends Handler {
         useVLC = use;
     }
 
+    @SuppressWarnings("WeakerAccess")
     public static boolean isPlaying()
     {
     	Log.d(TAG, "returning isPlaying");
@@ -110,13 +113,15 @@ public class AudioPlayerRecorder extends Handler {
             return mPlayer != null && mPlayer.isPlaying();
         }
     }
-    
+
+    @SuppressWarnings("unused")
     public static boolean isRecording()
     {
     	Log.d(TAG, "returning isRecording");
     	return mRecorder != null;
     }
 
+    @SuppressWarnings("unused")
     public static void startPlaying(String fileName, float newVolume)
     {
         if(useVLC) {
@@ -157,7 +162,8 @@ public class AudioPlayerRecorder extends Handler {
         }
         volume = newVolume;
     }
-    
+
+    @SuppressWarnings("unused")
     public static void playIndependent(String fileName, float newVolume)
     {
         MediaPlayer tmpPlayer = new MediaPlayer();
@@ -202,7 +208,7 @@ public class AudioPlayerRecorder extends Handler {
     	Log.d(TAG, "start MediaPlayer from local : " + fullName);
         File target = new File(fullName);
         //Try to load from local path
-        if(target != null && target.exists())
+        if(target.exists())
         {
             try 
             {
@@ -267,7 +273,7 @@ public class AudioPlayerRecorder extends Handler {
         private String fullName;
         private boolean isMain;
         private float volume;
-        public StartVLCRunnable(LibVLC _player, String _fullName, boolean _isMain, float _volume) {
+        private StartVLCRunnable(LibVLC _player, String _fullName, boolean _isMain, float _volume) {
             this.player = _player;
             this.fullName = _fullName;
             this.isMain = _isMain;
@@ -321,10 +327,10 @@ public class AudioPlayerRecorder extends Handler {
         String fullName = NativeUtility.getLocalPath() + java.io.File.separator + relativeName;
 
         //Use Environment.getExternalStorageDirectory().toString() ?
-        Log.d(TAG, "start MediaPlayer from local : " + fullName);
+        Log.d(TAG, "start VLC Player with path: " + fullName);
         File target = new File(fullName);
         //Try to load from local path
-        if(target != null && target.exists())
+        if(target.exists())
         {
             //We have to implement a runnable to pass data, and because EventHandler can only be accessed on UI Thread
             StartVLCRunnable runnable = new StartVLCRunnable(player, fullName, isMain, newVolume);
@@ -334,7 +340,7 @@ public class AudioPlayerRecorder extends Handler {
         else
         {
             AssetManager am = NativeUtility.getMainActivity().getAssets();
-            Log.d(TAG, "start MediaPlayer from resources : " + relativeName);
+            Log.d(TAG, "start VLC Player from resources : " + relativeName);
             try
             {
                 //VLC can't read directly from package. Copy the file to files and read it from there
@@ -359,8 +365,9 @@ public class AudioPlayerRecorder extends Handler {
         }
         return fullName;
     }
-    
-    public static void stopPlaying() 
+
+    @SuppressWarnings("WeakerAccess")
+    public static void stopPlaying()
     {
         Log.d(TAG, "stop playing");
         if(useVLC)
@@ -396,6 +403,7 @@ public class AudioPlayerRecorder extends Handler {
     }
 
     public static void startRecording(String fileName) 
+    @SuppressWarnings("unused")
     {
     	currentFile = NativeUtility.getLocalPath() + "/" + fileName;
     	Log.d(TAG, "start recording : " + currentFile);
@@ -423,6 +431,7 @@ public class AudioPlayerRecorder extends Handler {
 
     }
 
+    @SuppressWarnings("unused")
     public static void stopRecording() 
     {
         Log.d(TAG, "stop recording");
@@ -436,7 +445,8 @@ public class AudioPlayerRecorder extends Handler {
             mRecorder = null;
         }
     }
-    
+
+    @SuppressWarnings("unused")
     public static void fadeVolumeOut()
     {
     	final float speed = 0.010f;
@@ -500,6 +510,7 @@ public class AudioPlayerRecorder extends Handler {
     	}
     }
 
+    @SuppressWarnings("unused")
     public static float getPlaybackRate()
     {
         if(useVLC)
@@ -510,6 +521,7 @@ public class AudioPlayerRecorder extends Handler {
         return 1;
     }
 
+    @SuppressWarnings("WeakerAccess")
     public static void setPlaybackRate(float rate)
     {
         if(useVLC)
@@ -557,7 +569,8 @@ public class AudioPlayerRecorder extends Handler {
     		if(mPlayer.isPlaying())
     			mPlayer.pause();
     }
-    
+
+    @SuppressWarnings("unused")
     public static void restart()
     {
         Log.d(TAG, "restart music");
@@ -582,7 +595,8 @@ public class AudioPlayerRecorder extends Handler {
             }
         }
     }
-    
+
+    @SuppressWarnings("unused")
     public static float getSoundDuration(String fileName)
     {
         MediaPlayer tmpPlayer = new MediaPlayer();
@@ -609,6 +623,7 @@ public class AudioPlayerRecorder extends Handler {
     }
     
     //Will return the '.' with the extension
+    @SuppressWarnings("WeakerAccess")
     public static String getFileExtension(String file)
     {
     	if(file.contains("."))
@@ -619,17 +634,18 @@ public class AudioPlayerRecorder extends Handler {
     	}
     		return null;
     }
-    
+
+    @SuppressWarnings("WeakerAccess")
     public static boolean isAValidAudioFormat(String extension)
     {
-    	for(int i = 0; i < audioTypes.length; i++)
-    	{
-    		if(extension.endsWith(audioTypes[i]))
-    			return true;
-    	}
+        for (String audioType : audioTypes) {
+            if (extension.endsWith(audioType))
+                return true;
+        }
     	return false;
     }
-    
+
+    @SuppressWarnings("unused")
     public static boolean checkMicrophonePermission ()
     {
     	boolean permissionOK = NativeUtility.getMainActivity().checkCallingOrSelfPermission("android.permission.RECORD_AUDIO") == PackageManager.PERMISSION_GRANTED;
@@ -649,7 +665,7 @@ public class AudioPlayerRecorder extends Handler {
         File target = new File(fullName);
         //Try to load from local path
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        if(target != null && target.exists())
+        if(target.exists())
         {
             try 
             {
@@ -686,12 +702,14 @@ public class AudioPlayerRecorder extends Handler {
         }
         return retriever;
     }
-    
+
+    @SuppressWarnings("unused")
     public static String getAuthor(String file)
     {
         return getMetadata(file).extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
     }
-    
+
+    @SuppressWarnings("unused")
     public static String getTitle(String file)
     {
         return getMetadata(file).extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);

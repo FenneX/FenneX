@@ -46,23 +46,23 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 	 *   - videoView : the SurfaceView on which the video is played. It's either a VideoView or a SurfaceView (for LibVLC)
 	 */
 	public static String TAG = "VideoPlayer";
-	public static FrameLayout mainFrame = null;
+	private static FrameLayout mainFrame = null;
 	public static FrameLayout base = null;
-	public static SurfaceView videoView = null;
+	private static SurfaceView videoView = null;
 	public static String path;
-	public static float localX;
-	public static float localY;
-	public static float localHeight;
-	public static float localWidth;
-	public static boolean toFront;
-	public static boolean isFullScreen = false;
-	public static int widthScreen = NativeUtility.getMainActivity().getMainLayout().getWidth();
-	public static int heightScreen = NativeUtility.getMainActivity().getMainLayout().getHeight();
+	private static float localX;
+	private static float localY;
+	private static float localHeight;
+	private static float localWidth;
+	private static boolean toFront;
+	private static boolean isFullScreen = false;
+	private static int widthScreen = NativeUtility.getMainActivity().getMainLayout().getWidth();
+	private static int heightScreen = NativeUtility.getMainActivity().getMainLayout().getHeight();
 	//Used by VLC implementation only to keep the video size for setSurfaceSize (avoid flickering)
 	private static int currentVideoWidth;
 	private static int currentVideoHeight;
 	
-	public static boolean useVLC = false;
+	private static boolean useVLC = false;
 	
 	private static VideoPlayer instance = null;
 	
@@ -826,13 +826,13 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 
 	@Override
 	public void run() {
-		this.play();
+		play();
 	}
 
 	private static class MyPlayerListener implements org.videolan.libvlc.MediaPlayer.EventListener {
 		private WeakReference<VideoPlayer> mOwner;
 
-		public MyPlayerListener(VideoPlayer owner) {
+		MyPlayerListener(VideoPlayer owner) {
 			mOwner = new WeakReference<VideoPlayer>(owner);
 		}
 

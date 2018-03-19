@@ -108,7 +108,7 @@ public class VideoPicker implements ActivityResultResponder {
         try
         {
             Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-            setStorageExtras(intent);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             isPending = true;
             NativeUtility.getMainActivity().startActivityForResult(intent, CAMERA_CAPTURE);
         }
@@ -184,14 +184,13 @@ public class VideoPicker implements ActivityResultResponder {
                     catch (Exception e)
                     {
                         // listFiles can fail in OutOfMemoryError, go to the next folder
-                        continue;
                     }
                 }
 
                 // Process the stacked items
                 for (File file : mediaToScan) {
                 	final String path = file.getPath();
-                	if(path != null && path.length() > 0)
+                	if(path.length() > 0)
                 	{
                 		NativeUtility.getMainActivity().runOnGLThread(new Runnable() 
                 		{
@@ -200,10 +199,10 @@ public class VideoPicker implements ActivityResultResponder {
 	                          	try
 	                          	{
 		        	    	        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-		        	    	        Log.i(TAG, "Setting data source to : " + path.toString() );
+		        	    	        Log.i(TAG, "Setting data source to : " + path);
 		        	    	        retriever.setDataSource(path); //SetDataSource can fail. If it does, the format is unsupported
 		                          	notifyVideoFound(path); 
-		        	    	        Log.i(TAG, "Setting data source success of : " + path.toString() );
+		        	    	        Log.i(TAG, "Setting data source success of : " + path);
 		        	    	        String title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
 		        	    	        String videoName = title != null ? title : path.lastIndexOf('/') >= 0 ? path.substring(path.lastIndexOf('/')+1) : path;
 		        	    	        Log.i(TAG, "video found, path : " + path + ", name : " + videoName);
@@ -235,7 +234,7 @@ public class VideoPicker implements ActivityResultResponder {
         thread.start();
     }
     
-    public static String[] getStorageDirectories()
+    static String[] getStorageDirectories()
     {
         String[] dirs = null;
         BufferedReader bufReader = null;
@@ -272,51 +271,16 @@ public class VideoPicker implements ActivityResultResponder {
             for (int i = 0; i < list.size(); i++) {
                 dirs[i] = list.get(i);
             }
-        }
-        catch (FileNotFoundException e) {}
-        catch (IOException e) {}
+        } catch (IOException ignored) {}
         finally {
             if (bufReader != null) {
                 try {
                     bufReader.close();
                 }
-                catch (IOException e) {}
+                catch (IOException ignored) {}
             }
         }
         return dirs;
-    }
-    
-    static public void setStorageExtras(Intent intent) {
-    	if((Environment.getExternalStorageState() != Environment.MEDIA_BAD_REMOVAL &&
-        		Environment.getExternalStorageState() != Environment.MEDIA_MOUNTED_READ_ONLY &&
-        		Environment.getExternalStorageState() != Environment.MEDIA_NOFS &&
-        		Environment.getExternalStorageState() != Environment.MEDIA_REMOVED &&
-        		Environment.getExternalStorageState() != Environment.MEDIA_UNMOUNTABLE &&
-        		Environment.getExternalStorageState() != Environment.MEDIA_UNMOUNTED))
-        {
-        	stateStorage = true;
-        	/**
-        	 * Use getExternalStorageDirectory() to save the cropped picture because we cannot use 
-        	 * the folder /data/data/... to save temporary picture.
-        	 */
-        	storageDirectory = Environment.getExternalStorageDirectory().toString();
-        	File directory = new File(storageDirectory + "/" + NativeUtility.getAppName());
-        	if(!directory.exists())
-        	{        		
-        		if(directory.mkdir())
-        		{
-        			storageDirectory = storageDirectory + "/" + NativeUtility.getAppName();
-        			Log.d(TAG, "Folder " + storageDirectory + " does not exist, folder created.");
-        		}
-        		else
-        			Log.d(TAG, "Folder " + storageDirectory + " does not exist, cannot create folder.");
-        	}
-        	else
-            {
-                storageDirectory = storageDirectory + "/" + NativeUtility.getAppName();
-            }
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        }
     }
     
 	@Override
@@ -382,7 +346,8 @@ public class VideoPicker implements ActivityResultResponder {
 		}
         return false;
 	}
-	public String getFullPathFromURI (Uri contentUri)
+
+	private String getFullPathFromURI(Uri contentUri)
 	{
 	    String path = null;
 	    try

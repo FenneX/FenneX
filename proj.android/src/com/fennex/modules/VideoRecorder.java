@@ -162,7 +162,7 @@ public class VideoRecorder extends Activity implements SurfaceHolder.Callback, M
     	}
 		getInstance().stopRecorder();
     	
-    	String externalPath = null;
+    	String externalPath;
     	//On some devices, copying the video in the Movies directory doesn't work. If it fails, show a message to the user
     	try
     	{

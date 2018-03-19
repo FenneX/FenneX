@@ -1,4 +1,5 @@
-/****************************************************************************
+/*
+***************************************************************************
 Copyright (c) 2013-2014 Auticiel SAS
 
 http://www.fennex.org
@@ -99,7 +100,7 @@ public class ImagePicker implements ActivityResultResponder
     }
 	
 	//Return true if it uses the activity result is handled by the in-app module
-    public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
+    public boolean onActivityResult(int requestCode, int resultCode, Intent data){
         isPending = false;
         if(resultCode == RESULT_CANCELED)
         {
@@ -108,9 +109,8 @@ public class ImagePicker implements ActivityResultResponder
         else if (requestCode == PICTURE_GALLERY || requestCode == CAMERA_CAPTURE || requestCode == CROP)
 		{
             Log.d(TAG, "onActivityResult(" + requestCode + "," + resultCode + "," + (data != null ? data.getExtras() : "no data"));
-            if(requestCode == CROP || !_rescale)
-            {
-                try {
+            try {
+                if (requestCode == CROP || !_rescale) {
                     Bitmap original;
                     if(requestCode == CROP) {
                         original = BitmapFactory.decodeFile(storageDirectory+"/cropped.png");
@@ -127,8 +127,7 @@ public class ImagePicker implements ActivityResultResponder
                         imageStream = NativeUtility.getMainActivity().getContentResolver().openInputStream(selectedImage);
                         original = BitmapFactory.decodeStream(imageStream);
                         original = rotateImage(original, orientation);
-                    }
-                    else { //CAMERA_CAPTURE
+                    } else { //CAMERA_CAPTURE
                         /* When not using EXTRA_OUTPUT, the Intent will produce a small image, depending on device and app used
                         original = data.getParcelableExtra("data");*/
                         //The EXTRA_OUTPUT parameter of Intent
@@ -136,25 +135,33 @@ public class ImagePicker implements ActivityResultResponder
                         ExifInterface exif = new ExifInterface(file.getAbsolutePath());
                         int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
                         int rotation = 0;
-                        if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) { rotation = 90; }
-                        else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {  rotation = 180; }
-                        else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {  rotation = 270; }
+                        if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
+                            rotation = 90;
+                        } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {
+                            rotation = 180;
+                        } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {
+                            rotation = 270;
+                        }
                         original = BitmapFactory.decodeFile(file.getAbsolutePath());
                         original = rotateImage(original, rotation);
                         final Bitmap saveToGallery = original.copy(original.getConfig(), true);
                         new Thread() {
                             public void run() {
-                                insertPhotoIntoGallery(saveToGallery);
+                                try {
+                                    insertPhotoIntoGallery(saveToGallery);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
                                 saveToGallery.recycle();
                             }
                         }.start();
                         //Clean file
                         file.delete();
                     }
-                    if(original != null) {
+                    if (original != null) {
                         Bitmap bitmap = scaleToFill(original, _width, _height);
                         //Camera handles the Bitmap itself
-                        if(requestCode != CAMERA_CAPTURE && original != bitmap) {
+                        if (requestCode != CAMERA_CAPTURE && original != bitmap) {
                             original.recycle(); //this one may be huge, might as well free it right now
                         }
                         _fileName = _fileName.replaceAll(".png", "");
@@ -229,6 +236,7 @@ public class ImagePicker implements ActivityResultResponder
         stream.close();
     }
 
+    @SuppressWarnings("WeakerAccess")
     public static boolean isCameraAvailable()
     {
     	//Note : support front and back camera since API level9+. We don't use PackageManager.FEATURE_CAMERA_ANY because it is since
@@ -237,7 +245,7 @@ public class ImagePicker implements ActivityResultResponder
     			NativeUtility.getMainActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
     }
 
-    public enum PICK_OPTION {
+    private enum PICK_OPTION {
         CAMERA(0),
         PHOTO_LIBRARY(1),
         FILE_LIBRARY(2);
@@ -252,6 +260,7 @@ public class ImagePicker implements ActivityResultResponder
     }
     
     public static boolean pickImageFrom(String saveName, int pickOption, int width, int height, String identifier, float thumbnailScale, boolean rescale)
+    @SuppressWarnings("unused")
     {
     	ImagePicker.getInstance(); //ensure the instance is created
     	_fileName = saveName.concat(".png");
@@ -352,7 +361,7 @@ public class ImagePicker implements ActivityResultResponder
         }
         catch (OutOfMemoryError e) {
             Log.e(TAG, "OutOfMemoryError when trying to scale a bitmap with size " + b.getWidth() + "x" + b.getHeight());
-            Toast.makeText(NativeUtility.getMainActivity(), "L'image sélectionnée est trop grande, merci de réessayer avec une image plus petite", Toast.LENGTH_LONG);
+            Toast.makeText(NativeUtility.getMainActivity(), "L'image sélectionnée est trop grande, merci de réessayer avec une image plus petite", Toast.LENGTH_LONG).show();
         }
         return result;
     }
@@ -373,8 +382,6 @@ public class ImagePicker implements ActivityResultResponder
 			/* Write bitmap to file using JPEG or PNG and 80% quality hint for JPEG. */
 			image.compress(CompressFormat.PNG, 100, stream);
 			stream.close();
-		} catch (FileNotFoundException e1) {
-			e1.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
