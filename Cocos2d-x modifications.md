@@ -1,3 +1,8 @@
+Modifications by Cocos2d versions
+====
+
+All paths are from cocos2d/ folder
+
 Cocos2d-x V3.2 Modifications
 ====
 
@@ -16,10 +21,10 @@ Cocos2d-x V3.2 Modifications
 * cocos/platform/android/java/Cocos2dxActivity.java => change GLSurfaceView EGLConfigChooser for real devices (for ClippingNode)
 * cocos/base/CCDirector.h/.cpp => add support for build version via setDisplayStats
 * cocos/editor-support/cocosbuilder/CCNodeLoader.cpp => fix a problem with CCScale9Sprite preferedSize
-* cocos2d/extensions/GUI/CCeditBox/CCEditBox.cpp => fix scaling problems for fontSize and contentSize
-* cocos2d/extensions/GUI/CCeditBox/* => Add support for keyboard return type "Next"
-* cocos2d/extensions/GUI/CCeditBox/* => editBoxReturn delegate is now called only for return button on iOS
-* cocos2d/network/* => add POSTFILE request type
+* extensions/GUI/CCeditBox/CCEditBox.cpp => fix scaling problems for fontSize and contentSize
+* extensions/GUI/CCeditBox/* => Add support for keyboard return type "Next"
+* extensions/GUI/CCeditBox/* => editBoxReturn delegate is now called only for return button on iOS
+* network/* => add POSTFILE request type
 
 
 Cocos2d-x V3.3 Modifications
@@ -37,11 +42,11 @@ Cocos2d-x V3.3 Modifications
 * cocos/base/CCValue.h/.cpp => add VEC2 type
 * cocos/base/CCDirector.h/.cpp => add support for build version via setDisplayStats
 * cocos/editor-support/cocosbuilder/CCNodeLoader.cpp => fix a problem with CCScale9Sprite preferedSize
-* cocos2d/extensions/GUI/CCeditBox/CCEditBox.cpp => fix scaling problems for fontSize and contentSize
-* cocos2d/ui/UIEditBox//* => Add support for keyboard return type "Next"
-* cocos2d/ui/UIEditBox/UIEditBox.h/.cpp => add closeKeyboard()
-* cocos2d/network/* => add POSTFILE request type
-* cocos2d/ui/UIEditBox/UIEditBox.h => add getBackgroundSprite() method
+* extensions/GUI/CCeditBox/CCEditBox.cpp => fix scaling problems for fontSize and contentSize
+* ui/UIEditBox//* => Add support for keyboard return type "Next"
+* ui/UIEditBox/UIEditBox.h/.cpp => add closeKeyboard()
+* network/* => add POSTFILE request type
+* ui/UIEditBox/UIEditBox.h => add getBackgroundSprite() method
 * cocos/base/ccConfig.h => disable physics, tiff, webp, script binding
 * build/cocos2d_libs.xcodeproj/project.pbxproj => add armv7s architecture
 * cocos/platform/android/* (modified Android.mk) => add cpu-feature.h/cpp from ndk-r10d because of compilation problem
@@ -49,10 +54,10 @@ Cocos2d-x V3.3 Modifications
 * cocos/ui/UIEditBox.cpp => add editBoxEditingWillBegin to UIEditBoxDelegate
 * cocos/ui/UIEditBox.cpp => change openKeyboard to throw editBoxEditingDidBegin after Java Dialog creation
 * cocos/ui/UIEditBox.cpp + cocos/platform/android/jni/Java_org_cocos2dx_lib_Cocos2dxHelper.h/.cpp + cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dx[Helper/Handler/Activity].java => implement closeKeyboard
-* cocos2d/cocos/ui/UIEditBox/UIEditBoxImpl-android.cpp => change editBoxCallbackFunc to test back if it's a cancell key 
-* cocos2d/cocos/base/CCEventCustom.h/cpp => add EventCustom::create
-* cocos2d/cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHelper.java remove if (!sInited) condition in init procedure
-* cocos2d/external/unzip.h => change include to "platform/CCPlatformConfig.h"
+* cocos/ui/UIEditBox/UIEditBoxImpl-android.cpp => change editBoxCallbackFunc to test back if it's a cancell key 
+* cocos/base/CCEventCustom.h/cpp => add EventCustom::create
+* cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHelper.java remove if (!sInited) condition in init procedure
+* external/unzip.h => change include to "platform/CCPlatformConfig.h"
 
 
 Cocos2d-x V3.8.1 Modifications
@@ -62,9 +67,9 @@ Cocos2d-x V3.8.1 Modifications
 * cocos/CCDirector -> add setDisplayStatsWithBuild
 * cocos/renderer/CCTextureCache.h/.cpp => add std::string getKeyForTexture(Texture2D* tex) const;
 * cocos/base/CCDirector.h/.cpp => add support for build version via setDisplayStats
-* cocos2d/ui/UIEditBox/UIEditBox.h/.cpp => add closeKeyboard()
-* cocos2d/cocos/base/CCEventCustom.h/cpp => add EventCustom::create
-* cocos2d/external/unzip.h => change include to "platform/CCPlatformConfig.h"
+* ui/UIEditBox/UIEditBox.h/.cpp => add closeKeyboard()
+* cocos/base/CCEventCustom.h/cpp => add EventCustom::create
+* external/unzip.h => change include to "platform/CCPlatformConfig.h"
 * cocos/deprecated/CCArray.cpp => add lazy init in addObject, addObjectsFromArray and insertObject to avoid crash
 * cocos/deprecated/CCArray.cpp => secure containsObject, remove*, count, capacity for no data
 * cocos/deprecated/CCArray.h => secure CC_ARRAY_FOREACH to work with no data
@@ -73,25 +78,25 @@ Cocos2d-x V3.8.1 Modifications
 * cocos/Android.mk => disable tiff, webp, chipmunk and cocostudio
 * cocos/Android.mk => add cpu-feature
 * extanstions/android.mk => remove all Particle3D files from LOCAL_SRC_FILES
-* Remove all code between //Enhance comment and "import com.enhance.gameservice.IGameTuningService;" in cocos2d/cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHelper.java
-* cocos2d/cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHelper.java remove if (!sInited) condition in init procedure
-* cocos2d/ui/UIEditBox/UIEditBox.h => define int values of InputMode enum
-* cocos2d/ui/UIEditBox/UIEditBox.h/cpp => add getBackgroundSprite(), getFontColor and getPlaceholderFontColor methods
-* cocos2d/ui/UIEditBox/UIEditBox.h/platform impl => add date and time pickers
+* Remove all code between //Enhance comment and "import com.enhance.gameservice.IGameTuningService;" in cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHelper.java
+* cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHelper.java remove if (!sInited) condition in init procedure
+* ui/UIEditBox/UIEditBox.h => define int values of InputMode enum
+* ui/UIEditBox/UIEditBox.h/cpp => add getBackgroundSprite(), getFontColor and getPlaceholderFontColor methods
+* ui/UIEditBox/UIEditBox.h/platform impl => add date and time pickers
 * cocos/ui/UIEditBox.cpp => add editBoxEditingWillBegin to UIEditBoxDelegate
-* cocos2d/extensions/GUI/CCeditBox/CCEditBox.cpp => fix scaling problems for fontSize (not contentSize anymore)
+* extensions/GUI/CCeditBox/CCEditBox.cpp => fix scaling problems for fontSize (not contentSize anymore)
 * Scale9Sprite::updateWithSprite  => comment _preferredSize = size; cause it erase information for some reason.
-* cocos2d/extensions/GUI/CCeditBox/* => Add support for keyboard return type "Next"
-* cocos2d/network/HttpClient/HttpRequest => change _requestData from std::vector<char> to std::string and add inline void setRequestData(const std::string& data)
-* cocos2d/network/* => add POSTFILE request type
-* cocos2d/network/HttpClient-Apple.mm => remove forced Content-type: application/x-www-form-urlencoded for PUT requests
+* extensions/GUI/CCeditBox/* => Add support for keyboard return type "Next"
+* network/HttpClient/HttpRequest => change _requestData from std::vector<char> to std::string and add inline void setRequestData(const std::string& data)
+* network/* => add POSTFILE request type
+* network/HttpClient-Apple.mm => remove forced Content-type: application/x-www-form-urlencoded for PUT requests
 * Remove AudioEngine
 * AppController::didFinishLaunchingWithOptions add eaglView.opaque = NO;
-* cocos2d/cocos/ui/UIEditBox/UiEditBox.cpp and UIEditBoxImpl-common.cpp => fix fontSize and contentSize using nodeToWorldTransform correctly
-* cocos2d/cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHttpURLConnection.java => change setVerifySSL to return a boolean with true when succeed and false otherwise
-* cocos2d/cocos/network/HttpClient-android.cpp => change setVerifySSL to return a boolean with true when succeed and false otherwise
+* cocos/ui/UIEditBox/UiEditBox.cpp and UIEditBoxImpl-common.cpp => fix fontSize and contentSize using nodeToWorldTransform correctly
+* cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHttpURLConnection.java => change setVerifySSL to return a boolean with true when succeed and false otherwise
+* cocos/network/HttpClient-android.cpp => change setVerifySSL to return a boolean with true when succeed and false otherwise
 * cocos2D/build/cocos2d_libs.xcodeproj/project.pbxproj => Update to Xcode 8.0 project, inhibit all warnings
-* cocos2d/cocos/network/HttpAsynConnection-apple.m  => Fix crash issue due to a release (backported from cocos2d-x 3.11, commit 200c9fda59f7a5fbece4ba4fa3a3729e38de6998)
+* cocos/network/HttpAsynConnection-apple.m  => Fix crash issue due to a release (backported from cocos2d-x 3.11, commit 200c9fda59f7a5fbece4ba4fa3a3729e38de6998)
 
 Cocos2d-x V3.16 Modifications
 ====
@@ -99,26 +104,25 @@ Cocos2d-x V3.16 Modifications
 * cocos/math/CCGeometry.h => Size now subclass Ref (to allow using it in structures)
 * cocos/base/CCDirector.h/.cpp => add support for build version via setDisplayStats (setDisplayStatsWithBuild, with add of _buildLabel and _buildLabelString)
 * cocos/renderer/CCTextureCache.h/.cpp => add std::string getKeyForTexture(Texture2D* tex) const;
-* cocos2d/cocos/base/CCEventCustom.h/cpp => add EventCustom::create
+* cocos/base/CCEventCustom.h/cpp => add EventCustom::create
 * cocos/base/ccConfig.h => disable physics, tiff, webp, script binding
 * cocos/Android.mk => disable tiff, webp, chipmunk and cocostudio
 * cocos/Android.mk => add cpu-feature
 * cocos/base/ccConfig.h => disable physics, tiff, webp, script binding
-* extanstions/android.mk => remove all Particle3D files from LOCAL_SRC_FILES
-* Remove all code between //Enhance comment and "import com.enhance.gameservice.IGameTuningService;" in cocos2d/cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHelper.java
-* cocos2d/cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHelper.java remove if (!sInited) condition in init procedure
-* cocos2d/network/HttpClient/HttpRequest => change _requestData from std::vector<char> to std::string and add inline void setRequestData(const std::string& data)
-* cocos2d/network/* => add POSTFILE request type (include the add of set/getFilePath)
+* extensions/Android.mk => remove all Particle3D files from LOCAL_SRC_FILES
+* Remove all code between //Enhance comment and "import com.enhance.gameservice.IGameTuningService;" in cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHelper.java
+* cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHelper.java remove if (!sInited) condition in init procedure
+* network/HttpClient/HttpRequest => change _requestData from std::vector<char> to std::string and add inline void setRequestData(const std::string& data)
+* network/* => add POSTFILE request type (include the add of set/getFilePath)
 * Remove AudioEngine
-* cocos2d/cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHttpURLConnection.java => change setVerifySSL to return a boolean with true when succeed and false otherwise
-* cocos2d/cocos/network/HttpClient-android.cpp => change setVerifySSL to return a boolean with true when succeed and false otherwise
+* cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHttpURLConnection.java => change setVerifySSL to return a boolean with true when succeed and false otherwise
+* cocos/network/HttpClient-android.cpp => change setVerifySSL to return a boolean with true when succeed and false otherwise
 * cocos/2d/misc-nodes/CCClippingNode.h/.cpp => subclass CCActionTweenDelegate to be able to change width/height, add setSquareStencil() to use a square the size of ContentSize
-* Moves all libs from cocos2d/cocos/platform/android/java/libs/ to proj.android/libs/
+* Moves all libs from cocos/platform/android/java/libs/ to proj.android/libs/
 * Remove AudioFocusManager and all usages in cocos2dxActivity
-* cocos2d/ui/UIEditBox/UIEditBox.h/.cpp => add closeKeyboard()
-* cocos2d/ui/UIEditBox/UIEditBox.h/platform impl => add date and time pickers
+* ui/UIEditBox/UIEditBox.h/.cpp => add closeKeyboard()
+* ui/UIEditBox/UIEditBox.h/platform impl => add date and time pickers
 * cocos/ui/UIEditBox.cpp => add editBoxEditingWillBegin to UIEditBoxDelegate
-* remove cocos2d/web folder and cocos2d/templates folder
-
+* remove web folder and templates folder
 * cocos/2d/CCRenderTexture.cpp => in saveToFile, avoid using writable path when it's already an absolute path
 * cocos/platform/CCFileUtils.cpp => in renameFile, make the cclogerror useful by showing errno
