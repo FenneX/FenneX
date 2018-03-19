@@ -28,12 +28,6 @@ THE SOFTWARE.
 #include "FenneX.h"
 USING_NS_FENNEX;
 
-/*
-#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
-#include <jni.h>
-void Java_org_cocos2dx_socialhandy_FenneX_notifyImagePickedWrapper(JNIEnv* env, jobject thiz, jstring name, jstring identifier);
-#endif*/
-
 //this method have to be implemented in each platform. The parameter is the path and location at which the image will be saved
 //return false if there is a problem
 //The image picker will send an ImagePicked notification
