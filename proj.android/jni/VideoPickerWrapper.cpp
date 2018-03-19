@@ -29,7 +29,7 @@
 #define CLASS_NAME_RECORDER "com/fennex/modules/VideoRecorder"
 #define CLASS_NAME_PICKER "com/fennex/modules/VideoPicker"
 
-void startVideoRecordPreview(CCPoint position, CCSize size)
+void startVideoRecordPreview(Vec2 position, cocos2d::Size size)
 {
     JniMethodInfo minfo;
     bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME_RECORDER,"startRecordPreview", "(FFFF)V");

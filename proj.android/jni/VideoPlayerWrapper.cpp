@@ -28,7 +28,7 @@
 
 #define CLASS_NAME "com/fennex/modules/VideoPlayer"
 
-VideoPlayer::VideoPlayer(std::string file, CCPoint position, CCSize size, bool front, bool loop)
+VideoPlayer::VideoPlayer(std::string file, Vec2 position, cocos2d::Size size, bool front, bool loop)
 {
     JniMethodInfo minfo;
     
@@ -220,7 +220,7 @@ cocos2d::Size VideoPlayer::getVideoSize(const std::string& path, FileLocation lo
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(stringArg);
     CCAssert(minfo.env->GetArrayLength(result) == 2, "getVideoSize: result should have 2 values");
-    CCSize size;
+    cocos2d::Size size;
 
     jfloat* array = minfo.env->GetFloatArrayElements(result, 0);
     size.width = array[0];
