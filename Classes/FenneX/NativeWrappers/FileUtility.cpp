@@ -24,6 +24,7 @@
 
 #include "FileUtility.h"
 #include "NativeUtility.h"
+#include "StringUtility.h"
 #include <sys/stat.h>
 
 NS_FENNEX_BEGIN

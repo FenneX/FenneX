@@ -53,7 +53,6 @@ void discardSplashScreen()
     minfo.env->DeleteLocalRef(minfo.classID);
 }
 
-
 std::string getOpenUrl()
 {
     JniMethodInfo minfo;
