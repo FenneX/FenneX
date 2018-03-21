@@ -410,11 +410,10 @@ USING_NS_FENNEX;
     return [moviePath hasPrefix:@"assets-library://"] || [moviePath hasPrefix:@"ipod-library://"] ? [NSURL URLWithString:moviePath] :  [NSURL fileURLWithPath:moviePath];
 }
 
-+ (NSString*) getThumbnail:(NSString*)path
++ (BOOL) getThumbnail:(NSString*)path thumbnailName:(NSString*)thumbnailName
 {
-    NSString* thumbnailName = [NSString stringWithFormat:@"%@-thumbnail", [path lastPathComponent]];
-    NSString* thumbnailFileName = [NSString stringWithFormat:@"%@-thumbnail.png", [path lastPathComponent]];
-    NSString* thumbnailPath = [path stringByReplacingOccurrencesOfString:[path lastPathComponent] withString:thumbnailFileName];
+    NSString* thumbnailPath = [NSString stringWithFormat:@"%@.png", thumbnailName];
+    //NSString* thumbnailPath = [path stringByReplacingOccurrencesOfString:[path lastPathComponent] withString:thumbnailFileName];
     UIImage *thumbnail = NULL;
     //Only generate it if it doesn't exist
     //This method is badly named, it will check for ANY file, not just videos
@@ -471,15 +470,15 @@ USING_NS_FENNEX;
             else
             {
                 NSLog(@"Write error for thumbnail description: %@, reason: %@", [error localizedDescription], [error localizedFailureReason]);
-                return NULL;
             }
+            return result;
         }
         else
         {
-            thumbnailName = NULL;
+            return FALSE;
         }
     }
-    return thumbnailName;
+    return YES;
 }
 
 + (CGSize) getVideoSize:(NSString*)path

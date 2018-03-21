@@ -67,9 +67,11 @@ public:
     
     void setMuted(bool muted);
     
-    //Return the path of the thumbnail (PNG file), relative to location passed in parameter, without extension
+    //Return the path of the thumbnail (PNG file), absolute path, without extension
     //May return NULL if there was a problem generating the thumbnail
-    static std::string getThumbnail(const std::string& path, FileLocation location = FileLocation::Absolute);
+    //The thumbnailLocation represent where to save the new thumbnail, SourceLocation represent where the video is saved
+    //Default value are legacy behavior
+    static std::string getThumbnail(const std::string& path, FileLocation videoLocation = FileLocation::Absolute, FileLocation thumbnailLocation = FileLocation::Local);
     
     //Return the size of the video
     //May return (0,0) if there was a problem with the video
