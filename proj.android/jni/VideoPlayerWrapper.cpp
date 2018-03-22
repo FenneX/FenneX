@@ -192,16 +192,18 @@ void VideoPlayer::setMuted(bool muted)
     minfo.env->DeleteLocalRef(minfo.classID);
 }
 
-std::string VideoPlayer::getThumbnail(const std::string& path, FileLocation videoLocation, FileLocation thumbnailLocation)
+std::string VideoPlayer::getThumbnail(const std::string& path, FileLocation videoLocation, const std::string& thumbnailPath, FileLocation thumbnailLocation)
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"getThumbnail", "(Ljava/lang/String;II)Ljava/lang/String;");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"getThumbnail", "(Ljava/lang/String;ILjava/lang/String;I)Ljava/lang/String;");
     CCAssert(functionExist, "Function doesn't exist");
     
     jstring stringArg = minfo.env->NewStringUTF(path.c_str());
-    jstring result = (jstring)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID, stringArg, (jint)videoLocation, (jint)thumbnailLocation);
+    jstring thumbnailStringArg = minfo.env->NewStringUTF(thumbnailPath.c_str());
+    jstring result = (jstring)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID, stringArg, (jint)videoLocation, thumbnailStringArg, (jint)thumbnailLocation);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(stringArg);
+    minfo.env->DeleteLocalRef(thumbnailStringArg);
     
     std::string thumbnailPath = JniHelper::jstring2string(result);
     minfo.env->DeleteLocalRef(result);

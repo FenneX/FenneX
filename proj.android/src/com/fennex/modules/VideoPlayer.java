@@ -584,22 +584,27 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 		}
 	}
 	
-	public static String getThumbnail(String path, int videoLocation, int thumbnailLocation)
+	public static String getThumbnail(String path, int videoLocation, String thumbnailPath, int thumbnailLocation)
 	{
         File videoFile = getFile(path, FileUtility.FileLocation.valueOf(videoLocation));
 		if(videoFile == null) {
             return null;
         }
-		//Get the video full path, without extension
-		String fileName = path.lastIndexOf('.') > -1 ? path.substring(0, path.lastIndexOf('.')) : path;
-		if(FileUtility.FileLocation.valueOf(videoLocation) == FileUtility.FileLocation.Absolute
-			&& FileUtility.FileLocation.valueOf(thumbnailLocation) != FileUtility.FileLocation.Absolute
-			&& fileName.lastIndexOf('/') > -1)
-		{// If we are not using absolute for thumbnail but we use it for video, that mean we have a path to parse
-			fileName = fileName.substring(fileName.lastIndexOf('/') + 1);
+		String thumbName = thumbnailPath;
+		if(thumbName.isEmpty())
+		{
+			//Get the video full path, without extension
+			String fileName = path.lastIndexOf('.') > -1 ? path.substring(0, path.lastIndexOf('.')) : path;
+			if(FileUtility.FileLocation.valueOf(videoLocation) == FileUtility.FileLocation.Absolute
+					&& FileUtility.FileLocation.valueOf(thumbnailLocation) != FileUtility.FileLocation.Absolute
+					&& fileName.lastIndexOf('/') > -1)
+			{// If we are not using absolute for thumbnail but we use it for video, that mean we have a path to parse
+				fileName = fileName.substring(fileName.lastIndexOf('/') + 1);
+			}
+			//Add -thumbnail. That's the path used by cocos2dx
+			thumbName = fileName + "-thumbnail";
 		}
-		//Add -thumbnail. That's the path used by cocos2dx
-		String thumbName = fileName + "-thumbnail";
+
 		String thumbPath = FileUtility.getFullPath(thumbName, thumbnailLocation);;
 		String thumbFullPath = FileUtility.getFullPath(thumbName + ".png", thumbnailLocation);
 		//Don't redo it if it already exists
