@@ -24,6 +24,7 @@ THE SOFTWARE.
 
 #include "StringUtility.h"
 #include "Shorteners.h"
+#include "FileUtility.h"
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
 #include <codecvt>
 #endif
