@@ -205,10 +205,10 @@ std::string VideoPlayer::getThumbnail(const std::string& path, FileLocation vide
     minfo.env->DeleteLocalRef(stringArg);
     minfo.env->DeleteLocalRef(thumbnailStringArg);
     
-    std::string thumbnailPath = JniHelper::jstring2string(result);
+    std::string thumbnailPathRet = JniHelper::jstring2string(result);
     minfo.env->DeleteLocalRef(result);
     
-    return thumbnailPath;
+    return thumbnailPathRet;
 }
 
 cocos2d::Size VideoPlayer::getVideoSize(const std::string& path, FileLocation location)
