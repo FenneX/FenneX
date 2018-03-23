@@ -202,7 +202,7 @@ public class Cocos2dxEditBox extends EditText implements TimePickerDialog.OnTime
     }
 
     public void onTimeSet(TimePicker view, int selectedHour, int selectedMinute) {
-        this.setText( "" + selectedHour + ":" + selectedMinute);
+        this.setText(String.format("%02d:%02d", selectedHour, selectedMinute));
     }
 
      public void onDateSet(DatePicker datepicker, int selectedYear, int selectedMonth, int selectedDay) {
