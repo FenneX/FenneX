@@ -30,7 +30,8 @@ std::string getResourcesPath(const std::string& file)
     for(std::string path : searchPaths)
     {
         //PreconfiguredPath will probably be in SearchPath, but ignore it for resources.
-        if(path.find(getPreconfiguredPath("")) == std::string::npos)
+        std::string preconfiguredPath = getPreconfiguredPath("");
+        if(preconfiguredPath.empty() || path.find(preconfiguredPath) == std::string::npos)
         {
             NSString* fullPath = [[NSBundle mainBundle] pathForResource:[NSString stringWithUTF8String:file.c_str()]
                                                                  ofType:nil
