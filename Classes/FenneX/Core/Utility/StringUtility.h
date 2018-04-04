@@ -59,6 +59,9 @@ std::vector<std::string> split(const std::string& s, char seperator);
 // Format string, code from https://stackoverflow.com/questions/2342162/stdstring-formatting-like-sprintf
 std::string string_format(const std::string fmt, ...);
 
+// Return a new String with all oldWord occurence from the baseString changed to newWord
+std::string replaceWord(const std::string& baseString, const std::string& oldWord, const std::string& newWord);
+
 NS_FENNEX_END
 
 #endif /* defined(__FenneX__StringUtility__) */

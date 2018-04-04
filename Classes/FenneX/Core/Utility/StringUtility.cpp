@@ -272,4 +272,14 @@ std::string string_format(const std::string fmt, ...)
     return str;
 }
 
+std::string replaceWord(const std::string& baseString, const std::string& oldWord, const std::string& newWord)
+{
+    std::string returnValue = baseString;
+    while(returnValue.find(oldWord) != std::string::npos)
+    {
+        returnValue.replace(returnValue.find(oldWord), oldWord.size(), newWord);
+    }
+    return returnValue;
+}
+
 NS_FENNEX_END
