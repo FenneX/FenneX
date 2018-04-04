@@ -70,6 +70,7 @@ proj.android/gen/*
 proj.android/bin/*
 proj.android/assets/*
 
+.gradle/*
 proj.android/.gradle/*
 proj.android/.idea/*
 proj.android/*.iml
