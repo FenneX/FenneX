@@ -65,7 +65,12 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 	{
 		if(launchTime != 0 && this.getIntent().getDataString() != null && !this.getIntent().getBooleanExtra("IsUrlAlreadyOpened", false))
 		{
-			NativeUtility.notifyUrlOpened(this.getIntent().getDataString());
+			try {
+				NativeUtility.notifyUrlOpened(this.getIntent().getDataString());
+			}
+			catch(UnsatisfiedLinkError e) {
+				Log.d("FenneX", "This app is launching for the first time so we can't notify for url opening : " + e.getMessage());
+			}
 		}
         if(getSplashScreenLayout() != -1 && getSplashScreenImageID() != -1 && launchTime == 0) {
             splashDialog = new SplashDialog(this, getSplashScreenLayout(), getSplashScreenImageID());
