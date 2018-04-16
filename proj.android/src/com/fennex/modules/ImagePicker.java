@@ -170,14 +170,14 @@ public class ImagePicker implements ActivityResultResponder
                             if(_thumbnailScale > 0) {
                                 Bitmap bitmapThumbnail = scaleToFill(bitmap, (int) (_width * _thumbnailScale), (int) (_height * _thumbnailScale));
                                 if (bitmapThumbnail != null) {
-                                    saveBitmap(bitmapThumbnail, FileUtility.getFullPath(_fileName + "-thumbnail.png", _location));
+                                    saveBitmap(bitmapThumbnail, FileUtility.getFullPath(_fileName.substring(0, _fileName.length() - 4) + "-thumbnail.png", _location));
                                     if (bitmapThumbnail != bitmap) {
                                         bitmapThumbnail.recycle();
                                     }
                                 }
                             }
                             //Save main image
-                            saveBitmap(bitmap, FileUtility.getFullPath(_fileName + ".png", _location));
+                            saveBitmap(bitmap, FileUtility.getFullPath(_fileName, _location));
                             bitmap.recycle();
                         }
                         NativeUtility.getMainActivity().runOnGLThread(new Runnable() {

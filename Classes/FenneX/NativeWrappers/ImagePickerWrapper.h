@@ -45,6 +45,7 @@ typedef enum
     FileLibrary = 2,
 }PickOption;
 /**
+ * The saveName must ends with .png, as the we will only generate PNG
  * The PickOption is used to change the picker form.
  * The Camera launch the camera apps and take a normal picture
  * The PhotoLibrary launch the galleryApp to pick from it

@@ -33,7 +33,7 @@ USING_NS_CC;
 NS_FENNEX_BEGIN
 class Image : public RawObject
 {
-    CC_SYNTHESIZE_STRING_READONLY(imageFile, ImageFile);
+    CC_SYNTHESIZE_STRING_READONLY(file, File);
 public:
     
     cocos2d::Rect getBoundingBox();
@@ -87,7 +87,7 @@ protected:
     //empty if the object is not an animation, it is equal to animated sprites filenames in the plist
     std::vector<std::string> spritesName;
     
-    std::string loadingImageFile;
+    std::string loadingFile;
     bool loadingKeepExactSize;
     bool loadingKeepRatio;
     bool isLoadingTexture;

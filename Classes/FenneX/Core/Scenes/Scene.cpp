@@ -30,6 +30,7 @@ THE SOFTWARE.
 #include "AppMacros.h"
 #include "NativeUtility.h"
 #include "InactivityTimer.h"
+#include "StringUtility.h"
 
 NS_FENNEX_BEGIN
 void Scene::initScene()
@@ -304,8 +305,9 @@ void Scene::onTouchMoved(Touch *touch, Event *pEvent)
     {
         Image* toggle = (Image*)linker->linkedObjectOf(touch);
         GraphicLayer* layer = GraphicLayer::sharedLayer();
-        const char *end = strrchr(toggle->getImageFile().c_str(), '-');
-        if(end && strcmp(end, "-on") == 0 && !layer->all(Scene::touchPosition(touch)).contains(toggle))
+        std::string file = toggle->getFile();
+        std::string extension = file.substr(file.length() - 4);
+        if(stringEndsWith(file, "-on" + extension) && !layer->all(Scene::touchPosition(touch)).contains(toggle))
         {
             this->switchButton(toggle, false);
         }
@@ -328,8 +330,9 @@ void Scene::onTouchEnded(Touch *touch, Event *pEvent)
     {
         Image* toggle = (Image*)linker->linkedObjectOf(touch);
         linker->unlinkTouch(touch);
-        const char *end = strrchr(toggle->getImageFile().c_str(), '-');
-        if(end && strcmp(end, "-on") == 0 && !toggle->getEventInfos()["_OriginalImageFile"].isNull() && linker->touchesLinkedTo(toggle).size() == 0)
+        std::string file = toggle->getFile();
+        std::string extension = file.substr(file.length() - 4);
+        if(stringEndsWith(file, "-on" + extension) && !toggle->getEventInfos()["_OriginalImageFile"].isNull() && linker->touchesLinkedTo(toggle).size() == 0)
         {
             this->switchButton(toggle, false);
         }
@@ -371,14 +374,16 @@ void Scene::switchButton(Image* obj, bool state, Touch* touch)
 {
     if(state)
     {
+        std::string file = obj->getFile();
+        std::string extension = file.substr(file.length() - 4);
         if(obj->getEventInfos()["_OriginalImageFile"].isNull())
         {
-            obj->setEventInfo("_OriginalImageFile", Value(obj->getImageFile()));
-            obj->replaceTexture(obj->getImageFile() + "-on");
+            obj->setEventInfo("_OriginalImageFile", Value(obj->getFile()));
+            file.erase(file.length() - 4, 4);
+            obj->replaceTexture(file + "-on" + extension);
         }
-        //If it was actually replaced, it will end by -on
-        const char *end = strrchr(obj->getImageFile().c_str(), '-');
-        if (end && strcmp(end, "-on") == 0)
+        //If it was actually replaced, it will have -on just before the extension
+        if (stringEndsWith(obj->getFile(), "-on" + extension))
         {
             linker->linkTouch(touch, obj);
         }
@@ -543,9 +548,10 @@ Image* Scene::getButtonAtPosition(Vec2 position, bool state)
             GraphicLayer::sharedLayer()->isWorldVisible(obj) &&
             obj->collision(GraphicLayer::sharedLayer()->getPositionRelativeToObject(position, obj)))
         {
+            std::string file = ((Image*)obj)->getFile();
+            std::string extension = file.substr(file.length() - 4);
             //If state = false, the object imagefile must finish by "-on" and and have an _OriginalImageFile
-            const char *end = strrchr(((Image*)obj)->getImageFile().c_str(), '-');
-            if(state || (end && strcmp(end, "-on") == 0 && isValueOfType(obj->getEventInfos()["_OriginalImageFile"], STRING)))
+            if(state || (stringEndsWith(file, "-on" + extension) && isValueOfType(obj->getEventInfos()["_OriginalImageFile"], STRING)))
             {
                 return true;
             }

@@ -605,10 +605,9 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 			thumbName = fileName + "-thumbnail";
 		}
 
-		String thumbPath = FileUtility.getFullPath(thumbName, thumbnailLocation);;
-		String thumbFullPath = FileUtility.getFullPath(thumbName + ".png", thumbnailLocation);
+		String thumbPath = FileUtility.getFullPath(thumbName + ".png", thumbnailLocation);
 		//Don't redo it if it already exists
-		if(new File(thumbFullPath).exists())
+		if(new File(thumbPath).exists())
 		{
 			Log.d(TAG, "Video thumbnail already created at path: " + thumbName);
 			return thumbPath;
@@ -616,7 +615,7 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 		try {
 			Log.d(TAG, "saving video thumbnail at path: " + thumbName + ", video path: " + videoFile.getAbsolutePath());
 			//Save the thumbnail in a PNG compressed format, and close everything. If something fails, return null
-			FileOutputStream streamThumbnail = new FileOutputStream(thumbFullPath);
+			FileOutputStream streamThumbnail = new FileOutputStream(thumbPath);
 
 			Bitmap thumb = null;
 			MediaMetadataRetriever retriever = new MediaMetadataRetriever();

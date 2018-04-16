@@ -131,7 +131,7 @@ std::string VideoPlayer::getThumbnail(const std::string& path, FileLocation vide
         { // If we are not using absolute for thumbnail but we use it for video, that mean we have a path to parse
             fileName = path.substr(path.find_last_of('/') + 1);
         }
-        fileName += "-thumbnail";
+        fileName += "-thumbnail.png";
     }
     NSString* thumbnailPathString = [NSString stringWithUTF8String:getFullPath(fileName, thumbnailLocation).c_str()];
     BOOL result = [VideoPlayerImplIOS getThumbnail:[NSString stringWithUTF8String:getFullPath(path, videoLocation).c_str()]

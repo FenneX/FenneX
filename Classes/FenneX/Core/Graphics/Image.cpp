@@ -25,6 +25,7 @@ THE SOFTWARE.
 #include "Image.h"
 #include "Shorteners.h"
 #include "AppMacros.h"
+#include "StringUtility.h"
 #include <sstream>
 #include <iomanip>
 
@@ -48,8 +49,8 @@ Image::Image():
 spriteSheet(NULL),
 delegate(NULL),
 runningAnimation(NULL),
-imageFile(""),
-loadingImageFile(""),
+file(""),
+loadingFile(""),
 isLoadingTexture(false)
 {
     
@@ -57,22 +58,32 @@ isLoadingTexture(false)
 Image::Image(std::string filename, Vec2 location):
 spriteSheet(NULL),
 runningAnimation(NULL),
-imageFile(filename),
-loadingImageFile(""),
+file(filename),
+loadingFile(""),
 isLoadingTexture(false)
 {
     name = filename;
-    delegate = Sprite::create(imageFile.append(".png").c_str());
-    imageFile.erase(imageFile.length() - 4, 4);
-    if(delegate == NULL)
+    if(stringEndsWith(file, ".png") || stringEndsWith(file, ".jpg") || stringEndsWith(file, ".jpeg"))
     {
-        delegate = Sprite::create(imageFile.append(".jpg").c_str());
-        imageFile.erase(imageFile.length() - 4, 4);
+        delegate = Sprite::create(file);
     }
-    if(delegate == NULL)
-    {
-        delegate = Sprite::create(imageFile.append(".jpeg").c_str());
-        imageFile.erase(imageFile.length() - 5, 5);
+    else
+    { //Legacy compatibility: detect file extension
+        delegate = Sprite::create(file.append(".png"));
+        if(delegate == NULL)
+        {
+            file.erase(file.length() - 4, 4);
+            delegate = Sprite::create(file.append(".jpg"));
+        }
+        if(delegate == NULL)
+        {
+            file.erase(file.length() - 4, 4);
+            delegate = Sprite::create(file.append(".jpeg"));
+        }
+        if(delegate == NULL)
+        {
+            file.erase(file.length() - 5, 5);
+        }
     }
     if(delegate == NULL)
     {
@@ -82,22 +93,28 @@ isLoadingTexture(false)
     this->setPosition(location);
 }
 Image::Image(std::string filename, Vec2 location, int capacity):
-imageFile(filename),
-loadingImageFile(""),
+file(filename),
+loadingFile(""),
 isLoadingTexture(false)
 {
     name = filename;
-    spriteSheet = SpriteBatchNode::create(imageFile.append(".png").c_str(), capacity);
-    imageFile.erase(imageFile.length() - 4, 4);
+    if(!stringEndsWith(file, ".png"))
+    { //Legacy compatibility
+        file.append(".png");
+    }
+    spriteSheet = SpriteBatchNode::create(file, capacity);
+    std::string plistFile = file;
+    plistFile.erase(plistFile.length() - 4, 4).append(".plist");
     spriteSheet->retain();
-    SpriteFrameCache::getInstance()->addSpriteFramesWithFile(imageFile.append(".plist").c_str());
-    imageFile.erase(imageFile.length() - 6, 6);
+    SpriteFrameCache::getInstance()->addSpriteFramesWithFile(plistFile);
     
     spritesName.reserve(capacity);
+    std::string fileNoExtension = file;
+    fileNoExtension.erase(fileNoExtension.length() - 4, 4);
     for(int i = 1; i <= capacity; i++)
     {
         std::ostringstream spriteFileName;
-        spriteFileName << filename << '_' << std::setw(2) << std::setfill('0') << i << ".png";
+        spriteFileName << fileNoExtension << '_' << std::setw(2) << std::setfill('0') << i << ".png";
         spritesName.push_back(spriteFileName.str());
     }
     delegate = Sprite::create();
@@ -110,34 +127,19 @@ isLoadingTexture(false)
 }
 
 Image::Image(Sprite* node):
-spritesName(NULL),
+spritesName(0),
 spriteSheet(NULL),
 runningAnimation(NULL),
-loadingImageFile(""),
+loadingFile(""),
 isLoadingTexture(false)
 {
-    imageFile = Director::getInstance()->getTextureCache()->getKeyForTexture(node->getTexture());
-    long extensionPos = imageFile.rfind(".png");
-    if(extensionPos != std::string::npos)
-    {
-        imageFile = imageFile.substr(0, extensionPos);
-    }
-    extensionPos = imageFile.rfind(".jpg");
-    if(extensionPos != std::string::npos)
-    {
-        imageFile = imageFile.substr(0, extensionPos);
-    }
-    extensionPos = imageFile.rfind(".jpeg");
-    if(extensionPos != std::string::npos)
-    {
-        imageFile = imageFile.substr(0, extensionPos);
-    }
-    long slashPos = imageFile.rfind('/');
+    file = Director::getInstance()->getTextureCache()->getKeyForTexture(node->getTexture());
+    long slashPos = file.rfind('/');
     if(slashPos != std::string::npos)
     {
-        imageFile = imageFile.substr(slashPos+1);
+        file = file.substr(slashPos+1);
     }
-    this->setName(imageFile.c_str());
+    this->setName(file.c_str());
     delegate = node;
     delegate->retain();
 }
@@ -206,34 +208,29 @@ Node* Image::getAnimationTarget()
 
 void Image::update(float deltaTime)
 {
-    if(!isLoadingTexture && !loadingImageFile.empty())
+    if(!isLoadingTexture && !file.empty())
     {
         isLoadingTexture = true;
-        std::string withEtension = loadingImageFile.c_str();//ensure a deep copy
-        Director::getInstance()->getTextureCache()->addImageAsync(withEtension.append(".png").c_str(), CC_CALLBACK_1(Image::textureLoaded, this));
-                                                                  //const std::function<void(Texture2D*)>& callback
-                                                                  //this, callfuncO_selector(Image::textureLoaded));
-        std::string withEtensionJpg = loadingImageFile.c_str();//ensure a deep copy
-        Director::getInstance()->getTextureCache()->addImageAsync(withEtensionJpg.append(".jpg").c_str(), CC_CALLBACK_1(Image::textureLoaded, this));
-        std::string withEtensionJpeg = loadingImageFile.c_str();//ensure a deep copy
-        Director::getInstance()->getTextureCache()->addImageAsync(withEtensionJpeg.append(".jpeg").c_str(), CC_CALLBACK_1(Image::textureLoaded, this));
+        Director::getInstance()->getTextureCache()->addImageAsync(file, CC_CALLBACK_1(Image::textureLoaded, this));
     }
 }
 
 void Image::loadAnimation(const char* filename, int capacity, bool useLastFrame)
 {
-    imageFile = filename;
-    spriteSheet = SpriteBatchNode::create(imageFile.append(".png").c_str(), capacity);
-    imageFile.erase(imageFile.length() - 4, 4);
+    file = filename;
+    spriteSheet = SpriteBatchNode::create(file, capacity);
     spriteSheet->retain();
-    SpriteFrameCache::getInstance()->addSpriteFramesWithFile(imageFile.append(".plist").c_str());
-    imageFile.erase(imageFile.length() - 6, 6);
+    std::string plistFile = file;
+    plistFile.erase(plistFile.length() - 4, 4).append(".plist");
+    SpriteFrameCache::getInstance()->addSpriteFramesWithFile(plistFile);
     
     spritesName.reserve(capacity);
+    std::string fileNoExtension = file;
+    fileNoExtension.erase(fileNoExtension.length() - 4, 4);
     for(int i = 1; i <= capacity; i++)
     {
         std::ostringstream spriteFileName;
-        spriteFileName << filename << '_' << std::setw(2) << std::setfill('0') << i << ".png";
+        spriteFileName << fileNoExtension << '_' << std::setw(2) << std::setfill('0') << i << ".png";
         spritesName.push_back(spriteFileName.str());
     }
     SpriteFrame* firstFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(spritesName.at(!useLastFrame ? 0 : spritesName.size() - 1));
@@ -261,34 +258,23 @@ void Image::replaceTexture(std::string filename, bool keepExactSize, bool async,
     {
         //Note : async will be done on next update to avoid the performance drop because of the overhead of addImageAsync,
         //and in case the image already exists (which loads the image synchronously)
-        loadingImageFile = filename;
+        loadingFile = filename;
         loadingKeepExactSize = keepExactSize;
         loadingKeepRatio = keepRatio;
     }
     else
     {
-        std::string originalImageFile = imageFile;
-        imageFile = filename;
+        std::string originalImageFile = file;
+        file = filename;
         Sprite* sprite = (Sprite*)delegate;
         Size initialSize = Size(sprite->getContentSize().width * sprite->getScaleX(), sprite->getContentSize().height * sprite->getScaleY());
-        Texture2D* newTexture = Director::getInstance()->getTextureCache()->addImage(imageFile.append(".png").c_str());
-        imageFile.erase(imageFile.length() - 4, 4);
-        if(newTexture == NULL)
-        {
-            newTexture = Director::getInstance()->getTextureCache()->addImage(imageFile.append(".jpg").c_str());
-            imageFile.erase(imageFile.length() - 4, 4);
-        }
-        if(newTexture == NULL)
-        {
-            newTexture = Director::getInstance()->getTextureCache()->addImage(imageFile.append(".jpeg").c_str());
-            imageFile.erase(imageFile.length() - 5, 5);
-        }
+        Texture2D* newTexture = Director::getInstance()->getTextureCache()->addImage(file);
         if(newTexture == NULL)
         {
 #if VERBOSE_WARNING
             log("Warning : Problem with asset : %s, texture not replaced", filename.c_str());
 #endif
-            imageFile = originalImageFile;
+            file = originalImageFile;
             return;
         }
         
@@ -333,10 +319,10 @@ void Image::replaceTexture(std::string filename, bool keepExactSize, bool async,
 
 void Image::textureLoaded(Texture2D* tex)
 {
-    if(!loadingImageFile.empty())
+    if(!loadingFile.empty())
     {
-        this->replaceTexture(loadingImageFile, loadingKeepExactSize, false, loadingKeepRatio);
-        loadingImageFile = "";
+        this->replaceTexture(loadingFile, loadingKeepExactSize, false, loadingKeepRatio);
+        loadingFile = "";
         isLoadingTexture = false;
     }
 }
@@ -357,24 +343,31 @@ bool Image::collision(Vec2 point)
 }
 
 
+cocos2d::Image::Format detectFormat(std::string& file)
+{
+    //Try to detect extension
+    if(stringEndsWith(file, ".png")) return cocos2d::Image::Format::PNG;
+    if(stringEndsWith(file, ".jpg")) return cocos2d::Image::Format::JPG;
+    if(stringEndsWith(file, ".jpeg")) return cocos2d::Image::Format::JPG;
+    //Legacy compatibility, detect file format
+    Texture2D* newTexture = Director::getInstance()->getTextureCache()->addImage(file.append(".png").c_str());
+    if(newTexture != NULL) return cocos2d::Image::Format::PNG;
+    file.erase(file.length() - 4, 4);
+    newTexture = Director::getInstance()->getTextureCache()->addImage(file.append(".jpg").c_str());
+    if(newTexture == NULL)
+    {
+        newTexture = Director::getInstance()->getTextureCache()->addImage(file.append(".jpeg").c_str());
+        file.erase(file.length() - 5, 5);
+    }
+    return newTexture == NULL ? cocos2d::Image::Format::UNKNOWN : cocos2d::Image::Format::JPG;
+}
+
 bool Image::generateScaledImage(std::string fileToScale, std::string fileToSave, float scale)
 {
     CCAssert(scale > 0, "Scale must be > 0 for generateScaledImage");
-    cocos2d::Image::Format format = cocos2d::Image::Format::PNG;
-    Texture2D* newTexture = Director::getInstance()->getTextureCache()->addImage(fileToScale.append(".png").c_str());
-    fileToScale.erase(fileToScale.length() - 4, 4);
-    if(newTexture == NULL)
-    {
-        format = cocos2d::Image::Format::JPG;
-        newTexture = Director::getInstance()->getTextureCache()->addImage(fileToScale.append(".jpg").c_str());
-        fileToScale.erase(fileToScale.length() - 4, 4);
-    }
-    if(newTexture == NULL)
-    {
-        newTexture = Director::getInstance()->getTextureCache()->addImage(fileToScale.append(".jpeg").c_str());
-        fileToScale.erase(fileToScale.length() - 5, 5);
-    }
-    if(newTexture == NULL)
+    cocos2d::Image::Format format = detectFormat(fileToScale);
+    Texture2D* newTexture = Director::getInstance()->getTextureCache()->addImage(fileToScale);
+    if(format == cocos2d::Image::Format::UNKNOWN || newTexture == NULL)
     {
 #if VERBOSE_WARNING
         log("Warning : Problem with asset : %s, texture not replaced", fileToScale.c_str());
@@ -392,14 +385,18 @@ bool Image::generateScaledImage(std::string fileToScale, std::string fileToSave,
         thumbnail->beginWithClear(0, 0, 0, 0);
         image->visit();
         thumbnail->end();
-        std::string extension = format == cocos2d::Image::Format::PNG ? ".png" : ".jpg";
-        thumbnail->saveToFile(fileToSave + extension,
+        std::string fileSaveName = fileToSave;
+        if(!stringEndsWith(fileToSave, ".png") && !stringEndsWith(fileToSave, ".jpg"))
+        {
+            fileSaveName += (format == cocos2d::Image::Format::PNG ? ".png" : ".jpg");
+        }
+        thumbnail->saveToFile(fileSaveName,
                               format,
                               true,
-                              [fileToScale, fileToSave, extension] (RenderTexture* texture, const std::string& filename){
+                              [fileToScale, fileSaveName] (RenderTexture* texture, const std::string& filename){
                                   //DO NOT USE FILENAME. It is corrupted on iOS. Use lambda capture instead.
-                                  Director::getInstance()->getTextureCache()->removeTextureForKey(fileToSave + extension);
-                                  Value toSend = Value(ValueMap({{"Original", Value(fileToScale)}, {"Name", Value(fileToSave)}}));
+                                  Director::getInstance()->getTextureCache()->removeTextureForKey(fileSaveName);
+                                  Value toSend = Value(ValueMap({{"Original", Value(fileToScale)}, {"Name", Value(fileSaveName)}}));
                                   Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ImageScaled", &toSend);
                               });
     }, Value(), 0.01);

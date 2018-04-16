@@ -34,6 +34,7 @@ USING_NS_FENNEX;
 
 bool pickImageFrom(const std::string& saveName, FileLocation location, PickOption pickOption, int width, int height, const std::string& identifier, bool rescale, float thumbnailScale)
 {
+    CCASSERT(stringEndsWith(saveName, ".png"), "Error: save name must end with .png");
     Director::getInstance()->stopAnimation();
     [ImagePicker sharedPicker].saveName = [NSString stringWithFormat:@"%s", saveName.c_str()];
     [ImagePicker sharedPicker].saveLocation = location;
@@ -198,7 +199,7 @@ static ImagePicker* _sharedPicker = nil;
         }
         controller.view.hidden = YES;
         
-        std::string imagePathStd = getFullPath([saveName UTF8String], saveLocation) + ".png";
+        std::string imagePathStd = getFullPath([saveName UTF8String], saveLocation);
         if(imagePathStd.rfind("/") != std::string::npos)
         { //Ensure parent directory is created
             FileUtils::getInstance()->createDirectory(imagePathStd.substr(0,imagePathStd.rfind("/")));
@@ -217,7 +218,7 @@ static ImagePicker* _sharedPicker = nil;
                 targetSize.height *= thumbnailScale;
                 UIImage* thumbnail = [resultImage resizedImage:targetSize interpolationQuality:kCGInterpolationHigh];
                 
-                NSString* thumbnailPath = [NSString stringWithFormat:@"%s.png-thumbnail.png", getFullPath([saveName UTF8String], saveLocation).c_str()];
+                NSString* thumbnailPath = [NSString stringWithFormat:@"%s-thumbnail.png", getFullPath([[saveName substringToIndex:[saveName length] - 4] UTF8String], saveLocation).c_str()];
                 BOOL result = [UIImagePNGRepresentation(thumbnail) writeToFile:thumbnailPath options:NSDataWritingAtomic error:&error];
                 NSLog(@"Write result for thumbnail %@ : %@, fullPath: %@", saveName, (result ? @"OK" : @"Problem"), thumbnailPath);
                 if(result)

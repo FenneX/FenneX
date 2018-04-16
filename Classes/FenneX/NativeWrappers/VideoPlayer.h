@@ -68,7 +68,7 @@ public:
     void setMuted(bool muted);
     
     /**
-     * Return the path of the thumbnail (PNG file), absolute path, without extension
+     * Return the path of the thumbnail (PNG file), absolute path, with .png extension
      * May return NULL if there was a problem generating the thumbnail
      * path and videoLocation represent where to find the video
      * thumbnailPath and thumbnailLocation represent where to save the thumbnail. If thumbnailPath is empty, path will be used with the add of "-thumbnail" at the end of it

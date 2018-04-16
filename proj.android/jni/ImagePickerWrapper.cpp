@@ -32,6 +32,7 @@ USING_NS_FENNEX;
 
 bool pickImageFrom(const std::string& saveName, FileLocation location, PickOption pickOption, int width, int height, const std::string& identifier, bool rescale, float thumbnailScale)
 {
+    CCASSERT(stringEndsWith(saveName, ".png"), "Error: save name must end with .png");
     JniMethodInfo minfo;
     bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"pickImageFrom", "(Ljava/lang/String;IIIILjava/lang/String;FZ)Z");
     CCAssert(functionExist, "Function doesn't exist");

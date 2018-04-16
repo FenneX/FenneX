@@ -393,7 +393,7 @@ RawObject* GraphicLayer::duplicateObject(RawObject* otherObject)
     if(isKindOfClass(otherObject, DropDownList))
     {
         DropDownList* otherList = (DropDownList*)otherObject;
-        obj = new DropDownList(otherList->getImageFile(), otherList->getPosition());
+        obj = new DropDownList(otherList->getFile(), otherList->getPosition());
     }
     else if(isKindOfClass(otherObject, Image))
     {
@@ -407,7 +407,7 @@ RawObject* GraphicLayer::duplicateObject(RawObject* otherObject)
         }
         else
         {
-            obj = new Image(otherImage->getImageFile(), otherImage->getPosition());
+            obj = new Image(otherImage->getFile(), otherImage->getPosition());
         }
     }
     else if(isKindOfClass(otherObject, LabelTTF))

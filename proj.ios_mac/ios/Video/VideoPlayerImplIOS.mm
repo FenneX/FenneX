@@ -412,12 +412,11 @@ USING_NS_FENNEX;
 
 + (BOOL) getThumbnail:(NSString*)path thumbnailName:(NSString*)thumbnailName
 {
-    NSString* thumbnailPath = [NSString stringWithFormat:@"%@.png", thumbnailName];
     //NSString* thumbnailPath = [path stringByReplacingOccurrencesOfString:[path lastPathComponent] withString:thumbnailFileName];
     UIImage *thumbnail = NULL;
     //Only generate it if it doesn't exist
     //This method is badly named, it will check for ANY file, not just videos
-    if(![VideoPlayerImplIOS videoExists:thumbnailPath])
+    if(![VideoPlayerImplIOS videoExists:thumbnailName])
     {
         //Try to get the thumbnail from Photo app first
         AVURLAsset *asset = [[[AVURLAsset alloc] initWithURL:[VideoPlayerImplIOS URLFromPath:path] options:nil] autorelease];
@@ -461,11 +460,11 @@ USING_NS_FENNEX;
         
         if(thumbnail != NULL)
         {
-            BOOL result = [UIImagePNGRepresentation(thumbnail) writeToFile:thumbnailPath options:NSDataWritingAtomic error:&error];
-            NSLog(@"Write result for thumbnail %@ : %@, fullPath : %@", thumbnailName, (result ? @"OK" : @"Problem"), thumbnailPath);
+            BOOL result = [UIImagePNGRepresentation(thumbnail) writeToFile:thumbnailName options:NSDataWritingAtomic error:&error];
+            NSLog(@"Write result for thumbnail %@ : %@", thumbnailName, (result ? @"OK" : @"Problem"));
             if(result)
             {
-                Director::getInstance()->getTextureCache()->removeTextureForKey([thumbnailPath UTF8String]);
+                Director::getInstance()->getTextureCache()->removeTextureForKey([thumbnailName UTF8String]);
             }
             else
             {
