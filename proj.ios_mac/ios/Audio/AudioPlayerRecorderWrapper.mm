@@ -66,7 +66,7 @@ std::string AudioPlayerRecorder::getSoundsSavePath()
     return [iosString UTF8String];
 }
 
-void AudioPlayerRecorder::record(const std::string&  file, Ref* linkTo)
+void AudioPlayerRecorder::record(const std::string& file, FileLocation loc, Ref* linkTo)
 {
     CCAssert(recordEnabled, "Record is disabled, enable it before starting to record");
 	std::string withExtension = file + ".caf";
@@ -81,7 +81,7 @@ void AudioPlayerRecorder::record(const std::string&  file, Ref* linkTo)
             linkTo = noLinkObject;
         }
         this->setLink(linkTo);
-        this->setPath(withExtension);
+        this->setPath(withExtension, loc);
         [[AudioPlayerRecorderImpl sharedAudio] startRecording];
     }
 }
@@ -89,7 +89,7 @@ void AudioPlayerRecorder::record(const std::string&  file, Ref* linkTo)
 void AudioPlayerRecorder::stopRecording()
 {
     CCAssert(recordEnabled, "Record is disabled, enable it before calling stopRecording");
-    [[AudioPlayerRecorderImpl sharedAudio] stopRecording:getNSString(path)];
+    [[AudioPlayerRecorderImpl sharedAudio] stopRecording:getNSString(getFullPath(path, location))];
     link = NULL; //don't call setLink to avoid infinite recursion
     this->setPath("");
 }

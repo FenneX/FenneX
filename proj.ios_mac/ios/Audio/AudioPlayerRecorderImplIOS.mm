@@ -28,10 +28,12 @@
 #include "cocos2d.h"
 #include "AppMacros.h"
 #include "AudioPlayerRecorder.h"
+#include "FileUtility.h"
 
 @interface AudioPlayerRecorderImpl (Private)
 
 - (void) prepareNextRecording;
++ (NSURL*) getFullPath:(NSString*)file;
 
 @end
 
@@ -45,16 +47,36 @@
 	if([audioRecorder prepareToRecord])
 	{
 #if VERBOSE_AUDIO
-		NSLog(@"Preparing next recording");
+		CCLOG("Preparing next recording");
 #endif
 	}
 #if VERBOSE_AUDIO
 	else
 	{
 		int errorCode = CFSwapInt32HostToBig ((uint32_t)[error code]);
-		NSLog(@"Error with recording : %@ [%4.4s])" , [error localizedDescription], (char*)&errorCode);
+		CCLOG("Error with recording : %s [%4.4s])" , [[error localizedDescription] UTF8String], (char*)&errorCode);
 	}
 #endif
+}
+
++ (NSURL*) getFullPath:(NSString*)file
+{
+    //try sound in bundle first (legacy behavior)
+    NSURL* url = [[NSBundle mainBundle] URLForResource:[file stringByDeletingPathExtension] withExtension:@"mp3"];
+    if(url == nil)
+    {
+        //try to load recorded sound if it's not in bundle
+        std::string fullPath = findFullPath([file UTF8String]);
+        if(fullPath.empty())
+        {
+#if VERBOSE_AUDIO
+            CCLOG("Warning : audio file %s does not exist", [file UTF8String]);
+#endif
+            return nil;
+        }
+        url = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%s", fullPath.c_str()]];
+    }
+    return url;
 }
 
 @end
@@ -92,20 +114,8 @@ static AudioPlayerRecorderImpl* _sharedAudio = nil;
 + (float) getSoundDuration:(NSString*)file
 {
     NSError *error;
-    //try sound in bundle first
-    NSURL* url = [[NSBundle mainBundle] URLForResource:[file stringByDeletingPathExtension] withExtension:@"mp3"];
-    if(url == nil)
-    {
-        //try to load recorded sound if it's not in bundle
-        url = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] applicationSupportDirectory] stringByAppendingPathComponent:file]];
-        if(url == nil)
-        {
-#if VERBOSE_AUDIO
-            NSLog(@"Warning : file %@ does not exist in getSoundDuration", file);
-#endif
-            return 0;
-        }
-    }
+    NSURL* url = [AudioPlayerRecorderImpl getFullPath:file];
+    if(url == nil) return 0;
     AVAudioPlayer* avAudioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:&error];
     
     double duration = avAudioPlayer.duration;
@@ -215,47 +225,46 @@ static AudioPlayerRecorderImpl* _sharedAudio = nil;
 	if([audioRecorder record])
 	{
 #if VERBOSE_AUDIO
-		NSLog(@"Recording...");
+		CCLOG("Recording...");
 #endif
 	}
 #if VERBOSE_AUDIO
 	else
 	{
         int audioIsRecording = audioRecorder.isRecording ? 1 : 0;
-		NSLog(@"Error when starting record, is recording ? %d", audioIsRecording);
+		CCLOG("Error when starting record, is recording ? %d", audioIsRecording);
 	}
 #endif
 }
 
-- (void) stopRecording:(NSString*)file
+- (void) stopRecording:(NSString*)fullPath
 {
     error = nil;
 #if VERBOSE_AUDIO
-	NSLog(@"Stop recording");
+	CCLOG("Stop recording");
 #endif
 	AVAudioRecorder* audioRecorder = nextRecorder ? audioRecorder1 : audioRecorder2;
 	[audioRecorder stop];
 #if VERBOSE_AUDIO
     if(error)
     {
-        NSLog(@"Error when stopping record : %@", error.localizedDescription);
+        CCLOG("Error when stopping record : %s", [error.localizedDescription UTF8String]);
     }
-    NSLog(@"Audio recorder url : %@", audioRecorder.url);
+    CCLOG("Audio recorder url : %s", [audioRecorder.url.absoluteString  UTF8String]);
 #endif
-    NSURL* url = nextRecorder ? url1 : url2;
-    NSURL* newUrl = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] applicationSupportDirectory] stringByAppendingPathComponent:file]];
-    if([[NSFileManager defaultManager] fileExistsAtPath:[[[NSFileManager defaultManager] applicationSupportDirectory] stringByAppendingPathComponent:file]])
+    if([[NSFileManager defaultManager] fileExistsAtPath:fullPath])
     {
-        [[NSFileManager defaultManager] removeItemAtPath:[[[NSFileManager defaultManager] applicationSupportDirectory] stringByAppendingPathComponent:file] error:nil];
+        [[NSFileManager defaultManager] removeItemAtPath:fullPath error:nil];
     }
-    BOOL result = [[NSFileManager defaultManager] moveItemAtURL:url toURL:newUrl error:&error];
+    NSURL* recordUrl = nextRecorder ? url1 : url2;
+    BOOL result = [[NSFileManager defaultManager] moveItemAtURL:recordUrl toURL:[NSURL fileURLWithPath:fullPath] error:&error];
 #if VERBOSE_AUDIO
     if(!result)
     {
-        NSLog(@"Error when moving item : %@, source exists : %@", error.localizedDescription, [[NSFileManager defaultManager] fileExistsAtPath:url.absoluteString] ? @"YES" : @"NO");
+        CCLOG("Error when moving item : %s, source exists : %s", [error.localizedDescription UTF8String], [[NSFileManager defaultManager] fileExistsAtPath:recordUrl.absoluteString] ? "YES" : "NO");
     }
 #endif
-    [self setPlayFile:file];
+    [self setPlayFile:fullPath];
 	[self prepareNextRecording];
 }
 
@@ -273,29 +282,17 @@ static AudioPlayerRecorderImpl* _sharedAudio = nil;
 		[audioPlayer release];
         audioPlayer = nil;
 	}
-    //try sound in bundle first
-    NSURL* url = [[NSBundle mainBundle] URLForResource:[file stringByDeletingPathExtension] withExtension:@"mp3"];
-    if(url == nil)
-    {
-        //try to load recorded sound if it's not in bundle
-        url = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] applicationSupportDirectory] stringByAppendingPathComponent:file]];
-        if(url == nil)
-        {
-#if VERBOSE_AUDIO
-            NSLog(@"Warning : file %@ does not exist", file);
-#endif
-            return;
-        }
-    }
+    NSURL* url = [AudioPlayerRecorderImpl getFullPath:file];
+    if(url == nil) return;
 	audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:&error];
 #if VERBOSE_AUDIO
     if(error)
     {
-        NSLog(@"Error while trying to init audio : %@ for file : %@, full url : %@", error.localizedDescription, file, [url filePathURL]);
+        CCLOG("Error while trying to init audio : %s for file : %s, full url : %s", [error.localizedDescription UTF8String], [file UTF8String], [[url absoluteString] UTF8String]);
     }
     else
     {
-        NSLog(@"playing file : %@, full url : %@", file, [url filePathURL]);
+        CCLOG("playing file : %s, full url : %s", [file UTF8String], [[url absoluteString] UTF8String]);
     }
 #endif
     if(audioPlayer != nil)
@@ -319,14 +316,14 @@ static AudioPlayerRecorderImpl* _sharedAudio = nil;
 		if([audioPlayer play])
         {
 #if VERBOSE_AUDIO
-            NSLog(@"playing for duration : %f, total duration : %f", [audioPlayer duration] - startTime, [audioPlayer duration]);
+            CCLOG("playing for duration : %f, total duration : %f", [audioPlayer duration] - startTime, [audioPlayer duration]);
 #endif
             return [audioPlayer duration] - startTime;
         }
 #if VERBOSE_AUDIO
         else
         {
-            NSLog(@"failed to play");
+            CCLOG("failed to play");
         }
 #endif
 	}
@@ -335,29 +332,17 @@ static AudioPlayerRecorderImpl* _sharedAudio = nil;
 
 - (float) playIndependentFile:(NSString*)file volume:(float)volume
 {
-    //try sound in bundle first
-    NSURL* url = [[NSBundle mainBundle] URLForResource:[file stringByDeletingPathExtension] withExtension:@"mp3"];
-    if(url == nil)
-    {
-        //try to load recorded sound if it's not in bundle
-        url = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] applicationSupportDirectory] stringByAppendingPathComponent:file]];
-        if(url == nil)
-        {
-#if VERBOSE_AUDIO
-            NSLog(@"Warning : file %@ does not exist", file);
-#endif
-            return 0;
-        }
-    }
+    NSURL* url = [AudioPlayerRecorderImpl getFullPath:file];
+    if(url == nil) return 0;
 	AVAudioPlayer* player = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:&error];
 #if VERBOSE_AUDIO
     if(error)
     {
-        NSLog(@"Error while trying to init audio : %@ for file : %@, full url : %@", error.localizedDescription, file, [url filePathURL]);
+        CCLOG("Error while trying to init audio : %s for file : %s, full url : %s", [error.localizedDescription UTF8String], [file UTF8String], [[url absoluteString] UTF8String]);
     }
     else
     {
-        NSLog(@"playing file : %@, full url : %@", file, [url filePathURL]);
+        CCLOG("playing file : %s, full url : %s", [file UTF8String], [[url absoluteString] UTF8String]);
     }
 #endif
     if(player != nil)
@@ -372,14 +357,14 @@ static AudioPlayerRecorderImpl* _sharedAudio = nil;
 		if([player play])
         {
 #if VERBOSE_AUDIO
-            NSLog(@"playing for duration : %f", [player duration]);
+            CCLOG("playing for duration : %f", [player duration]);
 #endif
             return [player duration];
         }
 #if VERBOSE_AUDIO
         else
         {
-            NSLog(@"failed to play");
+            CCLOG("failed to play");
         }
 #endif
     }
@@ -391,7 +376,7 @@ static AudioPlayerRecorderImpl* _sharedAudio = nil;
 	if(audioPlayer != nil)
     {
 #if VERBOSE_AUDIO
-        NSLog(@"Stop playing");
+        CCLOG("Stop playing");
 #endif
         [audioPlayer stop];
         audioPlayer.volume = 1.0;
@@ -451,14 +436,14 @@ static AudioPlayerRecorderImpl* _sharedAudio = nil;
 - (void)audioRecorderDidFinishRecording:(AVAudioRecorder *)recorder successfully:(BOOL)flag
 {
 #if VERBOSE_AUDIO
-    NSLog(@"Recorder number : %d ended successfully : %@", recorder == audioRecorder1 ? 1 : 2, flag ? @"YES" : @"NO");
+    CCLOG("Recorder number : %d ended successfully : %s", recorder == audioRecorder1 ? 1 : 2, flag ? "YES" : "NO");
 #endif
 }
 
 - (void)audioRecorderEncodeErrorDidOccur:(AVAudioRecorder *)recorder error:(NSError *)localError
 {
 #if VERBOSE_AUDIO
-    NSLog(@"Error with recorder : %@, failure reason : %@, recorder number : %d", [localError localizedDescription], [localError localizedFailureReason], recorder == audioRecorder1 ? 1 : 2);
+    CCLOG("Error with recorder : %s, failure reason : %s, recorder number : %d", [[localError localizedDescription] UTF8String], [[localError localizedFailureReason] UTF8String], recorder == audioRecorder1 ? 1 : 2);
 #endif
 }
 

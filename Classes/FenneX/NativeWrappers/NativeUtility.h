@@ -38,14 +38,6 @@ bool isPhone();
 void discardSplashScreen();
 #endif
 
-/* Return a public writable path on Android. On iOS, it is the same as getLocalPath
- */
-std::string getPublicPath(const std::string& name);
-
-/* Return a local (inside the app) writable path.
- */
-std::string getLocalPath(const std::string& name);
-
 /* Return the URL the app was opened with, or an empty string
  You also get notified with "UrlOpened" event when app is opened with an url during run (not at startup)
  */
@@ -149,7 +141,8 @@ static inline void notifyVolumeChanged()
 
 inline void notifyMemoryWarning(){
 	AppDelegate* delegate = (AppDelegate*)cocos2d::Application::getInstance();
-#warning : maybe this should be async to run on main thread ?
+    //warning : maybe this should be async to run on main thread ?
+    //No problem so far, converting the #warning to a simple comment
 	delegate->applicationDidReceiveMemoryWarning();
 }
 

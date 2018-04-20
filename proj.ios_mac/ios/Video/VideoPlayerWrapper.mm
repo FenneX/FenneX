@@ -121,21 +121,28 @@ void VideoPlayer::setMuted(bool muted)
     TYPED_DELEGATE.muted = muted;
 }
 
-std::string VideoPlayer::getThumbnail(const std::string& path)
+std::string VideoPlayer::getThumbnail(const std::string& path, FileLocation videoLocation, const std::string& thumbnailPath, FileLocation thumbnailLocation)
 {
-    NSString* thumbnailPath = [VideoPlayerImplIOS getThumbnail:[NSString stringWithUTF8String:path.c_str()]];
-    return thumbnailPath != nil ? [thumbnailPath UTF8String] : "";
+    std::string fileName = thumbnailPath;
+    if(fileName.empty())
+    {
+        fileName = path;
+        if(videoLocation == FileLocation::Absolute && thumbnailLocation != FileLocation::Absolute && path.find_last_of('/') != std::string::npos)
+        { // If we are not using absolute for thumbnail but we use it for video, that mean we have a path to parse
+            fileName = path.substr(path.find_last_of('/') + 1);
+        }
+        fileName += "-thumbnail";
+    }
+    NSString* thumbnailPathString = [NSString stringWithUTF8String:getFullPath(fileName, thumbnailLocation).c_str()];
+    BOOL result = [VideoPlayerImplIOS getThumbnail:[NSString stringWithUTF8String:getFullPath(path, videoLocation).c_str()]
+                                     thumbnailName:thumbnailPathString];
+    return result ? [thumbnailPathString UTF8String] : "";
 }
 
-cocos2d::Size VideoPlayer::getVideoSize(const std::string& path)
+cocos2d::Size VideoPlayer::getVideoSize(const std::string& path, FileLocation location)
 {
-    CGSize size = [VideoPlayerImplIOS getVideoSize:[NSString stringWithUTF8String:path.c_str()]];
+    CGSize size = [VideoPlayerImplIOS getVideoSize:[NSString stringWithUTF8String:getFullPath(path, location).c_str()]];
     return cocos2d::Size(size.width, size.height);
-}
-
-bool VideoPlayer::isValidVideo(const std::string& filePath)
-{
-    return true;
 }
 
 bool VideoPlayer::videoExists(const std::string& file)

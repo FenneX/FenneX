@@ -28,7 +28,7 @@
 
 #define CLASS_NAME "com/fennex/modules/VideoPlayer"
 
-VideoPlayer::VideoPlayer(std::string file, CCPoint position, CCSize size, bool front, bool loop)
+VideoPlayer::VideoPlayer(std::string file, Vec2 position, cocos2d::Size size, bool front, bool loop)
 {
     JniMethodInfo minfo;
     
@@ -192,35 +192,37 @@ void VideoPlayer::setMuted(bool muted)
     minfo.env->DeleteLocalRef(minfo.classID);
 }
 
-std::string VideoPlayer::getThumbnail(const std::string& path)
+std::string VideoPlayer::getThumbnail(const std::string& path, FileLocation videoLocation, const std::string& thumbnailPath, FileLocation thumbnailLocation)
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"getThumbnail", "(Ljava/lang/String;)Ljava/lang/String;");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"getThumbnail", "(Ljava/lang/String;ILjava/lang/String;I)Ljava/lang/String;");
     CCAssert(functionExist, "Function doesn't exist");
     
     jstring stringArg = minfo.env->NewStringUTF(path.c_str());
-    jstring result = (jstring)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID, stringArg);
+    jstring thumbnailStringArg = minfo.env->NewStringUTF(thumbnailPath.c_str());
+    jstring result = (jstring)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID, stringArg, (jint)videoLocation, thumbnailStringArg, (jint)thumbnailLocation);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(stringArg);
+    minfo.env->DeleteLocalRef(thumbnailStringArg);
     
-    std::string thumbnailPath = JniHelper::jstring2string(result);
+    std::string thumbnailPathRet = JniHelper::jstring2string(result);
     minfo.env->DeleteLocalRef(result);
     
-    return thumbnailPath;
+    return thumbnailPathRet;
 }
 
-CCSize VideoPlayer::getVideoSize(const std::string& path)
+cocos2d::Size VideoPlayer::getVideoSize(const std::string& path, FileLocation location)
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"getVideoSize", "(Ljava/lang/String;)[F");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"getVideoSize", "(Ljava/lang/String;I)[F");
     CCAssert(functionExist, "Function doesn't exist");
     log("path is: %s", path.c_str());
     jstring stringArg = minfo.env->NewStringUTF(path.c_str());
-    jfloatArray result = (jfloatArray)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID, stringArg);
+    jfloatArray result = (jfloatArray)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID, stringArg, (jint)location);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(stringArg);
     CCAssert(minfo.env->GetArrayLength(result) == 2, "getVideoSize: result should have 2 values");
-    CCSize size;
+    cocos2d::Size size;
 
     jfloat* array = minfo.env->GetFloatArrayElements(result, 0);
     size.width = array[0];
@@ -228,20 +230,6 @@ CCSize VideoPlayer::getVideoSize(const std::string& path)
     minfo.env->ReleaseFloatArrayElements(result, array, 0);
     minfo.env->DeleteLocalRef(result);
     return size;
-}
-
-bool VideoPlayer::isValidVideo(const std::string& filePath)
-{
-    JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"isValidVideo", "(Ljava/lang/String;)Z");
-    CCAssert(functionExist, "Function doesn't exist");
-    
-    jstring stringArg = minfo.env->NewStringUTF(filePath.c_str());
-    bool result = minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID, stringArg);
-    minfo.env->DeleteLocalRef(minfo.classID);
-    minfo.env->DeleteLocalRef(stringArg);
-    
-    return result;
 }
 
 bool VideoPlayer::videoExists(const std::string& file)

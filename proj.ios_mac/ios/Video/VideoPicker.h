@@ -23,18 +23,21 @@
  ****************************************************************************///
 
 #import <UIKit/UIKit.h>
+#include "FileUtility.h"
 
 @interface VideoPicker : NSObject <UINavigationControllerDelegate, UIImagePickerControllerDelegate>
 {
     UIImagePickerController* controller;    
     UIPopoverController* popOver;
     NSString* saveName;
+    FenneX::FileLocation saveLocation;
     bool useCamera;
 }
 
 @property (nonatomic, readonly) UIImagePickerController* controller;
 @property (nonatomic, assign) UIPopoverController* popOver;
 @property (nonatomic, retain) NSString* saveName;
+@property (nonatomic, assign) FenneX::FileLocation saveLocation;
 @property (nonatomic, assign) bool useCamera;
 
 - (void) initController;

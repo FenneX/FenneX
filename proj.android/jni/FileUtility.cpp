@@ -29,7 +29,51 @@
 
 #define CLASS_NAME "com/fennex/modules/FileUtility"
 USING_NS_CC;
-USING_NS_FENNEX;
+
+NS_FENNEX_BEGIN
+
+//Since we use this method VERY often, cache the result instead of doing a JNI Call every time
+std::string localPathCache = "";
+
+std::string getLocalPath(const std::string& name)
+{
+    if(localPathCache.length() == 0)
+    {
+        JniMethodInfo minfo;
+        bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "getLocalPath", "()Ljava/lang/String;");
+        CCAssert(functionExist, "Function doesn't exist");
+        
+        jstring directory = (jstring)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID);
+        localPathCache = JniHelper::jstring2string(directory);
+        minfo.env->DeleteLocalRef(minfo.classID);
+        minfo.env->DeleteLocalRef(directory);
+    }
+    return localPathCache + "/" + name;
+}
+
+std::string getPublicPath(const std::string& name)
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "getPublicPath", "()Ljava/lang/String;");
+    CCAssert(functionExist, "Function doesn't exist");
+    
+    jstring directory = (jstring)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID);
+    
+    std::string path = JniHelper::jstring2string(directory) + "/" + name;
+    minfo.env->DeleteLocalRef(directory);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    return path;
+}
+
+std::string getApplicationSupportPath(const std::string& name)
+{
+    return getLocalPath(name);
+}
+
+std::string getResourcesPath(const std::string& file)
+{
+    return "assets/" + file;
+}
 
 bool lockFile(std::string filename)
 {
@@ -115,19 +159,6 @@ std::vector<std::string> getFilesInFolder(std::string folderPath)
     return info;
 }
 
-void deleteFile(std::string filename)
-{
-    JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME,"deleteFile", "(Ljava/lang/String;)V");
-    CCAssert(functionExist, "Function doesn't exist");
-    jstring jFilename = minfo.env->NewStringUTF(filename.c_str());
-    minfo.env->CallStaticVoidMethod(minfo.classID,
-                                    minfo.methodID,
-                                    jFilename);
-    minfo.env->DeleteLocalRef(minfo.classID);
-    minfo.env->DeleteLocalRef(jFilename);
-}
-
 bool moveFileToLocalDirectory(std::string path)
 {
     JniMethodInfo minfo;
@@ -170,11 +201,21 @@ bool pickFile()
     return result;
 }
 
+NS_FENNEX_END
+
 extern "C"
 {
     //extension for long name : __Ljava_lang_String_2Ljava_lang_String_2
     void Java_com_fennex_modules_FileUtility_notifyFilePicked(JNIEnv* env, jobject thiz, jstring path)
     {
         notifyFilePicked(JniHelper::jstring2string(path));
+    }
+    jstring Java_com_fennex_modules_FileUtility_findFullPath(JNIEnv* env, jobject thiz, jstring path)
+    {
+        return cocos2d::StringUtils::newStringUTFJNI(env, findFullPath(JniHelper::jstring2string(path)));
+    }
+    jstring Java_com_fennex_modules_FileUtility_getFullPath(JNIEnv* env, jobject thiz, jstring path, int location)
+    {
+        return cocos2d::StringUtils::newStringUTFJNI(env, getFullPath(JniHelper::jstring2string(path), (FileLocation)location));
     }
 }

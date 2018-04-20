@@ -32,10 +32,11 @@
 USING_NS_CC;
 USING_NS_FENNEX;
 
-bool pickImageFrom(const std::string& saveName, PickOption pickOption, int width, int height, const std::string& identifier, bool rescale, float thumbnailScale)
+bool pickImageFrom(const std::string& saveName, FileLocation location, PickOption pickOption, int width, int height, const std::string& identifier, bool rescale, float thumbnailScale)
 {
     Director::getInstance()->stopAnimation();
     [ImagePicker sharedPicker].saveName = [NSString stringWithFormat:@"%s", saveName.c_str()];
+    [ImagePicker sharedPicker].saveLocation = location;
     [ImagePicker sharedPicker].identifier = [NSString stringWithFormat:@"%s", identifier.c_str()];
     [ImagePicker sharedPicker].width = width;
     [ImagePicker sharedPicker].height = height;
@@ -80,6 +81,7 @@ bool isCameraAvailable()
 
 @synthesize controller;
 @synthesize saveName;
+@synthesize saveLocation;
 @synthesize identifier;
 @synthesize width;
 @synthesize height;
@@ -195,37 +197,39 @@ static ImagePicker* _sharedPicker = nil;
             resultImage = imageToSave;
         }
         controller.view.hidden = YES;
-        NSString* fileName = [NSString stringWithFormat:@"Documents/%@.png", saveName];
-        NSString* pngPath = [NSHomeDirectory() stringByAppendingPathComponent:fileName];
+        
+        std::string imagePathStd = getFullPath([saveName UTF8String], saveLocation) + ".png";
+        if(imagePathStd.rfind("/") != std::string::npos)
+        { //Ensure parent directory is created
+            FileUtils::getInstance()->createDirectory(imagePathStd.substr(0,imagePathStd.rfind("/")));
+        }
+        
+        NSString* imagePath = [NSString stringWithFormat:@"%s", imagePathStd.c_str()];
         NSError* error = NULL;
-        BOOL result = [UIImagePNGRepresentation(resultImage) writeToFile:pngPath options:NSDataWritingAtomic error:&error];
-        //BOOL result = [UIImagePNGRepresentation(resultImage) writeToFile:pngPath atomically:YES];
-        NSLog(@"Write result for file %@ : %@, fullPath : %@", fileName, (result ? @"OK" : @"Problem"), pngPath);
+        BOOL result = [UIImagePNGRepresentation(resultImage) writeToFile:imagePath options:NSDataWritingAtomic error:&error];
+        NSLog(@"Write result for file %@ : %@, full path: %@", saveName, (result ? @"OK" : @"Problem"), imagePath);
         if(result)
         {
-            std::string fullPath = std::string(getenv("HOME")) + "/Documents/" + [saveName UTF8String] + ".png" ;
-            Director::getInstance()->getTextureCache()->removeTextureForKey(fullPath.c_str());
+            Director::getInstance()->getTextureCache()->removeTextureForKey([imagePath UTF8String]);
             if(thumbnailScale > 0)
             {
                 targetSize.width *= thumbnailScale;
                 targetSize.height *= thumbnailScale;
                 UIImage* thumbnail = [resultImage resizedImage:targetSize interpolationQuality:kCGInterpolationHigh];
                 
-                NSString* thumbnailName = [NSString stringWithFormat:@"Documents/%@-thumbnail.png", saveName];
-                NSString* thumbnailPath = [NSHomeDirectory() stringByAppendingPathComponent:thumbnailName];
+                NSString* thumbnailPath = [NSString stringWithFormat:@"%s.png-thumbnail.png", getFullPath([saveName UTF8String], saveLocation).c_str()];
                 BOOL result = [UIImagePNGRepresentation(thumbnail) writeToFile:thumbnailPath options:NSDataWritingAtomic error:&error];
-                NSLog(@"Write result for thumbnail %@ : %@, fullPath : %@", thumbnailName, (result ? @"OK" : @"Problem"), thumbnailPath);
+                NSLog(@"Write result for thumbnail %@ : %@, fullPath: %@", saveName, (result ? @"OK" : @"Problem"), thumbnailPath);
                 if(result)
                 {
-                    std::string fullPathThumbnail = std::string(getenv("HOME")) + "/Documents/" + [saveName UTF8String] + "-thumbnail.png";
-                    Director::getInstance()->getTextureCache()->removeTextureForKey(fullPathThumbnail.c_str());
+                    Director::getInstance()->getTextureCache()->removeTextureForKey([thumbnailPath UTF8String]);
                 }
                 else
                 {
                      NSLog(@"Write error for thumbnail description: %@, reason: %@", [error localizedDescription], [error localizedFailureReason]);
                 }
             }
-            notifyImagePicked([saveName UTF8String], [identifier UTF8String]);
+            notifyImagePicked([saveName UTF8String], saveLocation, [identifier UTF8String]);
             notified = true;
         }
         else

@@ -29,14 +29,15 @@ THE SOFTWARE.
 USING_NS_CC;
 #include "pugixml.hpp"
 #include "FenneXMacros.h"
+#include "FileUtility.h"
 
 //Currently handle Dictionary, Array, Integer, Float, Bool and String in a plist format
 // NOT HANDLED : Date and Data
 
 NS_FENNEX_BEGIN
-void saveValueToFile(Value& val, std::string fileName, bool external = false);
-Value loadValueFromFile(std::string fileName, bool resource = false);
-void deleteLocalFile(std::string name);
+
+void saveValueToFile(Value& val, std::string fileName, FileLocation location = FileLocation::Local);
+Value loadValueFromFile(std::string fileName, FileLocation location = FileLocation::Local);
 NS_FENNEX_END
 
 #endif /* defined(__FenneX__PListPersist__) */

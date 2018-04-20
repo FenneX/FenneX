@@ -1,4 +1,5 @@
-/****************************************************************************
+/*
+***************************************************************************
 Copyright (c) 2013-2014 Auticiel SAS
 
 http://www.fennex.org
@@ -24,32 +25,29 @@ THE SOFTWARE.
 
 package com.fennex.modules;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
-//import org.cocos2dx.lib.Cocos2dxBitmap;
-
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Vibrator;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.util.Log;
 import android.view.WindowManager;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class NativeUtility 
@@ -59,7 +57,8 @@ public class NativeUtility
     public native static void notifyMemoryWarning();
     public native static void notifyVolumeChanged();
     
-	private static volatile ActivityResultNotifier mainActivity;    
+	private static volatile ActivityResultNotifier mainActivity;
+    @SuppressWarnings("WeakerAccess")
 	public static void setMainActivity(ActivityResultNotifier activity)
 	{
 		mainActivity = activity;
@@ -70,31 +69,13 @@ public class NativeUtility
 		return mainActivity;
 	}
 
+    @SuppressWarnings("unused")
     public static void discardSplashScreen()
     {
         getMainActivity().discardSplashDialog();
     }
 
-    public static String getPublicPath()
-    {
-        return Environment.getExternalStorageDirectory().getAbsolutePath();
-    }
-
-    public static String getLocalPath()
-    {
-    	String localPath = getMainActivity().getFilesDir().getPath();
-    	Log.d(TAG, "returning local path : " + localPath);
-    	return localPath;
-    }
-
-    public static String getLocalPath(Context context)
-    {
-        if(context == null) return getLocalPath();
-        String localPath = context.getFilesDir().getPath();
-        Log.d(TAG, "returning local path : " + localPath);
-        return localPath;
-    }
-
+    @SuppressWarnings("unused")
     public static String getOpenUrl()
     {
         String openUrl = getMainActivity().getIntent().getDataString();
@@ -106,7 +87,8 @@ public class NativeUtility
         return openUrl;
     }
     public static native void notifyUrlOpened(String url);
-    
+
+    @SuppressWarnings("WeakerAccess")
     public static String getAppName()
     {
     	return getMainActivity().getClass().getSimpleName();
@@ -117,15 +99,18 @@ public class NativeUtility
         return getMainActivity().getClass().getPackage().getName();
     }
 
+    @SuppressWarnings("unused")
     public static String getUniqueIdentifier()
     {
         return Settings.Secure.getString(getMainActivity().getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 
+    @SuppressWarnings("unused")
     public static String getAppVersionNumber() throws PackageManager.NameNotFoundException {
         return getMainActivity().getPackageManager().getPackageInfo(getMainActivity().getPackageName(), 0).versionName;
     }
 
+    @SuppressWarnings("unused")
     public static int getAppVersionCode() throws PackageManager.NameNotFoundException {
         return getMainActivity().getPackageManager().getPackageInfo(getMainActivity().getPackageName(), 0).versionCode;
     }
@@ -135,45 +120,48 @@ public class NativeUtility
         return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 
+    @SuppressWarnings("unused")
     public static String getDeviceModelIdentifier()
     {
         return Build.MODEL;
     }
 
+    @SuppressWarnings("unused")
     public static String getDeviceModelName()
     {
         return Build.DISPLAY;
     }
 
+    @SuppressWarnings("unused")
     public static String getDeviceVersion()
     {
         return Build.VERSION.RELEASE;
     }
 
+    @SuppressWarnings("unused")
     public static int getDeviceSDK()
     {
         return Build.VERSION.SDK_INT;
     }
-    
+
+    @SuppressWarnings("unused")
     public static boolean isPhone()
     {
     	boolean result = ((getMainActivity().getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) < Configuration.SCREENLAYOUT_SIZE_LARGE);
     	Log.i(TAG, "is phone ? " + (result ? "yes" : "no"));
     	return result;
-    	/*boolean xlarge = ((getMainActivity().getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == 4);
-    	boolean large = ((getMainActivity().getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_LARGE);
-    	return (xlarge || large);*/
     }
-    
+
+    @SuppressWarnings("WeakerAccess")
     public static void copyResourceFileToLocal(String path)
     {
     	Log.d(TAG, "copying resource file to local : " + path);
-        File destinationFile = new File(NativeUtility.getLocalPath() + java.io.File.separator + path);    
+        File destinationFile = new File(FileUtility.getLocalPath() + java.io.File.separator + path);    
     	if(!destinationFile.exists())
     	{
             if(path.contains("/"))
             {
-                File parentFolder = new File(NativeUtility.getLocalPath() + java.io.File.separator + path.substring(0, path.lastIndexOf("/")));
+                File parentFolder = new File(FileUtility.getLocalPath() + java.io.File.separator + path.substring(0, path.lastIndexOf("/")));
                 parentFolder.mkdirs();
             }
          	Log.i(TAG, "File doesn't exist, doing the copy to " + destinationFile.getAbsolutePath());
@@ -182,12 +170,12 @@ public class NativeUtility
                 InputStream in = am.open(path);
                 FileOutputStream f = new FileOutputStream(destinationFile); 
                 byte[] buffer = new byte[1024];
-                int len1 = 0;
+                int len1;
                 while ((len1 = in.read(buffer)) > 0) {
                     f.write(buffer, 0, len1);
                 }
                 f.close();
-             	Log.i(TAG, "Copied " + path + " to " + NativeUtility.getLocalPath() + java.io.File.separator + path);
+             	Log.i(TAG, "Copied " + path + " to " + FileUtility.getLocalPath() + java.io.File.separator + path);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -197,7 +185,8 @@ public class NativeUtility
          	Log.i(TAG, "didn't copied" + path + ", already exist");            	
         }
     }
-    
+
+    @SuppressWarnings("unused")
     public static void preventIdleTimerSleep(boolean prevent)
     {
         //Those operations must be executed on the main thread, otherwise there is an exception
@@ -222,10 +211,11 @@ public class NativeUtility
     }
     
     @TargetApi(19)
+    @SuppressWarnings("unused")
     public static void startSceneInitialisation()
     {
     	boolean enableCaching = true;
-		ActivityManager am = (ActivityManager) getMainActivity().getSystemService("activity");
+		ActivityManager am = (ActivityManager) getMainActivity().getSystemService(Context.ACTIVITY_SERVICE);
 		//Disable Bitmap caching for low ram devices, as it will receive too much low memory notifications
     	if(android.os.Build.VERSION.SDK_INT >= 19)
     	{
@@ -233,41 +223,47 @@ public class NativeUtility
     	}
     	//Cocos2dxBitmap.setIsInInitialization(enableCaching);
     }
-    
+
+    @SuppressWarnings("unused")
     public static void runGarbageCollector()
     {
     	//Cocos2dxBitmap.setIsInInitialization(false);
     	System.gc();
     }
-    
+
+    @SuppressWarnings("unused")
     public static float getDeviceVolume()
     {
     	AudioManager mAudioManager = (AudioManager) getMainActivity().getSystemService(Context.AUDIO_SERVICE);
     	int max = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         return (float)mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC) / max;
     }
-    
+
+    @SuppressWarnings("unused")
     public static void setDeviceVolume(float volume)
     {
     	AudioManager mAudioManager = (AudioManager) getMainActivity().getSystemService(Context.AUDIO_SERVICE);
     	int max = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, Math.round(max * volume), 0);
     }
-    
+
+    @SuppressWarnings("unused")
     public static void setDeviceNotificationVolume(float volume)
     {
     	AudioManager mAudioManager = (AudioManager) getMainActivity().getSystemService(Context.AUDIO_SERVICE);
     	int maxNotification = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_NOTIFICATION);
         mAudioManager.setStreamVolume(AudioManager.STREAM_NOTIFICATION, Math.round(maxNotification * volume), 0);//AudioManager.FLAG_SHOW_UI
     }
-    
+
+    @SuppressWarnings("unused")
     public static float getVolumeStep()
     {
     	AudioManager mAudioManager = (AudioManager) getMainActivity().getSystemService(Context.AUDIO_SERVICE);
     	float max = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
     	return 1/max;
     }
-    
+
+    @SuppressWarnings("unused")
     public static void setBackgroundColor(final int r, final int g, final int b)
     {
     	Log.w(TAG, "SetBackground color doesn't work properly yet on Android, background will stay black");
@@ -281,7 +277,8 @@ public class NativeUtility
     	     }
     	});
     }
-    
+
+    @SuppressWarnings("unused")
     public static void vibrate(int milliseconds)
     {
     	Vibrator v = (Vibrator) getMainActivity().getSystemService(Context.VIBRATOR_SERVICE);
@@ -295,12 +292,15 @@ public class NativeUtility
     	    tg.startTone(ToneGenerator.TONE_PROP_BEEP);
     	}
     }
+
+    @SuppressWarnings("unused")
     public static boolean canVibrate()
     {
     	Vibrator v = (Vibrator) getMainActivity().getSystemService(Context.VIBRATOR_SERVICE);
         return v.hasVibrator();
     }
-    
+
+    @SuppressWarnings("unused")
     public static float getDeviceLuminosity() 
     {
     	float brightnessValue = 0;
@@ -313,6 +313,7 @@ public class NativeUtility
     	return brightnessValue/255;
     }
 
+    @SuppressWarnings("unused")
     public static void setDeviceLuminosity(float luminosity) 
     {
     	//1 is a reserved value, don't use it
@@ -330,7 +331,8 @@ public class NativeUtility
     	     }
     	});
     }
-    
+
+    @SuppressWarnings("unused")
     public static boolean openSystemSettings()
     {
         boolean result = true;
@@ -345,6 +347,7 @@ public class NativeUtility
         return result;
     }
 
+    @SuppressWarnings("unused")
     public static void launchYoutube()
     {
     	Intent youtubeIntent = getMainActivity().getPackageManager().getLaunchIntentForPackage("com.google.android.youtube");
@@ -364,6 +367,7 @@ public class NativeUtility
         return true;
     }
 
+    @SuppressWarnings("unused")
     public static int getApplicationVersion(String packageName)
     {
         Context myContext = NativeUtility.getMainActivity().getBaseContext();

@@ -1,13 +1,5 @@
 package com.fennex.modules;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.channels.FileChannel;
-import java.util.Date;
-import java.util.List;
-
 import android.app.Activity;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
@@ -22,6 +14,14 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.FrameLayout;
 import android.widget.Toast;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.util.Date;
+import java.util.List;
 
 public class VideoRecorder extends Activity implements SurfaceHolder.Callback, MediaRecorder.OnInfoListener
 {
@@ -162,7 +162,7 @@ public class VideoRecorder extends Activity implements SurfaceHolder.Callback, M
     	}
 		getInstance().stopRecorder();
     	
-    	String externalPath = null;
+    	String externalPath;
     	//On some devices, copying the video in the Movies directory doesn't work. If it fails, show a message to the user
     	try
     	{
@@ -198,7 +198,7 @@ public class VideoRecorder extends Activity implements SurfaceHolder.Callback, M
     	}
 
         final String path = externalPath != null ? externalPath : videoPath;
-        VideoPicker.notifyVideoPickedWrap(path);
+        VideoPicker.notifyVideoPickedWrap(path, FileUtility.FileLocation.Absolute.getValue());
         //Execute this part in another thread since MediaMetadataRetriever can take some time
         Thread thread = new Thread()
         {

@@ -95,8 +95,8 @@ public class MailUrlManager {
 		}
         Log.d(TAG, "Destination : " + Environment.getExternalStorageDirectory() + java.io.File.separator + resultName);
         File destinationFile = new File(Environment.getExternalStorageDirectory() + java.io.File.separator + resultName); 
-        Log.d(TAG, "Source : " + NativeUtility.getLocalPath() + "/" + file);
-        File sourceFile = new File(NativeUtility.getLocalPath() + "/" + file);
+        Log.d(TAG, "Source : " + FileUtility.getLocalPath() + "/" + file);
+        File sourceFile = new File(FileUtility.getLocalPath() + "/" + file);
         if(!sourceFile.canRead())
         {
 	        Log.e(TAG, "Can't read from source file");

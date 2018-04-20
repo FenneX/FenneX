@@ -507,7 +507,7 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
                      [assetslibrary assetForURL:assetURL
                                     resultBlock:resultblock
                                    failureBlock:nil];
-                     notifyVideoPicked([[assetURL absoluteString] UTF8String]);
+                     notifyVideoPicked([[assetURL absoluteString] UTF8String], FileLocation::Absolute);
                  }
              }];
 		}

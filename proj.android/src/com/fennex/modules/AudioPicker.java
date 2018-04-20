@@ -85,8 +85,8 @@ private static volatile AudioPicker instance = null;
 			try {
 				InputStream is = NativeUtility.getMainActivity().getContentResolver().openInputStream(data.getData());
 				byte buffer[] = new byte[is.available()];
-				Log.d(TAG, NativeUtility.getLocalPath() + "/" + _fileName + ".mp3");
-				FileOutputStream selectedMusic = new FileOutputStream(NativeUtility.getLocalPath() + "/" + _fileName + ".mp3");
+				Log.d(TAG, FileUtility.getLocalPath() + "/" + _fileName + ".mp3");
+				FileOutputStream selectedMusic = new FileOutputStream(FileUtility.getLocalPath() + "/" + _fileName + ".mp3");
 				//FileOutputStream selectedMusic = new FileOutputStream(storageDirectory + "/" + _fileName + ".mp3");
 				is.read(buffer);
 				selectedMusic.write(buffer);

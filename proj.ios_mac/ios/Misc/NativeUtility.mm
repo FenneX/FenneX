@@ -30,7 +30,6 @@
 #import <AudioToolbox/AudioServices.h>
 #import <sys/utsname.h>
 
-
 NS_FENNEX_BEGIN
 
 MPVolumeView *invisibleVolumeView = NULL;
@@ -39,17 +38,6 @@ bool isPhone()
 {
     return [[UIDevice currentDevice] userInterfaceIdiom] != UIUserInterfaceIdiomPad;
 }
-
-std::string getPublicPath(const std::string& name)
-{
-    return std::string(getenv("HOME"))+"/Documents/"+name;
-}
-
-std::string getLocalPath(const std::string& name)
-{
-    return std::string(getenv("HOME"))+"/Documents/"+name;
-}
-
 std::string getOpenUrl()
 {
     return [[AppController sharedController].openUrl UTF8String];
@@ -269,11 +257,9 @@ void setDeviceLuminosity(float percent) {
 bool openSystemSettings()
 {
     //Only available since iOS8
-    if (&UIApplicationOpenSettingsURLString != NULL) {
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
-        return true;
-    }
-    return false;
+    //removed condition if (&UIApplicationOpenSettingsURLString != NULL) as we target iOS 8.0 minimum now
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+    return true;
 }
 
 void launchYoutube()

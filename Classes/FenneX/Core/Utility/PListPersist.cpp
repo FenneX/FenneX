@@ -98,8 +98,9 @@ void appendObject(Value& val, xml_node& node)
     }
 }
 
-void saveValueToFile(Value& val, std::string fileName, bool external)
+void saveValueToFile(Value& val, std::string fileName, FileLocation location)
 {
+    CCAssert(location != FileLocation::Resources, "Cannot save file to resources, it is read-only");
     xml_document doc;
     //add the verbose things so that it's a proper plist like those created by xcode
     xml_node decl = doc.prepend_child(node_declaration);
@@ -111,11 +112,10 @@ void saveValueToFile(Value& val, std::string fileName, bool external)
 
     //construct the actual plist informations
     appendObject(val, plistNode);
-
-    std::string fullPath = external ? getPublicPath(fileName) : getLocalPath(fileName);
+    std::string fullPath = getFullPath(fileName, location);
 #if VERBOSE_SAVE_PLIST
     log("Saving document %s :\n%s", fileName.c_str(), node_to_string(doc).c_str());
-    log("Saving to full %s path %s", external ? "external" : "local", fullPath.c_str());
+    log("Saving to full %s path %s", location == FileLocation::Public ? "external" : "local", fullPath.c_str());
 #endif
     doc.save_file(fullPath.c_str());
 #if VERBOSE_SAVE_PLIST
@@ -238,23 +238,21 @@ Value loadValue(xml_node node)
     return val;
 }
 
-Value loadValueFromFile(std::string fileName, bool resource)
+Value loadValueFromFile(std::string fileName, FileLocation location)
 {
     xml_document doc;
 #if VERBOSE_LOAD_PLIST
     log("local path : %s", getLocalPath(fileName).c_str());
 #endif
     std::string charbuffer = "";
+    std::string path = getFullPath(fileName, location);
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-    if(resource)
+    if(location == FileLocation::Resources)
     {
         ssize_t bufferSize = 0;
         //Load file from apk
         charbuffer = FileUtils::getInstance()->getStringFromFile(fileName);
     }
-    std::string path = resource ? "" : getLocalPath(fileName);
-#else
-    std::string path = resource ? getResourcesPath(fileName) : getLocalPath(fileName);
 #endif
 #if VERBOSE_LOAD_PLIST
     log("Loading from path :\n%s", path.c_str());
@@ -272,12 +270,12 @@ Value loadValueFromFile(std::string fileName, bool resource)
     {
         Value emptyVal;
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-        if(resource)
+        if(location == FileLocation::Resources)
         {
             log("Copying resource file to local ...");
             copyResourceFileToLocal(fileName);
         }
-        parse_result = doc.load_file(path.c_str());
+        parse_result = doc.load_file(getLocalPath(fileName).c_str());
 #if VERBOSE_LOAD_PLIST
         log("parse result after copy : %d", parse_result.status);
 #endif
@@ -300,23 +298,5 @@ Value loadValueFromFile(std::string fileName, bool resource)
     log("Parse successful, returning");
 #endif
     return result;
-}
-
-void deleteLocalFile(std::string name)
-{
-    std::string path = getLocalPath(name);
-#if VERBOSE_SAVE_PLIST
-    int result = unlink(path.c_str());
-    if(result == 0)
-    {
-        log("file %s removed successfully", path.c_str());
-    }
-    else
-    {
-        log("Problem removing file %s, error : %d", path.c_str(), errno);
-    }
-#else
-    unlink(path.c_str());
-#endif
 }
 NS_FENNEX_END

@@ -86,7 +86,7 @@ void Localization::loadAdditionalTranslations(std::function<std::string(std::str
     getLocalizedString("");
     if(willTranslate())
     {
-        std::map<std::string, std::string> additionalTranslations = ValueConversion::toMapStringString(loadValueFromFile(resolveLanguageFile(currentLanguage), true));
+        std::map<std::string, std::string> additionalTranslations = ValueConversion::toMapStringString(loadValueFromFile(resolveLanguageFile(currentLanguage), FileLocation::Resources));
         for(auto iter = additionalTranslations.begin(); iter != additionalTranslations.end(); iter++)
         {
             if(translations.find(iter->first) == translations.end())
@@ -105,7 +105,7 @@ bool Localization::loadAvailableTranslations()
 {
     if(availableTranslations.empty())
     {
-        availableTranslations = ValueConversion::toVectorString(loadValueFromFile("Available_translations.plist", true));
+        availableTranslations = ValueConversion::toVectorString(loadValueFromFile("Available_translations.plist", FileLocation::Resources));
     }
     if(availableTranslations.size() == 0)
     {
@@ -118,7 +118,7 @@ bool Localization::loadAvailableTranslations()
 
 void Localization::loadTranslations()
 {
-    translations = ValueConversion::toMapStringString(loadValueFromFile("Strings_" + currentLanguage + ".plist", true));
+    translations = ValueConversion::toMapStringString(loadValueFromFile("Strings_" + currentLanguage + ".plist", FileLocation::Resources));
     
     if (translations.empty())
     {

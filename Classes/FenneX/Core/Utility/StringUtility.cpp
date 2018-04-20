@@ -24,6 +24,7 @@ THE SOFTWARE.
 
 #include "StringUtility.h"
 #include "Shorteners.h"
+#include "FileUtility.h"
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
 #include <codecvt>
 #endif
@@ -134,6 +135,13 @@ std::string lowerCase(std::string text)
         }
     }
     return to;
+}
+
+bool stringStartsWith(std::string str, std::string prefix)
+{
+    if (prefix.length() >  str.length())
+        return false;
+    return str.substr(0, prefix.length()) == prefix;
 }
 
 bool stringEndsWith(std::string str, std::string suffix)
@@ -262,6 +270,16 @@ std::string string_format(const std::string fmt, ...)
             size *= 2;      // Guess at a larger size (OS specific)
     }
     return str;
+}
+
+std::string replaceWord(const std::string& baseString, const std::string& oldWord, const std::string& newWord)
+{
+    std::string returnValue = baseString;
+    while(returnValue.find(oldWord) != std::string::npos)
+    {
+        returnValue.replace(returnValue.find(oldWord), oldWord.size(), newWord);
+    }
+    return returnValue;
 }
 
 NS_FENNEX_END

@@ -6,8 +6,44 @@
 //
 //
 #import "NSFileManager+ApplicationSupport.h"
-
 #include "FileUtility.h"
+
+NS_FENNEX_BEGIN
+
+std::string getLocalPath(const std::string& name)
+{
+    return std::string(getenv("HOME"))+"/Documents/"+name;
+}
+
+std::string getPublicPath(const std::string& name)
+{
+    return std::string(getenv("HOME"))+"/Documents/"+name;
+}
+
+std::string getApplicationSupportPath(const std::string& name)
+{
+    return [[[NSFileManager defaultManager] applicationSupportDirectory] UTF8String] + std::string("/") + name;
+}
+std::string getResourcesPath(const std::string& file)
+{
+    const std::vector<std::string> searchPaths = FileUtils::getInstance()->getSearchPaths();
+    for(std::string path : searchPaths)
+    {
+        //PreconfiguredPath will probably be in SearchPath, but ignore it for resources.
+        std::string preconfiguredPath = getPreconfiguredPath("");
+        if(preconfiguredPath.empty() || path.find(preconfiguredPath) == std::string::npos)
+        {
+            NSString* fullPath = [[NSBundle mainBundle] pathForResource:[NSString stringWithUTF8String:file.c_str()]
+                                                                 ofType:nil
+                                                            inDirectory:[NSString stringWithUTF8String:path.c_str()]];
+            if(fullPath)
+            {
+                return [fullPath UTF8String];
+            }
+        }
+    }
+    return "";
+}
 
 bool lockFile(std::string filename)
 {
@@ -31,13 +67,12 @@ void unlockFile(std::string filename)
 std::vector<std::string> getFilesInFolder(std::string folderPath)
 {
     std::vector<std::string> newVector;
+    NSArray *directoryContent = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[NSString stringWithFormat:@"%s", folderPath.c_str()] error:NULL];
+    for (int count = 0; count < (int)[directoryContent count]; count++)
+    {
+        newVector.push_back([[directoryContent objectAtIndex:count] UTF8String]);
+    }
     return newVector;
-}
-
-void deleteFile(std::string filePath)
-{
-    NSString* path = [[[NSFileManager defaultManager] applicationSupportDirectory] stringByAppendingPathComponent:[NSString stringWithFormat:@"%s", filePath.c_str()]];
-    [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
 }
 
 bool moveFileToLocalDirectory(std::string path)
@@ -54,3 +89,5 @@ bool pickFile()
 {
     return true;
 }
+
+NS_FENNEX_END

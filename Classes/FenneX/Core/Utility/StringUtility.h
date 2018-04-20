@@ -38,6 +38,7 @@ NS_FENNEX_BEGIN
 std::string upperCase(std::string text);
 std::string lowerCase(std::string text);
 
+bool stringStartsWith(std::string str, std::string prefix);
 bool stringEndsWith(std::string str, std::string suffix);
 
 //Use Percent-encoding as defined in https://en.wikipedia.org/wiki/Percent-encoding
@@ -57,6 +58,9 @@ std::vector<std::string> split(const std::string& s, char seperator);
 
 // Format string, code from https://stackoverflow.com/questions/2342162/stdstring-formatting-like-sprintf
 std::string string_format(const std::string fmt, ...);
+
+// Return a new String with all oldWord occurence from the baseString changed to newWord
+std::string replaceWord(const std::string& baseString, const std::string& oldWord, const std::string& newWord);
 
 NS_FENNEX_END
 

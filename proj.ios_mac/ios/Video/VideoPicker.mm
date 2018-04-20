@@ -61,12 +61,13 @@ bool cancelRecording(bool notify)
     return [[VideoRecorder sharedRecorder] cancelRecording:notify];
 }
 
-bool pickVideoFromLibrary(const std::string& saveName)
+bool pickVideoFromLibrary(const std::string& saveName, FileLocation location)
 {
     if([AppController sharedController] != NULL)
     {
         [[VideoPicker sharedPicker] initController];
         [VideoPicker sharedPicker].saveName = [NSString stringWithFormat:@"%s", saveName.c_str()];
+        [VideoPicker sharedPicker].saveLocation = location;
         [[VideoPicker sharedPicker] setSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
         [VideoPicker sharedPicker].useCamera = false;
         if([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
@@ -90,12 +91,13 @@ bool pickVideoFromLibrary(const std::string& saveName)
     return false;
 }
 
-bool pickVideoFromCamera(const std::string& saveName)
+bool pickVideoFromCamera(const std::string& saveName, FileLocation location)
 {
     if([AppController sharedController] != NULL)
     {
         [[VideoPicker sharedPicker] initController];
         [VideoPicker sharedPicker].saveName = [NSString stringWithFormat:@"%s", saveName.c_str()];
+        [VideoPicker sharedPicker].saveLocation = location;
         [[VideoPicker sharedPicker] setSourceType:UIImagePickerControllerSourceTypeCamera];
         [VideoPicker sharedPicker].useCamera = true;
         [[AppController sharedController].viewController presentModalViewController:[VideoPicker sharedPicker].controller animated:YES];
@@ -171,6 +173,7 @@ void getAllVideos()
 @synthesize controller;
 @synthesize popOver;
 @synthesize saveName;
+@synthesize saveLocation;
 @synthesize useCamera;
 
 static VideoPicker* _sharedPicker = nil;
@@ -233,23 +236,25 @@ static VideoPicker* _sharedPicker = nil;
     {
         NSURL* videoURL = (NSURL *) [info objectForKey:UIImagePickerControllerMediaURL];
         
-        // Copy file into the app
+        // Copy file at the proper location
         NSFileManager *fileManager = [NSFileManager defaultManager];
         NSError *error;
-        NSString* fileName = [NSString stringWithFormat:@"%@/Documents/%@.%@", [NSString stringWithUTF8String:getenv("HOME")], saveName, [videoURL pathExtension]];
+        
+        //Use self.saveName for retain/release
         self.saveName = [NSString stringWithFormat:@"%@.%@", saveName, [videoURL pathExtension]];
+        NSString* savePath = [NSString stringWithFormat:@"%s", getFullPath([saveName UTF8String], saveLocation).c_str()];
         if ([fileManager fileExistsAtPath:[videoURL path]] == YES) {
             if(useCamera)
             {// It's useless to keep a tmp video
-                [fileManager moveItemAtPath:[videoURL path] toPath:fileName error:&error];
+                [fileManager moveItemAtPath:[videoURL path] toPath:savePath error:&error];
             }
             else
             {
-                [fileManager copyItemAtPath:[videoURL path] toPath:fileName error:&error];
+                [fileManager copyItemAtPath:[videoURL path] toPath:savePath error:&error];
             }
         }
         
-        notifyVideoPicked([saveName UTF8String]);
+        notifyVideoPicked([saveName UTF8String], saveLocation);
         [controller release];
         controller = nil;
     }

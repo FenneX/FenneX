@@ -25,7 +25,9 @@ THE SOFTWARE.
 #ifndef FenneX_VideoPickerWrapper_h
 #define FenneX_VideoPickerWrapper_h
 
-#include "FenneX.h"
+#include "cocos2d.h"
+#include "DelayedDispatcher.h"
+#include "FileUtility.h"
 
 USING_NS_FENNEX;
 
@@ -50,18 +52,18 @@ void stopVideoRecording();
 //Pass true to get a VideoRecordingCancelled when it's done
 bool cancelRecording(bool notify = true);
 
-bool pickVideoFromLibrary(const std::string& saveName);
+bool pickVideoFromLibrary(const std::string& saveName, FileLocation location);
 
-bool pickVideoFromCamera(const std::string& saveName);
+bool pickVideoFromCamera(const std::string& saveName, FileLocation location);
 
 //Will start the process of getting all videos path, names and duration, which will be notified with VideoFound, VideoNameResolved and VideoDurationAvailable (from VideoPlayer)
 //Current implementation is in the same thread for iOS, and in a different thread on Android (but still using all the resources)
 //Will throw a GetAllVideosFinished notification when it ends
 void getAllVideos();
 
-static inline void notifyVideoPicked(std::string name)
+static inline void notifyVideoPicked(std::string name, FileLocation location)
 {
-    DelayedDispatcher::eventAfterDelay("VideoPicked", Value(ValueMap({{"Name", Value(name)}})), 0.01);
+    DelayedDispatcher::eventAfterDelay("VideoPicked", Value(ValueMap({{"Name", Value(name)}, {"Location", Value((int)location)}})), 0.01);
 }
 
 static inline void notifyVideoFound(std::string fullPath)

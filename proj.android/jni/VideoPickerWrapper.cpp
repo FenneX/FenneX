@@ -29,7 +29,7 @@
 #define CLASS_NAME_RECORDER "com/fennex/modules/VideoRecorder"
 #define CLASS_NAME_PICKER "com/fennex/modules/VideoPicker"
 
-void startVideoRecordPreview(CCPoint position, CCSize size)
+void startVideoRecordPreview(Vec2 position, cocos2d::Size size)
 {
     JniMethodInfo minfo;
     bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME_RECORDER,"startRecordPreview", "(FFFF)V");
@@ -81,25 +81,25 @@ bool cancelRecording(bool notify)
     return result;
 }
 
-bool pickVideoFromLibrary(const std::string& saveName)
+bool pickVideoFromLibrary(const std::string& saveName, FileLocation location)
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME_PICKER, "pickVideoFromLibrary", "(Ljava/lang/String;)Z");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME_PICKER, "pickVideoFromLibrary", "(Ljava/lang/String;I)Z");
     CCAssert(functionExist, "Function doesn't exist");
     jstring jSaveName = minfo.env->NewStringUTF(saveName.c_str());
-    bool result = minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID, jSaveName);
+    bool result = minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID, jSaveName, (jint)location);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(jSaveName);
     return result;
 }
 
-bool pickVideoFromCamera(const std::string& saveName)
+bool pickVideoFromCamera(const std::string& saveName, FileLocation location)
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME_PICKER, "pickVideoFromCamera", "(Ljava/lang/String;)Z");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME_PICKER, "pickVideoFromCamera", "(Ljava/lang/String;I)Z");
     CCAssert(functionExist, "Function doesn't exist");
     jstring jSaveName = minfo.env->NewStringUTF(saveName.c_str());
-    bool result = minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID, jSaveName);
+    bool result = minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID, jSaveName, (jint)location);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(jSaveName);
     return result;
@@ -117,9 +117,9 @@ void getAllVideos()
 extern "C"
 {
     //extension for long name : __Ljava_lang_String_2Ljava_lang_String_2
-    void Java_com_fennex_modules_VideoPicker_notifyVideoPickedWrap(JNIEnv* env, jobject thiz, jstring name)
+    void Java_com_fennex_modules_VideoPicker_notifyVideoPickedWrap(JNIEnv* env, jobject thiz, jstring name, jint location)
     {
-        notifyVideoPicked(JniHelper::jstring2string(name));
+        notifyVideoPicked(JniHelper::jstring2string(name), (FileLocation)location);
     }
     
     void Java_com_fennex_modules_VideoPicker_notifyVideoFound(JNIEnv* env, jobject thiz, jstring name)

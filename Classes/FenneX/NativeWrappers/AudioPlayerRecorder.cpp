@@ -139,7 +139,12 @@ void AudioPlayerRecorder::recordObject(EventCustom* event)
     if(!file.empty())
     {
         std::string oldFile = infos["File"].asString();
-        this->record(file, linkTo);
+        FileLocation loc = FileLocation::ApplicationSupport; //Legacy: used to be targeted to ApplicationSupport
+        if(valueMapContains(infos, "Location", INTEGER))
+        {
+            loc = (FileLocation)infos["Location"].asInt();
+        }
+        this->record(file, loc, linkTo);
         ValueMap map = {{"OldFile", Value(oldFile)}};
         if(linkTo != NULL) map["Object"] = linkTo->getID();
         Value toSend = Value(map);
@@ -206,7 +211,7 @@ void AudioPlayerRecorder::onSoundEnded()
     }
 }
 
-void AudioPlayerRecorder::setPath(const std::string& value)
+void AudioPlayerRecorder::setPath(const std::string& value, FileLocation loc)
 {
     if(path.compare(value) != 0)
     {
@@ -221,6 +226,7 @@ void AudioPlayerRecorder::setPath(const std::string& value)
         }
 #endif
         path = value;
+        location = loc;
     }
 }
 

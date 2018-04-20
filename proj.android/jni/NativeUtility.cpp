@@ -29,8 +29,6 @@
 #include "NativeUtility.h"
 #include "platform/android/jni/JniHelper.h"
 
-USING_NS_FENNEX;
-
 #define  CLASS_NAME "com/fennex/modules/NativeUtility"
 
 NS_FENNEX_BEGIN
@@ -54,40 +52,6 @@ void discardSplashScreen()
     minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID);
     minfo.env->DeleteLocalRef(minfo.classID);
 }
-
-std::string getPublicPath(const std::string& name)
-{
-    JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "getPublicPath", "()Ljava/lang/String;");
-    CCAssert(functionExist, "Function doesn't exist");
-    
-    jstring directory = (jstring)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID);
-    
-    std::string path = JniHelper::jstring2string(directory) + "/" + name;
-    minfo.env->DeleteLocalRef(directory);
-    minfo.env->DeleteLocalRef(minfo.classID);
-    return path;
-}
-
-//Since we use this method VERY often, cache the result instead of doing a JNI Call every time
-std::string localPathCache = "";
-
-std::string getLocalPath(const std::string& name)
-{
-    if(localPathCache.length() == 0)
-    {
-        JniMethodInfo minfo;
-        bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "getLocalPath", "()Ljava/lang/String;");
-        CCAssert(functionExist, "Function doesn't exist");
-        
-        jstring directory = (jstring)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID);
-        localPathCache = JniHelper::jstring2string(directory);
-        minfo.env->DeleteLocalRef(minfo.classID);
-        minfo.env->DeleteLocalRef(directory);
-    }
-    return localPathCache + "/" + name;
-}
-
 
 std::string getOpenUrl()
 {
