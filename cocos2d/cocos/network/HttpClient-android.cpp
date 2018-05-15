@@ -146,6 +146,10 @@ public:
                 addRequestHeader(str1.c_str(), str2.c_str());
             }
         }
+        if(request->getFilePath().length() > 0)
+        {
+            addRequestHeader("Content-Length", std::to_string(FileUtils::getInstance()->getFileSize(request->getFilePath())).c_str());
+        }
         
         addCookiesForRequestHeader();
         

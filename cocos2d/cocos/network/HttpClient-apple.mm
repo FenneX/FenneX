@@ -180,7 +180,7 @@ static int processTask(HttpClient* client, HttpRequest* request, NSString* reque
             {
                 [nsrequest setHTTPBodyStream:fileStream];
                 NSUInteger fileSize = [[[[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil] objectForKey:NSFileSize] unsignedIntegerValue];
-                [nsrequest setValue:[NSString stringWithFormat:@"%u", fileSize] forHTTPHeaderField:@"Content-Length"];
+                [nsrequest setValue:[NSString stringWithFormat:@"%@", @(fileSize)] forHTTPHeaderField:@"Content-Length"];
             }
             else
             {
