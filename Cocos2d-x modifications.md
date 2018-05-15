@@ -24,7 +24,7 @@ Cocos2d-x V3.2 Modifications
 * extensions/GUI/CCeditBox/CCEditBox.cpp => fix scaling problems for fontSize and contentSize
 * extensions/GUI/CCeditBox/* => Add support for keyboard return type "Next"
 * extensions/GUI/CCeditBox/* => editBoxReturn delegate is now called only for return button on iOS
-* network/* => add POSTFILE request type
+* network/* => add POSTFILE request type, which support multipart
 
 
 Cocos2d-x V3.3 Modifications
@@ -45,7 +45,7 @@ Cocos2d-x V3.3 Modifications
 * extensions/GUI/CCeditBox/CCEditBox.cpp => fix scaling problems for fontSize and contentSize
 * ui/UIEditBox//* => Add support for keyboard return type "Next"
 * ui/UIEditBox/UIEditBox.h/.cpp => add closeKeyboard()
-* network/* => add POSTFILE request type
+* network/* => add POSTFILE request type, which support multipart
 * ui/UIEditBox/UIEditBox.h => add getBackgroundSprite() method
 * cocos/base/ccConfig.h => disable physics, tiff, webp, script binding
 * build/cocos2d_libs.xcodeproj/project.pbxproj => add armv7s architecture
@@ -88,7 +88,7 @@ Cocos2d-x V3.8.1 Modifications
 * Scale9Sprite::updateWithSprite  => comment _preferredSize = size; cause it erase information for some reason.
 * extensions/GUI/CCeditBox/* => Add support for keyboard return type "Next"
 * network/HttpClient/HttpRequest => change _requestData from std::vector<char> to std::string and add inline void setRequestData(const std::string& data)
-* network/* => add POSTFILE request type
+* network/* => add POSTFILE request type, which support multipart
 * network/HttpClient-Apple.mm => remove forced Content-type: application/x-www-form-urlencoded for PUT requests
 * Remove AudioEngine
 * AppController::didFinishLaunchingWithOptions add eaglView.opaque = NO;
@@ -113,7 +113,7 @@ Cocos2d-x V3.16 Modifications
 * Remove all code between //Enhance comment and "import com.enhance.gameservice.IGameTuningService;" in cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHelper.java
 * cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHelper.java remove if (!sInited) condition in init procedure
 * network/HttpClient/HttpRequest => change _requestData from std::vector<char> to std::string and add inline void setRequestData(const std::string& data)
-* network/* => add POSTFILE request type (include the add of set/getFilePath)
+* network/* => allow to set a file to upload in body for POST and PUT request (note: multipart is no longer supported)
 * Remove AudioEngine
 * cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHttpURLConnection.java => change setVerifySSL to return a boolean with true when succeed and false otherwise
 * cocos/network/HttpClient-android.cpp => change setVerifySSL to return a boolean with true when succeed and false otherwise

@@ -225,20 +225,37 @@ public:
     void sendRequest(HttpRequest* request)
     {
         JniMethodInfo methodInfo;
-        if (JniHelper::getStaticMethodInfo(methodInfo,
+        if(request->getFilePath().length() > 0)
+        {
+            if (JniHelper::getStaticMethodInfo(methodInfo,
+                                               "org/cocos2dx/lib/Cocos2dxHttpURLConnection",
+                                               "sendRequest",
+                                               "(Ljava/net/HttpURLConnection;Ljava/lang/String;)V"))
+            {
+                jstring jstr = methodInfo.env->NewStringUTF(request->getFilePath().c_str());
+                methodInfo.env->CallStaticVoidMethod(
+                                                     methodInfo.classID, methodInfo.methodID, _httpURLConnection, jstr);
+                methodInfo.env->DeleteLocalRef(jstr);
+                methodInfo.env->DeleteLocalRef(methodInfo.classID);
+            }
+        }
+        else
+        {
+            if (JniHelper::getStaticMethodInfo(methodInfo,
                                            "org/cocos2dx/lib/Cocos2dxHttpURLConnection",
                                            "sendRequest",
                                            "(Ljava/net/HttpURLConnection;[B)V"))
-        {
-            
-            jbyteArray bytearray;
-            ssize_t dataSize = request->getRequestDataSize();
-            bytearray = methodInfo.env->NewByteArray(dataSize);
-            methodInfo.env->SetByteArrayRegion(bytearray, 0, dataSize, (const jbyte*)request->getRequestData());
-            methodInfo.env->CallStaticVoidMethod(
-                                                 methodInfo.classID, methodInfo.methodID, _httpURLConnection, bytearray);
-            methodInfo.env->DeleteLocalRef(bytearray);
-            methodInfo.env->DeleteLocalRef(methodInfo.classID);
+            {
+                
+                jbyteArray bytearray;
+                ssize_t dataSize = request->getRequestDataSize();
+                bytearray = methodInfo.env->NewByteArray(dataSize);
+                methodInfo.env->SetByteArrayRegion(bytearray, 0, dataSize, (const jbyte*)request->getRequestData());
+                methodInfo.env->CallStaticVoidMethod(
+                                                     methodInfo.classID, methodInfo.methodID, _httpURLConnection, bytearray);
+                methodInfo.env->DeleteLocalRef(bytearray);
+                methodInfo.env->DeleteLocalRef(methodInfo.classID);
+            }
         }
     }
     

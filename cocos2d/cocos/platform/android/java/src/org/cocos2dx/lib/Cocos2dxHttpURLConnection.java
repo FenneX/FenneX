@@ -26,7 +26,9 @@ package org.cocos2dx.lib;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -160,6 +162,22 @@ public class Cocos2dxHttpURLConnection
 
     static void disconnect(HttpURLConnection http) {
         http.disconnect();
+    }
+
+    static void sendRequest(HttpURLConnection http, String filePath) {
+        try {
+            BufferedOutputStream bos = new BufferedOutputStream(http.getOutputStream());
+            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(new File(filePath)));
+            int i;
+            // read byte by byte until end of stream (which is indicated by -1)
+            while ((i = bis.read()) >= 0) {
+                bos.write(i);
+            }
+            bis.close();
+            bos.close();
+        } catch (IOException e) {
+            Log.e("URLConnection exception", e.toString());
+        }
     }
 
     static void sendRequest(HttpURLConnection http, byte[] byteArray) {

@@ -41,6 +41,8 @@
 
 @property (strong) NSString *sslFile;
 
+@property (strong) NSString *filePath;
+
 @property (copy) NSDictionary *responseHeader;
 
 @property (strong) NSMutableData *responseData;

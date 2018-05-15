@@ -169,13 +169,32 @@ static int processTask(HttpClient* client, HttpRequest* request, NSString* reque
     }
 
     //if request type is post or put,set header and data
+    NSString* filePath = nil;
     if([requestType  isEqual: @"POST"] || [requestType isEqual: @"PUT"])
-    {   
-        const char* requestDataBuffer = request->getRequestData();
-        if (nullptr !=  requestDataBuffer && 0 != request->getRequestDataSize())
+    {
+        if(request->getFilePath().length() > 0)
         {
-            NSData *postData = [NSData dataWithBytes:requestDataBuffer length:request->getRequestDataSize()];
-            [nsrequest setHTTPBody:postData];
+            filePath = [NSString stringWithFormat:@"%s", request->getFilePath().c_str()];
+            NSInputStream* fileStream = [NSInputStream inputStreamWithFileAtPath:filePath];
+            if(fileStream != nil)
+            {
+                [nsrequest setHTTPBodyStream:fileStream];
+                NSUInteger fileSize = [[[[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil] objectForKey:NSFileSize] unsignedIntegerValue];
+                [nsrequest setValue:[NSString stringWithFormat:@"%u", fileSize] forHTTPHeaderField:@"Content-Length"];
+            }
+            else
+            {
+                return 0;
+            }
+        }
+        else
+        {
+            const char* requestDataBuffer = request->getRequestData();
+            if (nullptr !=  requestDataBuffer && 0 != request->getRequestDataSize())
+            {
+                NSData *postData = [NSData dataWithBytes:requestDataBuffer length:request->getRequestDataSize()];
+                [nsrequest setHTTPBody:postData];
+            }
         }
     }
 
@@ -208,6 +227,7 @@ static int processTask(HttpClient* client, HttpRequest* request, NSString* reque
     HttpAsynConnection *httpAsynConn = [[HttpAsynConnection new] autorelease];
     httpAsynConn.srcURL = urlstring;
     httpAsynConn.sslFile = nil;
+    httpAsynConn.filePath = filePath;
     
     std::string sslCaFileName = client->getSSLVerification();
     if(!sslCaFileName.empty())

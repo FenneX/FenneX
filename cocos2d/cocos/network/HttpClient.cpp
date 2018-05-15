@@ -74,7 +74,6 @@ static int processGetTask(HttpClient* client, HttpRequest* request, write_callba
 static int processPostTask(HttpClient* client, HttpRequest* request, write_callback callback, void *stream, long *errorCode, write_callback headerCallback, void *headerStream, char* errorBuffer);
 static int processPutTask(HttpClient* client,  HttpRequest* request, write_callback callback, void *stream, long *errorCode, write_callback headerCallback, void *headerStream, char* errorBuffer);
 static int processDeleteTask(HttpClient* client,  HttpRequest* request, write_callback callback, void *stream, long *errorCode, write_callback headerCallback, void *headerStream, char* errorBuffer);
-static int processPostFileTask(HttpClient* client,  HttpRequest *request, write_callback callback, void *stream, long *errorCode, write_callback headerCallback, void *headerStream, char *errorBuffer);
 // int processDownloadTask(HttpRequest *task, write_callback callback, void *stream, int32_t *errorCode);
 
 // Worker thread
@@ -308,11 +307,35 @@ static int processGetTask(HttpClient* client, HttpRequest* request, write_callba
 static int processPostTask(HttpClient* client, HttpRequest* request, write_callback callback, void* stream, long* responseCode, write_callback headerCallback, void* headerStream, char* errorBuffer)
 {
     CURLRaii curl;
-    bool ok = curl.init(client, request, callback, stream, headerCallback, headerStream, errorBuffer)
+    bool ok = 0;
+    if(request->getFilePath().length() != 0)
+    {
+        //Warning: not tested, as iOS and Android have specific wrappers
+        //As been coded as per doc example: https://curl.haxx.se/libcurl/c/fileupload.html
+        FILE *fd = fopen(request->getFilePath(), "rb");
+        struct stat file_info;
+        if(fd == NULL || fstat(fileno(fd), &file_info) == 0)
+        { //There is an issue with the file
+            log("error, cannot open file %s or get its size during POST request", request->getFilePath().c_str());
+        }
+        else
+        {
+            ok = curl.init(client, request, callback, stream, headerCallback, headerStream, errorBuffer)
             && curl.setOption(CURLOPT_POST, 1)
-            && curl.setOption(CURLOPT_POSTFIELDS, request->getRequestData())
-            && curl.setOption(CURLOPT_POSTFIELDSIZE, request->getRequestDataSize())
+            && curl.setOption(CURLOPT_UPLOAD, 1L)
+            && curl.setOption(CURLOPT_READDATA, fd)
+            && curl.setOption(CURLOPT_INFILESIZE_LARGE, (curl_off_t)file_info.st_size)
             && curl.perform(responseCode);
+        }
+    }
+    else
+    { //If there is no file, regular PUT request
+        ok = curl.init(client, request, callback, stream, headerCallback, headerStream, errorBuffer)
+        && curl.setOption(CURLOPT_POST, 1)
+        && curl.setOption(CURLOPT_POSTFIELDS, request->getRequestData())
+        && curl.setOption(CURLOPT_POSTFIELDSIZE, request->getRequestDataSize())
+        && curl.perform(responseCode);
+    }
     return ok ? 0 : 1;
 }
 
@@ -320,11 +343,35 @@ static int processPostTask(HttpClient* client, HttpRequest* request, write_callb
 static int processPutTask(HttpClient* client, HttpRequest* request, write_callback callback, void* stream, long* responseCode, write_callback headerCallback, void* headerStream, char* errorBuffer)
 {
     CURLRaii curl;
-    bool ok = curl.init(client, request, callback, stream, headerCallback, headerStream, errorBuffer)
+    bool ok = 0;
+    if(request->getFilePath().length() != 0)
+    {
+        //Warning: not tested, as iOS and Android have specific wrappers
+        //As been coded as per doc example: https://curl.haxx.se/libcurl/c/fileupload.html
+        FILE *fd = fopen(request->getFilePath(), "rb");
+        struct stat file_info;
+        if(fd == NULL || fstat(fileno(fd), &file_info) == 0)
+        { //There is an issue with the file
+            log("error, cannot open file %s or get its size during PUT request", request->getFilePath().c_str());
+        }
+        else
+        {
+            ok = curl.init(client, request, callback, stream, headerCallback, headerStream, errorBuffer)
             && curl.setOption(CURLOPT_CUSTOMREQUEST, "PUT")
-            && curl.setOption(CURLOPT_POSTFIELDS, request->getRequestData())
-            && curl.setOption(CURLOPT_POSTFIELDSIZE, request->getRequestDataSize())
+            && curl.setOption(CURLOPT_UPLOAD, 1L)
+            && curl.setOption(CURLOPT_READDATA, fd)
+            && curl.setOption(CURLOPT_INFILESIZE_LARGE, (curl_off_t)file_info.st_size)
             && curl.perform(responseCode);
+        }
+    }
+    else
+    { //If there is no file, regular PUT request
+        ok = curl.init(client, request, callback, stream, headerCallback, headerStream, errorBuffer)
+        && curl.setOption(CURLOPT_CUSTOMREQUEST, "PUT")
+        && curl.setOption(CURLOPT_POSTFIELDS, request->getRequestData())
+        && curl.setOption(CURLOPT_POSTFIELDSIZE, request->getRequestDataSize())
+        && curl.perform(responseCode);
+    }
     return ok ? 0 : 1;
 }
 
@@ -336,29 +383,6 @@ static int processDeleteTask(HttpClient* client, HttpRequest* request, write_cal
             && curl.setOption(CURLOPT_CUSTOMREQUEST, "DELETE")
             && curl.setOption(CURLOPT_FOLLOWLOCATION, true)
             && curl.perform(responseCode);
-    return ok ? 0 : 1;
-}
-
-//Process PostFile Request
-static int processPostFileTask(HttpClient* client, HttpRequest *request, write_callback callback, void *stream, long *responseCode, write_callback headerCallback, void *headerStream, char *errorBuffer)
-{
-    struct curl_httppost *post1;
-    struct curl_httppost *postend;
-
-    post1 = NULL;
-    postend = NULL;
-    curl_formadd(&post1, &postend,
-                CURLFORM_COPYNAME, "files[]",
-                CURLFORM_FILE, request->getFilePath().c_str(),
-                CURLFORM_CONTENTTYPE, "application/octet-stream",
-                CURLFORM_END);
-    CURLRaii curl;
-    bool ok = curl.init(client, request, callback, stream, headerCallback, headerStream, errorBuffer)
-        && curl.setOption(CURLOPT_NOPROGRESS, 1L)
-        && curl.setOption(CURLOPT_MAXREDIRS, 50L)
-        && curl.setOption(CURLOPT_TCP_KEEPALIVE, 1L)
-        && curl.setOption(CURLOPT_HTTPPOST, post1)
-        && curl.perform(responseCode);
     return ok ? 0 : 1;
 }
     
@@ -581,15 +605,6 @@ void HttpClient::processResponse(HttpResponse* response, char* responseMessage)
             responseMessage);
         break;
 
-    case HttpRequest::Type::POSTFILE: // HTTP POST
-        retValue = processPostFileTask(this, request,
-            writeData,
-            response->getResponseData(),
-            &responseCode,
-            writeHeaderData,
-            response->getResponseHeader(),
-            responseMessage);
-        break;
     default:
         CCASSERT(false, "CCHttpClient: unknown request type, only GET, POST, PUT or DELETE is supported");
         break;

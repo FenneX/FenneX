@@ -225,6 +225,13 @@
     }
 }
 
+- (NSInputStream *)connection:(NSURLConnection *)connection
+            needNewBodyStream:(NSURLRequest *)request
+{
+    //DO NOT open the stream. As per doc, NSURLConnection await for an unopened stream
+    return [NSInputStream inputStreamWithFileAtPath:self.filePath];
+}
+
 @end
 
 #endif // #if (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
