@@ -74,10 +74,11 @@ void deleteFile(std::string filename, FileLocation location);
 
 /* Locking a file is useful on Android to lock a file to be sure other apps do not use it at the same time.
  * Warning: it is NOT a way to lock file from other process in the same app.
- * Since there is no way to have a file shared between apps on iOS, there is no iOS implementation, just placeholders.
+ * At the moment, the iOS implementation doesn't actually lock, but allow to read/write anyway (using FileUtils)
+ * If locking proves to be required, we will need to devise a way
 */
 
-// Return true if the file is properly locked, otherwise false. iOS will always return false
+// Return true if the file is properly locked, otherwise false. iOS will always return true
 bool lockFile(std::string filename);
 
 // Return the file contents, which must be locked otherwise. If it's not locked or on iOS, it will return an empty reponse

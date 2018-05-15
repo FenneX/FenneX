@@ -47,17 +47,17 @@ std::string getResourcesPath(const std::string& file)
 
 bool lockFile(std::string filename)
 {
-    return false;
+    return true;
 }
 
 std::string getLockedFileContents(std::string filename)
 {
-    return "";
+    return FileUtils::getInstance()->getStringFromFile(filename);
 }
 
 bool writeLockedFile(std::string filename, std::string content)
 {
-    return false;
+    return FileUtils::getInstance()->writeStringToFile(content, filename);
 }
 
 void unlockFile(std::string filename)
