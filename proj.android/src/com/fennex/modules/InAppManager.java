@@ -204,23 +204,25 @@ public class InAppManager implements ActivityResultResponder {
         Log.d(TAG, "Restore transactions");
         NativeUtility.getMainActivity().runOnGLThread(new Runnable() {
             public void run() {
-                if (mHelper == null || mInventory == null) {
-                    Log.d(TAG, "Error : not initialized");
-                    String event = "InAppSystemFailure";
-                    String argument = "NotInitialized";
-                    getInstance().notifyInAppEvent(event, argument, "", "InApps system not initialized during restoreTransaction");
-                } else {
-                    Purchase existingPurchase = mInventory.getPurchase(productID);
-                    //noinspection ConstantConditions
-                    if (existingPurchase != null && verifyDeveloperPayload(existingPurchase) && existingPurchase.getPurchaseState() == 0) {
-                        Log.d(TAG, "Restoring product");
-                        getInstance().notifyInAppEvent("ProductRestored", productID, existingPurchase.getToken(), "Restore purchase successful using restoreTransaction");
+                synchronized (this) {
+                    if (mHelper == null || mInventory == null) {
+                        Log.d(TAG, "Error : not initialized");
+                        String event = "InAppSystemFailure";
+                        String argument = "NotInitialized";
+                        getInstance().notifyInAppEvent(event, argument, "", "InApps system not initialized during restoreTransaction");
                     } else {
-                        String purchaseState = (existingPurchase == null ? "doesn't exist" :
-                                existingPurchase.getPurchaseState() == 1 ? "canceled" :
-                                        existingPurchase.getPurchaseState() == 2 ? "refunded" :
-                                                "state " + existingPurchase.getPurchaseState());
-                        getInstance().notifyInAppEvent("ErrorRestoreFailure", productID, existingPurchase == null ? "" : existingPurchase.getToken(), "Restore purchase failed during restoreTransaction, purchase state: " + purchaseState);
+                        Purchase existingPurchase = mInventory.getPurchase(productID);
+                        //noinspection ConstantConditions
+                        if (existingPurchase != null && verifyDeveloperPayload(existingPurchase) && existingPurchase.getPurchaseState() == 0) {
+                            Log.d(TAG, "Restoring product");
+                            getInstance().notifyInAppEvent("ProductRestored", productID, existingPurchase.getToken(), "Restore purchase successful using restoreTransaction");
+                        } else {
+                            String purchaseState = (existingPurchase == null ? "doesn't exist" :
+                                    existingPurchase.getPurchaseState() == 1 ? "canceled" :
+                                            existingPurchase.getPurchaseState() == 2 ? "refunded" :
+                                                    "state " + existingPurchase.getPurchaseState());
+                            getInstance().notifyInAppEvent("ErrorRestoreFailure", productID, existingPurchase == null ? "" : existingPurchase.getToken(), "Restore purchase failed during restoreTransaction, purchase state: " + purchaseState);
+                        }
                     }
                 }
             }
