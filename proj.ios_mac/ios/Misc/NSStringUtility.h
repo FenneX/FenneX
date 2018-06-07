@@ -22,10 +22,10 @@
  THE SOFTWARE.
  ****************************************************************************///
 
-#ifndef StringUtility_h
-#define StringUtility_h
+#ifndef NSStringUtility_h
+#define NSStringUtility_h
 #include <string>
 
 NSString* getNSString(std::string str);
 std::string getStdString(NSString* str);
-#endif /* StringUtility_h */
+#endif /* NSStringUtility_h */

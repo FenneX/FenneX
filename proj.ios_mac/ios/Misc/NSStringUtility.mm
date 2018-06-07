@@ -23,7 +23,7 @@
  ****************************************************************************///
 
 #import <Foundation/Foundation.h>
-#include "StringUtility.h"
+#include "NSStringUtility.h"
 #include <string>
 
 NSString* getNSString(std::string str)
