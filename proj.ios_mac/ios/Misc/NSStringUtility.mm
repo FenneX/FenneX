@@ -28,7 +28,7 @@
 
 NSString* getNSString(std::string str)
 {
-    return [NSString stringWithFormat:@"%s", str.c_str()];
+    return [NSString stringWithUTF8String:str.c_str()];
 }
 
 std::string getStdString(NSString* str)
