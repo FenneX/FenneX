@@ -93,4 +93,34 @@ void deleteFile(std::string filename, FileLocation location)
     FileUtils::getInstance()->removeFile(getFullPath(filename, location));
 }
 
+std::string getRightImageExtension(std::string filepath)
+{
+    std::string fullpath = "";
+    fullpath = FileUtils::getInstance()->fullPathForFilename(filepath + ".png");
+    if (fullpath.empty())
+    {
+        fullpath = FileUtils::getInstance()->fullPathForFilename(filepath + ".jpg");
+        if (fullpath.empty())
+        {
+            fullpath = FenneX::findFullPath(filepath + ".png");
+            if (fullpath.empty())
+            {
+                fullpath = FenneX::findFullPath(filepath + ".jpg");
+                if (fullpath.empty())
+                {
+                    log("*FileUtility* : Error while getting the extension of file %s (only .png/.jpg are supported)", filepath.c_str());
+                }
+            }
+        }
+    }
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+    std::string s = "assets/";
+    if (fullpath.find(s) == 0)
+    {
+        fullpath.replace(0, s.length(), "file:///android_asset/");
+    }
+#endif /* !CC_PLATFORM_ANDROID */
+    return fullpath;
+}
+
 NS_FENNEX_END

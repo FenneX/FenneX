@@ -62,6 +62,10 @@ std::string string_format(const std::string fmt, ...);
 // Return a new String with all oldWord occurence from the baseString changed to newWord
 std::string replaceWord(const std::string& baseString, const std::string& oldWord, const std::string& newWord);
 
+//The purpose of this function is to replace occurence of map.first with map.second in a stringTarget
+//ex: replace #insert_here# (map.first) in stringTarget with the corresponding string of the map (map.second)
+std::string  replaceStrOccurencesInString(std::map<std::string,std::string> strOccurences, std::string stringTarget);
+
 NS_FENNEX_END
 
 #endif /* defined(__FenneX__StringUtility__) */

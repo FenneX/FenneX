@@ -34,6 +34,8 @@ import android.os.ParcelFileDescriptor;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import com.fennex.modules.HtmlToPdf;
+import com.fennex.modules.NativeUtility;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -47,8 +49,6 @@ import java.io.IOException;
 public class PdfConverter {
     //Dots per inch is set to 300, which is standard for printing PDF with images with high enough resolution on most printers
     private static final int DPI = 300;
-    //Margins are in thousandths of an inch, 1000 means 2,54 cm which are approximately standard margins for MS Word document (25mm)
-    private static final int MARGINS = 1000;
 
     private static void printToPdf(Context context, final File file, String htmlString) {
         WebView mWebView = new WebView(context);
@@ -64,12 +64,24 @@ public class PdfConverter {
                             documentAdapter.onWrite(new PageRange[]{PageRange.ALL_PAGES}, PdfConverter.getOutputFileDescriptor(file), null, new PrintDocumentAdapter.WriteResultCallback() {
                                 @Override
                                 public void onWriteFinished(PageRange[] pages) {
-                                    HtmlToPdf.notifyPdfCreationSuccess(file.getName());
+                                    NativeUtility.getMainActivity().runOnGLThread(new Runnable()
+                                    {
+                                        public void run()
+                                        {
+                                            HtmlToPdf.notifyPdfCreationSuccess(file.getName());
+                                        }
+                                    });
                                     documentAdapter.onFinish();
                                 }                                
                                 @Override
                                 public void onWriteFailed(CharSequence error) {
-                                    HtmlToPdf.notifyPdfCreationFailure(file.getName(), "WritePDFFailed");
+                                    NativeUtility.getMainActivity().runOnGLThread(new Runnable()
+                                    {
+                                        public void run()
+                                        {
+                                            HtmlToPdf.notifyPdfCreationFailure(file.getName(), "WritePDFFailed");
+                                        }
+                                    });
                                     documentAdapter.onFinish();
                                 }
 
@@ -77,13 +89,25 @@ public class PdfConverter {
                         }
                         catch (IOException e)
                         {
-                            HtmlToPdf.notifyPdfCreationFailure(file.getName(), "WritePDFFailed");
+                            NativeUtility.getMainActivity().runOnGLThread(new Runnable()
+                            {
+                                public void run()
+                                {
+                                    HtmlToPdf.notifyPdfCreationFailure(file.getName(), "RenderFailed");
+                                }
+                            });
                             documentAdapter.onFinish();
                         }
                     }
                     @Override
                     public void  onLayoutFailed(CharSequence error)   {
-                        HtmlToPdf.notifyPdfCreationFailure(file.getName(), "RenderFailed");
+                        NativeUtility.getMainActivity().runOnGLThread(new Runnable()
+                        {
+                            public void run()
+                            {
+                                HtmlToPdf.notifyPdfCreationFailure(file.getName(), "RenderFailed");
+                            }
+                        });
                         documentAdapter.onFinish();
                     }
                 }, null);
@@ -94,11 +118,11 @@ public class PdfConverter {
     }
 
     private static PrintAttributes getPdfPrintAttrs() {
-        PrintAttributes.Margins m = new PrintAttributes.Margins(MARGINS, MARGINS, MARGINS, MARGINS);
+        //PrintAttributes.Margins m = new PrintAttributes.Margins(0, 0, 0, 0);
         return new PrintAttributes.Builder()
                     .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
                     .setResolution(new PrintAttributes.Resolution("RESOLUTION_ID", "RESOLUTION_ID", DPI, DPI))
-                    .setMinMargins(m)
+                    .setMinMargins(PrintAttributes.Margins.NO_MARGINS)
                     .build();
 
     }

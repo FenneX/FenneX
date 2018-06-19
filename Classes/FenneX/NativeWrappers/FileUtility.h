@@ -105,6 +105,11 @@ bool moveFileToLocalDirectory(std::string path);
 // Empty implementation in iOS because there is no global shared disk space
 bool moveFile(std::string path, std::string destinationFolder);
 
+//This function is used to get the right full path of an image file with its extension
+//For the time being, this function only support ".jpg" and ".png"
+
+std::string  getRightImageExtension(std::string filepath);
+
 /**
  * Launch a pick file activity on Android. It can be empty
  * This doesn't launch anything on iOS since ios is not capable of that thing. (you will not receive a "FilePicked" event)

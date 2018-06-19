@@ -53,12 +53,18 @@ public class HtmlToPdf {
     }
 
     @SuppressWarnings("unused")
-    private static void convert(String htmlString, String fileName) {
+    private static void convert(String htmlString, final String fileName) {
         File destinationFile;
         File path = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_DOCUMENTS);
         if (!path.exists()) {
             if (!path.mkdirs()) {
-                notifyPdfCreationFailure(fileName, "CreateDirectoryFailed");
+                NativeUtility.getMainActivity().runOnGLThread(new Runnable()
+                {
+                    public void run()
+                    {
+                        HtmlToPdf.notifyPdfCreationFailure(fileName, "CreateDirectoryFailed");
+                    }
+                });
                 return;
             }
         }
