@@ -282,4 +282,21 @@ std::string replaceWord(const std::string& baseString, const std::string& oldWor
     return returnValue;
 }
 
+std::string replaceStrOccurencesInString(std::map<std::string, std::string> strOccurences, std::string stringTarget)
+{
+    for (auto str : strOccurences)
+    {
+        size_t pos = stringTarget.find(str.first);
+        if (pos != std::string::npos)
+        {
+            stringTarget.replace(pos, str.first.length(), str.second);
+        }
+        else
+        {
+            log("StringUtility : Unable de insert %s in the targeted string, can't find %s", str.second.c_str(), str.first.c_str());
+        }
+    }
+    return stringTarget;
+}
+
 NS_FENNEX_END

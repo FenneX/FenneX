@@ -189,8 +189,8 @@ public class InAppManager implements ActivityResultResponder {
                     mHelper.flagEndAsync();
                 }
                 try {
-                    Purchase purchase = mInventory.getPurchase(productID);
-                    mHelper.launchPurchaseFlow(NativeUtility.getMainActivity(), productID, purchase != null ? purchase.getItemType() : IabHelper.ITEM_TYPE_INAPP, RC_REQUEST,
+                    SkuDetails skuDetails = mInventory.getSkuDetails(productID);
+                    mHelper.launchPurchaseFlow(NativeUtility.getMainActivity(), productID, skuDetails != null ? skuDetails.getType() : IabHelper.ITEM_TYPE_INAPP, RC_REQUEST,
                                 mPurchaseFinishedListener, payload);
                 } catch (IllegalStateException e) {
                     Log.e("InAppManager", "Illegal state exception : " + e.getMessage());
@@ -204,23 +204,25 @@ public class InAppManager implements ActivityResultResponder {
         Log.d(TAG, "Restore transactions");
         NativeUtility.getMainActivity().runOnGLThread(new Runnable() {
             public void run() {
-                if (mHelper == null || mInventory == null) {
-                    Log.d(TAG, "Error : not initialized");
-                    String event = "InAppSystemFailure";
-                    String argument = "NotInitialized";
-                    getInstance().notifyInAppEvent(event, argument, "", "InApps system not initialized during restoreTransaction");
-                } else {
-                    Purchase existingPurchase = mInventory.getPurchase(productID);
-                    //noinspection ConstantConditions
-                    if (existingPurchase != null && verifyDeveloperPayload(existingPurchase) && existingPurchase.getPurchaseState() == 0) {
-                        Log.d(TAG, "Restoring product");
-                        getInstance().notifyInAppEvent("ProductRestored", productID, existingPurchase.getToken(), "Restore purchase successful using restoreTransaction");
+                synchronized (this) {
+                    if (mHelper == null || mInventory == null) {
+                        Log.d(TAG, "Error : not initialized");
+                        String event = "InAppSystemFailure";
+                        String argument = "NotInitialized";
+                        getInstance().notifyInAppEvent(event, argument, "", "InApps system not initialized during restoreTransaction");
                     } else {
-                        String purchaseState = (existingPurchase == null ? "doesn't exist" :
-                                existingPurchase.getPurchaseState() == 1 ? "canceled" :
-                                        existingPurchase.getPurchaseState() == 2 ? "refunded" :
-                                                "state " + existingPurchase.getPurchaseState());
-                        getInstance().notifyInAppEvent("ErrorRestoreFailure", productID, existingPurchase == null ? "" : existingPurchase.getToken(), "Restore purchase failed during restoreTransaction, purchase state: " + purchaseState);
+                        Purchase existingPurchase = mInventory.getPurchase(productID);
+                        //noinspection ConstantConditions
+                        if (existingPurchase != null && verifyDeveloperPayload(existingPurchase) && existingPurchase.getPurchaseState() == 0) {
+                            Log.d(TAG, "Restoring product");
+                            getInstance().notifyInAppEvent("ProductRestored", productID, existingPurchase.getToken(), "Restore purchase successful using restoreTransaction");
+                        } else {
+                            String purchaseState = (existingPurchase == null ? "doesn't exist" :
+                                    existingPurchase.getPurchaseState() == 1 ? "canceled" :
+                                            existingPurchase.getPurchaseState() == 2 ? "refunded" :
+                                                    "state " + existingPurchase.getPurchaseState());
+                            getInstance().notifyInAppEvent("ErrorRestoreFailure", productID, existingPurchase == null ? "" : existingPurchase.getToken(), "Restore purchase failed during restoreTransaction, purchase state: " + purchaseState);
+                        }
                     }
                 }
             }
@@ -334,8 +336,9 @@ public class InAppManager implements ActivityResultResponder {
             Log.w(TAG, "mInventory is null, can't get products infos");
             return new String[0];
         }
+
         SkuDetails details = mInventory.getAllSku().get(productId);
-        Log.i("InAppManager", "Price String : " + details.getPrice());
+        Log.i("InAppManager", "Price String : " + details.getPrice() + ", type : " + details.getType());
         NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance();
         Number price = null;
         try {
@@ -435,7 +438,7 @@ public class InAppManager implements ActivityResultResponder {
                         } else if (result.getResponse() == IabHelper.IABHELPER_VERIFICATION_FAILED) {
                             getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload", purchase.getToken(), "IABHelper verification failed during purchaseFinished");
                         } else {
-                            getInstance().notifyInAppEvent("ErrorTransactionFailure", "Failure", purchase.getToken(), "Unhandled error during purchaseFinished: " + IABCodeToString(result.getResponse()) + ", code:" + result.getResponse());
+                            getInstance().notifyInAppEvent("ErrorTransactionFailure", "Failure", purchase != null ? purchase.getToken() : "", "Unhandled error during purchaseFinished: " + IABCodeToString(result.getResponse()) + ", code:" + result.getResponse());
                         }
                         return;
                     }
@@ -446,11 +449,11 @@ public class InAppManager implements ActivityResultResponder {
                         return;
                     }
 
-                    if (purchase.getPurchaseState() == 1) //CANCELED
+                    if (purchase != null && purchase.getPurchaseState() == 1) //CANCELED
                     {
                         getInstance().notifyInAppEvent("PayementCanceledTransactionFailure", purchase.getSku(), purchase.getToken(), "Purchase cancelled by developer during purchaseFinished");
                         Log.d(TAG, "Purchase cancelled.");
-                    } else if (purchase.getPurchaseState() == 2) //REFUNDED
+                    } else if (purchase != null && purchase.getPurchaseState() == 2) //REFUNDED
                     {
 
                         getInstance().notifyInAppEvent("ProductRefunded", purchase.getSku(), purchase.getToken(), "Purchase refunded during purchaseFinished");
