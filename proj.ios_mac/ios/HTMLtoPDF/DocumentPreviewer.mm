@@ -28,6 +28,7 @@
 #import "RootViewController.h"
 #import <string>
 #import "FenneX.h"
+#import "NSStringUtility.h"
 
 @implementation DocumentPreviewer
 
@@ -37,8 +38,8 @@
     
     self.documentInteractionController = [UIDocumentInteractionController interactionControllerWithURL:URL];
     UIViewController* rootVC = [AppController sharedController].viewController;
-    
-    return [self.documentInteractionController presentOpenInMenuFromRect:CGRectZero inView:rootVC.view animated:YES];
+    CGRect aRect = CGRectMake(0, 0, 1024, 250);
+    return [self.documentInteractionController presentOpenInMenuFromRect:aRect inView:rootVC.view animated:YES];
 }
 @end
 

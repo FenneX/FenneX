@@ -43,7 +43,7 @@ USING_NS_CC;
  * OpenPreviewFailed: (iOS) Failed opening the document previewer menu
 * Errors listed above will call notifyPdfCreationFailure with the specific failureCause from the list
 */
-void createPdfFromHtml(std::string htmlString, std::string pdfName);
+void createPdfFromHtml(std::string htmlString, std::string pdfName, std::string pdfSize);
 
 static inline void notifyPdfCreationSuccess(std::string pdfName)
 {

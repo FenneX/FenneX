@@ -53,7 +53,7 @@ public class HtmlToPdf {
     }
 
     @SuppressWarnings("unused")
-    private static void convert(String htmlString, final String fileName) {
+    private static void convert(String htmlString, final String fileName, String pageSize) {
         File destinationFile;
         File path = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_DOCUMENTS);
         if (!path.exists()) {
@@ -71,6 +71,7 @@ public class HtmlToPdf {
         destinationFile = new File(path, findAvailableName(fileName));
         PdfConverter.convert(NativeUtility.getMainActivity(),
                     htmlString,
-                    destinationFile);
+                    destinationFile,
+                    pageSize);
         }
 }

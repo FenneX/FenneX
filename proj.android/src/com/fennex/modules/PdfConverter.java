@@ -47,8 +47,9 @@ import java.io.IOException;
  */
 
 public class PdfConverter {
-    //Dots per inch is set to 300, which is standard for printing PDF with images with high enough resolution on most printers
-    private static final int DPI = 300;
+    //Dots per inch is set to 72, which is standard for PDF in screen resolution. We do not use 300 because it won't make a big difference for home printers
+    private static final int DPI = 72;
+    private static PrintAttributes.MediaSize format = PrintAttributes.MediaSize.ISO_A4;
 
     private static void printToPdf(Context context, final File file, String htmlString) {
         WebView mWebView = new WebView(context);
@@ -120,21 +121,26 @@ public class PdfConverter {
     private static PrintAttributes getPdfPrintAttrs() {
         //PrintAttributes.Margins m = new PrintAttributes.Margins(0, 0, 0, 0);
         return new PrintAttributes.Builder()
-                    .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
+                    .setMediaSize(format)
                     .setResolution(new PrintAttributes.Resolution("RESOLUTION_ID", "RESOLUTION_ID", DPI, DPI))
                     .setMinMargins(PrintAttributes.Margins.NO_MARGINS)
                     .build();
 
     }
 
-    public static void convert(final Activity activity, final String htmlString, final File file) {
+    public static void convert(final Activity activity, final String htmlString, final File file, final String pageSize) {
         if (activity == null)
             throw new IllegalArgumentException("PdfConverter.convert: activity can't be null");
         if (file == null)
             throw new IllegalArgumentException("PdfConverter.convert: file can't be null");
         if (htmlString == null)
             throw new IllegalArgumentException("PdfConverter.convert: htmlString can't be null");
-
+        if (pageSize.equals("A3"))
+            format = PrintAttributes.MediaSize.ISO_A3;
+        else if (pageSize.equals("A4"))
+            format = PrintAttributes.MediaSize.ISO_A4;
+        else
+            throw new IllegalArgumentException("PdfConverter.convert: page size not recognized. Only A4 and A3 are supported");
         // printToPdf method has to be runned on UI Thread in order to allocate a WebView
         activity.runOnUiThread(new Runnable() {
             @Override
