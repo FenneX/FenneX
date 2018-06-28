@@ -25,11 +25,7 @@
 #include "AudioPlayerRecorder.h"
 #import "AudioPlayerRecorderImplIOS.h"
 #import "NSFileManager+ApplicationSupport.h"
-
-NSString* getNSString(std::string path)
-{
-    return [NSString stringWithFormat:@"%s", path.c_str()];
-}
+#import "NSStringUtility.h"
 
 float AudioPlayerRecorder::getSoundDuration(const std::string& file)
 {
