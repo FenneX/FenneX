@@ -279,6 +279,26 @@ long FileUtilsAndroid::getFileSize(const std::string& filepath)
     return size;
 }
 
+std::vector<std::string> FileUtilsAndroid::listFiles(const std::string& dirPath) const
+{
+    if (dirPath.find(_defaultResRootPath) == 0 && FileUtilsAndroid::assetmanager)
+    { // If we are looking at assets, use AAssetManager directly instead
+        std::vector<std::string> files;
+        const char* s = dirPath.c_str();
+        s += ASSETS_FOLDER_NAME_LENGTH;
+        AAssetDir* aa = AAssetManager_openDir(FileUtilsAndroid::assetmanager, s);
+        const char* filename = AAssetDir_getNextFileName(aa);
+        while (filename)
+        {
+            files.push_back(dirPath + "/" + filename);
+            filename = AAssetDir_getNextFileName(aa);
+        }
+        AAssetDir_close(aa);
+        return files;
+    }
+    return FileUtils::listFiles(dirPath);
+}
+
 FileUtils::Status FileUtilsAndroid::getContents(const std::string& filename, ResizableBuffer* buffer)
 {
     EngineDataManager::onBeforeReadFile();
