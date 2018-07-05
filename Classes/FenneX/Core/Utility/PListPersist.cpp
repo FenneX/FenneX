@@ -244,16 +244,8 @@ Value loadValueFromFile(std::string fileName, FileLocation location)
 #if VERBOSE_LOAD_PLIST
     log("local path : %s", getLocalPath(fileName).c_str());
 #endif
-    std::string charbuffer = "";
     std::string path = getFullPath(fileName, location);
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-    if(location == FileLocation::Resources)
-    {
-        ssize_t bufferSize = 0;
-        //Load file from apk
-        charbuffer = FileUtils::getInstance()->getStringFromFile(fileName);
-    }
-#endif
+    std::string charbuffer = FileUtils::getInstance()->getStringFromFile(path);
 #if VERBOSE_LOAD_PLIST
     log("Loading from path :\n%s", path.c_str());
 #endif
@@ -269,24 +261,7 @@ Value loadValueFromFile(std::string fileName, FileLocation location)
     if(parse_result.status != status_ok)
     {
         Value emptyVal;
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-        if(location == FileLocation::Resources)
-        {
-            log("Copying resource file to local ...");
-            copyResourceFileToLocal(fileName);
-        }
-        parse_result = doc.load_file(getLocalPath(fileName).c_str());
-#if VERBOSE_LOAD_PLIST
-        log("parse result after copy : %d", parse_result.status);
-#endif
-
-        if(parse_result.status != status_ok)
-        {
-            return emptyVal;
-        }
-#else
         return emptyVal;
-#endif
     }
 #if VERBOSE_LOAD_PLIST
     log("Document loaded, parsing it");
