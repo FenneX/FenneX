@@ -126,3 +126,4 @@ Cocos2d-x V3.16 Modifications
 * remove web folder and templates folder
 * cocos/2d/CCRenderTexture.cpp => in saveToFile, avoid using writable path when it's already an absolute path
 * cocos/platform/CCFileUtils.cpp => in renameFile, make the cclogerror useful by showing errno
+* cocos/platform/android/CCFileUtils-android.H/.cpp => add support for listFiles in Android assets
