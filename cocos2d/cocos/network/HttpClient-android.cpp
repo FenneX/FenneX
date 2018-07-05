@@ -642,10 +642,11 @@ void HttpClient::processResponse(HttpResponse* response, char* responseMessage)
 
     if (HttpRequest::Type::GET != requestType &&
         HttpRequest::Type::POST != requestType &&
+        HttpRequest::Type::PATCH != requestType &&
         HttpRequest::Type::PUT != requestType &&
         HttpRequest::Type::DELETE != requestType)
     {
-        CCASSERT(true, "CCHttpClient: unknown request type, only GET、POST、PUT、DELETE are supported");
+        CCASSERT(true, "CCHttpClient: unknown request type, only GET、POST、PATCH、PUT、DELETE are supported");
         return;
     }
 
@@ -669,6 +670,10 @@ void HttpClient::processResponse(HttpResponse* response, char* responseMessage)
         case HttpRequest::Type::POST:
             urlConnection.setRequestMethod("POST");
             break;
+            
+        case HttpRequest::Type::PATCH:
+            urlConnection.setRequestMethod("PATCH");
+            break;
 
         case HttpRequest::Type::PUT:
             urlConnection.setRequestMethod("PUT");
@@ -691,6 +696,7 @@ void HttpClient::processResponse(HttpResponse* response, char* responseMessage)
     }
 
     if (HttpRequest::Type::POST == requestType ||
+        HttpRequest::Type::PATCH == requestType ||
         HttpRequest::Type::PUT == requestType)
     {
         urlConnection.sendRequest(request);

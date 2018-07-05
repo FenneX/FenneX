@@ -72,6 +72,7 @@ static size_t writeHeaderData(void *ptr, size_t size, size_t nmemb, void *stream
 
 static int processGetTask(HttpClient* client, HttpRequest* request, write_callback callback, void *stream, long *errorCode, write_callback headerCallback, void *headerStream, char* errorBuffer);
 static int processPostTask(HttpClient* client, HttpRequest* request, write_callback callback, void *stream, long *errorCode, write_callback headerCallback, void *headerStream, char* errorBuffer);
+static int processPatchTask(HttpClient* client,  HttpRequest* request, write_callback callback, void *stream, long *errorCode, write_callback headerCallback, void *headerStream, char* errorBuffer);
 static int processPutTask(HttpClient* client,  HttpRequest* request, write_callback callback, void *stream, long *errorCode, write_callback headerCallback, void *headerStream, char* errorBuffer);
 static int processDeleteTask(HttpClient* client,  HttpRequest* request, write_callback callback, void *stream, long *errorCode, write_callback headerCallback, void *headerStream, char* errorBuffer);
 // int processDownloadTask(HttpRequest *task, write_callback callback, void *stream, int32_t *errorCode);
@@ -336,6 +337,19 @@ static int processPostTask(HttpClient* client, HttpRequest* request, write_callb
         && curl.setOption(CURLOPT_POSTFIELDSIZE, request->getRequestDataSize())
         && curl.perform(responseCode);
     }
+    return ok ? 0 : 1;
+}
+    
+//Process PATCH Request
+static int processPatchTask(HttpClient* client, HttpRequest* request, write_callback callback, void* stream, long* responseCode, write_callback headerCallback, void* headerStream, char* errorBuffer)
+{
+    CURLRaii curl;
+    //Warning: not tested, as iOS and Android have specific wrappers
+    bool ok = curl.init(client, request, callback, stream, headerCallback, headerStream, errorBuffer)
+        && setOption(CURLOPT_CUSTOMREQUEST, "PATCH")
+        && curl.setOption(CURLOPT_POSTFIELDS, request->getRequestData())
+        && curl.setOption(CURLOPT_POSTFIELDSIZE, request->getRequestDataSize())
+        && curl.perform(responseCode);
     return ok ? 0 : 1;
 }
 

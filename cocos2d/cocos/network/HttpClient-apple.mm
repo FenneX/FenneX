@@ -170,7 +170,7 @@ static int processTask(HttpClient* client, HttpRequest* request, NSString* reque
 
     //if request type is post or put,set header and data
     NSString* filePath = nil;
-    if([requestType  isEqual: @"POST"] || [requestType isEqual: @"PUT"])
+    if([requestType  isEqual: @"POST"] || [requestType isEqual: @"PATCH"] || [requestType isEqual: @"PUT"])
     {
         if(request->getFilePath().length() > 0)
         {
@@ -517,6 +517,10 @@ void HttpClient::processResponse(HttpResponse* response, char* responseMessage)
 
         case HttpRequest::Type::POST: // HTTP POST
             requestType = @"POST";
+            break;
+            
+        case HttpRequest::Type::PATCH:
+            requestType = @"PATCH";
             break;
 
         case HttpRequest::Type::PUT:

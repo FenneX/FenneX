@@ -72,8 +72,8 @@ public:
         GET,
         POST,
         PUT,
+        PATCH,
         DELETE,
-        POSTFILE,
         UNKNOWN,
     };
 
