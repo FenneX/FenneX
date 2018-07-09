@@ -49,6 +49,8 @@ bool canOpenDocumentWithURL(NSURL *url)
     return canOpen;
 }
 
+void openPDFWithExternalApp(std::string fileName) {}
+
 void createPdfFromHtml(std::string htmlString, std::string pdfName, std::string pageSize)
 {
     // This chunk of code is to ensure that the created PDF will be readable by one of the installed app on the device, if not, the PDF won't be created

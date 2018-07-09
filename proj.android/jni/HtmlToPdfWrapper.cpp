@@ -43,6 +43,15 @@ void createPdfFromHtml(std::string htmlString, std::string pdfName, std::string 
     minfo.env->DeleteLocalRef(jpageSize);
 }
 
+void openPDFWithExternalApp(std::string fileName)
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "openPDFWithApp", "(Ljava/lang/String;)V");
+    jstring jname = minfo.env->NewStringUTF(fileName.c_str());
+    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jname);
+    minfo.env->DeleteLocalRef(jname);
+}
+
 extern "C"
 {
     void Java_com_fennex_modules_HtmlToPdf_notifyPdfCreationFailure(JNIEnv* env, jobject thiz, jstring pdfName, jstring failureCause)

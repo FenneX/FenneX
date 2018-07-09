@@ -45,6 +45,8 @@ USING_NS_CC;
 */
 void createPdfFromHtml(std::string htmlString, std::string pdfName, std::string pdfSize);
 
+void openPDFWithExternalApp(std::string fileName);
+
 static inline void notifyPdfCreationSuccess(std::string pdfName)
 {
     Value toSend = Value(ValueMap({ {"PdfName", Value(pdfName)} }));
