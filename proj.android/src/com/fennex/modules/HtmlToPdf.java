@@ -56,7 +56,7 @@ public class HtmlToPdf {
     }
 
     @SuppressWarnings("unused")
-    private static void convert(String htmlString, final String fileName, String pageSize) {
+    private static void convert(String htmlString, final String fileName, int pageSize) {
         File destinationFile;
         File path = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_DOCUMENTS);
         if (!path.exists()) {
@@ -82,8 +82,7 @@ public class HtmlToPdf {
     private static void openPDFWithApp(String fileName)
         {
             Intent target = new Intent(Intent.ACTION_VIEW);
-            target.setDataAndType(Uri.fromFile(new File(Environment.getExternalStorageDirectory() + "/Documents/" + fileName)),"application/pdf");
-            target.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+            target.setDataAndType(Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/" + fileName)),"application/pdf");
 
             Intent intent = Intent.createChooser(target, "Open File");
             try {

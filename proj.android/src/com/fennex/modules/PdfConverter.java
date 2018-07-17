@@ -26,6 +26,7 @@
  * This file package should be com.fennex.modules, however it is required to be part of android.print so we can use the object PrintDocumentAdapter
  */
 
+
 package android.print;
 
 import android.app.Activity;
@@ -119,7 +120,6 @@ public class PdfConverter {
     }
 
     private static PrintAttributes getPdfPrintAttrs() {
-        //PrintAttributes.Margins m = new PrintAttributes.Margins(0, 0, 0, 0);
         return new PrintAttributes.Builder()
                     .setMediaSize(format)
                     .setResolution(new PrintAttributes.Resolution("RESOLUTION_ID", "RESOLUTION_ID", DPI, DPI))
@@ -128,16 +128,16 @@ public class PdfConverter {
 
     }
 
-    public static void convert(final Activity activity, final String htmlString, final File file, final String pageSize) {
+    public static void convert(final Activity activity, final String htmlString, final File file, final int pageSize) {
         if (activity == null)
             throw new IllegalArgumentException("PdfConverter.convert: activity can't be null");
         if (file == null)
             throw new IllegalArgumentException("PdfConverter.convert: file can't be null");
         if (htmlString == null)
             throw new IllegalArgumentException("PdfConverter.convert: htmlString can't be null");
-        if (pageSize.equals("A3"))
+        if (pageSize == 1)
             format = PrintAttributes.MediaSize.ISO_A3;
-        else if (pageSize.equals("A4"))
+        else if (pageSize == 2)
             format = PrintAttributes.MediaSize.ISO_A4;
         else
             throw new IllegalArgumentException("PdfConverter.convert: page size not recognized. Only A4 and A3 are supported");

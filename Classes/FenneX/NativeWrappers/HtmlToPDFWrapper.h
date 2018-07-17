@@ -25,8 +25,8 @@
 #ifndef HtmlToPDFWrapper_h
 #define HtmlToPDFWrapper_h
 
-#include <iostream>
 #include "cocos2d.h"
+
 USING_NS_CC;
 
 /*
@@ -43,8 +43,11 @@ USING_NS_CC;
  * OpenPreviewFailed: (iOS) Failed opening the document previewer menu
 * Errors listed above will call notifyPdfCreationFailure with the specific failureCause from the list
 */
-void createPdfFromHtml(std::string htmlString, std::string pdfName, std::string pdfSize);
+void createPdfFromHtml(std::string htmlString, std::string pdfName, int pageSize);
 
+//This function is called when the button "Ouvrir" of the last export to PDF pop up is triggered on Android
+//This allow to open the newly created PDF in an external app
+//This function is not implemented on iOS as there's no pop up to notify the saving path of the PDF (no filesystem on iOS), instead the native iOS pop up regarding actions with external app will be automatically triggered at the end of the PDF rendering
 void openPDFWithExternalApp(std::string fileName);
 
 static inline void notifyPdfCreationSuccess(std::string pdfName)

@@ -28,19 +28,17 @@ THE SOFTWARE.
 
 #define CLASS_NAME "com/fennex/modules/HtmlToPdf"
 
-void createPdfFromHtml(std::string htmlString, std::string pdfName, std::string pageSize)
+void createPdfFromHtml(std::string htmlString, std::string pdfName, int pageSize)
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "convert", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "convert", "(Ljava/lang/String;Ljava/lang/String;I)V");
     CCAssert(functionExist, "Function doesn't exist");
     jstring jpath = minfo.env->NewStringUTF(pdfName.c_str());
     jstring jhtml = minfo.env->NewStringUTF(htmlString.c_str());
-    jstring jpageSize = minfo.env->NewStringUTF(pageSize.c_str());
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jhtml, jpath, jpageSize);
+    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jhtml, jpath, pageSize);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(jpath);
     minfo.env->DeleteLocalRef(jhtml);
-    minfo.env->DeleteLocalRef(jpageSize);
 }
 
 void openPDFWithExternalApp(std::string fileName)

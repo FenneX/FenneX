@@ -49,9 +49,11 @@ bool canOpenDocumentWithURL(NSURL *url)
     return canOpen;
 }
 
+//This function is implemented here just to avoid compilation errors but is never called on iOS (This is only for Android)
+//See HTMLtoPDFWrapper.h for more informations
 void openPDFWithExternalApp(std::string fileName) {}
 
-void createPdfFromHtml(std::string htmlString, std::string pdfName, std::string pageSize)
+void createPdfFromHtml(std::string htmlString, std::string pdfName, int pageSize)
 {
     // This chunk of code is to ensure that the created PDF will be readable by one of the installed app on the device, if not, the PDF won't be created
     CCAssert(canOpenDocumentWithURL([NSURL fileURLWithPath:getNSString(FenneX::getLocalPath(".pdf"))]), "HTMLtoPDF: No appropriate app to open PDF files has been found on your device, please make sure you have iOS version > 10.10 installed or any PDF reading app before calling this method");
@@ -61,7 +63,7 @@ void createPdfFromHtml(std::string htmlString, std::string pdfName, std::string 
     NSString* pdfPath = [NSString stringWithFormat:@"%@/%@", applicationDocumentsDirectory(), getNSString(pdfName)];
     NSURL* directory = [NSURL URLWithString:getNSString(FenneX::getLocalPath(""))];
     
-    if (pageSize == "A4")
+    if (pageSize == 1)
     {
         HTMLtoPDF *pdfCreator = [HTMLtoPDF createPDFWithHTML:getNSString(htmlString)
                                              inDirectory:directory
