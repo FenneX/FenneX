@@ -108,7 +108,6 @@ public class VideoPicker implements ActivityResultResponder {
         try
         {
             Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             isPending = true;
             NativeUtility.getMainActivity().startActivityForResult(intent, CAMERA_CAPTURE);
         }
