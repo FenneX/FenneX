@@ -170,6 +170,15 @@ public:
     Vec2 getRealPosition(RawObject* obj);
     Vec2 getCenterRealPosition(RawObject* obj);
     bool isWorldVisible(RawObject* obj);
+    
+    /* The purpose of this function is to determine if the object obj, at position pos is within the limit of its parent clippingNode
+    ** It will return true on the following circumstances:
+    ** - the object position is still in the clippingNode boundaries
+    ** - the object in not contained in a clippingNode
+    ** It will return false on the following circumstances:
+    ** - the object has a clippingNode set and is out of the clippingNode boundaries */
+    bool isInClippingNode(RawObject *obj, Vec2 pos);
+    
     float getRealScale(RawObject* obj);
     float getRealScaleX(RawObject* obj);
     float getRealScaleY(RawObject* obj);
