@@ -41,6 +41,9 @@ public:
     //WARNING : experimental method, used to replace the standard node by a ClippingNode
     void setNode(Node* node);
     void setClippingNode(); //Will replace itself by a ClippingNode with a DrawNode stencil using ContentSize
+    //This function is solely used to determine if the current panel has used setClippingNode() and is therefore a clippingNode()
+    //This function is currently only used to avoid images being clickable while they are out of there parent cropNode
+    bool isACropNode();
     
     Panel(std::string panelName, Vec2 location);
     Panel(Node* node, std::string panelName = "");
@@ -64,7 +67,7 @@ public:
 protected:
     //the actual rendering layer for graphic objects stored
     Node* delegate;
-    
+
     //Array containing graphic objects
     Vector<RawObject*> children;
 };

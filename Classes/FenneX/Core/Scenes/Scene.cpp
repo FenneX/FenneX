@@ -546,6 +546,7 @@ Image* Scene::getButtonAtPosition(Vec2 position, bool state)
             !obj->getEventName().empty() &&
             obj->getEventName()[0] != '\0' &&
             GraphicLayer::sharedLayer()->isWorldVisible(obj) &&
+            GraphicLayer::sharedLayer()->isInClippingNode(obj, position) && //This was added especially for scrolling to avoid item moving out of the parent cropNode boundaries being clickable (and therefore change their color to their selected form "-on" even if we click them out of the scrolling zone defined by the cropNode content size)
             obj->collision(GraphicLayer::sharedLayer()->getPositionRelativeToObject(position, obj)))
         {
             std::string file = ((Image*)obj)->getFile();

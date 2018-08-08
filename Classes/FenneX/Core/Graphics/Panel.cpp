@@ -59,6 +59,11 @@ void Panel::setNode(Node* node)
     delegate->retain();
 }
 
+bool Panel::isACropNode()
+{
+    return dynamic_cast<ClippingNode*>(this->delegate) != nullptr;
+}
+
 void Panel::setClippingNode()
 {
     ClippingNode* clipNode = ClippingNode::create();

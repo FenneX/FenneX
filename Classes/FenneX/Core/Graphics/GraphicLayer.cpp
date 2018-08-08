@@ -975,6 +975,19 @@ Vec2 GraphicLayer::getCenterRealPosition(RawObject* obj)
     return realPosition;
 }
 
+bool GraphicLayer::isInClippingNode(FenneX::RawObject *obj, cocos2d::Vec2 pos)
+{
+    Panel* parent = GraphicLayer::sharedLayer()->getContainingPanel(obj);
+    while(parent != NULL)
+    {
+        if (parent->isACropNode() && !GraphicLayer::sharedLayer()->collision(pos, parent))
+        {
+            return false;
+        }
+        parent = GraphicLayer::sharedLayer()->getContainingPanel(parent);
+    }
+    return true;
+}
 
 bool GraphicLayer::isWorldVisible(RawObject* obj)
 {
@@ -1031,7 +1044,7 @@ float GraphicLayer::getRealScaleY(RawObject* obj)
         realScale *= parent->getScaleY();
         parent = this->getContainingPanel(parent);
     }
-    //In addition to panels, base Layer scale must be taken in account
+    //In addition to panels, base Layer scale must be taken into account
     realScale *= layer->getScaleY();
     return realScale;
 }
@@ -1054,7 +1067,8 @@ bool GraphicLayer::touchAtPosition(Vec2 position, bool event)
         }
         RawObject* obj = storedObjects.at(i);
         Node* node = obj->getNode();
-        if(node != nullptr && node->isVisible() && obj->collision(this->getPositionRelativeToObject(position, obj)))
+        // isInClippingNode(obj, position) was added to make objects non-clickable when they are contained in a clippingNode and are moved out of its boundaries (this is mainly for scrolling)
+        if(node != nullptr && node->isVisible() && obj->collision(this->getPositionRelativeToObject(position, obj)) && isInClippingNode(obj, position))
         {
             bool parentVisible = true;
             RawObject* parent = this->getContainingPanel(obj);
