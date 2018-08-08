@@ -129,6 +129,16 @@ public class FileUtility implements ActivityResultResponder {
         return context.getFilesDir().getPath();
     }
 
+    public static void deleteFile(String filename)
+    {
+        unlockFile(filename);
+        File file = new File(filename);
+        if(!file.delete())
+        {
+            Log.i("FileUtility", "Could not delete file : " + filename);
+        }
+    }
+
     public static String getPublicPath()
     {
         return Environment.getExternalStorageDirectory().getAbsolutePath();
