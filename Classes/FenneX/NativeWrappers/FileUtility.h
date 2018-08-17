@@ -90,6 +90,12 @@ bool writeLockedFile(std::string filename, std::string content);
 // Unlock a previously locked file
 void unlockFile(std::string filename);
 
+class LockFileException : public std::runtime_error
+{
+public:
+    LockFileException(std::string file) : runtime_error(("Lock file " + file + " failed").c_str()) {}
+};
+
 // Return all files from a folder (using absolute path)
 std::vector<std::string> getFilesInFolder(std::string folderPath);
 
