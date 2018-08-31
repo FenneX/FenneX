@@ -131,7 +131,7 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 		videoViewMediaPlayer = null;
 
 		final File videoFile = getFile(path, FileUtility.FileLocation.Unknown);
-		if(videoFile == null)
+		if(videoFile == null || (!videoFile.exists() && NativeUtility.getMainActivity().getUriFromFileName(path) == null))
 		{
 			return;
 		}
@@ -335,8 +335,11 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 			NativeUtility.getMainActivity().runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					videoView.setVisibility(View.VISIBLE);
-					videoView.invalidate();
+					if(videoView != null)
+					{
+						videoView.setVisibility(View.VISIBLE);
+						videoView.invalidate();
+					}
 				}});
 		}
 		videoEnded = false;
@@ -367,8 +370,10 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 			NativeUtility.getMainActivity().runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					videoView.setVisibility(View.GONE);
-					videoView.invalidate();
+					if(videoView != null) {
+						videoView.setVisibility(View.GONE);
+						videoView.invalidate();
+					}
 				}});
 		}
 	}
@@ -471,8 +476,10 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 					lp.leftMargin = (int)(isFullScreen ? 0 : localX - (localWidth / 2) + 0.5);
 					lp.topMargin = (int)(isFullScreen ? 0 : heightScreen - localY - (localHeight / 2) + 0.5);
 					lp.gravity = isFullScreen ? Gravity.CENTER : (Gravity.TOP | Gravity.START);
-		    		videoView.setLayoutParams(lp);
-	        		videoView.invalidate();
+					if(videoView != null) {
+						videoView.setLayoutParams(lp);
+						videoView.invalidate();
+					}
 	        	}
 	        });
 		}
@@ -829,8 +836,10 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 				lp.leftMargin = (int)(VideoPlayer.isFullScreen ? 0 : widthScreen - localX - (videoWidth / 2));
 				lp.topMargin = (int)(VideoPlayer.isFullScreen ? 0 : heightScreen - localY - (videoHeight / 2));
 				lp.gravity = isFullScreen ? Gravity.CENTER : (Gravity.TOP | Gravity.START);
-				videoView.setLayoutParams(lp);
-				videoView.invalidate();
+				if(videoView != null) {
+					videoView.setLayoutParams(lp);
+					videoView.invalidate();
+				}
 			}
 		});
 	}
