@@ -639,7 +639,7 @@ void GraphicLayer::clear()
 
 RawObject* GraphicLayer::first(int id)
 {
-    for(long i =  storedObjects.size() - 1; i >= 0; i--)
+    for(long i = storedObjects.size() - 1; i >= 0; i--)
     {
         RawObject* obj = storedObjects.at(i);
         if(obj->getID() == id)
@@ -667,7 +667,7 @@ RawObject* GraphicLayer::first(std::string name, bool cache)
             return cachedObject;
         }
     }
-    for(long i =  storedObjects.size() - 1; i >= 0; i--)
+    for(long i = storedObjects.size() - 1; i >= 0; i--)
     {
         RawObject* obj = storedObjects.at(i);
         if(name.compare(obj->getName()) == 0)
@@ -684,7 +684,7 @@ RawObject* GraphicLayer::first(std::string name, bool cache)
 
 RawObject* GraphicLayer::first(std::string name, Panel* panel)
 {
-    for(long i =  storedObjects.size() - 1; i >= 0; i--)
+    for(long i = storedObjects.size() - 1; i >= 0; i--)
     {
         RawObject* obj = storedObjects.at(i);
         if(panel->containsObject(obj) && name == obj->getName())
@@ -697,7 +697,7 @@ RawObject* GraphicLayer::first(std::string name, Panel* panel)
 
 RawObject* GraphicLayer::first(Vec2 position)
 {
-    for(long i =  storedObjects.size() - 1; i >= 0 ; i--)
+    for(long i = storedObjects.size() - 1; i >= 0 ; i--)
     {
         RawObject* obj = storedObjects.at(i);
         if(obj->collision(this->getPositionRelativeToObject(position, obj)))
@@ -718,7 +718,7 @@ RawObject* GraphicLayer::at(int index)
 Vector<RawObject*> GraphicLayer::all(std::string name)
 {
     Vector<RawObject*> result;
-    for(long i =  storedObjects.size() - 1; i >= 0; i--)
+    for(long i = storedObjects.size() - 1; i >= 0; i--)
     {
         RawObject* obj = storedObjects.at(i);
         if(name == obj->getName())
@@ -732,7 +732,7 @@ Vector<RawObject*> GraphicLayer::all(std::string name)
 Vector<RawObject*> GraphicLayer::all(std::string name, Panel* panel)
 {
     Vector<RawObject*> result;
-    for(long i =  storedObjects.size() - 1; i >= 0; i--)
+    for(long i = storedObjects.size() - 1; i >= 0; i--)
     {
         RawObject* obj = storedObjects.at(i);
         if(panel->containsObject(obj) && name == obj->getName())
@@ -746,7 +746,7 @@ Vector<RawObject*> GraphicLayer::all(std::string name, Panel* panel)
 Vector<RawObject*> GraphicLayer::all(Vec2 position)
 {
     Vector<RawObject*> result;
-    for(long i =  storedObjects.size() - 1; i >= 0; i--)
+    for(long i = storedObjects.size() - 1; i >= 0; i--)
     {
         RawObject* obj = storedObjects.at(i);
         if(obj->collision(this->getPositionRelativeToObject(position, obj)))
@@ -759,7 +759,7 @@ Vector<RawObject*> GraphicLayer::all(Vec2 position)
 
 RawObject* GraphicLayer::first(const std::function<bool(RawObject*)>& filter)
 {
-    for(long i =  storedObjects.size() - 1; i >= 0; i--)
+    for(long i = storedObjects.size() - 1; i >= 0; i--)
     {
         RawObject* obj = storedObjects.at(i);
         if(filter(obj))
@@ -772,7 +772,7 @@ RawObject* GraphicLayer::first(const std::function<bool(RawObject*)>& filter)
 
 Panel* GraphicLayer::firstPanel(const std::function<bool(Panel*)>& filter)
 {
-    for(long i =  storedPanels.size() - 1; i >= 0; i--)
+    for(long i = storedPanels.size() - 1; i >= 0; i--)
     {
         Panel* obj = storedPanels.at(i);
         if(filter(obj))
@@ -786,7 +786,7 @@ Panel* GraphicLayer::firstPanel(const std::function<bool(Panel*)>& filter)
 Vector<RawObject*> GraphicLayer::all(const std::function<bool(RawObject*)>& filter)
 {
     Vector<RawObject*> result;
-    for(long i =  storedObjects.size() - 1; i >= 0; i--)
+    for(long i = storedObjects.size() - 1; i >= 0; i--)
     {
         RawObject* obj = storedObjects.at(i);
         if(filter(obj))
@@ -834,7 +834,7 @@ bool GraphicLayer::containsObject(RawObject* obj)
 Vector<Panel*> GraphicLayer::allPanels(std::string name)
 {
     Vector<Panel*> result;
-    for(long i =  storedPanels.size() - 1; i >= 0; i--)
+    for(long i = storedPanels.size() - 1; i >= 0; i--)
     {
         Panel* obj = storedPanels.at(i);
         if(name == obj->getName() && storedObjects.contains(obj))
@@ -848,7 +848,7 @@ Vector<Panel*> GraphicLayer::allPanels(std::string name)
 Vector<Panel*> GraphicLayer::allPanels(std::string name, Panel* panel)
 {
     Vector<Panel*> result;
-    for(long i =  storedPanels.size() - 1; i >= 0; i--)
+    for(long i = storedPanels.size() - 1; i >= 0; i--)
     {
         Panel* obj = storedPanels.at(i);
         if(panel->containsObject(obj) && name == obj->getName())
@@ -862,7 +862,7 @@ Vector<Panel*> GraphicLayer::allPanels(std::string name, Panel* panel)
 Vector<Panel*> GraphicLayer::allPanels(const std::function<bool(Panel*)>& filter)
 {
     Vector<Panel*> result;
-    for(long i =  storedPanels.size() - 1; i >= 0; i--)
+    for(long i = storedPanels.size() - 1; i >= 0; i--)
     {
         Panel* obj = storedPanels.at(i);
         if(filter(obj))
@@ -890,7 +890,7 @@ Panel* GraphicLayer::firstPanel(std::string name, bool cache)
             return cachedObject;
         }
     }
-    for(long i =  storedPanels.size() - 1; i >= 0; i--)
+    for(long i = storedPanels.size() - 1; i >= 0; i--)
     {
         Panel* obj = storedPanels.at(i);
         if(name == obj->getName() && storedObjects.contains(obj))
@@ -908,7 +908,7 @@ Panel* GraphicLayer::firstPanel(std::string name, bool cache)
 
 Panel* GraphicLayer::firstPanel(std::string name, Panel* panel)
 {
-    for(long i =  storedPanels.size() - 1; i >= 0; i--)
+    for(long i = storedPanels.size() - 1; i >= 0; i--)
     {
         Panel* obj = storedPanels.at(i);
         if(panel->containsObject(obj) && name == obj->getName() && storedObjects.contains(obj))
@@ -1040,13 +1040,13 @@ bool GraphicLayer::touchAtPosition(Vec2 position, bool event)
 {
 #if VERBOSE_GENERAL_INFO
     log("Before trying touchAtPosition, obj order :");
-    for(long i =  storedObjects.size() - 1; i >= 0; i--)
+    for(long i = storedObjects.size() - 1; i >= 0; i--)
     {
         RawObject* obj = storedObjects.at(i);;
         log("obj name: %s", obj->getName().c_str());
     }
 #endif
-    for(long i =  storedObjects.size() - 1; i >= 0; i--)
+    for(long i = storedObjects.size() - 1; i >= 0; i--)
     {
         if(!isKindOfClass(storedObjects.at(i), RawObject))
         {
