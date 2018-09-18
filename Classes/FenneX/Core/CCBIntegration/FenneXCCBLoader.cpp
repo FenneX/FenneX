@@ -116,12 +116,12 @@ Panel* loadCCBFromFileToFenneX(std::string file, std::string inPanel, int zIndex
     
 #if VERBOSE_PERFORMANCE_TIME
     timeval startTime;
-    gettimeofday(&startTime, NULL);
+    gettimeofday(&startTime, nullptr);
 #endif
     std::string filePath = file +  (isPhoneLayout ? "-phone" : "") + ".ccbi";
     log("Filepath : %s", filePath.c_str());
     FileUtils::getInstance()->setPopupNotify(shouldNotify);
-    Node* myNode = NULL;
+    Node* myNode = nullptr;
     if(_loadSize.width == -1)
     {
         _loadSize = Director::getInstance()->getWinSize();
@@ -139,7 +139,7 @@ Panel* loadCCBFromFileToFenneX(std::string file, std::string inPanel, int zIndex
     
 #if VERBOSE_PERFORMANCE_TIME
     timeval middleTime;
-    gettimeofday(&middleTime, NULL);
+    gettimeofday(&middleTime, nullptr);
     log("CCBReader loaded file %s in %f ms", file.c_str(), getTimeDifferenceMS(startTime, middleTime));
 #endif
     
@@ -237,7 +237,7 @@ Panel* loadCCBFromFileToFenneX(std::string file, std::string inPanel, int zIndex
         }
     }
     
-    Panel* parent = NULL;
+    Panel* parent = nullptr;
     if(!inPanel.empty())
     {
         myNode->setContentSize(Size(0, 0));
@@ -254,7 +254,7 @@ Panel* loadCCBFromFileToFenneX(std::string file, std::string inPanel, int zIndex
     
 #if VERBOSE_PERFORMANCE_TIME
     timeval endTime;
-    gettimeofday(&endTime, NULL);
+    gettimeofday(&endTime, nullptr);
     log("Node %s loaded to FenneX in %f ms, total with load file : %f ms", file.c_str(), getTimeDifferenceMS(middleTime, endTime), getTimeDifferenceMS(startTime, endTime));
 #endif
     return parent;
@@ -263,7 +263,7 @@ Panel* loadCCBFromFileToFenneX(std::string file, std::string inPanel, int zIndex
 void loadNodeToFenneX(Node* baseNode, Panel* parent)
 {
     GraphicLayer* layer = GraphicLayer::sharedLayer();
-    if(parent == NULL)
+    if(parent == nullptr)
     {
         layer->useBaseLayer((Layer*)baseNode);
 #if VERBOSE_LOAD_CCB
@@ -276,9 +276,9 @@ void loadNodeToFenneX(Node* baseNode, Panel* parent)
     {
         Node* node = baseNode->getChildren().at(i);
 #if VERBOSE_LOAD_CCB
-        log("doing child %d from parent %s ...", i, parent != NULL ? parent->getName() != "" ? parent->getName().c_str() : "Panel" : "base layer");
+        log("doing child %d from parent %s ...", i, parent != nullptr ? parent->getName() != "" ? parent->getName().c_str() : "Panel" : "base layer");
 #endif
-        RawObject* result = NULL;
+        RawObject* result = nullptr;
         if(isKindOfClass(node, Label))
         {
             Label* label = (Label*)node;
@@ -361,7 +361,7 @@ void loadNodeToFenneX(Node* baseNode, Panel* parent)
             result = layer->createPanelFromNode(node, parent);
         }
 #if VERBOSE_LOAD_CCB
-        if(result != NULL)
+        if(result != nullptr)
         {
             log("Child %d loaded : position : %f, %f, scale : %f", i, result->getPosition().x, result->getPosition().y, result->getScale());
         }
@@ -397,7 +397,7 @@ void linkInputLabels()
         {
             InputLabel* input = (InputLabel*)child;
             child->getNode()->setContentSize(child->getNode()->getContentSize());
-            if(input->getOriginalInfos() != NULL)
+            if(input->getOriginalInfos() != nullptr)
             {
                 input->setFontSize(input->getOriginalInfos()->getFontSize());
             }
@@ -405,11 +405,11 @@ void linkInputLabels()
         if((isKindOfClass(child, DropDownList)) && isValueOfType(child->getEventInfos()["LinkTo"], STRING))
         {
             DropDownList* dropDownList = (DropDownList*)child;
-            if(dropDownList->getLinkTo() == NULL)
+            if(dropDownList->getLinkTo() == nullptr)
             {
                 std::string linkTo = child->getEventInfos()["LinkTo"].asString();
                 Panel* parent = layer->getContainingPanel(dropDownList);
-                for(RawObject* obj : parent != NULL ? parent->getChildren() : layer->all())
+                for(RawObject* obj : parent != nullptr ? parent->getChildren() : layer->all())
                 {
                     if(obj->getName() == linkTo && isKindOfClass(obj, LabelTTF)) dropDownList->setLinkTo((LabelTTF*)obj);
                 }

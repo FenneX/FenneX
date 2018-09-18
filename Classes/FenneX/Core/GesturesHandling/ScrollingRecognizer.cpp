@@ -32,7 +32,7 @@ THE SOFTWARE.
 
 NS_FENNEX_BEGIN
 // singleton stuff
-static ScrollingRecognizer *s_SharedRecognizer = NULL;
+static ScrollingRecognizer *s_SharedRecognizer = nullptr;
 
 ScrollingRecognizer* ScrollingRecognizer::sharedRecognizer(void)
 {
@@ -99,7 +99,7 @@ void ScrollingRecognizer::update(float delta)
         Vector<RawObject*> objects = mainLinker->allObjects();
         for(int i = -1; i < objects.size(); i++)
         {
-            RawObject* object = i == -1 ? NULL : objects.at(i);
+            RawObject* object = i == -1 ? nullptr : objects.at(i);
             
             Vector<Touch*> touches = this->mainLinker->touchesLinkedTo(object);
             Vec2 currentPosition = this->positionWithTouches(touches);

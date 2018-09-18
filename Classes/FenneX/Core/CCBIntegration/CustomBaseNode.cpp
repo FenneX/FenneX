@@ -37,12 +37,12 @@ ValueMap& CustomBaseNode::getParameters()
 
 SEL_MenuHandler CustomBaseNode::onResolveCCBCCMenuItemSelector(Ref * pTarget, const char* pSelectorName)
 {
-    return NULL;
+    return nullptr;
 }
 
 cocos2d::extension::Control::Handler CustomBaseNode::onResolveCCBCCControlSelector(Ref * pTarget, const char* pSelectorName)
 {
-    return NULL;
+    return nullptr;
 }
 
 bool CustomBaseNode::onAssignCCBMemberVariable(Ref * pTarget, const char* pMemberVariableName, Node * pNode)

@@ -52,12 +52,12 @@ void AudioPlayerRecorder::init()
 
 bool AudioPlayerRecorder::isRecording()
 {
-    return link != NULL && [AudioPlayerRecorderImpl sharedAudio].isRecording;
+    return link != nullptr && [AudioPlayerRecorderImpl sharedAudio].isRecording;
 }
 
 bool AudioPlayerRecorder::isPlaying()
 {
-    return link != NULL && [AudioPlayerRecorderImpl sharedAudio].isPlaying;
+    return link != nullptr && [AudioPlayerRecorderImpl sharedAudio].isPlaying;
 }
 
 std::string AudioPlayerRecorder::getSoundsSavePath()
@@ -76,7 +76,7 @@ void AudioPlayerRecorder::record(const std::string& file, FileLocation loc, Ref*
     }
     else
     {
-        if(linkTo == NULL)
+        if(linkTo == nullptr)
         {
             linkTo = noLinkObject;
         }
@@ -90,7 +90,7 @@ void AudioPlayerRecorder::stopRecording()
 {
     CCAssert(recordEnabled, "Record is disabled, enable it before calling stopRecording");
     [[AudioPlayerRecorderImpl sharedAudio] stopRecording:getNSString(getFullPath(path, location))];
-    link = NULL; //don't call setLink to avoid infinite recursion
+    link = nullptr; //don't call setLink to avoid infinite recursion
     this->setPath("");
 }
 
@@ -110,7 +110,7 @@ float AudioPlayerRecorder::play(const std::string& file, Ref* linkTo, bool indep
         }
         else
         {
-            if(linkTo == NULL)
+            if(linkTo == nullptr)
             {
                 linkTo = noLinkObject;
             }
@@ -132,14 +132,14 @@ void AudioPlayerRecorder::stopPlaying(EventCustom* event)
 {
     interruptLoop = true;
     [[AudioPlayerRecorderImpl sharedAudio] stopPlaying];
-    link = NULL; //don't call setLink to avoid infinite recursion
+    link = nullptr; //don't call setLink to avoid infinite recursion
     this->setPath("");
 }
 
 void AudioPlayerRecorder::fadeVolumeOut()
 {
     [[AudioPlayerRecorderImpl sharedAudio] fadeVolumeOut];
-    link = NULL; //don't call setLink to avoid infinite recursion
+    link = nullptr; //don't call setLink to avoid infinite recursion
     this->setPath("");
 }
 

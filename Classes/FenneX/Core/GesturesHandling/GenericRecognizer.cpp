@@ -27,7 +27,7 @@ THE SOFTWARE.
 NS_FENNEX_BEGIN
 bool GenericRecognizer::isInLinker(Touch* touch)
 {
-    if(mainLinker != NULL && mainLinker->linkedObjectOf(touch) != NULL)
+    if(mainLinker != nullptr && mainLinker->linkedObjectOf(touch) != nullptr)
     {
         return true;
     }
@@ -37,11 +37,11 @@ bool GenericRecognizer::isInLinker(Touch* touch)
 Vector<Touch*> GenericRecognizer::unlinkedTouches()
 {
     Vector<Touch*> unlinkedTouches;
-    if(mainLinker != NULL)
+    if(mainLinker != nullptr)
     {
         for (Touch* touch : mainLinker->allTouches())
         {
-            if(mainLinker->linkedObjectOf(touch) == NULL)
+            if(mainLinker->linkedObjectOf(touch) == nullptr)
             {
                 unlinkedTouches.pushBack(touch);
             }

@@ -31,7 +31,7 @@ THE SOFTWARE.
 
 NS_FENNEX_BEGIN
 // singleton stuff
-static SelectionRecognizer *s_SharedRecognizer = NULL;
+static SelectionRecognizer *s_SharedRecognizer = nullptr;
 
 SelectionRecognizer* SelectionRecognizer::sharedRecognizer(void)
 {
@@ -113,7 +113,7 @@ void SelectionRecognizer::checkForSelection(EventCustom* event)
 {
     Touch* touch = mainLinker->getTouch(((Value*)event->getUserData())->asInt());
     //the touch could have been discarded in the meantime
-    if(touch != NULL && isTouchInSelection(touch))
+    if(touch != nullptr && isTouchInSelection(touch))
     {
         Vec2 currentLocation = Scene::touchPosition(touch);
         Vec2 touchOrigin = storedTouches.at(touch->getID());

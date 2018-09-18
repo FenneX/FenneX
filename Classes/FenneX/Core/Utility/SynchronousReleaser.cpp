@@ -30,7 +30,7 @@ THE SOFTWARE.
 
 NS_FENNEX_BEGIN
 // singleton stuff
-static SynchronousReleaser *s_SharedReleaser = NULL;
+static SynchronousReleaser *s_SharedReleaser = nullptr;
 
 SynchronousReleaser* SynchronousReleaser::sharedReleaser(void)
 {
@@ -51,7 +51,7 @@ void SynchronousReleaser::init()
 SynchronousReleaser::~SynchronousReleaser()
 {
     releasePool.clear();
-    s_SharedReleaser = NULL;
+    s_SharedReleaser = nullptr;
 }
 
 
@@ -72,7 +72,7 @@ void SynchronousReleaser::emptyReleasePool()
 
 void SynchronousReleaser::addObjectToReleasePool(Ref* obj)
 {
-    if(obj != NULL && !releasePool.contains(obj))
+    if(obj != nullptr && !releasePool.contains(obj))
     {
         releasePool.pushBack(obj);
     }

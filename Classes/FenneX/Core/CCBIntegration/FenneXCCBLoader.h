@@ -43,7 +43,7 @@ NS_FENNEX_BEGIN
 Panel* loadCCBFromFileToFenneX(std::string file, std::string inPanel = "", int zIndex = 0);
 
 /* This method is used to load a hierarchy loaded by CCBReader into FenneX.
- It is used recursively by Panels to create their own hierarchy. The base node (when parent == NULL) will be used as GraphicLayer base node
+ It is used recursively by Panels to create their own hierarchy. The base node (when parent == nullptr) will be used as GraphicLayer base node
  Note : the base node won't be loaded and must not be modified in cocos builder
  The mapping is :
  Sprite => CustomSprite => Image
@@ -53,7 +53,7 @@ Panel* loadCCBFromFileToFenneX(std::string file, std::string inPanel = "", int z
  
  CustomObject, if required, could be a derived Node
  */
-void loadNodeToFenneX(Node* baseNode, Panel* parent = NULL);
+void loadNodeToFenneX(Node* baseNode, Panel* parent = nullptr);
 //It is required to do another pass after loadNodeToFenneX to reorder Zindex (especially because of InputLabel which are created and added at the end instead of the right place)
 void reorderZindex();
 //It is required to do another pass after loadNodeToFenneX to have the input labels linked to their LabelTTF

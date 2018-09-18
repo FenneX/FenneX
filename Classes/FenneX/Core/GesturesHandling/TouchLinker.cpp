@@ -51,7 +51,7 @@ void TouchLinker::removeTouch(Touch* touch)
     {
         touches.eraseObject(touch);
     }
-    if(touchLinker.at(touch->getID()) != NULL)
+    if(touchLinker.at(touch->getID()) != nullptr)
     {
         touchLinker.erase(touch->getID());
     }
@@ -59,7 +59,7 @@ void TouchLinker::removeTouch(Touch* touch)
 
 void TouchLinker::linkTouch(Touch* touch, RawObject* object)
 {
-    if(touch != NULL && object != NULL)
+    if(touch != nullptr && object != nullptr)
     {
         touchLinker.insert(touch->getID(), object);
         this->recordTouch(touch);
@@ -123,7 +123,7 @@ Vector<RawObject*> TouchLinker::allObjects()
     for(Touch* touch : touches)
     {
         RawObject* linked = touchLinker.at(touch->getID());
-        if(linked != NULL && !objects.contains(linked))
+        if(linked != nullptr && !objects.contains(linked))
         {
             objects.pushBack(linked);
         }
@@ -142,7 +142,7 @@ Touch* TouchLinker::getTouch(int index)
     {
         if(touch->getID() == index) return touch;
     }
-    return NULL;
+    return nullptr;
 }
 
 NS_FENNEX_END

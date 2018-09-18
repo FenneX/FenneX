@@ -31,7 +31,7 @@ THE SOFTWARE.
 
 NS_FENNEX_BEGIN
 // singleton stuff
-static GraphicLayer *s_SharedLayer = NULL;
+static GraphicLayer *s_SharedLayer = nullptr;
 
 GraphicLayer* GraphicLayer::sharedLayer(void)
 {
@@ -47,7 +47,7 @@ GraphicLayer* GraphicLayer::sharedLayer(void)
 void GraphicLayer::init()
 {
     nextAvailableId = 0;
-    relatedScene = NULL;
+    relatedScene = nullptr;
     layer = Layer::create();
     layer->retain();
     clock = 0;
@@ -60,7 +60,7 @@ GraphicLayer::~GraphicLayer()
     log("Layer dealloc");
 #endif
     this->clear();
-    s_SharedLayer = NULL;
+    s_SharedLayer = nullptr;
     layer->release();
 }
 
@@ -82,7 +82,7 @@ void GraphicLayer::renderOnLayer(Scene* destination)
 {
     relatedScene = destination;
     //Ensure that the layer is not on another Scene
-    if(layer->getParent() != NULL)
+    if(layer->getParent() != nullptr)
     {
         layer->removeFromParentAndCleanup(true);
     }
@@ -93,7 +93,7 @@ void GraphicLayer::renderOnLayer(Scene* destination)
 
 void GraphicLayer::stopRenderOnLayer(Scene* destination, bool cleanup)
 {
-    relatedScene = NULL;
+    relatedScene = nullptr;
     destination->removeChild(layer, cleanup);
     this->clear();
 }
@@ -131,7 +131,7 @@ Image* GraphicLayer::createImage(std::string imageFile, ValueMap values)
     log("Creating Image %s", imageFile.c_str());
 #endif
     Image* obj = new Image(imageFile, getPos(values));
-    if(obj != NULL)
+    if(obj != nullptr)
     {
         this->addObject(obj, getZindex(values));
         obj->release();
@@ -155,7 +155,7 @@ Image* GraphicLayer::createAnimatedImage(std::string spriteSheetFile, int capaci
     log("Creating animated Image %s", spriteSheetFile.c_str());
 #endif
     Image* obj = new Image(spriteSheetFile, getPos(values), capacity);
-    if(obj != NULL)
+    if(obj != nullptr)
     {
         this->addObject(obj, getZindex(values));
         obj->release();
@@ -176,10 +176,10 @@ Image* GraphicLayer::createAnimatedImage(std::string spriteSheetFile, int capaci
 Image* GraphicLayer::createImageFromSprite(Sprite* sprite, Panel* parent)
 {
     Image* obj = new Image(sprite);
-    if(obj != NULL)
+    if(obj != nullptr)
     {
         storedObjects.pushBack(obj);
-        if(parent != NULL)
+        if(parent != nullptr)
         {
             parent->addChild(obj);
             childsParents[obj->getID()] = parent;
@@ -196,7 +196,7 @@ CustomObject* GraphicLayer::createCustomObject(Node* delegate, ValueMap values)
     log("Creating CustomObject");
 #endif
     CustomObject* obj = new CustomObject(delegate, getPos(values));
-    if(obj != NULL)
+    if(obj != nullptr)
     {
         this->addObject(obj, getZindex(values));
         obj->release();
@@ -217,10 +217,10 @@ CustomObject* GraphicLayer::createCustomObject(Node* delegate, ValueMap values)
 CustomObject* GraphicLayer::createCustomObjectFromNode(Node* node, Panel* parent)
 {
     CustomObject* obj = new CustomObject(node);
-    if(obj != NULL)
+    if(obj != nullptr)
     {
         storedObjects.pushBack(obj);
-        if(parent != NULL)
+        if(parent != nullptr)
         {
             parent->addChild(obj);
             childsParents[obj->getID()] = parent;
@@ -256,7 +256,7 @@ LabelTTF* GraphicLayer::createLabelTTF(std::string label, std::string fontFile, 
     log("Creating LabelTTF %s", label.c_str());
 #endif
     LabelTTF* obj = new LabelTTF(label, fontFile, getPos(values), getDimensions(values), getAlignment(values));
-    if(obj != NULL)
+    if(obj != nullptr)
     {
         this->addObject(obj, getZindex(values));
         obj->release();
@@ -277,10 +277,10 @@ LabelTTF* GraphicLayer::createLabelTTF(std::string label, std::string fontFile, 
 LabelTTF* GraphicLayer::createLabelTTFromLabel(Label* cocosLabel, Panel* parent)
 {
     LabelTTF* obj = new LabelTTF(cocosLabel);
-    if(obj != NULL)
+    if(obj != nullptr)
     {
         storedObjects.pushBack(obj);
-        if(parent != NULL)
+        if(parent != nullptr)
         {
             parent->addChild(obj);
             childsParents[obj->getID()] = parent;
@@ -294,10 +294,10 @@ LabelTTF* GraphicLayer::createLabelTTFromLabel(Label* cocosLabel, Panel* parent)
 InputLabel* GraphicLayer::createInputLabelFromScale9Sprite(ui::Scale9Sprite* cocosSprite, Panel* parent)
 {
     InputLabel* obj = new InputLabel(cocosSprite);
-    if(obj != NULL)
+    if(obj != nullptr)
     {
         //TODO : find a way to add the label at the right place in cocos hierarchy
-        if(parent != NULL)
+        if(parent != nullptr)
         {
             storedObjects.pushBack(obj);
             parent->addChild(obj);
@@ -321,7 +321,7 @@ Panel* GraphicLayer::createPanel(std::string name, ValueMap values)
     log("Creating Panel %s", name.c_str());
 #endif
     Panel* obj = new Panel(name, getPos(values));
-    if(obj != NULL)
+    if(obj != nullptr)
     {
         this->addObject(obj, getZindex(values));
         obj->release();
@@ -342,11 +342,11 @@ Panel* GraphicLayer::createPanel(std::string name, ValueMap values)
 Panel* GraphicLayer::createPanelFromNode(Node* cocosNode, Panel* parent)
 {
     Panel* obj = new Panel(cocosNode);
-    if(obj != NULL)
+    if(obj != nullptr)
     {
         storedObjects.pushBack(obj);
         storedPanels.pushBack(obj);
-        if(parent != NULL)
+        if(parent != nullptr)
         {
             parent->addChild(obj);
             childsParents[obj->getID()] = parent;
@@ -361,7 +361,7 @@ Panel* GraphicLayer::createPanelFromNode(Node* cocosNode, Panel* parent)
 Panel* GraphicLayer::createPanelWithNode(std::string name, Node* panelNode, int zOrder)
 {
     Panel* obj = new Panel(panelNode, name);
-    if(obj != NULL)
+    if(obj != nullptr)
     {
         this->addObject(obj, zOrder);
         obj->release();
@@ -372,10 +372,10 @@ Panel* GraphicLayer::createPanelWithNode(std::string name, Node* panelNode, int 
 DropDownList* GraphicLayer::createDropDownListFromSprite(Sprite* sprite, Panel* parent)
 {
     DropDownList* obj = new DropDownList(sprite);
-    if(obj != NULL)
+    if(obj != nullptr)
     {
         storedObjects.pushBack(obj);
-        if(parent != NULL)
+        if(parent != nullptr)
         {
             parent->addChild(obj);
             childsParents[obj->getID()] = parent;
@@ -388,7 +388,7 @@ DropDownList* GraphicLayer::createDropDownListFromSprite(Sprite* sprite, Panel* 
 
 RawObject* GraphicLayer::duplicateObject(RawObject* otherObject)
 {
-    RawObject* obj = NULL;
+    RawObject* obj = nullptr;
     //Create the object, set Position + other properties
     if(isKindOfClass(otherObject, DropDownList))
     {
@@ -403,7 +403,7 @@ RawObject* GraphicLayer::duplicateObject(RawObject* otherObject)
 #if VERBOSE_WARNING
             log("Warning: animated Image not supported for duplicate yet");
 #endif
-            return NULL;
+            return nullptr;
         }
         else
         {
@@ -439,7 +439,7 @@ RawObject* GraphicLayer::duplicateObject(RawObject* otherObject)
 #if VERBOSE_WARNING
         log("Warning: object type not supported for duplicate yet");
 #endif
-        return NULL;
+        return nullptr;
     }
     
     //Actually add the object
@@ -477,13 +477,13 @@ RawObject* GraphicLayer::placeObject(RawObject* obj, Panel* panel)
 {
     if(storedObjects.contains(obj))
     {
-        if(this->getContainingPanel(obj) != NULL)
+        if(this->getContainingPanel(obj) != nullptr)
         {
             this->removeObjectFromPanel(obj, this->getContainingPanel(obj));
         }
-        if(panel != NULL)
+        if(panel != nullptr)
         {
-            if(obj->getNode() != NULL)
+            if(obj->getNode() != nullptr)
             {
                 layer->removeChild(obj->getNode(), false);
                 panel->addChild(obj);
@@ -501,7 +501,7 @@ RawObject* GraphicLayer::placeObject(RawObject* obj, Panel* panel)
 #endif
         }
     }
-    else if(panel != NULL)
+    else if(panel != nullptr)
     {
         for(long i = 0; i < objectsToAdd.size(); i++)
         {
@@ -516,7 +516,7 @@ RawObject* GraphicLayer::placeObject(RawObject* obj, Panel* panel)
 
 void GraphicLayer::removeObjectFromPanel(RawObject* obj, Panel* panel)
 {
-    if(obj->getNode() != NULL)
+    if(obj->getNode() != nullptr)
     {
         panel->removeChild(obj);
         layer->addChild(obj->getNode());
@@ -541,17 +541,17 @@ void GraphicLayer::removeAllObjectsFromPanel(Panel* panel)
 
 Panel* GraphicLayer::getContainingPanel(RawObject* obj)
 {
-    if(obj == NULL) return NULL;
+    if(obj == nullptr) return nullptr;
     if(childsParents.find(obj->getID()) == childsParents.end())
     {
-        return NULL;
+        return nullptr;
     }
     return childsParents[obj->getID()];
 }
 
 void GraphicLayer::destroyObject(RawObject* obj)
 {
-    if(obj != NULL && storedObjects.contains(obj))
+    if(obj != nullptr && storedObjects.contains(obj))
     {
         if(isUpdating)
         {
@@ -572,7 +572,7 @@ void GraphicLayer::destroyObject(RawObject* obj)
                 CCASSERT(((Panel*)obj)->getChildren().size() == 0, "Problem with panel children when releasing panel");
             }
             this->placeObject(obj);
-            if(obj->getNode() != NULL)
+            if(obj->getNode() != nullptr)
             {
                 layer->removeChild(obj->getNode(), true);
             }
@@ -585,7 +585,7 @@ void GraphicLayer::destroyObject(RawObject* obj)
 #if VERBOSE_WARNING
         log("Warning : trying to destroy not valid object at adress %p", obj);
 #endif
-        if(obj != NULL && isKindOfClass(obj, Panel) && storedPanels.contains((Panel*)obj))
+        if(obj != nullptr && isKindOfClass(obj, Panel) && storedPanels.contains((Panel*)obj))
         {
             storedPanels.eraseObject((Panel*)obj);
         }
@@ -610,7 +610,7 @@ void GraphicLayer::destroyObjects(Vector<Panel*> array)
 
 void GraphicLayer::destroyObjectEvent(EventCustom* event)
 {
-    if(event != NULL && event->getUserData() != NULL)
+    if(event != nullptr && event->getUserData() != nullptr)
     {
         if(isKindOfClass((Ref*)event->getUserData(), RawObject))
         {
@@ -639,7 +639,7 @@ void GraphicLayer::clear()
 
 RawObject* GraphicLayer::first(int id)
 {
-    for(long i = storedObjects.size() - 1; i >= 0; i--)
+    for(long i =  storedObjects.size() - 1; i >= 0; i--)
     {
         RawObject* obj = storedObjects.at(i);
         if(obj->getID() == id)
@@ -647,7 +647,7 @@ RawObject* GraphicLayer::first(int id)
             return obj;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 RawObject* GraphicLayer::first(std::string name, bool cache)
@@ -667,7 +667,7 @@ RawObject* GraphicLayer::first(std::string name, bool cache)
             return cachedObject;
         }
     }
-    for(long i = storedObjects.size() - 1; i >= 0; i--)
+    for(long i =  storedObjects.size() - 1; i >= 0; i--)
     {
         RawObject* obj = storedObjects.at(i);
         if(name.compare(obj->getName()) == 0)
@@ -679,12 +679,12 @@ RawObject* GraphicLayer::first(std::string name, bool cache)
             return obj;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 RawObject* GraphicLayer::first(std::string name, Panel* panel)
 {
-    for(long i = storedObjects.size() - 1; i >= 0; i--)
+    for(long i =  storedObjects.size() - 1; i >= 0; i--)
     {
         RawObject* obj = storedObjects.at(i);
         if(panel->containsObject(obj) && name == obj->getName())
@@ -692,12 +692,12 @@ RawObject* GraphicLayer::first(std::string name, Panel* panel)
             return obj;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 RawObject* GraphicLayer::first(Vec2 position)
 {
-    for(long i = storedObjects.size() - 1; i >= 0 ; i--)
+    for(long i =  storedObjects.size() - 1; i >= 0 ; i--)
     {
         RawObject* obj = storedObjects.at(i);
         if(obj->collision(this->getPositionRelativeToObject(position, obj)))
@@ -705,7 +705,7 @@ RawObject* GraphicLayer::first(Vec2 position)
             return obj;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 RawObject* GraphicLayer::at(int index)
@@ -718,7 +718,7 @@ RawObject* GraphicLayer::at(int index)
 Vector<RawObject*> GraphicLayer::all(std::string name)
 {
     Vector<RawObject*> result;
-    for(long i = storedObjects.size() - 1; i >= 0; i--)
+    for(long i =  storedObjects.size() - 1; i >= 0; i--)
     {
         RawObject* obj = storedObjects.at(i);
         if(name == obj->getName())
@@ -732,7 +732,7 @@ Vector<RawObject*> GraphicLayer::all(std::string name)
 Vector<RawObject*> GraphicLayer::all(std::string name, Panel* panel)
 {
     Vector<RawObject*> result;
-    for(long i = storedObjects.size() - 1; i >= 0; i--)
+    for(long i =  storedObjects.size() - 1; i >= 0; i--)
     {
         RawObject* obj = storedObjects.at(i);
         if(panel->containsObject(obj) && name == obj->getName())
@@ -746,7 +746,7 @@ Vector<RawObject*> GraphicLayer::all(std::string name, Panel* panel)
 Vector<RawObject*> GraphicLayer::all(Vec2 position)
 {
     Vector<RawObject*> result;
-    for(long i = storedObjects.size() - 1; i >= 0; i--)
+    for(long i =  storedObjects.size() - 1; i >= 0; i--)
     {
         RawObject* obj = storedObjects.at(i);
         if(obj->collision(this->getPositionRelativeToObject(position, obj)))
@@ -759,7 +759,7 @@ Vector<RawObject*> GraphicLayer::all(Vec2 position)
 
 RawObject* GraphicLayer::first(const std::function<bool(RawObject*)>& filter)
 {
-    for(long i = storedObjects.size() - 1; i >= 0; i--)
+    for(long i =  storedObjects.size() - 1; i >= 0; i--)
     {
         RawObject* obj = storedObjects.at(i);
         if(filter(obj))
@@ -767,12 +767,12 @@ RawObject* GraphicLayer::first(const std::function<bool(RawObject*)>& filter)
             return obj;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 Panel* GraphicLayer::firstPanel(const std::function<bool(Panel*)>& filter)
 {
-    for(long i = storedPanels.size() - 1; i >= 0; i--)
+    for(long i =  storedPanels.size() - 1; i >= 0; i--)
     {
         Panel* obj = storedPanels.at(i);
         if(filter(obj))
@@ -780,13 +780,13 @@ Panel* GraphicLayer::firstPanel(const std::function<bool(Panel*)>& filter)
             return obj;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 Vector<RawObject*> GraphicLayer::all(const std::function<bool(RawObject*)>& filter)
 {
     Vector<RawObject*> result;
-    for(long i = storedObjects.size() - 1; i >= 0; i--)
+    for(long i =  storedObjects.size() - 1; i >= 0; i--)
     {
         RawObject* obj = storedObjects.at(i);
         if(filter(obj))
@@ -834,7 +834,7 @@ bool GraphicLayer::containsObject(RawObject* obj)
 Vector<Panel*> GraphicLayer::allPanels(std::string name)
 {
     Vector<Panel*> result;
-    for(long i = storedPanels.size() - 1; i >= 0; i--)
+    for(long i =  storedPanels.size() - 1; i >= 0; i--)
     {
         Panel* obj = storedPanels.at(i);
         if(name == obj->getName() && storedObjects.contains(obj))
@@ -848,7 +848,7 @@ Vector<Panel*> GraphicLayer::allPanels(std::string name)
 Vector<Panel*> GraphicLayer::allPanels(std::string name, Panel* panel)
 {
     Vector<Panel*> result;
-    for(long i = storedPanels.size() - 1; i >= 0; i--)
+    for(long i =  storedPanels.size() - 1; i >= 0; i--)
     {
         Panel* obj = storedPanels.at(i);
         if(panel->containsObject(obj) && name == obj->getName())
@@ -862,7 +862,7 @@ Vector<Panel*> GraphicLayer::allPanels(std::string name, Panel* panel)
 Vector<Panel*> GraphicLayer::allPanels(const std::function<bool(Panel*)>& filter)
 {
     Vector<Panel*> result;
-    for(long i = storedPanels.size() - 1; i >= 0; i--)
+    for(long i =  storedPanels.size() - 1; i >= 0; i--)
     {
         Panel* obj = storedPanels.at(i);
         if(filter(obj))
@@ -890,7 +890,7 @@ Panel* GraphicLayer::firstPanel(std::string name, bool cache)
             return cachedObject;
         }
     }
-    for(long i = storedPanels.size() - 1; i >= 0; i--)
+    for(long i =  storedPanels.size() - 1; i >= 0; i--)
     {
         Panel* obj = storedPanels.at(i);
         if(name == obj->getName() && storedObjects.contains(obj))
@@ -902,13 +902,13 @@ Panel* GraphicLayer::firstPanel(std::string name, bool cache)
             return obj;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 
 Panel* GraphicLayer::firstPanel(std::string name, Panel* panel)
 {
-    for(long i = storedPanels.size() - 1; i >= 0; i--)
+    for(long i =  storedPanels.size() - 1; i >= 0; i--)
     {
         Panel* obj = storedPanels.at(i);
         if(panel->containsObject(obj) && name == obj->getName() && storedObjects.contains(obj))
@@ -916,7 +916,7 @@ Panel* GraphicLayer::firstPanel(std::string name, Panel* panel)
             return obj;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 Vec2 GraphicLayer::getPositionRelativeToObject(Vec2 point, RawObject* obj)
@@ -925,7 +925,7 @@ Vec2 GraphicLayer::getPositionRelativeToObject(Vec2 point, RawObject* obj)
     Panel* parent = this->getContainingPanel(obj);
     //construct an array of parents to traverse them in reverse order
     Vector<Panel*> parents;
-    while(parent != NULL)
+    while(parent != nullptr)
     {
         parents.pushBack(parent);
         parent = this->getContainingPanel(parent);
@@ -946,7 +946,7 @@ Vec2 GraphicLayer::getRealPosition(RawObject* obj)
 {
     Vec2 realPosition = obj->getPosition();
     RawObject* parent = this->getContainingPanel(obj);
-    while(parent != NULL)
+    while(parent != nullptr)
     {
         realPosition.x = realPosition.x * parent->getScaleX() + parent->getPosition().x;
         realPosition.y = realPosition.y * parent->getScaleY() + parent->getPosition().y;
@@ -963,7 +963,7 @@ Vec2 GraphicLayer::getCenterRealPosition(RawObject* obj)
     Vec2 realPosition = Vec2(obj->getPosition().x + obj->getSize().width * (0.5 - obj->getNode()->getAnchorPoint().x)  * obj->getScaleX(),
                                obj->getPosition().y + obj->getSize().height * (0.5 - obj->getNode()->getAnchorPoint().y)  * obj->getScaleY());
     RawObject* parent = this->getContainingPanel(obj);
-    while(parent != NULL)
+    while(parent != nullptr)
     {
         realPosition.x = (realPosition.x - parent->getNode()->getAnchorPoint().x * parent->getSize().width) * parent->getScaleX() + parent->getPosition().x;
         realPosition.y = (realPosition.y - parent->getNode()->getAnchorPoint().y * parent->getSize().height) * parent->getScaleY() + parent->getPosition().y;
@@ -983,9 +983,9 @@ bool GraphicLayer::isWorldVisible(RawObject* obj)
         return false;
     }
     RawObject* parent = GraphicLayer::sharedLayer()->getContainingPanel(obj);
-    while(parent != NULL)
+    while(parent != nullptr)
     {
-        if(parent->getNode() == NULL || !parent->isVisible())
+        if(parent->getNode() == nullptr || !parent->isVisible())
         {
             return false;
         }
@@ -998,7 +998,7 @@ float GraphicLayer::getRealScale(RawObject* obj)
 {
     float realScale = obj->getScale();
     RawObject* parent = this->getContainingPanel(obj);
-    while(parent != NULL)
+    while(parent != nullptr)
     {
         realScale *= parent->getScale();
         parent = this->getContainingPanel(parent);
@@ -1012,7 +1012,7 @@ float GraphicLayer::getRealScaleX(RawObject* obj)
 {
     float realScale = obj->getScaleX();
     RawObject* parent = this->getContainingPanel(obj);
-    while(parent != NULL)
+    while(parent != nullptr)
     {
         realScale *= parent->getScaleX();
         parent = this->getContainingPanel(parent);
@@ -1026,7 +1026,7 @@ float GraphicLayer::getRealScaleY(RawObject* obj)
 {
     float realScale = obj->getScaleY();
     RawObject* parent = this->getContainingPanel(obj);
-    while(parent != NULL)
+    while(parent != nullptr)
     {
         realScale *= parent->getScaleY();
         parent = this->getContainingPanel(parent);
@@ -1040,13 +1040,13 @@ bool GraphicLayer::touchAtPosition(Vec2 position, bool event)
 {
 #if VERBOSE_GENERAL_INFO
     log("Before trying touchAtPosition, obj order :");
-    for(long i = storedObjects.size() - 1; i >= 0; i--)
+    for(long i =  storedObjects.size() - 1; i >= 0; i--)
     {
         RawObject* obj = storedObjects.at(i);;
         log("obj name: %s", obj->getName().c_str());
     }
 #endif
-    for(long i = storedObjects.size() - 1; i >= 0; i--)
+    for(long i =  storedObjects.size() - 1; i >= 0; i--)
     {
         if(!isKindOfClass(storedObjects.at(i), RawObject))
         {
@@ -1054,13 +1054,13 @@ bool GraphicLayer::touchAtPosition(Vec2 position, bool event)
         }
         RawObject* obj = storedObjects.at(i);
         Node* node = obj->getNode();
-        if(node != NULL && node->isVisible() && obj->collision(this->getPositionRelativeToObject(position, obj)))
+        if(node != nullptr && node->isVisible() && obj->collision(this->getPositionRelativeToObject(position, obj)))
         {
             bool parentVisible = true;
             RawObject* parent = this->getContainingPanel(obj);
-            while(parent != NULL && parentVisible)
+            while(parent != nullptr && parentVisible)
             {
-                if(parent->getNode() == NULL || !parent->isVisible())
+                if(parent->getNode() == nullptr || !parent->isVisible())
                 {
                     parentVisible = false;
                 }
@@ -1111,11 +1111,11 @@ bool GraphicLayer::touchObject(RawObject* obj, bool event, Vec2 position)
 
 void GraphicLayer::reorderChild(RawObject* child, int zOrder)
 {
-    if(this->containsObject(child) && child->getNode() != NULL)
+    if(this->containsObject(child) && child->getNode() != nullptr)
     {
         Panel* parent = this->getContainingPanel(child);
         child->retain();
-        if(parent == NULL)
+        if(parent == nullptr)
         {
             layer->reorderChild(child->getNode(), zOrder);
         }
@@ -1162,13 +1162,13 @@ void GraphicLayer::reorderChildrenOfPanel(Panel* panel)
 
 void GraphicLayer::addObject(RawObject* obj, int z)
 {
-    if(obj != NULL)
+    if(obj != nullptr)
     {
         if(isUpdating)
         {
             objectsToAdd.pushBack(obj);
             objectsToAddZindex.push_back(z);
-            objectsToAddPanel.push_back(NULL);
+            objectsToAddPanel.push_back(nullptr);
         }
         else
         {
@@ -1181,20 +1181,20 @@ void GraphicLayer::addObject(RawObject* obj, int z)
             //search for the right position : use z instead of obj.zOrder, because obj.zOrder is not set yet.
             //TODO : improve this mess : return an array of z and compare them in order ...
             while(index < storedObjects.size() &&
-                  (( this->getContainingPanel(storedObjects.at(index)) != NULL
+                  (( this->getContainingPanel(storedObjects.at(index)) != nullptr
                     && this->getContainingPanel(storedObjects.at(index))->getZOrder() <= z)
-                   || (this->getContainingPanel(storedObjects.at(index)) == NULL
+                   || (this->getContainingPanel(storedObjects.at(index)) == nullptr
                        && storedObjects.at(index)->getZOrder() <= z)))
             {
                 index++;
             }
             storedObjects.insert(index, obj);
-            if(obj->getNode() != NULL && obj->getNode()->getParent() == NULL)
+            if(obj->getNode() != nullptr && obj->getNode()->getParent() == nullptr)
             {
                 layer->addChild(obj->getNode(), z);
             }
 #if VERBOSE_WARNING
-            else if(obj->getNode() == NULL)
+            else if(obj->getNode() == nullptr)
             {
                 log("Warning : Child %s doesn't have a Node, it will not be displayed by cocos2d", obj->getName().c_str());
             }
@@ -1269,7 +1269,7 @@ void GraphicLayer::update(float deltaTime)
     for(long i = 0; i < objectsToAdd.size(); i++)
     {
         this->addObject(objectsToAdd.at(i), objectsToAddZindex[i]);
-        if(objectsToAddPanel[i] != NULL)
+        if(objectsToAddPanel[i] != nullptr)
         {
             this->placeObject(objectsToAdd.at(i), objectsToAddPanel[i]);
         }
@@ -1320,8 +1320,8 @@ Vector<Panel*> GraphicLayer::sortObjects(Vector<Panel*> array)
 
 void GraphicLayer::loadBaseNodeAttributes(CustomBaseNode* node, RawObject* obj)
 {
-    //Always check for NULL since node is the result of a dynamic cast
-    if(node != NULL)
+    //Always check for nullptr since node is the result of a dynamic cast
+    if(node != nullptr)
     {
         if(!node->getName().empty())
         {

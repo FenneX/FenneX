@@ -35,7 +35,7 @@ void scheduleNotification(float timeFromNow, const std::string& alertBody, const
     notif.userInfo = [NSCCConverter nsDictionaryFromValueMap:userInfo];
     if(!soundName.empty())
     {
-        if([[NSBundle mainBundle] pathForResource:[[NSString stringWithCString:soundName.c_str() encoding:NSUTF8StringEncoding]stringByDeletingPathExtension] ofType:@"mp3"] != NULL)
+        if([[NSBundle mainBundle] pathForResource:[[NSString stringWithCString:soundName.c_str() encoding:NSUTF8StringEncoding]stringByDeletingPathExtension] ofType:@"mp3"] != nullptr)
         {
             
             notif.soundName = [NSString stringWithCString:soundName.c_str() encoding:NSUTF8StringEncoding];

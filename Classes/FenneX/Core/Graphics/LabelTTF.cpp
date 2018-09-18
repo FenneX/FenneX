@@ -39,7 +39,7 @@ Rect LabelTTF::getBoundingBox()
 
 Node* LabelTTF::getNode()
 {
-    CCAssert(delegate != NULL, "Label getNode is called upon a non-initialized object (or perhaps image/sheet load failed)");
+    CCAssert(delegate != nullptr, "Label getNode is called upon a non-initialized object (or perhaps image/sheet load failed)");
     return delegate;
 }
 
@@ -111,7 +111,7 @@ void LabelTTF::setFont(std::string filename)
 }
 
 LabelTTF::LabelTTF() :
-delegate(NULL),
+delegate(nullptr),
 loadingValue("")
 {
 }
@@ -176,7 +176,7 @@ loadingValue("")
         (isColorEqual(label->getColor() , Color3B::BLACK) ? "Black"
          : isColorEqual(label->getColor() , Color3B::WHITE) ? "White" : "Gray");
     CustomLabel* customLabel = dynamic_cast<CustomLabel*>(label);
-    if(customLabel != NULL)
+    if(customLabel != nullptr)
     {
         fitType = customLabel->getFitType();
     }

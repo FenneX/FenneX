@@ -44,8 +44,8 @@ public:
     static InertiaGenerator* sharedInertia(void);
     
     void planSceneSwitch(EventCustom* event);
-    void scrolling(Vec2 offset, Vec2 position, Vector<Touch*> touches, float deltaTime, RawObject* target = NULL, bool inertia = false);
-    void scrollingEnded(Vec2 offset, Vec2 position, Vector<Touch*> touches, float deltaTime, RawObject* target = NULL, bool inertia = false);
+    void scrolling(Vec2 offset, Vec2 position, Vector<Touch*> touches, float deltaTime, RawObject* target = nullptr, bool inertia = false);
+    void scrollingEnded(Vec2 offset, Vec2 position, Vector<Touch*> touches, float deltaTime, RawObject* target = nullptr, bool inertia = false);
     void stopInertia(RawObject* obj);
     virtual void update(float delta);
     

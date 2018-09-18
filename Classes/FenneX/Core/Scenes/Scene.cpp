@@ -42,7 +42,7 @@ void Scene::initScene()
     frameNumber = 0;
     delegate = cocos2d::Scene::create();
     delegate->retain();
-    if(Director::getInstance()->getNotificationNode()->getParent() != NULL)
+    if(Director::getInstance()->getNotificationNode()->getParent() != nullptr)
     {
         Director::getInstance()->getNotificationNode()->removeFromParentAndCleanup(true);
     }
@@ -102,17 +102,17 @@ Scene::~Scene()
         }
     }
     updateList.clear();
-    if(touchListener != NULL)
+    if(touchListener != nullptr)
     {
         Director::getInstance()->getEventDispatcher()->removeEventListener(touchListener);
         touchListener->release();
-        touchListener = NULL;
+        touchListener = nullptr;
     }
-    if(keyboardListener != NULL)
+    if(keyboardListener != nullptr)
     {
         Director::getInstance()->getEventDispatcher()->removeEventListener(keyboardListener);
         keyboardListener->release();
-        keyboardListener = NULL;
+        keyboardListener = nullptr;
     }
     Director::getInstance()->getEventDispatcher()->removeEventListener(appWillResignListener);
     TapRecognizer::sharedRecognizer()->removeDelegate(this);
@@ -127,7 +127,7 @@ void Scene::update(float deltaTime)
 #if VERBOSE_PERFORMANCE_TIME
     timeval startTime;
     if(frameNumber <= 3)
-        gettimeofday(&startTime, NULL);
+        gettimeofday(&startTime, nullptr);
 #endif
     currentTime += deltaTime;
 #if VERBOSE_GENERAL_INFO
@@ -206,7 +206,7 @@ void Scene::update(float deltaTime)
     timeval endTime;
     if(frameNumber <= 3)
     {
-        gettimeofday(&endTime, NULL);
+        gettimeofday(&endTime, nullptr);
         log("Frame %d of scene %s loaded in %f ms", frameNumber, formatSceneToString(sceneName), getTimeDifferenceMS(startTime, endTime));
     }
 #endif
@@ -300,7 +300,7 @@ bool Scene::onTouchBegan(Touch *touch, Event *pEvent)
 void Scene::onTouchMoved(Touch *touch, Event *pEvent)
 {
     //log("onTouchMoved started...");
-    if(linker->linkedObjectOf(touch) != NULL
+    if(linker->linkedObjectOf(touch) != nullptr
        && isKindOfClass(linker->linkedObjectOf(touch), const Image))
     {
         Image* toggle = (Image*)linker->linkedObjectOf(touch);
@@ -324,7 +324,7 @@ void Scene::onTouchMoved(Touch *touch, Event *pEvent)
 void Scene::onTouchEnded(Touch *touch, Event *pEvent)
 {
     //log("onTouchEnded started...");
-    if(linker->linkedObjectOf(touch) != NULL
+    if(linker->linkedObjectOf(touch) != nullptr
        && isKindOfClass(linker->linkedObjectOf(touch), const Image)
        && GraphicLayer::sharedLayer()->containsObject((RawObject*)linker->linkedObjectOf(touch)))
     {
@@ -363,7 +363,7 @@ void Scene::switchButton(Vec2 position, bool state, Touch* touch)
 {
     Image* target = getButtonAtPosition(position, state);
     //log("checked if toggle");
-    if(target != NULL)
+    if(target != nullptr)
     {
         this->switchButton(target, state, touch);
     }
@@ -411,7 +411,7 @@ void Scene::tapRecognized(Touch* touch)
     log("Tap recognized at pos %f, %f, forwarding to layer ...", pos.x, pos.y);
 #endif
     RawObject* target = getButtonAtPosition(pos, false);
-    if(target != NULL && linker->touchesLinkedTo(target).size() > 0)
+    if(target != nullptr && linker->touchesLinkedTo(target).size() > 0)
     {
 #if VERBOSE_TOUCH_RECOGNIZERS
         log("Tap intercepted by button still linked");
@@ -436,13 +436,13 @@ void Scene::dropAllTouches(EventCustom* event)
     Vector<Touch*> touches = linker->allTouches();
     for(long i = touches.size() - 1; i > 0; i--)
     {
-        this->onTouchEnded(touches.at(i), NULL);
+        this->onTouchEnded(touches.at(i), nullptr);
     }
 }
 
 void Scene::addUpdatable(Pausable* obj)
 {
-    if(obj != NULL
+    if(obj != nullptr
        && std::find(updateList.begin(), updateList.end(), obj) == updateList.end()
        && std::find(updatablesToAdd.begin(), updatablesToAdd.end(), obj) == updatablesToAdd.end())
     {
@@ -456,7 +456,7 @@ void Scene::addUpdatable(Pausable* obj)
 
 void Scene::removeUpdatable(Pausable* obj)
 {
-    if(obj != NULL
+    if(obj != nullptr
        && std::find(updateList.begin(), updateList.end(), obj) != updateList.end()
        && std::find(updatablesToRemove.begin(), updatablesToRemove.end(), obj) == updatablesToRemove.end())
     {
@@ -470,7 +470,7 @@ void Scene::removeUpdatable(Pausable* obj)
 
 void Scene::addTouchreceiver(GenericRecognizer* obj)
 {
-    if(obj != NULL && !touchReceiversList.contains(obj) && !receiversToAdd.contains(obj))
+    if(obj != nullptr && !touchReceiversList.contains(obj) && !receiversToAdd.contains(obj))
     {
         receiversToAdd.pushBack(obj);
     }
@@ -478,11 +478,11 @@ void Scene::addTouchreceiver(GenericRecognizer* obj)
 
 void Scene::removeTouchreceiver(GenericRecognizer* obj)
 {
-    if(obj != NULL && touchReceiversList.contains(obj) && !receiversToRemove.contains(obj))
+    if(obj != nullptr && touchReceiversList.contains(obj) && !receiversToRemove.contains(obj))
     {
         receiversToRemove.pushBack(obj);
     }
-    else if(obj != NULL && receiversToAdd.contains(obj))
+    else if(obj != nullptr && receiversToAdd.contains(obj))
     {
         receiversToAdd.eraseObject(obj);
     }
@@ -540,8 +540,8 @@ Image* Scene::getButtonAtPosition(Vec2 position, bool state)
 {
     return (Image*)GraphicLayer::sharedLayer()->first([position, state](RawObject* obj) -> bool {
         //All visible objects at position
-        if (obj->getNode() != NULL &&
-            dynamic_cast<Image*>(obj) != NULL &&
+        if (obj->getNode() != nullptr &&
+            dynamic_cast<Image*>(obj) != nullptr &&
             obj->getEventActivated() &&
             !obj->getEventName().empty() &&
             obj->getEventName()[0] != '\0' &&

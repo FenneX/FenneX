@@ -68,8 +68,8 @@ public:
     virtual void onTouchEnded(Touch *touch, Event *pEvent);
     virtual void onTouchCancelled(Touch *touch, Event *pEvent);
     
-    void switchButton(Vec2 position, bool state, Touch* touch = NULL);
-    void switchButton(Image* obj, bool state, Touch* touch = NULL);
+    void switchButton(Vec2 position, bool state, Touch* touch = nullptr);
+    void switchButton(Image* obj, bool state, Touch* touch = nullptr);
     
     
     virtual void tapRecognized(Touch* touch);

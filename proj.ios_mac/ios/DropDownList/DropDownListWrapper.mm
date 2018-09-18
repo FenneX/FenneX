@@ -41,7 +41,7 @@ DropDownListWrapper::~DropDownListWrapper()
 
 void DropDownListWrapper::setPossibleValues(std::vector<std::string> values)
 {
-    if(delegate != NULL)
+    if(delegate != nullptr)
     {
         NSMutableArray *array = [NSMutableArray new];
         for(std::string value : values)
@@ -54,7 +54,7 @@ void DropDownListWrapper::setPossibleValues(std::vector<std::string> values)
 
 void DropDownListWrapper::setTitle(const std::string& title)
 {
-    if(delegate != NULL)
+    if(delegate != nullptr)
     {
         [TYPED_DELEGATE setTitle:[NSString stringWithUTF8String:title.c_str()]];
     }
@@ -63,7 +63,7 @@ void DropDownListWrapper::setTitle(const std::string& title)
 
 void DropDownListWrapper::setIdentifier(int identifier)
 {
-    if(delegate != NULL)
+    if(delegate != nullptr)
     {
         [TYPED_DELEGATE setIdentifier:identifier];
     }

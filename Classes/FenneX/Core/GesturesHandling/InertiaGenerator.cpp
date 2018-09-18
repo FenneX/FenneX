@@ -39,7 +39,7 @@ THE SOFTWARE.
 
 NS_FENNEX_BEGIN
 // singleton stuff
-static InertiaGenerator *s_InertiaGenerator = NULL;
+static InertiaGenerator *s_InertiaGenerator = nullptr;
 
 InertiaGenerator* InertiaGenerator::sharedInertia(void)
 {
@@ -74,7 +74,7 @@ InertiaGenerator::~InertiaGenerator()
 
 void InertiaGenerator::addPossibleTarget(RawObject* target)
 {
-    if(target != NULL)
+    if(target != nullptr)
     {
         possibleTargets.pushBack(target);
     }
@@ -197,18 +197,18 @@ void InertiaGenerator::scrollingEnded(Vec2 offset, Vec2 position, Vector<Touch*>
             }
             Vector<RawObject*> intersectingObjects = GraphicLayer::sharedLayer()->all(position);
             bool originalTarget = true;
-            if(target == NULL)
+            if(target == nullptr)
             {
                 originalTarget = false;
                 for(RawObject* candidate : intersectingObjects)
                 {
-                    if(target == NULL && possibleTargets.contains(candidate))
+                    if(target == nullptr && possibleTargets.contains(candidate))
                     {
                         target = candidate;
                     }
                 }
             }
-            if(target != NULL
+            if(target != nullptr
                && fabs(inertiaOffset.x) > MIN_SCROLL
                && fabs(inertiaOffset.y) > MIN_SCROLL
                && !(originalTarget && !intersectingObjects.contains(target)))
@@ -237,7 +237,7 @@ void InertiaGenerator::scrollingEnded(Vec2 offset, Vec2 position, Vector<Touch*>
 
 void InertiaGenerator::stopInertia(RawObject* obj)
 {
-    if(obj != NULL && inertiaTargets.contains(obj))
+    if(obj != nullptr && inertiaTargets.contains(obj))
     {
         long index = inertiaTargets.getIndex(obj);
         inertiaParameters.erase(index);

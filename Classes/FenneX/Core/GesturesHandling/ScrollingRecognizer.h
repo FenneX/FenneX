@@ -38,8 +38,8 @@ NS_FENNEX_BEGIN
 class ScrollingDelegate
 {
 public:
-    virtual void scrolling(Vec2 offset, Vec2 position, Vector<Touch*> touches, float deltaTime, RawObject* target = NULL, bool inertia = false) = 0;
-    virtual void scrollingEnded(Vec2 offset, Vec2 position, Vector<Touch*> touches, float deltaTime, RawObject* target = NULL, bool inertia = false) = 0;
+    virtual void scrolling(Vec2 offset, Vec2 position, Vector<Touch*> touches, float deltaTime, RawObject* target = nullptr, bool inertia = false) = 0;
+    virtual void scrollingEnded(Vec2 offset, Vec2 position, Vector<Touch*> touches, float deltaTime, RawObject* target = nullptr, bool inertia = false) = 0;
 };
 //throw events Scrolling with argument Offset, Position (as Vec2), DeltaTime (as CCFloat) and TouchesCount (as CCInteger
 // and ScrollingEnded

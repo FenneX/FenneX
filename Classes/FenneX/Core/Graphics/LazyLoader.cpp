@@ -27,7 +27,7 @@
 
 NS_FENNEX_BEGIN
 // singleton stuff
-static LazyLoader *s_SharedLoader = NULL;
+static LazyLoader *s_SharedLoader = nullptr;
 
 LazyLoader* LazyLoader::sharedLoader(void)
 {
@@ -43,7 +43,7 @@ LazyLoader* LazyLoader::sharedLoader(void)
 LazyLoader::~LazyLoader()
 {
     this->clear();
-    s_SharedLoader = NULL;
+    s_SharedLoader = nullptr;
 }
 
 void LazyLoader::checkAll()

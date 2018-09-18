@@ -37,7 +37,7 @@
 #include "Shorteners.h"
 #import "Firebase.h"
 
-static AppController* _sharedController = NULL;
+static AppController* _sharedController = nullptr;
 
 @implementation AppController
 
@@ -62,8 +62,8 @@ static AppDelegate s_sharedApplication;
     
     
     MFMailComposeViewController *mailer = [[MFMailComposeViewController alloc] init];
-    //If mailer is NULL, it means the user didn't set up a mail account, and he will be warned by iOS
-    if(mailer != NULL)
+    //If mailer is nullptr, it means the user didn't set up a mail account, and he will be warned by iOS
+    if(mailer != nullptr)
     {
         mailer.mailComposeDelegate = self;
         
@@ -169,7 +169,7 @@ void uncaughtExceptionHandler(NSException *exception)
     
     //Having the openUrl before launching cocos2d-x is important so that C++ code can check for an openUrl on launch without notification
     openUrl = @"";
-    if([launchOptions objectForKey:UIApplicationLaunchOptionsURLKey] != NULL)
+    if([launchOptions objectForKey:UIApplicationLaunchOptionsURLKey] != nullptr)
     {
         openUrl = [launchOptions objectForKey:UIApplicationLaunchOptionsURLKey];
     }
@@ -182,7 +182,7 @@ void uncaughtExceptionHandler(NSException *exception)
     cocos2d::Application::getInstance()->run();
     
     NSLog(@"app launch");
-    if([launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey] != NULL)
+    if([launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey] != nullptr)
     {
         UILocalNotification* notif = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
         if([notif.userInfo objectForKey:@"CallbackEvent"] != nil)
@@ -283,7 +283,7 @@ void uncaughtExceptionHandler(NSException *exception)
 
 
 - (void)dealloc {
-    _sharedController = NULL;
+    _sharedController = nullptr;
     [super dealloc];
 }
 

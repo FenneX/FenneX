@@ -31,7 +31,7 @@ THE SOFTWARE.
 
 NS_FENNEX_BEGIN
 // singleton stuff
-static TapRecognizer *s_SharedRecognizer = NULL;
+static TapRecognizer *s_SharedRecognizer = nullptr;
 
 TapRecognizer* TapRecognizer::sharedRecognizer(void)
 {
@@ -66,14 +66,14 @@ void TapRecognizer::onTouchMoved(Touch *touch, Event *pEvent)
 void TapRecognizer::onTouchEnded(Touch *touch, Event *pEvent)
 {
 #if VERBOSE_TOUCH_RECOGNIZERS
-    log("linked ? %s", mainLinker->linkedObjectOf(touch) == NULL ? "yes" : "no");
+    log("linked ? %s", mainLinker->linkedObjectOf(touch) == nullptr ? "yes" : "no");
     log("is in start ? %s", touchStart.find(touch->getID()) != touchStart.end() ? "yes" : "no");
     log("time ? %s", (TIME - touchStart.at(touch->getID())) < 2.0 ? "yes" : "no");
     log("distance ? %s : real : %f", Scene::touchPosition(touch).getDistance(touchInitialPosition.at(touch->getID())) < 20 ? "yes" : "no", Scene::touchPosition(touch).getDistance(touchInitialPosition.at(touch->getID())));
     log("initial position : %f, %f, current : %f, %f", touchInitialPosition.at(touch->getID()).x, touchInitialPosition.at(touch->getID()).y, Scene::touchPosition(touch).x, Scene::touchPosition(touch).y);
 #endif
-    if(mainLinker != NULL
-       //&& mainLinker->linkedObjectOf(touch) == NULL //prevent drag + tap from working at the same time
+    if(mainLinker != nullptr
+       //&& mainLinker->linkedObjectOf(touch) == nullptr //prevent drag + tap from working at the same time
        && touchStart.find(touch->getID()) != touchStart.end()
        && (TIME - touchStart.at(touch->getID())) < 2.0
        && Scene::touchPosition(touch).getDistance(touchInitialPosition.at(touch->getID())) < 50 * RESOLUTION_MULTIPLIER)

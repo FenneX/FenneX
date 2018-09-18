@@ -31,7 +31,7 @@ using namespace cocos2d;
 
 + (NSDictionary *)nsDictionaryFromValueMap:(ValueMap)map {
     if (map.size()>0) {
-        return NULL;
+        return nullptr;
     }
     
     
@@ -83,7 +83,7 @@ using namespace cocos2d;
 {
     if (nsDictionary == nil) {
         return ValueMap();
-    } else if ([nsDictionary allKeys] == NULL) {
+    } else if ([nsDictionary allKeys] == nullptr) {
         return ValueMap();
     } else if ([nsDictionary allKeys].count <= 0) {
         return ValueMap();

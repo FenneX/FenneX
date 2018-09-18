@@ -111,10 +111,10 @@ THE SOFTWARE.
             
             [UIView transitionWithView:titleView duration:data == nil ? 0 : 0.5 options:UIViewAnimationOptionTransitionNone
                             animations:^{titleView.transform = transform;}
-                            completion:NULL];
+                            completion:nullptr];
             [UIView transitionWithView:pickerView duration:data == nil ? 0 : 0.5 options:UIViewAnimationOptionTransitionNone
                             animations:^{pickerView.transform = transform;}
-                            completion:NULL];
+                            completion:nullptr];
             
             currentOrientation = orientation;
         }

@@ -41,7 +41,7 @@ bool canOpenUrl(const std::string& url)
 void sendMail(const std::string& address, const std::string& subject, const std::string& message, const std::string& attachmentPlist)
 {
     /* OLD alternate method to send a mail using mailto (which goes outside of the app)
-    if(attachmentPlist == NULL)
+    if(attachmentPlist == nullptr)
     {
         NSString *mailurl=[NSString stringWithFormat:
                            @"mailto:%s?subject=%s&body=%s", address, subject, message];
@@ -52,6 +52,6 @@ void sendMail(const std::string& address, const std::string& subject, const std:
     }
     else
     {*/
-    [[AppController sharedController] sendMail:[NSString stringWithUTF8String:address.c_str()] subject:[NSString stringWithUTF8String:subject.c_str()] message:[NSString stringWithUTF8String:message.c_str()] attachment:!attachmentPlist.empty() ? [NSString stringWithUTF8String:attachmentPlist.c_str()] : NULL];
+    [[AppController sharedController] sendMail:[NSString stringWithUTF8String:address.c_str()] subject:[NSString stringWithUTF8String:subject.c_str()] message:[NSString stringWithUTF8String:message.c_str()] attachment:!attachmentPlist.empty() ? [NSString stringWithUTF8String:attachmentPlist.c_str()] : nullptr];
     //}
 }

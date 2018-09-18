@@ -67,7 +67,7 @@ void unlockFile(std::string filename)
 std::vector<std::string> getFilesInFolder(std::string folderPath)
 {
     std::vector<std::string> newVector;
-    NSArray *directoryContent = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[NSString stringWithFormat:@"%s", folderPath.c_str()] error:NULL];
+    NSArray *directoryContent = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[NSString stringWithFormat:@"%s", folderPath.c_str()] error:nullptr];
     for (int count = 0; count < (int)[directoryContent count]; count++)
     {
         newVector.push_back([[directoryContent objectAtIndex:count] UTF8String]);

@@ -29,10 +29,11 @@
 #import "AppController.h"
 #import <AudioToolbox/AudioServices.h>
 #import <sys/utsname.h>
+#import "NSFileManager+ApplicationSupport.h"
 
 NS_FENNEX_BEGIN
 
-MPVolumeView *invisibleVolumeView = NULL;
+MPVolumeView *invisibleVolumeView = nullptr;
 
 bool isPhone()
 {
@@ -199,7 +200,7 @@ std::string formatDate(time_t date)
 
 float getDeviceVolume()
 {
-    if(invisibleVolumeView == NULL)
+    if(invisibleVolumeView == nullptr)
     {
         invisibleVolumeView = [MPVolumeView new];
         [[NSNotificationCenter defaultCenter] addObserverForName:@"AVSystemController_SystemVolumeDidChangeNotification"
@@ -257,7 +258,7 @@ void setDeviceLuminosity(float percent) {
 bool openSystemSettings()
 {
     //Only available since iOS8
-    //removed condition if (&UIApplicationOpenSettingsURLString != NULL) as we target iOS 8.0 minimum now
+    //removed condition if (&UIApplicationOpenSettingsURLString != nullptr) as we target iOS 8.0 minimum now
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
     return true;
 }

@@ -63,7 +63,7 @@ bool cancelRecording(bool notify)
 
 bool pickVideoFromLibrary(const std::string& saveName, FileLocation location)
 {
-    if([AppController sharedController] != NULL)
+    if([AppController sharedController] != nullptr)
     {
         [[VideoPicker sharedPicker] initController];
         [VideoPicker sharedPicker].saveName = [NSString stringWithFormat:@"%s", saveName.c_str()];
@@ -93,7 +93,7 @@ bool pickVideoFromLibrary(const std::string& saveName, FileLocation location)
 
 bool pickVideoFromCamera(const std::string& saveName, FileLocation location)
 {
-    if([AppController sharedController] != NULL)
+    if([AppController sharedController] != nullptr)
     {
         [[VideoPicker sharedPicker] initController];
         [VideoPicker sharedPicker].saveName = [NSString stringWithFormat:@"%s", saveName.c_str()];
@@ -116,12 +116,12 @@ void getAllVideos()
     [assetLibrary enumerateGroupsWithTypes:ALAssetsGroupAll
                                 usingBlock:^(ALAssetsGroup *group, BOOL *stop)
      {
-         if (group != NULL)
+         if (group != nullptr)
          {
              [group setAssetsFilter:[ALAssetsFilter allVideos]];
              [group enumerateAssetsUsingBlock:^(ALAsset *asset, NSUInteger index, BOOL *stop)
               {
-                  if (asset != NULL)
+                  if (asset != nullptr)
                   {
                       ALAssetRepresentation *representation = [asset defaultRepresentation];
                       const char* path = [[[representation url] absoluteString] UTF8String];

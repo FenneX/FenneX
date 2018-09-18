@@ -27,6 +27,7 @@
 
 #include "cocos2d.h"
 #include "Pausable.h"
+
 USING_NS_CC;
 
 NS_FENNEX_BEGIN

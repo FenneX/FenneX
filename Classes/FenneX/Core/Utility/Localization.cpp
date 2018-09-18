@@ -72,7 +72,7 @@ const std::string Localization::getLocalizedString(const std::string& string){
         loadTranslations();
     }
 #if VERBOSE_LOCALIZATION
-    if(infos != NULL && infos.find(string->getCString()) == infos.end())
+    if(infos != nullptr && infos.find(string->getCString()) == infos.end())
     {
         log("Warning : the string %s doesn't have any match, check your translation file", string->getCString());
     }

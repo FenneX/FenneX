@@ -32,8 +32,8 @@ USING_NS_FENNEX;
 @implementation AnalyticXStringUtil
 
 + (NSString *)nsstringFromCString:(const char *)cstring {
-    if (cstring == NULL) {
-        return NULL;
+    if (cstring == nullptr) {
+        return nullptr;
     }
     
     NSString * nsstring = [[NSString alloc] initWithBytes:cstring length:strlen(cstring) encoding:NSUTF8StringEncoding];
@@ -41,8 +41,8 @@ USING_NS_FENNEX;
 }
 + (const char *)cstringFromNSString:(NSString *)nsstring {
     
-    if (nsstring == NULL) {
-        return NULL;
+    if (nsstring == nullptr) {
+        return nullptr;
     }
     
     return [nsstring UTF8String];

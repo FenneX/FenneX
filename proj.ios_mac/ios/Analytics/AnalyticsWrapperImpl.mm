@@ -79,7 +79,7 @@ void AnalyticsWrapper::GALogEvent(const std::string& eventName, const std::strin
     [[[GAI sharedInstance] defaultTracker]
      send:[[[GAIDictionaryBuilder createEventWithCategory:[NSString stringWithFormat:@"%s", !sharedInstance()->lastPageName.empty() ? sharedInstance()->lastPageName.c_str() : "NoScene"]
                                                    action:[NSString stringWithFormat:@"%s", eventName.c_str()]
-                                                    label:!label.empty() ? [NSString stringWithFormat:@"%s", label.c_str()] : NULL
+                                                    label:!label.empty() ? [NSString stringWithFormat:@"%s", label.c_str()] : nullptr
                                                     value:[NSNumber numberWithInt:value]]
             set:@"start" forKey:kGAISessionControl]
            build]];

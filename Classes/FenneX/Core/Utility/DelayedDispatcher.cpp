@@ -28,15 +28,15 @@
 
 NS_FENNEX_BEGIN
 
-static DelayedDispatcher* temporaryInstance = NULL;
-static Scene* temporaryInstanceScene = NULL;
-static EventListenerCustom* temporaryListener = NULL;
+static DelayedDispatcher* temporaryInstance = nullptr;
+static Scene* temporaryInstanceScene = nullptr;
+static EventListenerCustom* temporaryListener = nullptr;
 
 
 DelayedDispatcher::~DelayedDispatcher()
 {
-    temporaryInstance = NULL;
-    temporaryInstanceScene = NULL;
+    temporaryInstance = nullptr;
+    temporaryInstanceScene = nullptr;
 }
 
 void DelayedDispatcher::eventAfterDelay(std::string eventName, Value userData, float delay)
@@ -120,12 +120,12 @@ void DelayedDispatcher::update(float deltaTime)
 DelayedDispatcher* DelayedDispatcher::getInstance()
 {
     //A DelayedDispatcher must be linked to a scene to keep old behavior (delayed funcs/events don't last more than the scene they were created on)
-    if(SceneSwitcher::sharedSwitcher()->getCurrentScene() == NULL)
+    if(SceneSwitcher::sharedSwitcher()->getCurrentScene() == nullptr)
     {
-        if(temporaryInstance != NULL && temporaryInstanceScene == NULL) return temporaryInstance;
+        if(temporaryInstance != nullptr && temporaryInstanceScene == nullptr) return temporaryInstance;
         //Hack around the fact that DelayedDispatcher can be called during Scene init: create a temporaryInstance that will be added to the Scene when the switch ends
         temporaryInstance = new DelayedDispatcher();
-        temporaryInstanceScene = NULL;
+        temporaryInstanceScene = nullptr;
         temporaryListener = Director::getInstance()->getEventDispatcher()->addCustomEventListener("SceneSwitched", [](EventCustom*)
           {
               int refCount = temporaryInstance->getReferenceCount();
@@ -134,8 +134,8 @@ DelayedDispatcher* DelayedDispatcher::getInstance()
               if(temporaryInstance->getReferenceCount() > refCount)
                   temporaryInstance->release(); // If it was already added, it won't retain again, so the ref count won't be incremented
               
-              temporaryListener = NULL;
-              temporaryInstance = NULL;
+              temporaryListener = nullptr;
+              temporaryInstance = nullptr;
           });
         return temporaryInstance;
     }
@@ -144,19 +144,19 @@ DelayedDispatcher* DelayedDispatcher::getInstance()
     {
         if(isKindOfClass(candidate, DelayedDispatcher))
         {
-            temporaryInstance = NULL;
+            temporaryInstance = nullptr;
             return (DelayedDispatcher*)candidate;
         }
     }
     //Hack around the fact the addUpdatable is not instant, it is necessary to avoid recreating several DelayedDispatcher until it's accessible using getUpdateList
-    if(temporaryInstance != NULL && temporaryInstanceScene == SceneSwitcher::sharedSwitcher()->getCurrentScene()) return temporaryInstance;
+    if(temporaryInstance != nullptr && temporaryInstanceScene == SceneSwitcher::sharedSwitcher()->getCurrentScene()) return temporaryInstance;
     DelayedDispatcher* newInstance = new DelayedDispatcher();
     SceneSwitcher::sharedSwitcher()->getCurrentScene()->addUpdatable(newInstance);
     newInstance->release();
-    if(temporaryInstance != NULL)
+    if(temporaryInstance != nullptr)
     {
         SceneSwitcher::sharedSwitcher()->getCurrentScene()->removeUpdatable(temporaryInstance);
-        temporaryInstance = NULL;
+        temporaryInstance = nullptr;
     }
     temporaryInstance = newInstance;
     temporaryInstanceScene = SceneSwitcher::sharedSwitcher()->getCurrentScene();

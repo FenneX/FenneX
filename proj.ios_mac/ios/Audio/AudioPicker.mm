@@ -43,7 +43,7 @@ bool pickSound(const std::string& promptText, const std::string& saveName, const
     [AudioPicker sharedPicker].saveName = [NSString stringWithFormat:@"%s.m4a", saveName.c_str()];
     [AudioPicker sharedPicker].identifier = [NSString stringWithFormat:@"%s", identifier.c_str()];
     NSLog(@"Picking sound %s", saveName.c_str());
-    if([AppController sharedController] != NULL)
+    if([AppController sharedController] != nullptr)
     {
         [[AppController sharedController].viewController presentModalViewController:[AudioPicker sharedPicker].controller animated:YES];
         return true;
@@ -62,7 +62,7 @@ bool isAudioPickerExporting()
 
 std::string audioPickerCurrentExport()
 {
-    return isAudioPickerExporting() ? [[AudioPicker sharedPicker].saveName UTF8String] : NULL;
+    return isAudioPickerExporting() ? [[AudioPicker sharedPicker].saveName UTF8String] : nullptr;
 }
 
 void stopAudioPickerExport()
@@ -77,7 +77,7 @@ void stopAudioPickerExport()
 
 - (BOOL) isExporting
 {
-    return exporter != NULL;
+    return exporter != nullptr;
 }
 
 static AudioPicker* _sharedPicker = nil;
@@ -112,7 +112,7 @@ static AudioPicker* _sharedPicker = nil;
 	self = [super init];
 	if (self != nil)
 	{
-        exporter = NULL;
+        exporter = nullptr;
     }
     return self;
 }
@@ -167,7 +167,7 @@ static AudioPicker* _sharedPicker = nil;
         
         int exportStatus = exporter.status;
         [exporter release];
-        exporter = NULL;
+        exporter = nullptr;
         switch (exportStatus) {
             case AVAssetExportSessionStatusFailed:                
                 NSLog (@"AVAssetExportSessionStatusFailed: %@", exporter.error);

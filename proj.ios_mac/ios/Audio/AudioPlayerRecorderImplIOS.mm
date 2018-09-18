@@ -206,10 +206,10 @@ static AudioPlayerRecorderImpl* _sharedAudio = nil;
     {
         [audioRecorder1 release];
         [audioRecorder2 release];
-        url1 = NULL;
-        url2 = NULL;
-        audioRecorder1 = NULL;
-        audioRecorder2 = NULL;
+        url1 = nullptr;
+        url2 = nullptr;
+        audioRecorder1 = nullptr;
+        audioRecorder2 = nullptr;
     }
 }
 

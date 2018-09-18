@@ -28,7 +28,7 @@ THE SOFTWARE.
 NS_FENNEX_BEGIN
 
 // singleton stuff
-static LayoutHandler *s_SharedHandler = NULL;
+static LayoutHandler *s_SharedHandler = nullptr;
 
 LayoutHandler* LayoutHandler::sharedHandler(void)
 {

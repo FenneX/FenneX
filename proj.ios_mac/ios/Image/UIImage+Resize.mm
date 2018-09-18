@@ -192,7 +192,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     CGImageRef imageRef = self.CGImage;
     
     // Build a context that's the same dimensions as the new size
-    CGContextRef bitmap = CGBitmapContextCreate(NULL,
+    CGContextRef bitmap = CGBitmapContextCreate(nullptr,
                                                 newRect.size.width,
                                                 newRect.size.height,
                                                 CGImageGetBitsPerComponent(imageRef),

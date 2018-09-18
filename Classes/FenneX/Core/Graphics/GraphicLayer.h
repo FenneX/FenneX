@@ -103,14 +103,14 @@ public:
      Methods to interact with Panels
      *********************************************************************************/
     
-    //Leave panel at NULL to remove it from any panel it may be on
-    RawObject* placeObject(RawObject* obj, Panel* panel = NULL);
+    //Leave panel at nullptr to remove it from any panel it may be on
+    RawObject* placeObject(RawObject* obj, Panel* panel = nullptr);
     
     //Remove will put objects from panel on the manager, use destroy if you want to destroy them
     void removeObjectFromPanel(RawObject* obj, Panel* panel);
     void removeAllObjectsFromPanel(Panel* panel);
     
-    //Get the parent panel of an object, or NULL if the object has no parent
+    //Get the parent panel of an object, or nullptr if the object has no parent
     Panel* getContainingPanel(RawObject* obj);
     
     /**********************************************************************************

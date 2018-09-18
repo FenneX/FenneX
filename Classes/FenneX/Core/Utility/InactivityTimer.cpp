@@ -26,11 +26,11 @@
 #include "FenneXCore.h"
 
 static int timerDuration = -1;
-static InactivityTimer* instance = NULL;
+static InactivityTimer* instance = nullptr;
 
 InactivityTimer* InactivityTimer::getInstance()
 {
-    if(instance == NULL)
+    if(instance == nullptr)
     {
         instance = new InactivityTimer();
     }

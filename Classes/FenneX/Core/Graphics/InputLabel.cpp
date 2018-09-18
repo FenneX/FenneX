@@ -34,7 +34,7 @@ static std::vector<int> locks;
 void InputLabel::setEventName(const char* var)
 {
     log("Warning : changing eventName for InputLabel, may not be able to open keyboard");
-    if(var == NULL) eventName.clear();
+    if(var == nullptr) eventName.clear();
     else if (eventName.compare(var))
         eventName = var;
 }
@@ -46,7 +46,7 @@ Rect InputLabel::getBoundingBox()
 
 Node* InputLabel::getNode()
 {
-    CCAssert(delegate != NULL, "InputLabel getNode is called upon a non-initialized object (or perhaps image/sheet load failed)");
+    CCAssert(delegate != nullptr, "InputLabel getNode is called upon a non-initialized object (or perhaps image/sheet load failed)");
     return delegate;
 }
 
@@ -85,10 +85,10 @@ std::string InputLabel::getLabelValue()
     return delegate->getText();
 }
 
-InputLabel::InputLabel() : delegate(NULL)
+InputLabel::InputLabel() : delegate(nullptr)
 {
     isOpened = false;
-    originalInfos = NULL;
+    originalInfos = nullptr;
     fontSize = -1;
     fontName = "";
 }
@@ -96,7 +96,7 @@ InputLabel::InputLabel() : delegate(NULL)
 InputLabel::InputLabel(ui::Scale9Sprite* sprite)
 {
     isOpened = false;
-    originalInfos = NULL;
+    originalInfos = nullptr;
     fontSize = -1;
     fontName = "";
     name = "CustomInputLabel";
@@ -130,7 +130,7 @@ InputLabel::InputLabel(ui::Scale9Sprite* sprite)
     listeners.pushBack(Director::getInstance()->getEventDispatcher()->addCustomEventListener("EnableInputs", std::bind(&InputLabel::enableInputs, this, std::placeholders::_1)));
     
     CustomInput* input = dynamic_cast<CustomInput*>(sprite);
-    if(input != NULL)
+    if(input != nullptr)
     {
         if(!input->getPlaceHolder().empty())
         {
@@ -171,9 +171,9 @@ InputLabel::~InputLabel()
         Director::getInstance()->getEventDispatcher()->removeEventListener(listener);
     }
     listeners.clear();
-    delegate->setDelegate(NULL);
+    delegate->setDelegate(nullptr);
     delegate->release();
-    if(originalInfos != NULL)
+    if(originalInfos != nullptr)
     {
         originalInfos->release();
     }
@@ -184,7 +184,7 @@ InputLabel::~InputLabel()
 
 void InputLabel::openKeyboard(EventCustom* event)
 {
-    ValueMap infos = (event != NULL && event->getUserData() != NULL) ? ((Value*)event->getUserData())->asValueMap() : ValueMap();
+    ValueMap infos = (event != nullptr && event->getUserData() != nullptr) ? ((Value*)event->getUserData())->asValueMap() : ValueMap();
     if(locks.size() == 0
        && ((isValueOfType(infos["Sender"], INTEGER)
             && infos["Sender"].asInt() == identifier)
@@ -199,7 +199,7 @@ void InputLabel::openKeyboard(EventCustom* event)
 
 void InputLabel::closeKeyboard(EventCustom* event)
 {
-    ValueMap infos = (event != NULL && event->getUserData() != NULL) ? ((Value*)event->getUserData())->asValueMap() : ValueMap();
+    ValueMap infos = (event != nullptr && event->getUserData() != nullptr) ? ((Value*)event->getUserData())->asValueMap() : ValueMap();
     if((isValueOfType(infos["Sender"], INTEGER)
         && infos["Sender"].asInt() == identifier)
         || (isValueOfType(infos["Target"], INTEGER)
@@ -227,7 +227,7 @@ void InputLabel::editBoxEditingWillBegin(ui::EditBox* editBox)
     if(locks.size() == 0 && !isOpened && delegate->isEnabled())
     {
         log("editing will begin InputLabel");
-        if(linkTo != NULL)
+        if(linkTo != nullptr)
         {
             //A password should be cleared when you begin editing. That's the default behavior on iOS, and we can't easily go around anyway, since UITextField.secureEntry force this behavior
             delegate->setText(isUnedited() || isPassword ? "" : linkTo->getLabelValue());

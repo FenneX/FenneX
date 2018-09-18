@@ -37,8 +37,8 @@ NS_FENNEX_BEGIN
 std::vector<std::pair<std::string, std::string>>* getConversions()
 {
     //Conversions is heavy, avoid copying it. There are 15695 pairs
-    static std::vector<std::pair<std::string, std::string>>* result = NULL;
-    if(result != NULL)
+    static std::vector<std::pair<std::string, std::string>>* result = nullptr;
+    if(result != nullptr)
     {
         return result;
     }

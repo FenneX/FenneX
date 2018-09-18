@@ -254,7 +254,7 @@ static VideoRecorder* _sharedRecorder = nil;
         }
     }
     if ( bestFormat ) {
-        if ( [device lockForConfiguration:NULL] == YES ) {
+        if ( [device lockForConfiguration:nullptr] == YES ) {
             device.activeFormat = bestFormat;
             device.activeVideoMinFrameDuration = bestFrameRateRange.minFrameDuration;
             device.activeVideoMaxFrameDuration = bestFrameRateRange.minFrameDuration;
@@ -456,7 +456,7 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
     }
     if(shouldDeleteNextVideo)
     {
-        error = NULL;
+        error = nullptr;
         if(![[NSFileManager defaultManager] removeItemAtURL:outputFileURL error: &error])
         {
             NSLog(@"Couldn't delete video at path %@ after cancel", [outputFileURL absoluteString]);
@@ -480,9 +480,9 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
                  {
                      NSLog(@"Error when trying to write video in photo album : %@", [error localizedDescription]);
                  }
-                 else if(assetURL == NULL)
+                 else if(assetURL == nullptr)
                  {
-                     NSLog(@"Error : assertURL NULL, video too short ?");
+                     NSLog(@"Error : assertURL nullptr, video too short ?");
                  }
                  else
                  {

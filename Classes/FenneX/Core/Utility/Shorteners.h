@@ -36,12 +36,12 @@ USING_NS_CC;
 NS_FENNEX_BEGIN
 
 //Warning: it doesn't work well in Fast mode when trying to check for non-cocos class. You should inline the dynamic cast in this case.
-#define isKindOfClass(obj,class) (dynamic_cast<class*>((cocos2d::Ref*)obj) != NULL)
-#define isKindOf(obj, class) (dynamic_cast<class*>(obj) != NULL)
+#define isKindOfClass(obj,class) (dynamic_cast<class*>((cocos2d::Ref*)obj) != nullptr)
+#define isKindOf(obj, class) (dynamic_cast<class*>(obj) != nullptr)
 #define isValueOfType(obj,type) (!obj.isNull() && obj.getType() == cocos2d::Value::Type::type)
 #define valueMapContains(obj, name, type) (obj.find(name) != obj.end() && obj.at(name).getType() == cocos2d::Value::Type::type)
 
-#define IFEXIST(obj) if(obj != NULL) (obj)
+#define IFEXIST(obj) if(obj != nullptr) (obj)
 
 /* creation shorteners : since those are widly used, shortening the name makes sense (much like ccp), as well as uniformizing the format
  * format *create where * is the type
@@ -54,7 +54,7 @@ NS_FENNEX_BEGIN
  */
 
 cocos2d::Size* sizeCreate(float width = 0, float height = 0);
-//note : keys have to be passed as CCString, unfortunately. Must be NULL terminated
+//note : keys have to be passed as CCString, unfortunately. Must be nullptr terminated
 
 static inline cocos2d::Size
 SizeMult(const cocos2d::Size& v, const float s)

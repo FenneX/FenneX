@@ -37,18 +37,18 @@ Rect Image::getBoundingBox()
 
 Node* Image::getNode()
 {
-    if(spriteSheet != NULL)
+    if(spriteSheet != nullptr)
     {
         return spriteSheet;
     }
-    CCAssert(delegate != NULL, "Image getNode is called upon a non-initialized object (or perhaps image/sheet load failed)");
+    CCAssert(delegate != nullptr, "Image getNode is called upon a non-initialized object (or perhaps image/sheet load failed)");
     return delegate;
 }
 
 Image::Image():
-spriteSheet(NULL),
-delegate(NULL),
-runningAnimation(NULL),
+spriteSheet(nullptr),
+delegate(nullptr),
+runningAnimation(nullptr),
 file(""),
 loadingFile(""),
 isLoadingTexture(false)
@@ -56,8 +56,8 @@ isLoadingTexture(false)
     
 }
 Image::Image(std::string filename, Vec2 location):
-spriteSheet(NULL),
-runningAnimation(NULL),
+spriteSheet(nullptr),
+runningAnimation(nullptr),
 file(filename),
 loadingFile(""),
 isLoadingTexture(false)
@@ -70,22 +70,22 @@ isLoadingTexture(false)
     else
     { //Legacy compatibility: detect file extension
         delegate = Sprite::create(file.append(".png"));
-        if(delegate == NULL)
+        if(delegate == nullptr)
         {
             file.erase(file.length() - 4, 4);
             delegate = Sprite::create(file.append(".jpg"));
         }
-        if(delegate == NULL)
+        if(delegate == nullptr)
         {
             file.erase(file.length() - 4, 4);
             delegate = Sprite::create(file.append(".jpeg"));
         }
-        if(delegate == NULL)
+        if(delegate == nullptr)
         {
             file.erase(file.length() - 5, 5);
         }
     }
-    if(delegate == NULL)
+    if(delegate == nullptr)
     {
         log("Problem with asset : %s, the application will crash", filename.c_str());
     }
@@ -123,13 +123,13 @@ isLoadingTexture(false)
     delegate->setSpriteFrame(firstFrame);
     this->setPosition(location);
     spriteSheet->addChild(delegate);
-    runningAnimation = NULL;
+    runningAnimation = nullptr;
 }
 
 Image::Image(Sprite* node):
 spritesName(0),
-spriteSheet(NULL),
-runningAnimation(NULL),
+spriteSheet(nullptr),
+runningAnimation(nullptr),
 loadingFile(""),
 isLoadingTexture(false)
 {
@@ -146,7 +146,7 @@ isLoadingTexture(false)
 
 Image::~Image()
 {
-    if(spriteSheet != NULL)
+    if(spriteSheet != nullptr)
     {
         spriteSheet->release();
         spritesName.clear();
@@ -159,7 +159,7 @@ Image::~Image()
 
 void Image::runFullAnimation(float delay, bool invert)
 {
-    CCAssert(spriteSheet != NULL, "Image runFullAnimation called on an object without spritesheet");
+    CCAssert(spriteSheet != nullptr, "Image runFullAnimation called on an object without spritesheet");
     Vector<AnimationFrame*> animationFrames;
     for(int i = 0; i < spritesName.size(); i++)
     {
@@ -174,7 +174,7 @@ void Image::runFullAnimation(float delay, bool invert)
     Action* action = RepeatForever::create(Animate::create(Animation::create(animationFrames, delay)));
     if(runningAnimation != action)
     {
-        if(runningAnimation != NULL)
+        if(runningAnimation != nullptr)
         {
             delegate->stopAction(runningAnimation);
         }
@@ -185,7 +185,7 @@ void Image::runFullAnimation(float delay, bool invert)
 
 Animate* Image::getFullAnimation(float delay, bool invert)
 {
-    CCAssert(spriteSheet != NULL, "Image getFullAnimation called on an object without spritesheet");
+    CCAssert(spriteSheet != nullptr, "Image getFullAnimation called on an object without spritesheet");
     Vector<AnimationFrame*> animationFrames;
     for(int i = 0; i < spritesName.size(); i++)
     {
@@ -202,7 +202,7 @@ Animate* Image::getFullAnimation(float delay, bool invert)
 
 Node* Image::getAnimationTarget()
 {
-    CCAssert(spriteSheet != NULL, "Image getAnimationTarget called on an object without spritesheet");
+    CCAssert(spriteSheet != nullptr, "Image getAnimationTarget called on an object without spritesheet");
     return delegate;
 }
 
@@ -249,7 +249,7 @@ void Image::loadAnimation(const char* filename, int capacity, bool useLastFrame)
     delegate->setSpriteFrame(firstFrame);
     spriteSheet->addChild(delegate);
     spriteSheet->setContentSize(firstFrame->getOriginalSize());
-    runningAnimation = NULL;
+    runningAnimation = nullptr;
 }
 
 void Image::replaceTexture(std::string filename, bool keepExactSize, bool async, bool keepRatio)
@@ -269,7 +269,7 @@ void Image::replaceTexture(std::string filename, bool keepExactSize, bool async,
         Sprite* sprite = (Sprite*)delegate;
         Size initialSize = Size(sprite->getContentSize().width * sprite->getScaleX(), sprite->getContentSize().height * sprite->getScaleY());
         Texture2D* newTexture = Director::getInstance()->getTextureCache()->addImage(file);
-        if(newTexture == NULL)
+        if(newTexture == nullptr)
         {
 #if VERBOSE_WARNING
             log("Warning : Problem with asset : %s, texture not replaced", filename.c_str());
@@ -279,14 +279,14 @@ void Image::replaceTexture(std::string filename, bool keepExactSize, bool async,
         }
         
         //If there is a spriteSheet, switch back normal delegate
-        if(spriteSheet != NULL)
+        if(spriteSheet != nullptr)
         {
             Node* parent = spriteSheet->getParent();
             spriteSheet->removeChild(delegate, true);
             parent->removeChild(spriteSheet, true);
             parent->addChild(delegate);
             spriteSheet->release();
-            spriteSheet = NULL;
+            spriteSheet = nullptr;
         }
         sprite->setTexture(newTexture);
         Rect textureRect = Rect(0, 0, newTexture->getContentSize().width, newTexture->getContentSize().height);
@@ -329,12 +329,12 @@ void Image::textureLoaded(Texture2D* tex)
 
 bool Image::isAnimation()
 {
-    return spriteSheet != NULL;
+    return spriteSheet != nullptr;
 }
 
 bool Image::collision(Vec2 point)
 {
-    if(spriteSheet != NULL)
+    if(spriteSheet != nullptr)
     {
         point.x = (point.x - delegate->getPosition().x + delegate->getAnchorPoint().x * delegate->getContentSize().width) / delegate->getScaleX();
         point.y = (point.y - delegate->getPosition().y + delegate->getAnchorPoint().y * delegate->getContentSize().height) / delegate->getScaleY();
@@ -351,15 +351,15 @@ cocos2d::Image::Format detectFormat(std::string& file)
     if(stringEndsWith(file, ".jpeg")) return cocos2d::Image::Format::JPG;
     //Legacy compatibility, detect file format
     Texture2D* newTexture = Director::getInstance()->getTextureCache()->addImage(file.append(".png").c_str());
-    if(newTexture != NULL) return cocos2d::Image::Format::PNG;
+    if(newTexture != nullptr) return cocos2d::Image::Format::PNG;
     file.erase(file.length() - 4, 4);
     newTexture = Director::getInstance()->getTextureCache()->addImage(file.append(".jpg").c_str());
-    if(newTexture == NULL)
+    if(newTexture == nullptr)
     {
         newTexture = Director::getInstance()->getTextureCache()->addImage(file.append(".jpeg").c_str());
         file.erase(file.length() - 5, 5);
     }
-    return newTexture == NULL ? cocos2d::Image::Format::UNKNOWN : cocos2d::Image::Format::JPG;
+    return newTexture == nullptr ? cocos2d::Image::Format::UNKNOWN : cocos2d::Image::Format::JPG;
 }
 
 bool Image::generateScaledImage(std::string fileToScale, std::string fileToSave, float scale)
@@ -367,7 +367,7 @@ bool Image::generateScaledImage(std::string fileToScale, std::string fileToSave,
     CCAssert(scale > 0, "Scale must be > 0 for generateScaledImage");
     cocos2d::Image::Format format = detectFormat(fileToScale);
     Texture2D* newTexture = Director::getInstance()->getTextureCache()->addImage(fileToScale);
-    if(format == cocos2d::Image::Format::UNKNOWN || newTexture == NULL)
+    if(format == cocos2d::Image::Format::UNKNOWN || newTexture == nullptr)
     {
 #if VERBOSE_WARNING
         log("Warning : Problem with asset : %s, texture not replaced", fileToScale.c_str());

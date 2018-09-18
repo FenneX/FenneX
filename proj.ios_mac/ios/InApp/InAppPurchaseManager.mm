@@ -230,7 +230,7 @@ static InAppPurchaseManager* _sharedManager = nil;
 
 - (void)buyProductIdentifier:(NSString *)productIdentifier {
 	
-    if(productIdentifier != NULL && productIdentifier.length > 0)
+    if(productIdentifier != nullptr && productIdentifier.length > 0)
     {
         NSLog(@"Buying %@ ...", productIdentifier);
         
@@ -279,7 +279,7 @@ static InAppPurchaseManager* _sharedManager = nil;
 - (NSString*) getAppleReceipt
 {
     NSData* receipt = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
-    return receipt == NULL ? @"" : [receipt base64EncodedStringWithOptions:0];
+    return receipt == nullptr ? @"" : [receipt base64EncodedStringWithOptions:0];
 }
 
 @end

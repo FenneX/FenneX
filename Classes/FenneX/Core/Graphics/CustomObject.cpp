@@ -34,7 +34,7 @@ Rect CustomObject::getBoundingBox()
 
 Node* CustomObject::getNode()
 {
-    CCAssert(delegate != NULL, "CustomObject getNode is called upon a non-initialized object (or perhaps image/sheet load failed)");
+    CCAssert(delegate != nullptr, "CustomObject getNode is called upon a non-initialized object (or perhaps image/sheet load failed)");
     return delegate;
 }
 
@@ -55,7 +55,7 @@ void CustomObject::setNode(Node* node)
 }
 
 CustomObject::CustomObject():
-delegate(NULL)
+delegate(nullptr)
 {
     
 }
@@ -63,9 +63,9 @@ delegate(NULL)
 CustomObject::CustomObject(Node* child)
 {
     delegate = child;
-    if(delegate == NULL)
+    if(delegate == nullptr)
     {
-        log("Problem with CustomObject, delegate is NULL, the application will crash");
+        log("Problem with CustomObject, delegate is nullptr, the application will crash");
     }
     delegate->retain();
 }
@@ -73,9 +73,9 @@ CustomObject::CustomObject(Node* child)
 CustomObject::CustomObject(Node* child, Vec2 location)
 {
     delegate = child;
-    if(delegate == NULL)
+    if(delegate == nullptr)
     {
-        log("Problem with CustomObject, delegate is NULL, the application will crash");
+        log("Problem with CustomObject, delegate is nullptr, the application will crash");
     }
     delegate->retain();
     this->setPosition(location);
@@ -85,7 +85,7 @@ CustomObject::~CustomObject()
 {
     delegate->release();
 #if VERBOSE_DEALLOC
-    if(this->getName() != NULL)
+    if(this->getName() != nullptr)
     {
         log("Dealloc CustomObject %s", this->getName());
     }

@@ -63,7 +63,7 @@ DropDownList::DropDownList(Sprite* sprite)
 
  void DropDownList::init()
 {
-    linkTo = NULL;
+    linkTo = nullptr;
     isOpened = false;
     initialText = "";
     dropList = new DropDownListWrapper();
@@ -76,7 +76,7 @@ DropDownList::DropDownList(Sprite* sprite)
 DropDownList::~DropDownList()
 {
     dropList->release();
-    dropList = NULL;
+    dropList = nullptr;
     for(EventListenerCustom* listener : listeners)
     {
         Director::getInstance()->getEventDispatcher()->removeEventListener(listener);
@@ -86,7 +86,7 @@ DropDownList::~DropDownList()
 
 std::string DropDownList::getSelectedValue()
 {
-    if(linkTo == NULL || std::find(possibleValues.begin(), possibleValues.end(),  linkTo->getLabelValue()) != possibleValues.end())
+    if(linkTo == nullptr || std::find(possibleValues.begin(), possibleValues.end(),  linkTo->getLabelValue()) != possibleValues.end())
     {
         return "";
     }
@@ -98,8 +98,8 @@ std::string DropDownList::getSelectedValue()
 
 void DropDownList::setSelectedValue(EventCustom* event)
 {
-    ValueMap infos = (event != NULL && event->getUserData() != NULL) ? ((Value*)event->getUserData())->asValueMap() : ValueMap();
-    if(linkTo != NULL &&
+    ValueMap infos = (event != nullptr && event->getUserData() != nullptr) ? ((Value*)event->getUserData())->asValueMap() : ValueMap();
+    if(linkTo != nullptr &&
        isValueOfType(infos["Identifier"], INTEGER) &&
        isValueOfType(infos["SelectedValue"], STRING) &&
        linkTo->getID() == infos["Identifier"].asInt())
@@ -110,7 +110,7 @@ void DropDownList::setSelectedValue(EventCustom* event)
 
 void DropDownList::setLabelSelectedValue(std::string selectedValue)
 {
-    if(linkTo != NULL)
+    if(linkTo != nullptr)
     {
         linkTo->setLabelValue(selectedValue.c_str());
     }
@@ -128,7 +128,7 @@ void DropDownList::setTitle(std::string title)
 
 void DropDownList::showDropDownList(EventCustom* event)
 {
-    ValueMap infos = (event != NULL && event->getUserData() != NULL) ? ((Value*)event->getUserData())->asValueMap() : ValueMap();
+    ValueMap infos = (event != nullptr && event->getUserData() != nullptr) ? ((Value*)event->getUserData())->asValueMap() : ValueMap();
     if(isValueOfType(infos["Sender"], INTEGER) && getID() == infos["Sender"].asInt())
     {
         dropList->show();

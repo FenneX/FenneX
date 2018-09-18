@@ -74,7 +74,7 @@ USING_NS_FENNEX;
         //If there is no data, it's called from self at startup : don't animate the transition
         [UIView transitionWithView:playerController.view duration:data == nil ? 0 : 0.5 options:UIViewAnimationOptionTransitionNone
                         animations:^{playerController.view.transform = transform;}
-                        completion:NULL];
+                        completion:nullptr];
         currentOrientation = orientation;
         [self updateFrame];
     }
@@ -403,7 +403,7 @@ USING_NS_FENNEX;
         withoutExtension = [file stringByDeletingPathExtension];
     }
     NSString* moviePath = [[NSBundle mainBundle] pathForResource:withoutExtension ofType:extension];
-    if(moviePath == NULL)
+    if(moviePath == nullptr)
     {
         moviePath = file;
     }
@@ -413,7 +413,7 @@ USING_NS_FENNEX;
 + (BOOL) getThumbnail:(NSString*)path thumbnailName:(NSString*)thumbnailName
 {
     //NSString* thumbnailPath = [path stringByReplacingOccurrencesOfString:[path lastPathComponent] withString:thumbnailFileName];
-    UIImage *thumbnail = NULL;
+    UIImage *thumbnail = nullptr;
     //Only generate it if it doesn't exist
     //This method is badly named, it will check for ANY file, not just videos
     if(![VideoPlayerImplIOS videoExists:thumbnailName])
@@ -421,10 +421,10 @@ USING_NS_FENNEX;
         //Try to get the thumbnail from Photo app first
         AVURLAsset *asset = [[[AVURLAsset alloc] initWithURL:[VideoPlayerImplIOS URLFromPath:path] options:nil] autorelease];
         AVAssetImageGenerator *generateImg = [[[AVAssetImageGenerator alloc] initWithAsset:asset] autorelease];
-        NSError *error = NULL;
+        NSError *error = nullptr;
         CMTime time = CMTimeMake(1, 1);
-        CGImageRef refImg = [generateImg copyCGImageAtTime:time actualTime:NULL error:&error];
-        if(error == NULL)
+        CGImageRef refImg = [generateImg copyCGImageAtTime:time actualTime:nullptr error:&error];
+        if(error == nullptr)
         {
             thumbnail = [[[UIImage alloc] initWithCGImage:refImg] autorelease];
             //Fix the thumbnail orientation by rotating it (on iOS, the video can be rotated and there is a metadata that indicate that)
@@ -458,7 +458,7 @@ USING_NS_FENNEX;
             }
         }
         
-        if(thumbnail != NULL)
+        if(thumbnail != nullptr)
         {
             BOOL result = [UIImagePNGRepresentation(thumbnail) writeToFile:thumbnailName options:NSDataWritingAtomic error:&error];
             NSLog(@"Write result for thumbnail %@ : %@", thumbnailName, (result ? @"OK" : @"Problem"));

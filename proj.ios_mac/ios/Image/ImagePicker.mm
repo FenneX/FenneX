@@ -47,7 +47,7 @@ bool pickImageFrom(const std::string& saveName, FileLocation location, PickOptio
     NSLog(@"Picking image %s", saveName.c_str());
     
     [[ImagePicker sharedPicker] setSourceType:pickOption == PickOption::Camera ? UIImagePickerControllerSourceTypeCamera : UIImagePickerControllerSourceTypePhotoLibrary];
-    if([AppController sharedController] != NULL)
+    if([AppController sharedController] != nullptr)
     {
         if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad && !(pickOption == PickOption::Camera))
         {
@@ -206,7 +206,7 @@ static ImagePicker* _sharedPicker = nil;
         }
         
         NSString* imagePath = [NSString stringWithFormat:@"%s", imagePathStd.c_str()];
-        NSError* error = NULL;
+        NSError* error = nullptr;
         BOOL result = [UIImagePNGRepresentation(resultImage) writeToFile:imagePath options:NSDataWritingAtomic error:&error];
         NSLog(@"Write result for file %@ : %@, full path: %@", saveName, (result ? @"OK" : @"Problem"), imagePath);
         if(result)

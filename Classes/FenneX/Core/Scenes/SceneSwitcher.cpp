@@ -31,7 +31,7 @@ THE SOFTWARE.
 
 NS_FENNEX_BEGIN
 // singleton stuff
-static SceneSwitcher *s_SharedSwitcher = NULL;
+static SceneSwitcher *s_SharedSwitcher = nullptr;
 
 SceneSwitcher* SceneSwitcher::sharedSwitcher(void)
 {
@@ -47,12 +47,12 @@ SceneSwitcher* SceneSwitcher::sharedSwitcher(void)
 SceneSwitcher::~SceneSwitcher()
 {
     Director::getInstance()->getEventDispatcher()->removeEventListener(planSceneSwitchListener);
-    s_SharedSwitcher = NULL;
+    s_SharedSwitcher = nullptr;
 }
 
 void SceneSwitcher::init()
 {
-    currentScene = NULL;
+    currentScene = nullptr;
     sceneSwitchCancelled = false;
     currentSceneName = None;
     nextSceneParam = ValueMap();
@@ -201,7 +201,7 @@ void SceneSwitcher::replaceScene()
 {
 #if VERBOSE_PERFORMANCE_TIME
     timeval startTime;
-    gettimeofday(&startTime, NULL);
+    gettimeofday(&startTime, nullptr);
 #endif
 #if VERBOSE_GENERAL_INFO
     log("Starting replace Scene");
@@ -219,18 +219,18 @@ void SceneSwitcher::replaceScene()
         if(currentSceneName != None)
         {
             SynchronousReleaser::sharedReleaser()->addObjectToReleasePool(currentScene);
-            CCAssert(currentScene != NULL, "in replaceScene in SceneSwitcher currentScene is nil while not being None");
+            CCAssert(currentScene != nullptr, "in replaceScene in SceneSwitcher currentScene is nil while not being None");
             currentScene->stop();
-            currentScene = NULL;
+            currentScene = nullptr;
         }
-        if(currentScene != NULL)
+        if(currentScene != nullptr)
         {
-            log("Warning : current scene should be NULL already, stopping it anyway (probably caused by a cancelSceneSwitch");
+            log("Warning : current scene should be nullptr already, stopping it anyway (probably caused by a cancelSceneSwitch");
             currentScene->stop();
         }
         CCAssert(nextScene != None, "in replaceScene in SceneSwitcher cannot go to scene None");
         currentScene = Scene::createScene(nextScene, nextSceneParam);
-        if(Director::getInstance()->getRunningScene() == NULL)
+        if(Director::getInstance()->getRunningScene() == nullptr)
         {
             Director::getInstance()->runWithScene(currentScene->getCocosScene());
         }
@@ -253,7 +253,7 @@ void SceneSwitcher::replaceScene()
     
 #if VERBOSE_PERFORMANCE_TIME
     timeval endTime;
-    gettimeofday(&endTime, NULL);
+    gettimeofday(&endTime, nullptr);
     log("Replace Scene ended in %f ms",  getTimeDifferenceMS(startTime, endTime));
 #endif
 }

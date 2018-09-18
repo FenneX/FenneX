@@ -31,7 +31,7 @@ THE SOFTWARE.
 
 NS_FENNEX_BEGIN
 // singleton stuff
-static SwipeRecognizer *s_SharedRecognizer = NULL;
+static SwipeRecognizer *s_SharedRecognizer = nullptr;
 
 SwipeRecognizer* SwipeRecognizer::sharedRecognizer(void)
 {
@@ -67,13 +67,13 @@ void SwipeRecognizer::onTouchMoved(Touch *touch, Event *pEvent)
 void SwipeRecognizer::onTouchEnded(Touch *touch, Event *pEvent)
 {
 #if VERBOSE_TOUCH_RECOGNIZERS
-    log("linked ? %s", mainLinker->linkedObjectOf(touch) == NULL ? "yes" : "no");
+    log("linked ? %s", mainLinker->linkedObjectOf(touch) == nullptr ? "yes" : "no");
     log("is in start ? %s", touchStart.find(touch->getID()) != touchStart.end() ? "yes" : "no");
     log("time ? %s", (TIME - touchStart.at(touch->getID())) < 2.0 ? "yes" : "no");
     log("initial position : %f, %f, current : %f, %f", touchInitialPosition.at(touch->getID()).x, touchInitialPosition.at(touch->getID()).y, Scene::touchPosition(touch).x, Scene::touchPosition(touch).y);
 #endif
-    if(mainLinker != NULL
-       && mainLinker->linkedObjectOf(touch) == NULL
+    if(mainLinker != nullptr
+       && mainLinker->linkedObjectOf(touch) == nullptr
        && touchStart.find(touch->getID()) != touchStart.end())
     {
         Vec2 initialPosition = touchInitialPosition.at(touch->getID());

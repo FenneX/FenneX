@@ -81,7 +81,7 @@ protected:
     //the animation action
     Action* runningAnimation;
     
-    //NULL if the object is not an animation
+    //nullptr if the object is not an animation
     SpriteBatchNode* spriteSheet;
     
     //empty if the object is not an animation, it is equal to animated sprites filenames in the plist

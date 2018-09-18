@@ -91,7 +91,7 @@ Panel::~Panel()
 
 void Panel::addChild(RawObject* child)
 {
-    if(child->getNode() != NULL)
+    if(child->getNode() != nullptr)
     {
         children.pushBack(child);
         if(delegate->getChildren().empty() || !delegate->getChildren().contains(child->getNode()))
@@ -112,7 +112,7 @@ bool Panel::containsObject(RawObject* child)
 
 void Panel::removeChild(RawObject* child)
 {
-    if(child->getNode() != NULL)
+    if(child->getNode() != nullptr)
     {
         children.eraseObject(child);
         delegate->removeChild(child->getNode(), false);
