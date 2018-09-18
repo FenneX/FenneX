@@ -37,10 +37,9 @@ bool isConnected()
 
 void openWifiSettings()
 {
-    if (&UIApplicationOpenSettingsURLString != NULL)
-    {
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
-    }
+    //Only available since iOS8
+    //removed condition if (&UIApplicationOpenSettingsURLString != nullptr) as we target iOS 8.0 minimum now
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
 }
 
 
