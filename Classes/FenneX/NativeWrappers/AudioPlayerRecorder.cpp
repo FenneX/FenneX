@@ -123,8 +123,7 @@ void AudioPlayerRecorder::recordObject(EventCustom* event)
         linkTo = GraphicLayer::sharedLayer()->first(infos["Sender"].asInt());
     }
     
-    time_t rawtime;
-    time(&rawtime);
+    time_t rawtime = time(nullptr);
     struct tm* timeinfo = localtime (&rawtime);
 
     // format : "%s_%d-%02d-%02d_%02d.%02d.%02d"
