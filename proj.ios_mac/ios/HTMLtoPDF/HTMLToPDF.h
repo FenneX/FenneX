@@ -29,14 +29,14 @@
 #import <UIKit/UIKit.h>
 #import "DocumentPreviewer.h"
 #import "HtmlToPDFWrapper.h"
-#import "Utility.h"
-
+#import "NSStringUtility.h"
 
 /*
- * Sizes are defined in points, with 72 points corresponding to one inch or about 2.54cm. A4 is 21cm x 29,7cm.
+ * Sizes are defined in points (rounded), with 72 points corresponding to one inch or about 2.54cm. A4 is 21cm x 29,7cm.
  * Other formats will be supported in the future.
  */
-#define kPaperSizeA4 CGSizeMake(595.2,841.8)
+#define kPaperSizeA4 CGSizeMake(595,842)
+#define kPaperSizeA3 CGSizeMake(842,1191)
 
 @class HTMLtoPDF;
 

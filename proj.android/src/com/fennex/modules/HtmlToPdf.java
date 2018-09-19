@@ -25,6 +25,9 @@
 
 package com.fennex.modules;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Environment;
 import android.print.PdfConverter;
 import java.io.File;
@@ -53,7 +56,7 @@ public class HtmlToPdf {
     }
 
     @SuppressWarnings("unused")
-    private static void convert(String htmlString, final String fileName) {
+    private static void convert(String htmlString, final String fileName, int pageSize) {
         File destinationFile;
         File path = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_DOCUMENTS);
         if (!path.exists()) {
@@ -71,6 +74,21 @@ public class HtmlToPdf {
         destinationFile = new File(path, findAvailableName(fileName));
         PdfConverter.convert(NativeUtility.getMainActivity(),
                     htmlString,
-                    destinationFile);
+                    destinationFile,
+                    pageSize);
+        }
+
+    @SuppressWarnings("unused")
+    private static void openPDFWithApp(String fileName)
+        {
+            Intent target = new Intent(Intent.ACTION_VIEW);
+            target.setDataAndType(Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/" + fileName)),"application/pdf");
+
+            Intent intent = Intent.createChooser(target, "Open File");
+            try {
+                NativeUtility.getMainActivity().startActivity(intent);
+                } catch (ActivityNotFoundException e) {
+                notifyPdfCreationFailure(fileName, "OpenPreviewFailed");
+            }
         }
 }

@@ -26,6 +26,7 @@
 #import <Foundation/Foundation.h>
 #import "HtmlToPDFWrapper.h"
 #import "AppController.h"
+#import "NSStringUtility.h"
 
 @interface HTMLtoPDF ()
 
@@ -122,12 +123,13 @@
 
 @implementation UIPrintPageRenderer (PDF)
 
+
 - (NSData*) printToPDF:(UIWebView*)view pageSize:(CGSize)pageSize
 {
     [self addPrintFormatter:view.viewPrintFormatter startingAtPageAtIndex:0];
     // MS Word standard margins of 2.5cm for a page body, converted to point
     // At the moment, they are all the same, but we might change them: MS Word allows 1.5cm margin on top and bottom for footer/header
-#define MARGIN 7
+#define MARGIN 71
     UIEdgeInsets pageMargins = {.left = MARGIN, .right = MARGIN, .top = MARGIN, .bottom = MARGIN};
     CGRect printableRect = CGRectMake(pageMargins.left,
                                       pageMargins.top,

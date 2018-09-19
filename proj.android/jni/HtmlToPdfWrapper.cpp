@@ -28,17 +28,26 @@ THE SOFTWARE.
 
 #define CLASS_NAME "com/fennex/modules/HtmlToPdf"
 
-void createPdfFromHtml(std::string htmlString, std::string pdfName)
+void createPdfFromHtml(std::string htmlString, std::string pdfName, int pageSize)
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "convert", "(Ljava/lang/String;Ljava/lang/String;)V");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "convert", "(Ljava/lang/String;Ljava/lang/String;I)V");
     CCAssert(functionExist, "Function doesn't exist");
     jstring jpath = minfo.env->NewStringUTF(pdfName.c_str());
     jstring jhtml = minfo.env->NewStringUTF(htmlString.c_str());
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jhtml, jpath);
+    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jhtml, jpath, pageSize);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(jpath);
     minfo.env->DeleteLocalRef(jhtml);
+}
+
+void openPDFWithExternalApp(std::string fileName)
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "openPDFWithApp", "(Ljava/lang/String;)V");
+    jstring jname = minfo.env->NewStringUTF(fileName.c_str());
+    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jname);
+    minfo.env->DeleteLocalRef(jname);
 }
 
 extern "C"
