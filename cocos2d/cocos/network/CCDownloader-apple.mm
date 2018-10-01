@@ -217,14 +217,18 @@ namespace cocos2d { namespace network {
     const char *urlStr = task->requestURL.c_str();
     DLLOG("DownloaderAppleImpl createDataTask: %s", urlStr);
     NSURL *url = [NSURL URLWithString:[NSString stringWithUTF8String:urlStr]];
-    NSURLRequest *request = nil;
+    NSMutableURLRequest *request = nil;
     if (_hints.timeoutInSeconds > 0)
     {
-        request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:(NSTimeInterval)_hints.timeoutInSeconds];
+        request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:(NSTimeInterval)_hints.timeoutInSeconds];
     }
     else
     {
-        request = [NSURLRequest requestWithURL:url];
+        request = [NSMutableURLRequest requestWithURL:url];
+    }
+    if (!task->authorizationHeader.empty())
+    {
+        [request setValue:[NSString stringWithUTF8String:task->authorizationHeader.c_str()] forHTTPHeaderField:@"Authorization"];
     }
     NSURLSessionDataTask *ocTask = [self.downloadSession dataTaskWithRequest:request];
     DownloadTaskWrapper* taskWrapper = [[DownloadTaskWrapper alloc] init:task];
@@ -245,14 +249,18 @@ namespace cocos2d { namespace network {
     const char *urlStr = task->requestURL.c_str();
     DLLOG("DownloaderAppleImpl createFileTask: %s", urlStr);
     NSURL *url = [NSURL URLWithString:[NSString stringWithUTF8String:urlStr]];
-    NSURLRequest *request = nil;
+    NSMutableURLRequest *request = nil;
     if (_hints.timeoutInSeconds > 0)
     {
-        request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:(NSTimeInterval)_hints.timeoutInSeconds];
+        request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:(NSTimeInterval)_hints.timeoutInSeconds];
     }
     else
     {
-        request = [NSURLRequest requestWithURL:url];
+        request = [NSMutableURLRequest requestWithURL:url];
+    }
+    if (!task->authorizationHeader.empty())
+    {
+        [request setValue:[NSString stringWithUTF8String:task->authorizationHeader.c_str()] forHTTPHeaderField:@"Authorization"];
     }
     NSString *tempFilePath = [NSString stringWithFormat:@"%s%s", task->storagePath.c_str(), _hints.tempFileNameSuffix.c_str()];
     NSData *resumeData = [NSData dataWithContentsOfFile:tempFilePath];

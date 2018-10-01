@@ -75,19 +75,21 @@ class HeadTaskHandler extends AsyncHttpResponseHandler {
     String _host;
     String _url;
     String _path;
+    String _authorizationHeader;
     private Cocos2dxDownloader _downloader;
 
     void LogD(String msg) {
         android.util.Log.d("Cocos2dxDownloader", msg);
     }
 
-    public HeadTaskHandler(Cocos2dxDownloader downloader, int id, String host, String url, String path) {
+    public HeadTaskHandler(Cocos2dxDownloader downloader, int id, String host, String url, String path, String authorizationHeader) {
         super();
         _downloader = downloader;
         _id = id;
         _host = host;
         _url = url;
         _path = path;
+        _authorizationHeader = authorizationHeader;
     }
 
     @Override
@@ -101,7 +103,7 @@ class HeadTaskHandler extends AsyncHttpResponseHandler {
             }
         }
         Cocos2dxDownloader.setResumingSupport(_host, acceptRanges);
-        Cocos2dxDownloader.createTask(_downloader, _id, _url, _path);
+        Cocos2dxDownloader.createTask(_downloader, _id, _url, _path, _authorizationHeader);
     }
     
     @Override
@@ -288,10 +290,11 @@ public class Cocos2dxDownloader {
         return downloader;
     }
 
-    public static void createTask(final Cocos2dxDownloader downloader, int id_, String url_, String path_) {
+    public static void createTask(final Cocos2dxDownloader downloader, int id_, String url_, String path_, String authorizationHeader_) {
         final int id = id_;
         final String url = url_;
         final String path = path_;
+        final String authorizationHeader = authorizationHeader_;
 
         Runnable taskRunnable = new Runnable() {
             @Override
@@ -300,7 +303,13 @@ public class Cocos2dxDownloader {
                 if (0 == path.length()) {
                     // data task
                     task.handler = new DataTaskHandler(downloader, id);
-                    task.handle = downloader._httpClient.get(Cocos2dxHelper.getActivity(), url, task.handler);
+
+                    List<Header> list = new ArrayList<Header>();
+                    if (! "".equals(authorizationHeader)) {
+                        list.add(new BasicHeader("Authorization", authorizationHeader));
+                    }
+                    Header[] headers = list.toArray(new Header[list.size()]);
+                    task.handle = downloader._httpClient.get(Cocos2dxHelper.getActivity(), url, headers, null, task.handler);
                 }
 
                 do {
@@ -323,8 +332,14 @@ public class Cocos2dxDownloader {
                     }
 
                     if (requestHeader) {
-                        task.handler = new HeadTaskHandler(downloader, id, host, url, path);
-                        task.handle = downloader._httpClient.head(Cocos2dxHelper.getActivity(), url, null, null, task.handler);
+                        task.handler = new HeadTaskHandler(downloader, id, host, url, path, authorizationHeader);
+
+                        List<Header> list = new ArrayList<Header>();
+                        if (! "".equals(authorizationHeader)) {
+                            list.add(new BasicHeader("Authorization", authorizationHeader));
+                        }
+                        Header[] headers = list.toArray(new Header[list.size()]);
+                        task.handle = downloader._httpClient.head(Cocos2dxHelper.getActivity(), url, headers, null, task.handler);
                         break;
                     }
 
@@ -339,13 +354,11 @@ public class Cocos2dxDownloader {
                     if (finalFile.isDirectory()) break;
 
                     task.handler = new FileTaskHandler(downloader, id, tempFile, finalFile);
-                    Header[] headers = null;
                     long fileLen = tempFile.length();
+                    List<Header> list = new ArrayList<Header>();
                     if (supportResuming && fileLen > 0) {
                         // continue download
-                        List<Header> list = new ArrayList<Header>();
                         list.add(new BasicHeader("Range", "bytes=" + fileLen + "-"));
-                        headers = list.toArray(new Header[list.size()]);
                     }
                     else if (fileLen > 0) {
                         // Remove previous downloaded context
@@ -357,6 +370,10 @@ public class Cocos2dxDownloader {
                         // Not found then nothing to do
                         catch (FileNotFoundException e) {}
                     }
+                    if (! "".equals(authorizationHeader)) {
+                        list.add(new BasicHeader("Authorization", authorizationHeader));
+                    }
+                    Header[] headers = list.toArray(new Header[list.size()]);
                     task.handle = downloader._httpClient.get(Cocos2dxHelper.getActivity(), url, headers, null, task.handler);
                 } while (false);
 

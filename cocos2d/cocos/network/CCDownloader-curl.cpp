@@ -336,6 +336,13 @@ namespace cocos2d { namespace network {
 
             // set url
             curl_easy_setopt(handle, CURLOPT_URL, task.requestURL.c_str());
+            
+            // set header
+            if(!task.authorizationHeader.empty())
+            {
+                struct curl_slist *list = curl_slist_append(nullptr, ("Authorization: " + task.authorizationHeader).c_str());
+                curl_easy_setopt(handle, CURLOPT_HTTPHEADER, list);
+            }
 
             // set write func
             if (forContent)

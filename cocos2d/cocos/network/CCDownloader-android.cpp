@@ -155,13 +155,15 @@ namespace cocos2d { namespace network {
             if (JniHelper::getStaticMethodInfo(methodInfo,
                                                JCLS_DOWNLOADER,
                                                "createTask",
-                                               "(" JARG_DOWNLOADER "I" JARG_STR JARG_STR")V"))
+                                               "(" JARG_DOWNLOADER "I" JARG_STR JARG_STR JARG_STR")V"))
             {
                 jstring jstrURL = methodInfo.env->NewStringUTF(task->requestURL.c_str());
                 jstring jstrPath= methodInfo.env->NewStringUTF(task->storagePath.c_str());
-                methodInfo.env->CallStaticVoidMethod(methodInfo.classID, methodInfo.methodID, _impl, coTask->id, jstrURL, jstrPath);
+                jstring jstrAuth= methodInfo.env->NewStringUTF(task->authorizationHeader.c_str());
+                methodInfo.env->CallStaticVoidMethod(methodInfo.classID, methodInfo.methodID, _impl, coTask->id, jstrURL, jstrPath, jstrAuth);
                 methodInfo.env->DeleteLocalRef(jstrURL);
                 methodInfo.env->DeleteLocalRef(jstrPath);
+                methodInfo.env->DeleteLocalRef(jstrAuth);
                 methodInfo.env->DeleteLocalRef(methodInfo.classID);
             }
 

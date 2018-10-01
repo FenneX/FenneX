@@ -48,6 +48,8 @@ namespace cocos2d { namespace network {
         std::string identifier;
         std::string requestURL;
         std::string storagePath;
+        // Custom addition to support authorization header for Auticiel FileResource API
+        std::string authorizationHeader;
 
         DownloadTask();
         virtual ~DownloadTask();
@@ -99,9 +101,9 @@ namespace cocos2d { namespace network {
                                                int errorCodeInternal,
                                                const std::string& errorStr)>& callback) {onTaskError = callback;};
 
-        std::shared_ptr<const DownloadTask> createDownloadDataTask(const std::string& srcUrl, const std::string& identifier = "");
+        std::shared_ptr<const DownloadTask> createDownloadDataTask(const std::string& srcUrl, const std::string& identifier = "", const std::string& authorizationHeader = "");
 
-        std::shared_ptr<const DownloadTask> createDownloadFileTask(const std::string& srcUrl, const std::string& storagePath, const std::string& identifier = "");
+        std::shared_ptr<const DownloadTask> createDownloadFileTask(const std::string& srcUrl, const std::string& storagePath, const std::string& identifier = "", const std::string& authorizationHeader = "");
 
     private:
         std::unique_ptr<IDownloaderImpl> _impl;

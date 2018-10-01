@@ -128,3 +128,4 @@ Cocos2d-x V3.16 Modifications
 * cocos/platform/CCFileUtils.cpp => in renameFile, make the cclogerror useful by showing errno
 * cocos/platform/android/CCFileUtils-android.H/.cpp => add support for listFiles in Android assets
 * cocos/network/HttpClient/HttpRequest => add support for PATCH requests
+* cocos/network/CCDownloader => add support for Authorization header
