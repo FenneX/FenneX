@@ -28,31 +28,31 @@ THE SOFTWARE.
 #include "FenneX.h"
 USING_NS_FENNEX;
 
-//this method have to be implemented in each platform. The parameter is the path and location at which the image will be saved
-//return false if there is a problem
-//The image picker will send an ImagePicked notification
-
-//The picker can include a thumbnail at the desired scale, which will have a -thumbnail prefix (before .png)
-//If the scale is negative, no thumbnail will be generated. Generally, if you disable rescale, you probably won't need a thumbnail
-
-//check if it's a supported platform
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 
 typedef enum
 {
-    Camera = 0,
-    PhotoLibrary = 1,
-    FileLibrary = 2,
+    Camera = 0, // launch the camera apps and take a normal picture
+    PhotoLibrary = 1, // launch the galleryApp to pick from it
+    FileLibrary = 2, // on iOS, same as PhotoLibrary, on Android launch a file explorer app where the name is visible. The user can choose the app, so if it's a custom one, it can potentially return something wrong and not apply the filter.
 }PickOption;
 /**
- * The saveName must ends with .png, as it will only generate PNG
- * The PickOption is used to change the picker form.
- * The Camera launch the camera apps and take a normal picture
- * The PhotoLibrary launch the galleryApp to pick from it
- * On iOS, the PhotoLibrary is the same as FileLibrary.
- * The FileLibrary launch a file explorer app where the name is visible. The user can choose the app, so if it's a custom one, it can potentially return something wrong and not apply the filter.
+ * pickImageFrom launch a platform-dependant widget to pick an image, either by taking a picture with the camera, or by using a library
+ *
+ * saveName: the file to save (can be in a subdirectory). Must ends with .png, as it will only generate PNG
+ * location: the location the file must be saved in
+ * pickOption: which widget to use to pick the image
+ * width: max width of the image. It will be downscaled if necessary, by keeping ratio
+ * height: max height of the image. It will be downscaled if necessary, by keeping ratio
+ * identifier: an identifier which will be passed on result, to identify what the image was picked for
+ *
+ * return false if there was an issue launching the widget
+ *
+ * will throw either
+ * - ImagePicked, with file name, location and identifier, if the pick was successful
+ * - ImagePickerCancelled if the user cancelled the widget
  **/
-bool pickImageFrom(const std::string& saveName, FileLocation location, PickOption pickOption, int width, int height, const std::string& identifier, bool rescale = true, float thumbnailScale = -1);
+bool pickImageFrom(const std::string& saveName, FileLocation location, PickOption pickOption, int width, int height, const std::string& identifier);
 bool isCameraAvailable();
 
 static inline void notifyImagePicked(std::string name, FileLocation location, std::string identifier)

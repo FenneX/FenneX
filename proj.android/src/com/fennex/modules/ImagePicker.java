@@ -54,16 +54,12 @@ public class ImagePicker implements ActivityResultResponder
     private static final String TAG = "ImagePicker";
     private static final int PICTURE_GALLERY = 30;
     private static final int CAMERA_CAPTURE = 31;
-    private static final int CROP = 32;
     
 	private static String _fileName;
     private static FileUtility.FileLocation _location;
 	private static int _width;
 	private static int _height;
 	private static String _identifier;
-    private static float _thumbnailScale;
-    private static boolean _rescale;
-	private Uri uriOfSavedPhoto;
     private static boolean isPending = false;
 	
     private static volatile ImagePicker instance = null;
@@ -104,106 +100,74 @@ public class ImagePicker implements ActivityResultResponder
         {
             notifyImagePickCancelled();
         }
-        else if (requestCode == PICTURE_GALLERY || requestCode == CAMERA_CAPTURE || requestCode == CROP)
+        else if (requestCode == PICTURE_GALLERY || requestCode == CAMERA_CAPTURE)
 		{
             Log.d(TAG, "onActivityResult(" + requestCode + "," + resultCode + "," + (data != null ? data.getExtras() : "no data"));
             try {
-                if (requestCode == CROP || !_rescale) {
-                    Bitmap original;
-                    if (requestCode == CROP) {
-                        original = BitmapFactory.decodeFile(getStorageDirectory() + "/cropped.png");
-                    } else if (requestCode == PICTURE_GALLERY) {
-                        Uri selectedImage = data.getData();
-                        String[] orientationColumn = {MediaStore.Images.Media.ORIENTATION};
-                        Cursor cur = NativeUtility.getMainActivity().getContentResolver().query(selectedImage, orientationColumn, null, null, null);
-                        int orientation = 0;
-                        if (cur != null && cur.moveToFirst()) {
-                            orientation = cur.getInt(cur.getColumnIndex(orientationColumn[0]));
-                        }
-                        InputStream imageStream;
-                        imageStream = NativeUtility.getMainActivity().getContentResolver().openInputStream(selectedImage);
-                        original = BitmapFactory.decodeStream(imageStream);
-                        original = rotateImage(original, orientation);
-                    } else { //CAMERA_CAPTURE
-                        /* When not using EXTRA_OUTPUT, the Intent will produce a small image, depending on device and app used
-                        original = data.getParcelableExtra("data");*/
-                        //The EXTRA_OUTPUT parameter of Intent
-                        File file = new File(getStorageDirectory(), _fileName + ".jpg");
-                        ExifInterface exif = new ExifInterface(file.getAbsolutePath());
-                        int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-                        int rotation = 0;
-                        if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
-                            rotation = 90;
-                        } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {
-                            rotation = 180;
-                        } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {
-                            rotation = 270;
-                        }
-                        original = BitmapFactory.decodeFile(file.getAbsolutePath());
-                        original = rotateImage(original, rotation);
-                        final Bitmap saveToGallery = original.copy(original.getConfig(), true);
-                        new Thread() {
-                            public void run() {
-                                try {
-                                    insertPhotoIntoGallery(saveToGallery);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                                saveToGallery.recycle();
-                            }
-                        }.start();
-                        //Clean file
-                        file.delete();
+                Bitmap original;
+                if (requestCode == PICTURE_GALLERY) {
+                    Uri selectedImage = data.getData();
+                    String[] orientationColumn = {MediaStore.Images.Media.ORIENTATION};
+                    Cursor cur = NativeUtility.getMainActivity().getContentResolver().query(selectedImage, orientationColumn, null, null, null);
+                    int orientation = 0;
+                    if (cur != null && cur.moveToFirst()) {
+                        orientation = cur.getInt(cur.getColumnIndex(orientationColumn[0]));
                     }
-                    if (original != null) {
-                        Bitmap bitmap = scaleToFill(original, _width, _height);
-                        //Camera handles the Bitmap itself
-                        if (requestCode != CAMERA_CAPTURE && original != bitmap) {
-                            original.recycle(); //this one may be huge, might as well free it right now
+                    InputStream imageStream;
+                    imageStream = NativeUtility.getMainActivity().getContentResolver().openInputStream(selectedImage);
+                    original = BitmapFactory.decodeStream(imageStream);
+                    original = rotateImage(original, orientation);
+                } else { //CAMERA_CAPTURE
+                    /* When not using EXTRA_OUTPUT, the Intent will produce a small image, depending on device and app used
+                    original = data.getParcelableExtra("data");*/
+                    //The EXTRA_OUTPUT parameter of Intent
+                    File file = new File(getStorageDirectory(), _fileName + ".jpg");
+                    ExifInterface exif = new ExifInterface(file.getAbsolutePath());
+                    int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                    int rotation = 0;
+                    if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
+                        rotation = 90;
+                    } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {
+                        rotation = 180;
+                    } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {
+                        rotation = 270;
+                    }
+                    original = BitmapFactory.decodeFile(file.getAbsolutePath());
+                    original = rotateImage(original, rotation);
+                    final Bitmap saveToGallery = original.copy(original.getConfig(), true);
+                    new Thread() {
+                        public void run() {
+                            try {
+                                insertPhotoIntoGallery(saveToGallery);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            saveToGallery.recycle();
                         }
+                    }.start();
+                    //Clean file
+                    file.delete();
+                }
+                if (original != null) {
+                    Bitmap bitmap = scaleToFill(original, _width, _height);
+                    //Camera handles the Bitmap itself
+                    if (requestCode != CAMERA_CAPTURE && original != bitmap) {
+                        original.recycle(); //this one may be huge, might as well free it right now
+                    }
 
-                        //Ensure folder is created
-                        new File(FileUtility.getFullPath(_fileName, _location)).getParentFile().mkdirs();
+                    //Ensure folder is created
+                    new File(FileUtility.getFullPath(_fileName, _location)).getParentFile().mkdirs();
 
-                        if (bitmap != null) {
-                            //Save thumbnail if it was asked
-                            if(_thumbnailScale > 0) {
-                                Bitmap bitmapThumbnail = scaleToFill(bitmap, (int) (_width * _thumbnailScale), (int) (_height * _thumbnailScale));
-                                if (bitmapThumbnail != null) {
-                                    saveBitmap(bitmapThumbnail, FileUtility.getFullPath(_fileName.substring(0, _fileName.length() - 4) + "-thumbnail.png", _location));
-                                    if (bitmapThumbnail != bitmap) {
-                                        bitmapThumbnail.recycle();
-                                    }
-                                }
-                            }
-                            //Save main image
-                            saveBitmap(bitmap, FileUtility.getFullPath(_fileName, _location));
-                            bitmap.recycle();
+                    if (bitmap != null) {
+                        //Save the image
+                        saveBitmap(bitmap, FileUtility.getFullPath(_fileName, _location));
+                        bitmap.recycle();
+                    }
+                    NativeUtility.getMainActivity().runOnGLThread(new Runnable() {
+                        public void run() {
+                            notifyImagePickedWrap(_fileName, _location.getValue(), _identifier);
                         }
-                        NativeUtility.getMainActivity().runOnGLThread(new Runnable() {
-                            public void run() {
-                                notifyImagePickedWrap(_fileName, _location.getValue(), _identifier);
-                            }
-                        });
-                    }
-                } else {
-                /*
-				  Store the picture in a specific folder to prevent the apps crashing when the cropped picture
-				  is too big and to avoid black borders in the cropped picture when it is too small
-				 */
-                    Intent cropIntent = new Intent("com.android.camera.action.CROP");
-                    if (requestCode == PICTURE_GALLERY)
-                        cropIntent.setDataAndType(Uri.parse(data.getDataString()), "image/png");
-                    else {
-                        insertPhotoIntoGallery(data);
-                        cropIntent.setDataAndType(uriOfSavedPhoto, "image/png");
-                    }
-                    cropIntent.putExtra("aspectX", 1);
-                    cropIntent.putExtra("aspectY", 1);
-                    Log.i(TAG, "Will save in " + getStorageDirectory() + "/cropped.png");
-                    cropIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(getStorageDirectory(), "cropped.png")));
-                    isPending = true;
-                    NativeUtility.getMainActivity().startActivityForResult(cropIntent, CROP);
+                    });
                 }
             } catch (IOException e) {
                 Log.d(TAG, "IOException while handling Intent result");
@@ -257,7 +221,7 @@ public class ImagePicker implements ActivityResultResponder
     }
     
     @SuppressWarnings("unused")
-    public static boolean pickImageFrom(String saveName, int location, int pickOption, int width, int height, String identifier, float thumbnailScale, boolean rescale)
+    public static boolean pickImageFrom(String saveName, int location, int pickOption, int width, int height, String identifier)
     {
     	ImagePicker.getInstance(); //ensure the instance is created
     	_fileName = saveName;
@@ -265,19 +229,15 @@ public class ImagePicker implements ActivityResultResponder
     	_width = width;
     	_height = height;
     	_identifier = identifier;
-        _thumbnailScale = thumbnailScale;
-        _rescale = rescale;
     	boolean error = false;
     	if(pickOption == PICK_OPTION.CAMERA.getValue())
     	{
     		try
     		{
 	       		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                if(!rescale) {
-                    File file = new File(getStorageDirectory(), saveName + ".jpg");
-                    Uri outputFileUri = Uri.fromFile(file);
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
-                }
+                File file = new File(getStorageDirectory(), saveName + ".jpg");
+                Uri outputFileUri = Uri.fromFile(file);
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
                 isPending = true;
 		        NativeUtility.getMainActivity().startActivityForResult(intent, CAMERA_CAPTURE);
     		}
@@ -360,10 +320,6 @@ public class ImagePicker implements ActivityResultResponder
         }
         return result;
     }
-
-    private void insertPhotoIntoGallery(Intent data) throws IOException {
-        insertPhotoIntoGallery((Bitmap) data.getParcelableExtra("data"));
-    }
     
     private void insertPhotoIntoGallery(Bitmap image) throws IOException {
         File fi = new File(getStorageDirectory(), "photo.png");
@@ -394,11 +350,6 @@ public class ImagePicker implements ActivityResultResponder
                     Log.i(TAG, "create thumbnail failed : insertImage throw nullPointerException, bitmap decode returned null for file " + filePath);
                     e2.printStackTrace();
                 }
-
-            }
-            if(uri != null && !uri.isEmpty())
-            {
-                uriOfSavedPhoto = Uri.parse(uri);
             }
             if (!fi.delete()) {
                 Log.i(TAG, "Failed to delete " + fi);

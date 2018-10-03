@@ -30,7 +30,7 @@
 
 USING_NS_FENNEX;
 
-bool pickImageFrom(const std::string& saveName, FileLocation location, PickOption pickOption, int width, int height, const std::string& identifier, bool rescale, float thumbnailScale)
+bool pickImageFrom(const std::string& saveName, FileLocation location, PickOption pickOption, int width, int height, const std::string& identifier)
 {
     CCASSERT(stringEndsWith(saveName, ".png"), "Error: save name must end with .png");
     JniMethodInfo minfo;
@@ -45,9 +45,7 @@ bool pickImageFrom(const std::string& saveName, FileLocation location, PickOptio
                                                      (jint)pickOption,
                                                      (jint)width,
                                                      (jint)height,
-                                                     jIdentifier,
-                                                     (jfloat)thumbnailScale,
-                                                     (jboolean)rescale);
+                                                     jIdentifier);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(jSaveName);
     minfo.env->DeleteLocalRef(jIdentifier);

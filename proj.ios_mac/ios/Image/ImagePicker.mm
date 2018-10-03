@@ -32,7 +32,7 @@
 USING_NS_CC;
 USING_NS_FENNEX;
 
-bool pickImageFrom(const std::string& saveName, FileLocation location, PickOption pickOption, int width, int height, const std::string& identifier, bool rescale, float thumbnailScale)
+bool pickImageFrom(const std::string& saveName, FileLocation location, PickOption pickOption, int width, int height, const std::string& identifier)
 {
     CCASSERT(stringEndsWith(saveName, ".png"), "Error: save name must end with .png");
     Director::getInstance()->stopAnimation();
@@ -41,8 +41,6 @@ bool pickImageFrom(const std::string& saveName, FileLocation location, PickOptio
     [ImagePicker sharedPicker].identifier = [NSString stringWithFormat:@"%s", identifier.c_str()];
     [ImagePicker sharedPicker].width = width;
     [ImagePicker sharedPicker].height = height;
-    [ImagePicker sharedPicker].thumbnailScale = thumbnailScale;
-    [ImagePicker sharedPicker].rescale = rescale;
     [[ImagePicker sharedPicker] initController];
     NSLog(@"Picking image %s", saveName.c_str());
     
@@ -86,8 +84,6 @@ bool isCameraAvailable()
 @synthesize identifier;
 @synthesize width;
 @synthesize height;
-@synthesize thumbnailScale;
-@synthesize rescale;
 @synthesize popOver;
 static ImagePicker* _sharedPicker = nil;
 
@@ -136,7 +132,7 @@ static ImagePicker* _sharedPicker = nil;
     [controller release];
     controller = [[UIImagePickerController alloc] init];
     controller.delegate = self;
-    controller.allowsEditing = rescale;
+    controller.allowsEditing = false;
 }
 
 // For responding to the user accepting a newly-captured picture or movie
@@ -163,39 +159,19 @@ static ImagePicker* _sharedPicker = nil;
         
         //To convert to CCSprite : http://www.cocos2d-x.org/boards/6/topics/3922
         NSLog(@"Original Image size : %f, %f", imageToSave.size.width, imageToSave.size.height);
-        UIImage* resultImage = nil;
-        
-        if(imageToSave.size.width != imageToSave.size.height && rescale)
-        {
-            float difference = std::abs(imageToSave.size.width - imageToSave.size.height);
-            BOOL cropWidth = imageToSave.size.width > imageToSave.size.height;
-            NSLog(@"Crop rect : %f, %f, %f, %f", cropWidth ? difference / 2 : 0,
-                  !cropWidth ? difference / 2 : 0,
-                  cropWidth ? imageToSave.size.width - difference : imageToSave.size.width,
-                  !cropWidth ? imageToSave.size.height - difference : imageToSave.size.height);
-            int roundingError = (int)difference % 2;
-            imageToSave = [imageToSave croppedImage:CGRectMake(cropWidth ? difference / 2 : 0,
-                                                               !cropWidth ? difference / 2 : 0,
-                                                               cropWidth ? imageToSave.size.width - difference - roundingError : imageToSave.size.width,
-                                                               !cropWidth ? imageToSave.size.height - difference - roundingError : imageToSave.size.height)];
-            NSLog(@"Image size after crop : %f, %f", imageToSave.size.width, imageToSave.size.height);
-        }
+        UIImage* resultImage = imageToSave;
         
         CGSize targetSize = imageToSave.size;
         float scaleX = width/imageToSave.size.width;
         float scaleY = height/imageToSave.size.height;
         float scale = MIN(scaleX, scaleY);
-        if(scale != 1)
+        if(scale < 1)
         {
+            //hard resize because the image can be way too heavy (1536x2048 on 3GS ....)
             targetSize.width *= scale;
             targetSize.height *= scale;
-            //hard resize because the image can be way too heavy (1536x2048 on 3GS ....)
             resultImage = [imageToSave resizedImage:targetSize interpolationQuality:kCGInterpolationHigh];
             NSLog(@"Image size after resize : %f, %f", resultImage.size.width, resultImage.size.height);
-        }
-        else
-        {
-            resultImage = imageToSave;
         }
         controller.view.hidden = YES;
         
@@ -212,24 +188,6 @@ static ImagePicker* _sharedPicker = nil;
         if(result)
         {
             Director::getInstance()->getTextureCache()->removeTextureForKey([imagePath UTF8String]);
-            if(thumbnailScale > 0)
-            {
-                targetSize.width *= thumbnailScale;
-                targetSize.height *= thumbnailScale;
-                UIImage* thumbnail = [resultImage resizedImage:targetSize interpolationQuality:kCGInterpolationHigh];
-                
-                NSString* thumbnailPath = [NSString stringWithFormat:@"%s-thumbnail.png", getFullPath([[saveName substringToIndex:[saveName length] - 4] UTF8String], saveLocation).c_str()];
-                BOOL result = [UIImagePNGRepresentation(thumbnail) writeToFile:thumbnailPath options:NSDataWritingAtomic error:&error];
-                NSLog(@"Write result for thumbnail %@ : %@, fullPath: %@", saveName, (result ? @"OK" : @"Problem"), thumbnailPath);
-                if(result)
-                {
-                    Director::getInstance()->getTextureCache()->removeTextureForKey([thumbnailPath UTF8String]);
-                }
-                else
-                {
-                     NSLog(@"Write error for thumbnail description: %@, reason: %@", [error localizedDescription], [error localizedFailureReason]);
-                }
-            }
             notifyImagePicked([saveName UTF8String], saveLocation, [identifier UTF8String]);
             notified = true;
         }
