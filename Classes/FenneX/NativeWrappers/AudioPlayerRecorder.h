@@ -78,8 +78,9 @@ public:
     bool isRecordEnabled();
     
     Ref* getLink();
-    std::string getPath();
-    std::string getPathWithoutExtension();
+    std::string getSavePath();
+    std::string getSavePathWithoutExtension();
+    FileLocation getSaveLocation();
     void stopAll();
     
     //Those methods first try Object before Sender because it can be a subcall (for example if the selection is via a pop-up. If the Sender is a CCInteger, it will try to get a valid RawObject from GraphicLayer

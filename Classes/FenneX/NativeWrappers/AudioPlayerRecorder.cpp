@@ -156,12 +156,12 @@ Ref* AudioPlayerRecorder::getLink()
     return link;
 }
 
-std::string AudioPlayerRecorder::getPath()
+std::string AudioPlayerRecorder::getSavePath()
 {
     return path;
 }
 
-std::string AudioPlayerRecorder::getPathWithoutExtension()
+std::string AudioPlayerRecorder::getSavePathWithoutExtension()
 {
     std::string pathStd = path;
     if(hasEnding(pathStd, SOUND_EXTENSION))
@@ -169,6 +169,11 @@ std::string AudioPlayerRecorder::getPathWithoutExtension()
         return pathStd.substr(0, pathStd.length() - std::string(SOUND_EXTENSION).length());
     }
     return path;
+}
+
+FileLocation AudioPlayerRecorder::getSaveLocation()
+{
+    return location;
 }
 
 
