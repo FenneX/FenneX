@@ -305,7 +305,7 @@ public class Cocos2dxDownloader {
                     task.handler = new DataTaskHandler(downloader, id);
 
                     List<Header> list = new ArrayList<Header>();
-                    if (! "".equals(authorizationHeader)) {
+                    if (!authorizationHeader.isEmpty()) {
                         list.add(new BasicHeader("Authorization", authorizationHeader));
                     }
                     Header[] headers = list.toArray(new Header[list.size()]);
@@ -335,7 +335,7 @@ public class Cocos2dxDownloader {
                         task.handler = new HeadTaskHandler(downloader, id, host, url, path, authorizationHeader);
 
                         List<Header> list = new ArrayList<Header>();
-                        if (! "".equals(authorizationHeader)) {
+                        if (!authorizationHeader.isEmpty()) {
                             list.add(new BasicHeader("Authorization", authorizationHeader));
                         }
                         Header[] headers = list.toArray(new Header[list.size()]);
@@ -370,7 +370,7 @@ public class Cocos2dxDownloader {
                         // Not found then nothing to do
                         catch (FileNotFoundException e) {}
                     }
-                    if (! "".equals(authorizationHeader)) {
+                    if (!authorizationHeader.isEmpty()) {
                         list.add(new BasicHeader("Authorization", authorizationHeader));
                     }
                     Header[] headers = list.toArray(new Header[list.size()]);
