@@ -72,7 +72,6 @@ bool AudioPlayerRecorder::isPlaying()
 void AudioPlayerRecorder::record(const std::string& file, FileLocation location, Ref* linkTo)
 {
     JniMethodInfo minfo;
-    std::string withExtension = file + ".3gp";
     
     if(linkTo == link && this->isRecording())
     {
@@ -85,11 +84,11 @@ void AudioPlayerRecorder::record(const std::string& file, FileLocation location,
             linkTo = noLinkObject;
         }
         this->setLink(linkTo);
-        this->setPath(withExtension);
+        this->setPath(file);
         
         bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"startRecording", "(Ljava/lang/String;I)V");
         CCAssert(functionExist, "Function doesn't exist");
-        jstring string0 = minfo.env->NewStringUTF(withExtension.c_str());
+        jstring string0 = minfo.env->NewStringUTF(file.c_str());
         minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, string0, (jint)location);
         minfo.env->DeleteLocalRef(minfo.classID);
         minfo.env->DeleteLocalRef(string0);

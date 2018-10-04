@@ -91,6 +91,8 @@ public:
     bool isRecording();
     bool isPlaying();
     
+    // The file should contain any subfolder in which you want it under location. 
+    // The file must contains the extension, only SOUND_EXTENSION is properly supported right now
     void record(const std::string& file, FileLocation location, Ref* linkTo);
     void stopRecording();
     // volume is between 0 and 1, 1 is default value. Must be set just after the start of the sound.

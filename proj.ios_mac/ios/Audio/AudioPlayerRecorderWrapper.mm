@@ -65,7 +65,6 @@ std::string AudioPlayerRecorder::getSoundsSavePath()
 void AudioPlayerRecorder::record(const std::string& file, FileLocation loc, Ref* linkTo)
 {
     CCAssert(recordEnabled, "Record is disabled, enable it before starting to record");
-	std::string withExtension = file + ".caf";
     if(linkTo == link && this->isRecording())
     {
         this->stopRecording();
@@ -77,7 +76,7 @@ void AudioPlayerRecorder::record(const std::string& file, FileLocation loc, Ref*
             linkTo = noLinkObject;
         }
         this->setLink(linkTo);
-        this->setPath(withExtension, loc);
+        this->setPath(file, loc);
         [[AudioPlayerRecorderImpl sharedAudio] startRecording];
     }
 }
