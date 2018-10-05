@@ -34,7 +34,7 @@ bool pickImageFrom(const std::string& saveName, FileLocation location, PickOptio
 {
     CCASSERT(stringEndsWith(saveName, ".png"), "Error: save name must end with .png");
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"pickImageFrom", "(Ljava/lang/String;IIIILjava/lang/String;FZ)Z");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"pickImageFrom", "(Ljava/lang/String;IIIILjava/lang/String;)Z");
     CCAssert(functionExist, "Function doesn't exist");
     jstring jSaveName = minfo.env->NewStringUTF(saveName.c_str());
     jstring jIdentifier = minfo.env->NewStringUTF(identifier.c_str());
