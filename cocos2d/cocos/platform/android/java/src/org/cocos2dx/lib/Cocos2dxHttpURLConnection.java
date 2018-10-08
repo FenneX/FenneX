@@ -59,7 +59,7 @@ public class Cocos2dxHttpURLConnection
     private static final String POST_METHOD = "POST" ;
     private static final String PUT_METHOD = "PUT" ;
 
-    static HttpURLConnection createHttpURLConnection(String linkURL) {
+    static HttpURLConnection createHttpURLConnection(String linkURL, String filePath) {
         URL url;
         HttpURLConnection urlConnection;
         try {
@@ -72,7 +72,16 @@ public class Cocos2dxHttpURLConnection
             Log.e("URLConnection exception", e.toString());
             return null;
         }
-
+        if (!filePath.isEmpty())
+        {
+            File uploadFile = new File(filePath);
+            if (!uploadFile.exists())
+            {
+                Log.e("URLConnection exception", "Cannot send file " + filePath + ": it doesn't exist");
+                return null;
+            }
+            urlConnection.setFixedLengthStreamingMode(uploadFile.length());
+        }
         return urlConnection;
     }
 
@@ -165,9 +174,15 @@ public class Cocos2dxHttpURLConnection
     }
 
     static void sendRequest(HttpURLConnection http, String filePath) {
+        File uploadFile = new File(filePath);
+        if (!uploadFile.exists())
+        {
+            Log.e("URLConnection exception", "Cannot send file " + filePath + ": it doesn't exist");
+            return;
+        }
         try {
             BufferedOutputStream bos = new BufferedOutputStream(http.getOutputStream());
-            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(new File(filePath)));
+            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(uploadFile));
             int i;
             // read byte by byte until end of stream (which is indicated by -1)
             while ((i = bis.read()) >= 0) {

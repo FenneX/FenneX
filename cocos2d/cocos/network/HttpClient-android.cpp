@@ -123,7 +123,7 @@ public:
     
     bool init(HttpRequest* request)
     {
-        createHttpURLConnection(request->getUrl());
+        createHttpURLConnection(request->getUrl(), request->getFilePath());
         if(!configure())
         {
             return false;
@@ -418,19 +418,21 @@ public:
     }
     
 private:
-    void createHttpURLConnection(const std::string& url)
+    void createHttpURLConnection(const std::string& url, const std::string& filePath)
     {
         JniMethodInfo methodInfo;
         if (JniHelper::getStaticMethodInfo(methodInfo,
             "org/cocos2dx/lib/Cocos2dxHttpURLConnection",
             "createHttpURLConnection",
-            "(Ljava/lang/String;)Ljava/net/HttpURLConnection;"))
+            "(Ljava/lang/String;Ljava/lang/String;)Ljava/net/HttpURLConnection;"))
         {
             _url = url;
             jstring jurl = methodInfo.env->NewStringUTF(url.c_str());
-            jobject jObj = methodInfo.env->CallStaticObjectMethod(methodInfo.classID, methodInfo.methodID, jurl);
+            jstring jfilePath = methodInfo.env->NewStringUTF(filePath.c_str());
+            jobject jObj = methodInfo.env->CallStaticObjectMethod(methodInfo.classID, methodInfo.methodID, jurl, jfilePath);
             _httpURLConnection = methodInfo.env->NewGlobalRef(jObj);
             methodInfo.env->DeleteLocalRef(jurl);
+            methodInfo.env->DeleteLocalRef(jfilePath);
             methodInfo.env->DeleteLocalRef(jObj);
             methodInfo.env->DeleteLocalRef(methodInfo.classID);
         }
