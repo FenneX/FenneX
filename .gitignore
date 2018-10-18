@@ -89,3 +89,6 @@ proj.android/libraries/*/local.properties
 # Generated documentation, it can be regenerated using doxygen #
 ######################
 docs/html/*
+
+
+*/.idea/*
