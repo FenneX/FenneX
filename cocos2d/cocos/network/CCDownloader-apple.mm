@@ -445,7 +445,7 @@ namespace cocos2d { namespace network {
 
                 _outer->onTaskFinish(*[wrapper get],
                                      cocos2d::network::DownloadTask::ERROR_IMPL_INTERNAL,
-                                     0,
+                                     (int)statusCode,
                                      errorMessage,
                                      buf);
             }
