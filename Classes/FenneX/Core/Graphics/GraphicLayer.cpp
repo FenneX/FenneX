@@ -659,7 +659,7 @@ RawObject* GraphicLayer::first(std::string name, bool cache)
         staticCache.clear();
         lastScene = SceneSwitcher::sharedSwitcher()->getCurrentSceneName();
     }
-    else if(staticCache.find(name) != staticCache.end())
+    else if(cache && staticCache.find(name) != staticCache.end())
     {
         RawObject* cachedObject = staticCache.at(name);
         if(storedObjects.contains(cachedObject))
@@ -882,7 +882,7 @@ Panel* GraphicLayer::firstPanel(std::string name, bool cache)
         staticCache.clear();
         lastScene = SceneSwitcher::sharedSwitcher()->getCurrentSceneName();
     }
-    else if(staticCache.find(name) != staticCache.end())
+    else if(cache && staticCache.find(name) != staticCache.end())
     {
         Panel* cachedObject = staticCache.at(name);
         if(storedPanels.contains(cachedObject))
@@ -890,7 +890,7 @@ Panel* GraphicLayer::firstPanel(std::string name, bool cache)
             return cachedObject;
         }
     }
-    for(long i =  storedPanels.size() - 1; i >= 0; i--)
+    for(long i = storedPanels.size() - 1; i >= 0; i--)
     {
         Panel* obj = storedPanels.at(i);
         if(name == obj->getName() && storedObjects.contains(obj))

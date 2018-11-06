@@ -139,6 +139,7 @@ public:
     RawObject* first(int id);
     RawObject* first(const std::function<bool(RawObject*)>& filter);
     //Cache is a way to tell GraphicLayer to cache this particular object for the current scene, so that subsequent call will be very fast
+    //Be careful not to use the cache in a scene constructor as the SceneSwitcher don't point yet to the new scene, and thus the cache will return objects from previous scene
     RawObject* first(std::string name, bool cache = false);
     RawObject* first(std::string name, Panel* panel);
     RawObject* first(Vec2 position);
@@ -155,6 +156,7 @@ public:
     
     //Method for querying panels. Faster because there are generally way less panels
     Panel* firstPanel(const std::function<bool(Panel*)>& filter);
+    //Be careful not to use the cache in a scene constructor as the SceneSwitcher don't point yet to the new scene, and thus the cache will return objects from previous scene
     Panel* firstPanel(std::string name, bool cache = false);
     Panel* firstPanel(std::string name, Panel* panel);
     
