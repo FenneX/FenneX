@@ -31,8 +31,13 @@
 
 NS_FENNEX_BEGIN
 
-bool isPhone();
+/* Allow to know if we are running tests.
+ Some things must be disabled when running tests, for example ApiService should not be automatically runned (so it can be tested without conflicts), and we probably want to avoid saving anything, so that we don't loose user data
+ Tests can only be running on iOS for now
+ */
+bool isRunningTests();
 
+bool isPhone();
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 void discardSplashScreen();

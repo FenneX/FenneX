@@ -33,6 +33,11 @@
 
 NS_FENNEX_BEGIN
 
+bool isRunningTests()
+{
+    return false;
+}
+
 bool isPhone()
 {
     JniMethodInfo minfo;

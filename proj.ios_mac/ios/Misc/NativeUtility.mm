@@ -35,6 +35,13 @@ NS_FENNEX_BEGIN
 
 MPVolumeView *invisibleVolumeView = nullptr;
 
+bool isRunningTests()
+{
+    //Copied from https://stackoverflow.com/questions/6748087/xcode-test-vs-debug-preprocessor-macros
+    NSDictionary* environment = [[NSProcessInfo processInfo] environment];
+    return (environment[@"XCInjectBundleInto"] != nil);
+}
+
 bool isPhone()
 {
     return [[UIDevice currentDevice] userInterfaceIdiom] != UIUserInterfaceIdiomPad;
