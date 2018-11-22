@@ -25,6 +25,7 @@
 #include <jni.h>
 #include "platform/android/jni/JniHelper.h"
 #include "VideoPickerWrapper.h"
+#include "DevicePermissions.h"
 
 #define CLASS_NAME_RECORDER "com/fennex/modules/VideoRecorder"
 #define CLASS_NAME_PICKER "com/fennex/modules/VideoPicker"
@@ -81,28 +82,34 @@ bool cancelRecording(bool notify)
     return result;
 }
 
-bool pickVideoFromLibrary(const std::string& saveName, FileLocation location)
+void pickVideoFromLibrary(const std::string& saveName, FileLocation location)
 {
-    JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME_PICKER, "pickVideoFromLibrary", "(Ljava/lang/String;I)Z");
-    CCAssert(functionExist, "Function doesn't exist");
-    jstring jSaveName = minfo.env->NewStringUTF(saveName.c_str());
-    bool result = minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID, jSaveName, (jint)location);
-    minfo.env->DeleteLocalRef(minfo.classID);
-    minfo.env->DeleteLocalRef(jSaveName);
-    return result;
+    DevicePermissions::ensurePermission(Permission::STORAGE, [=](){
+        JniMethodInfo minfo;
+        bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME_PICKER, "pickVideoFromLibrary", "(Ljava/lang/String;I)V");
+        CCAssert(functionExist, "Function doesn't exist");
+        jstring jSaveName = minfo.env->NewStringUTF(saveName.c_str());
+        minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jSaveName, (jint)location);
+        minfo.env->DeleteLocalRef(minfo.classID);
+        minfo.env->DeleteLocalRef(jSaveName);
+    }, [](){
+        notifyVideoPickCancelled();
+    });
 }
 
-bool pickVideoFromCamera(const std::string& saveName, FileLocation location)
+void pickVideoFromCamera(const std::string& saveName, FileLocation location)
 {
-    JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME_PICKER, "pickVideoFromCamera", "(Ljava/lang/String;I)Z");
-    CCAssert(functionExist, "Function doesn't exist");
-    jstring jSaveName = minfo.env->NewStringUTF(saveName.c_str());
-    bool result = minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID, jSaveName, (jint)location);
-    minfo.env->DeleteLocalRef(minfo.classID);
-    minfo.env->DeleteLocalRef(jSaveName);
-    return result;
+    DevicePermissions::ensurePermission(Permission::CAMERA, [=](){
+        JniMethodInfo minfo;
+        bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME_PICKER, "pickVideoFromCamera", "(Ljava/lang/String;I)V");
+        CCAssert(functionExist, "Function doesn't exist");
+        jstring jSaveName = minfo.env->NewStringUTF(saveName.c_str());
+        minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jSaveName, (jint)location);
+        minfo.env->DeleteLocalRef(minfo.classID);
+        minfo.env->DeleteLocalRef(jSaveName);
+    }, [](){
+        notifyRecordingCancelled();
+    });
 }
 
 void getAllVideos()

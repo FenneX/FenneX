@@ -32,7 +32,7 @@
 USING_NS_CC;
 USING_NS_FENNEX;
 
-bool pickImageFrom(const std::string& saveName, FileLocation location, PickOption pickOption, int width, int height, const std::string& identifier)
+void pickImageFrom(const std::string& saveName, FileLocation location, PickOption pickOption, int width, int height, const std::string& identifier)
 {
     CCASSERT(stringEndsWith(saveName, ".png"), "Error: save name must end with .png");
     Director::getInstance()->stopAnimation();
@@ -65,10 +65,7 @@ bool pickImageFrom(const std::string& saveName, FileLocation location, PickOptio
         {
             [[AppController sharedController].viewController presentModalViewController:[ImagePicker sharedPicker].controller animated:YES];
         }
-        //[sharedController.window addSubview:[ImagePicker sharedPicker].controller.view];
-        return true;
     }
-    return false;
 }
 
 bool isCameraAvailable()

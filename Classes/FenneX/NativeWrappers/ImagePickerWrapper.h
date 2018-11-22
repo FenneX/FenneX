@@ -46,13 +46,11 @@ typedef enum
  * height: max height of the image. It will be downscaled if necessary, by keeping ratio
  * identifier: an identifier which will be passed on result, to identify what the image was picked for
  *
- * return false if there was an issue launching the widget
- *
  * will throw either
  * - ImagePicked, with file name, location and identifier, if the pick was successful
  * - ImagePickerCancelled if the user cancelled the widget
  **/
-bool pickImageFrom(const std::string& saveName, FileLocation location, PickOption pickOption, int width, int height, const std::string& identifier);
+void pickImageFrom(const std::string& saveName, FileLocation location, PickOption pickOption, int width, int height, const std::string& identifier);
 bool isCameraAvailable();
 
 static inline void notifyImagePicked(std::string name, FileLocation location, std::string identifier)

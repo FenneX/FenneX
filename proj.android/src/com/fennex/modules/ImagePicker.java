@@ -222,7 +222,7 @@ public class ImagePicker implements ActivityResultResponder
     }
     
     @SuppressWarnings("unused")
-    public static boolean pickImageFrom(String saveName, int location, int pickOption, int width, int height, String identifier)
+    public static void pickImageFrom(String saveName, int location, int pickOption, int width, int height, String identifier)
     {
     	ImagePicker.getInstance(); //ensure the instance is created
     	_fileName = saveName;
@@ -230,7 +230,6 @@ public class ImagePicker implements ActivityResultResponder
     	_width = width;
     	_height = height;
     	_identifier = identifier;
-    	boolean error = false;
     	if(pickOption == PICK_OPTION.CAMERA.getValue())
     	{
     		try
@@ -249,7 +248,6 @@ public class ImagePicker implements ActivityResultResponder
     		catch(ActivityNotFoundException e)
     		{
     	    	Log.d(TAG, "intent for image capture not found : " + e.getMessage());
-    	    	error = true;
     		} catch (IOException e) {
                 e.printStackTrace();
             }
@@ -276,11 +274,8 @@ public class ImagePicker implements ActivityResultResponder
     		{
                 if(pickOption == 1) Log.d(TAG, "intent for image pick from Galery not found : " + e.getMessage());
                 else Log.d(TAG, "intent for image pick from File library not found : " + e.getMessage());
-
-    	    	error = true;
     		}
     	}
-    	return error;
     }
     
     private static String getStorageDirectory() throws IOException {

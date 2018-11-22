@@ -25,31 +25,35 @@
 #include <jni.h>
 #include "ImagePickerWrapper.h"
 #include "platform/android/jni/JniHelper.h"
+#include "DevicePermissions.h"
 
 #define CLASS_NAME "com/fennex/modules/ImagePicker"
 
 USING_NS_FENNEX;
 
-bool pickImageFrom(const std::string& saveName, FileLocation location, PickOption pickOption, int width, int height, const std::string& identifier)
+void pickImageFrom(const std::string& saveName, FileLocation location, PickOption pickOption, int width, int height, const std::string& identifier)
 {
-    CCASSERT(stringEndsWith(saveName, ".png"), "Error: save name must end with .png");
-    JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"pickImageFrom", "(Ljava/lang/String;IIIILjava/lang/String;)Z");
-    CCAssert(functionExist, "Function doesn't exist");
-    jstring jSaveName = minfo.env->NewStringUTF(saveName.c_str());
-    jstring jIdentifier = minfo.env->NewStringUTF(identifier.c_str());
-    bool result = minfo.env->CallStaticBooleanMethod(minfo.classID,
-                                                     minfo.methodID,
-                                                     jSaveName,
-                                                     (jint)location,
-                                                     (jint)pickOption,
-                                                     (jint)width,
-                                                     (jint)height,
-                                                     jIdentifier);
-    minfo.env->DeleteLocalRef(minfo.classID);
-    minfo.env->DeleteLocalRef(jSaveName);
-    minfo.env->DeleteLocalRef(jIdentifier);
-    return result;
+    DevicePermissions::ensurePermission(pickOption == PickOption::Camera ? Permission::CAMERA : Permission::STORAGE, [=](){
+        CCASSERT(stringEndsWith(saveName, ".png"), "Error: save name must end with .png");
+        JniMethodInfo minfo;
+        bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"pickImageFrom", "(Ljava/lang/String;IIIILjava/lang/String;)V");
+        CCAssert(functionExist, "Function doesn't exist");
+        jstring jSaveName = minfo.env->NewStringUTF(saveName.c_str());
+        jstring jIdentifier = minfo.env->NewStringUTF(identifier.c_str());
+        minfo.env->CallStaticVoidMethod(minfo.classID,
+                                        minfo.methodID,
+                                        jSaveName,
+                                        (jint)location,
+                                        (jint)pickOption,
+                                        (jint)width,
+                                        (jint)height,
+                                        jIdentifier);
+        minfo.env->DeleteLocalRef(minfo.classID);
+        minfo.env->DeleteLocalRef(jSaveName);
+        minfo.env->DeleteLocalRef(jIdentifier);
+    }, [](){
+        notifyImagePickCancelled();
+    });
 }
 
 bool isCameraAvailable()

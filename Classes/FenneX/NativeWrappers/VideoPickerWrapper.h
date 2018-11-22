@@ -52,9 +52,9 @@ void stopVideoRecording();
 //Pass true to get a VideoRecordingCancelled when it's done
 bool cancelRecording(bool notify = true);
 
-bool pickVideoFromLibrary(const std::string& saveName, FileLocation location);
+void pickVideoFromLibrary(const std::string& saveName, FileLocation location);
 
-bool pickVideoFromCamera(const std::string& saveName, FileLocation location);
+void pickVideoFromCamera(const std::string& saveName, FileLocation location);
 
 //Will start the process of getting all videos path, names and duration, which will be notified with VideoFound, VideoNameResolved and VideoDurationAvailable (from VideoPlayer)
 //Current implementation is in the same thread for iOS, and in a different thread on Android (but still using all the resources)

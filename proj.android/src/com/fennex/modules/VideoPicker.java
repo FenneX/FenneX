@@ -78,12 +78,11 @@ public class VideoPicker implements ActivityResultResponder {
     public native static void notifyVideoPickCancelled();
 
     
-    public static boolean pickVideoFromLibrary(String saveName, int location)
+    public static void pickVideoFromLibrary(String saveName, int location)
     {
     	VideoPicker.getInstance(); //ensure the instance is created
         _fileName = saveName;
         _location = FileUtility.FileLocation.valueOf(location);
-    	boolean error = false;
 		try
 		{
 			Intent intent = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -94,17 +93,14 @@ public class VideoPicker implements ActivityResultResponder {
 		catch(ActivityNotFoundException e)
 		{
 	    	Log.d(TAG, "intent for image pick from library not found : " + e.getMessage());
-	    	error = true;
 		}
-    	return error;
     }
 
-    public static boolean pickVideoFromCamera(String saveName, int location)
+    public static void pickVideoFromCamera(String saveName, int location)
     {
         VideoPicker.getInstance(); //ensure the instance is created
         _fileName = saveName;
         _location = FileUtility.FileLocation.valueOf(location);
-        boolean error = false;
         try
         {
             Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
@@ -114,9 +110,7 @@ public class VideoPicker implements ActivityResultResponder {
         catch(ActivityNotFoundException e)
         {
             Log.d(TAG, "intent for image pick from Camera not found : " + e.getMessage());
-            error = true;
         }
-        return error;
     }
     
     public static void getAllVideos()

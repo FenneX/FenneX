@@ -26,6 +26,7 @@
 #include "FenneX.h"
 #include "AudioPlayerRecorder.h"
 #include "platform/android/jni/JniHelper.h"
+#include "DevicePermissions.h"
 
 USING_NS_FENNEX;
 
@@ -71,28 +72,31 @@ bool AudioPlayerRecorder::isPlaying()
 
 void AudioPlayerRecorder::record(const std::string& file, FileLocation location, Ref* linkTo)
 {
-    JniMethodInfo minfo;
-    
-    if(linkTo == link && this->isRecording())
-    {
-        this->stopRecording();
-    }
-    else
-    {
-        if(linkTo == NULL)
+    DevicePermissions::ensurePermission(Permission::MICROPHONE, [=](){
+        JniMethodInfo minfo;
+
+        if(linkTo == link && this->isRecording())
         {
-            linkTo = noLinkObject;
+            this->stopRecording();
         }
-        this->setLink(linkTo);
-        this->setPath(file);
-        
-        bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"startRecording", "(Ljava/lang/String;I)V");
-        CCAssert(functionExist, "Function doesn't exist");
-        jstring string0 = minfo.env->NewStringUTF(file.c_str());
-        minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, string0, (jint)location);
-        minfo.env->DeleteLocalRef(minfo.classID);
-        minfo.env->DeleteLocalRef(string0);
-    }
+        else
+        {
+            Ref* link = linkTo;
+            if(link == NULL)
+            {
+                link = noLinkObject;
+            }
+            this->setLink(link);
+            this->setPath(file);
+
+            bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"startRecording", "(Ljava/lang/String;I)V");
+            CCAssert(functionExist, "Function doesn't exist");
+            jstring string0 = minfo.env->NewStringUTF(file.c_str());
+            minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, string0, (jint)location);
+            minfo.env->DeleteLocalRef(minfo.classID);
+            minfo.env->DeleteLocalRef(string0);
+        }
+    }, [](){});
 }
 
 void AudioPlayerRecorder::stopRecording()

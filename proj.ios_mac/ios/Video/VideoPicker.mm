@@ -61,7 +61,7 @@ bool cancelRecording(bool notify)
     return [[VideoRecorder sharedRecorder] cancelRecording:notify];
 }
 
-bool pickVideoFromLibrary(const std::string& saveName, FileLocation location)
+void pickVideoFromLibrary(const std::string& saveName, FileLocation location)
 {
     if([AppController sharedController] != nullptr)
     {
@@ -86,12 +86,10 @@ bool pickVideoFromLibrary(const std::string& saveName, FileLocation location)
         {
             [[AppController sharedController].viewController presentModalViewController:[VideoPicker sharedPicker].controller animated:YES];
         }
-        return true;
     }
-    return false;
 }
 
-bool pickVideoFromCamera(const std::string& saveName, FileLocation location)
+void pickVideoFromCamera(const std::string& saveName, FileLocation location)
 {
     if([AppController sharedController] != nullptr)
     {
