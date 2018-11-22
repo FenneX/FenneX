@@ -319,4 +319,12 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
     {
         return mFrameLayout;
     }
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode,
+										   String permissions[],
+										   int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		DevicePermissions.onRequestPermissionsResult(requestCode, permissions, grantResults);
+	}
 }

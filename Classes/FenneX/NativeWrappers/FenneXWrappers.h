@@ -38,5 +38,6 @@ THE SOFTWARE.
 #include "VideoPlayer.h"
 #include "TTSWrapper.h"
 #include "FileUtility.h"
+#include "DevicePermissions.h"
 
 #endif
