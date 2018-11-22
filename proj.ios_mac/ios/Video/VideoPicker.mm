@@ -99,9 +99,7 @@ void pickVideoFromCamera(const std::string& saveName, FileLocation location)
         [[VideoPicker sharedPicker] setSourceType:UIImagePickerControllerSourceTypeCamera];
         [VideoPicker sharedPicker].useCamera = true;
         [[AppController sharedController].viewController presentModalViewController:[VideoPicker sharedPicker].controller animated:YES];
-        return true;
     }
-    return false;
 }
 
 /** Will get all videos from both the camera roll (equivalent to Photos app) and iPod Library (equivalent to Videos app)
