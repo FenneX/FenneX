@@ -121,7 +121,7 @@ public class ImagePicker implements ActivityResultResponder
                     /* When not using EXTRA_OUTPUT, the Intent will produce a small image, depending on device and app used
                     original = data.getParcelableExtra("data");*/
                     //The EXTRA_OUTPUT parameter of Intent
-                    File file = new File(getStorageDirectory(), _fileName + ".jpg");
+                    File file = new File(getStorageDirectory(), _fileName);
                     ExifInterface exif = new ExifInterface(file.getAbsolutePath());
                     int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
                     int rotation = 0;
@@ -235,7 +235,7 @@ public class ImagePicker implements ActivityResultResponder
     		try
     		{
 	       		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                File file = new File(getStorageDirectory(), saveName + ".jpg");
+                File file = new File(getStorageDirectory(), saveName);
                 Uri outputFileUri = Uri.fromFile(file);
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
                 isPending = true;
