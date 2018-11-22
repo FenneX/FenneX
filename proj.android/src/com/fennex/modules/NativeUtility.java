@@ -48,6 +48,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.util.Date;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class NativeUtility 
@@ -229,6 +231,13 @@ public class NativeUtility
     {
     	//Cocos2dxBitmap.setIsInInitialization(false);
     	System.gc();
+    }
+
+    @SuppressWarnings("unused")
+    public static String formatDate(long date)
+    {
+        Date toConvert = new Date(date * 1000);
+        return DateFormat.getDateInstance(DateFormat.SHORT).format(toConvert);
     }
 
     @SuppressWarnings("unused")

@@ -230,10 +230,15 @@ void runGarbageCollector()
 
 std::string formatDate(time_t date)
 {
-    tm* t = localtime(&date);
-    //We add 1 to to the month because it seems that january is 0, etc.
-    //TODO : use a native method to format according user locales
-    return std::to_string(t->tm_mday) + "/" + std::to_string(t->tm_mon+1) + "/" + std::to_string(t->tm_year-100);
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "formatDate", "(J)Ljava/lang/String;");
+    CCAssert(functionExist, "Function doesn't exist");
+
+    jstring result = (jstring) minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID, (jlong)date);
+    std::string dateString = JniHelper::jstring2string(result);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(result);
+    return dateString;
 }
 
 float getDeviceVolume()
