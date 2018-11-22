@@ -205,6 +205,20 @@ std::string formatDate(time_t date)
     return std::string([result UTF8String]);
 }
 
+//will format the date in long format (example: November 23, 1937) and time in short format (example: 3:30 PM) according to user local
+std::string formatDateTime(time_t date)
+{
+    NSDate *nsdate = [NSDate dateWithTimeIntervalSince1970:date];//"yyyy/MM/dd"
+    NSDateFormatter *formatter = [[[NSDateFormatter alloc] init] autorelease];
+    
+    [formatter setDateStyle:NSDateFormatterLongStyle];
+    
+    [formatter setTimeStyle:NSDateFormatterShortStyle];
+    
+    NSString *result = [formatter stringForObjectValue:nsdate];
+    return std::string([result UTF8String]);
+}
+
 float getDeviceVolume()
 {
     if(invisibleVolumeView == nullptr)

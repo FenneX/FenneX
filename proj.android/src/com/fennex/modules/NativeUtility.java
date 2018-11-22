@@ -241,6 +241,13 @@ public class NativeUtility
     }
 
     @SuppressWarnings("unused")
+    public static String formatDateTime(long dateTime)
+    {
+        Date toConvert = new Date(dateTime * 1000);
+        return DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(toConvert);
+    }
+
+    @SuppressWarnings("unused")
     public static float getDeviceVolume()
     {
     	AudioManager mAudioManager = (AudioManager) getMainActivity().getSystemService(Context.AUDIO_SERVICE);

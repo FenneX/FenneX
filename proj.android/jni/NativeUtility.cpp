@@ -241,6 +241,19 @@ std::string formatDate(time_t date)
     return dateString;
 }
 
+std::string formatDateTime(time_t dateTime)
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "formatDateTime", "(J)Ljava/lang/String;");
+    CCAssert(functionExist, "Function doesn't exist");
+
+    jstring result = (jstring) minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID, (jlong)dateTime);
+    std::string dateTimeString = JniHelper::jstring2string(result);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(result);
+    return dateTimeString;
+}
+
 float getDeviceVolume()
 {
     JniMethodInfo minfo;
