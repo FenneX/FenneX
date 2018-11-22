@@ -29,6 +29,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.print.PdfConverter;
 import java.io.File;
 
@@ -81,6 +82,9 @@ public class HtmlToPdf {
     @SuppressWarnings("unused")
     private static void openPDFWithApp(String fileName)
         {
+            // TODO : Change to use a FileProvider
+            StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+            StrictMode.setVmPolicy(builder.build());
             Intent target = new Intent(Intent.ACTION_VIEW);
             target.setDataAndType(Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/" + fileName)),"application/pdf");
 

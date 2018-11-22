@@ -37,6 +37,7 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
@@ -234,6 +235,10 @@ public class ImagePicker implements ActivityResultResponder
     	{
     		try
     		{
+    		    // TODO : Change to use a FileProvider
+                StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+                StrictMode.setVmPolicy(builder.build());
+
 	       		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 File file = new File(getStorageDirectory(), saveName);
                 Uri outputFileUri = Uri.fromFile(file);

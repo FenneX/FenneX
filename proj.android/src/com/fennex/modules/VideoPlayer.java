@@ -13,6 +13,7 @@ import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
@@ -237,8 +238,12 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
     				});
 
     				Uri uri = null;
-    				if(videoFile.exists())
-    					uri = Uri.fromFile(videoFile);
+    				if(videoFile.exists()) {
+						// TODO : Change to use a FileProvider
+						StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+						StrictMode.setVmPolicy(builder.build());
+						uri = Uri.fromFile(videoFile);
+					}
     				else
     					uri = NativeUtility.getMainActivity().getUriFromFileName(path);
     				Log.i(TAG, "Using URI : " + uri.toString() + ", path : " + uri.getPath());
