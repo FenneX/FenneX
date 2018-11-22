@@ -648,17 +648,6 @@ public class AudioPlayerRecorder extends Handler {
     	return false;
     }
 
-    @SuppressWarnings("unused")
-    public static boolean checkMicrophonePermission ()
-    {
-    	boolean permissionOK = NativeUtility.getMainActivity().checkCallingOrSelfPermission("android.permission.RECORD_AUDIO") == PackageManager.PERMISSION_GRANTED;
-    	if(!permissionOK)
-    	{
-    		Toast.makeText(NativeUtility.getMainActivity(), "Warning, missiong RECORD_AUDIO permission", Toast.LENGTH_LONG).show();
-    	}
-    	return permissionOK;
-    }
-    
     private static MediaMetadataRetriever getMetadata(String file)
     {
     	String relativeName = file;

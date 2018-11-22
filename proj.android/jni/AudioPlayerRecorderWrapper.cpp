@@ -261,25 +261,13 @@ std::string AudioPlayerRecorder::getSoundsSavePath()
 
 void AudioPlayerRecorder::setRecordEnabled(bool enabled)
 {
-    JniMethodInfo minfo;
-    
-    //On Android, there is currently no problem with recording being enabled or not, since the microphone is a permission
-    //Check the permission and make a Toast if it's missing
-    if(recordEnabled != enabled)
+    if(enabled)
     {
-        if(enabled)
-        {
-            bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "checkMicrophonePermission", "()Z");
-            CCAssert(functionExist, "Function doesn't exist");
-            bool permissionOK = minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID);
-            minfo.env->DeleteLocalRef(minfo.classID);
-            
-            if(!permissionOK)
-            {
-                log("Warning : microphone permission missing, the app may crash on next record");
-            }
-        }
-        recordEnabled = enabled;
+        DevicePermissions::ensurePermission(Permission::MICROPHONE, [=](){
+            recordEnabled = true;
+        }, [=](){
+            recordEnabled = false;
+        });
     }
 }
 
