@@ -26,7 +26,6 @@
 #include "cocos2d.h"
 
 static std::map<Permission, std::vector<std::pair<std::function<void()>, std::function<void()>>>> onGoingRequest;
-static int lastID = 0;
 // Don't ask for permission if you already have the information
 static std::vector<Permission> acceptedPermission = {};
 

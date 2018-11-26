@@ -28,15 +28,16 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.util.SparseArray;
+import android.util.SparseIntArray;
 
 public class DevicePermissions
 {
     public native static void notifyPermissionRequestEnded(int permission, boolean result);
 
-    private static SparseArray<Integer> currentRequest = new SparseArray<>();
+    private static SparseIntArray currentRequest = new SparseIntArray();
     private static int lastID = 0;
 
+    @SuppressWarnings("WeakerAccess")
     public static boolean hasPermission(int permissionValue)
     {
         String[] permissions = getPermissionString(permissionValue);
@@ -50,6 +51,7 @@ public class DevicePermissions
         return allowed;
     }
 
+    @SuppressWarnings("unused")
     public static boolean requestPermission(int permissionValue)
     {
         String[] permissions = getPermissionString(permissionValue);
@@ -66,7 +68,7 @@ public class DevicePermissions
     }
 
     public static void onRequestPermissionsResult(int requestID,
-                                                  String permissions[],
+                                                  @SuppressWarnings("unused") String permissions[],
                                                   int[] grantResults) {
         if(NativeUtility.getMainActivity() != null)
         {
