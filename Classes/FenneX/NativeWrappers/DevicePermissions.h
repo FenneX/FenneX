@@ -29,6 +29,7 @@
 
 NS_FENNEX_BEGIN
 
+//Syncronized with Java getPermissionString()
 enum class Permission {
     STORAGE = 0,  // Use the devices storage
     MICROPHONE = 1, // Use the device microphone
@@ -56,7 +57,7 @@ public:
      */
     static void ensurePermission(Permission permission, const std::function<void()> funcOnSuccess, const std::function<void()> funcOnDeny);
     
-    // Internal use only
+    // Internal use only, need to be public for Android notify C-function
     static void permissionRequestEnded(Permission permission, bool result);
 private:
     static bool hasPermissionInternal(Permission permission);

@@ -79,6 +79,7 @@ public class DevicePermissions
         currentRequest.delete(requestID);
     }
 
+    //Syncronized with C++ enum class Permission
     private static String[] getPermissionString(int value){
         switch (value) {
             case 0:
@@ -90,7 +91,7 @@ public class DevicePermissions
             case 3:
                 return new String[]{Manifest.permission.READ_PHONE_STATE};
             default:
-                return new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+                throw new AssertionError("Unknown permission, did you fill the Java part after updating enum class Permission?");
         }
     }
 }
