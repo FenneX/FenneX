@@ -350,7 +350,7 @@ public class ExpansionSupport extends DownloaderService implements ActivityObser
 	@Override
 	public void onDownloadStateChanged(int newState) 
 	{
-		Log.i(TAG, "on download state changed : " + newState + ", as string : " + Helpers.getDownloaderStringResourceIDFromState(newState));
+		Log.i(TAG, "on download state changed : " + newState + ", as string : " + NativeUtility.getMainActivity().getString(Helpers.getDownloaderStringResourceIDFromState(newState)));
 		switch (newState)
 		{
 		case IDownloaderClient.STATE_IDLE:
