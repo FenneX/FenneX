@@ -3,6 +3,7 @@ package com.fennex.modules;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
@@ -14,6 +15,7 @@ public class SplashDialog extends Dialog {
     private int activityID;
     private int splashID;
     private Context context;
+    private static String TAG = "SplashDialog";
     public SplashDialog(Context context, int activity, int splashImageID) {
         super(context, android.R.style.Theme_NoTitleBar_Fullscreen);
         this.context = context;
@@ -23,6 +25,7 @@ public class SplashDialog extends Dialog {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "Splashscreen oncreate");
         super.onCreate(savedInstanceState);
         setContentView(activityID);
         //Fade in only the image, so the background is the right color
@@ -34,6 +37,7 @@ public class SplashDialog extends Dialog {
 
     public void discard()
     {
+        Log.d(TAG, "Discard splashscreen");
         context = null;
         this.cancel();
     }

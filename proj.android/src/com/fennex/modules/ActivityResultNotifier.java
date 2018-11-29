@@ -249,10 +249,12 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 			observer.onStateChanged(ActivityObserver.START);
 		}
 	}
+	private static final String TAG = "ActivityResultNotifier";
 	
 	@Override
 	public void onResume()
 	{
+		Log.d(TAG, "ActivityResultNotifier onResume");
 		super.onResume();
 		active = true;
 		for(ActivityObserver observer : observers)
@@ -264,6 +266,7 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 	@Override
 	public void onPause()
 	{
+		Log.d(TAG, "ActivityResultNotifier onPause");
 		super.onPause();
 		for(ActivityObserver observer : observers)
 		{

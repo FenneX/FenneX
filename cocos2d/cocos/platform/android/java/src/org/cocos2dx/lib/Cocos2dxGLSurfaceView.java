@@ -180,10 +180,12 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
     @Override
     public void onResume() {
         super.onResume();
+        Log.d(TAG, "Cocos SurfaceView onResume: called");
         this.setRenderMode(RENDERMODE_CONTINUOUSLY);
         this.queueEvent(new Runnable() {
             @Override
             public void run() {
+                Log.d(TAG, "Cocos SurfaceViewonResume: renderer onResume");
                 Cocos2dxGLSurfaceView.this.mCocos2dxRenderer.handleOnResume();
             }
         });
@@ -191,9 +193,11 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
 
     @Override
     public void onPause() {
+        Log.d(TAG, "Cocos SurfaceView onPause: called");
         this.queueEvent(new Runnable() {
             @Override
             public void run() {
+                Log.d(TAG, "Cocos SurfaceViewonPause: renderer onPause");
                 Cocos2dxGLSurfaceView.this.mCocos2dxRenderer.handleOnPause();
             }
         });
