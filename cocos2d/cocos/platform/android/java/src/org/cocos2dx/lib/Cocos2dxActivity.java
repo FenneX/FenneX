@@ -24,6 +24,7 @@ THE SOFTWARE.
 package org.cocos2dx.lib;
 
 import android.app.Activity;
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -34,6 +35,7 @@ import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
+import android.os.PowerManager;
 import android.preference.PreferenceManager.OnActivityResultListener;
 import android.util.Log;
 import android.view.View;
@@ -184,10 +186,15 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
     }
     
     private void resumeIfHasFocus() {
-        if(hasFocus) {
+        //Backport of https://github.com/cocos2d/cocos2d-x/commit/6fb631e68ef11fb9f5bdadeacad1ae4c9643fd77
+        //It is possible for the app to receive the onWindowsFocusChanged(true) event
+        //even though it is locked or asleep
+        boolean readyToPlay = !isDeviceLocked() && !isDeviceAsleep();
+
+        if(hasFocus && readyToPlay) {
             this.hideVirtualButton();
-        	Cocos2dxHelper.onResume();
-        	mGLSurfaceView.onResume();
+            Cocos2dxHelper.onResume();
+            mGLSurfaceView.onResume();
         }
     }
 
@@ -333,6 +340,24 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
       Log.d(TAG, "isEmulator=" + isEmulator);
       return isEmulator;
    }
+
+    private static boolean isDeviceLocked() {
+        KeyguardManager keyguardManager = (KeyguardManager)getContext().getSystemService(Context.KEYGUARD_SERVICE);
+        boolean locked = keyguardManager.inKeyguardRestrictedInputMode();
+        return locked;
+    }
+
+    private static boolean isDeviceAsleep() {
+        PowerManager powerManager = (PowerManager)getContext().getSystemService(Context.POWER_SERVICE);
+        if(powerManager == null) {
+            return false;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
+            return !powerManager.isInteractive();
+        } else {
+            return !powerManager.isScreenOn();
+        }
+    }
 
     // ===========================================================
     // Inner and Anonymous Classes
