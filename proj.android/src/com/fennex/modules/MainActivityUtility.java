@@ -41,9 +41,4 @@ public interface MainActivityUtility
 	
 	//Returns true if the in-app product should be consumed before being returned. Usually, it's false, because you want to keep premium state
 	public boolean isConsumable(String productID);
-
-    //Return the ID of the splash screen layout, or -1 for no splash screen
-    public int getSplashScreenLayout();
-    //Return the ID of the splash screen image, or -1 for no splash screen
-    public int getSplashScreenImageID();
 }
