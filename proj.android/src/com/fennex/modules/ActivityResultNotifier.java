@@ -44,15 +44,11 @@ import android.widget.FrameLayout;
  */
 public abstract class ActivityResultNotifier extends Cocos2dxActivity implements MainActivityUtility
 {
-    protected static SplashDialog splashDialog;
 	private ArrayList<ActivityResultResponder> responders;
 	private ArrayList<ActivityObserver> observers;
 	private boolean active = false;
 	public boolean isActive() { return active; }
 
-    //The minimum duration is the fade_in duration, default to 500, try to load from config, plus a flat time after anim
-    final private long SPLASH_DURATION_AFTER_ANIM = 500;
-    private long splashMinDuration = 500 + SPLASH_DURATION_AFTER_ANIM;
     private static long launchTime = 0;
 	
 	public ActivityResultNotifier()
@@ -72,13 +68,10 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 				Log.d("FenneX", "This app is launching for the first time so we can't notify for url opening : " + e.getMessage());
 			}
 		}
-        if(getSplashScreenLayout() != -1 && getSplashScreenImageID() != -1 && launchTime == 0) {
-            splashDialog = new SplashDialog(this, getSplashScreenLayout(), getSplashScreenImageID());
-            splashDialog.show();
+        if(launchTime == 0) {
             launchTime = SystemClock.elapsedRealtime();
         }
 		super.onCreate(savedInstanceState);
-        splashMinDuration = getResources().getInteger(android.R.integer.config_longAnimTime) + SPLASH_DURATION_AFTER_ANIM;
     	NativeUtility.setMainActivity(this);
 		for(ActivityObserver observer : observers)
 		{
@@ -87,45 +80,6 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 		NativeUtility.getMainActivity().getWindow().setSoftInputMode(
 				WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 	}
-
-    public void discardSplashDialog()
-    {
-        if(splashDialog != null) {
-            final long currentTime = SystemClock.elapsedRealtime();
-            //Ensure the splashScreen is longer than the animation
-            if(currentTime - launchTime > splashMinDuration) {
-				new Timer().schedule(new TimerTask() {
-					@Override
-					public void run() {
-						if(splashDialog!= null)
-						{
-							splashDialog.cancel();
-							splashDialog = null;
-						}
-					}
-				}, 100);
-            }
-            else {
-                Log.i("FenneX", "Duration of runnable : " + (splashMinDuration - (currentTime - launchTime)));
-                new Timer().schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-						if(splashDialog!= null)
-						{
-							splashDialog.discard();
-							splashDialog = null;
-						}
-                    }
-                }, splashMinDuration - (currentTime - launchTime) + 100);
-            }
-        }
-        // It's time to check again if it's an intent or not since the c++ library is alive
-		if(launchTime != 0 && this.getIntent().getDataString() != null && !this.getIntent().getBooleanExtra("IsUrlAlreadyOpened", false))
-		{
-			NativeUtility.notifyUrlOpened(this.getIntent().getDataString());
-			this.getIntent().putExtra("IsUrlAlreadyOpened", true);
-		}
-    }
 	
 	@Override
 	public void addResponder(ActivityResultResponder responder) {
@@ -277,10 +231,6 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 	@Override
 	public void onStop()
 	{
-        if(splashDialog != null) {
-            splashDialog.cancel();
-            splashDialog = null;
-        }
 		super.onStop();
 		active = false;
 		for(ActivityObserver observer : observers)
@@ -302,10 +252,6 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 	@Override
 	public void onDestroy()
 	{
-        if(splashDialog != null) {
-            splashDialog.cancel();
-            splashDialog = null;
-        }
         for(ActivityResultResponder responder : responders)
         {
             responder.destroy();

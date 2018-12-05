@@ -72,12 +72,6 @@ public class NativeUtility
 	}
 
     @SuppressWarnings("unused")
-    public static void discardSplashScreen()
-    {
-        getMainActivity().discardSplashDialog();
-    }
-
-    @SuppressWarnings("unused")
     public static String getOpenUrl()
     {
         String openUrl = getMainActivity().getIntent().getDataString();

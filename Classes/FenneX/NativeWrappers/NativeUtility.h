@@ -39,10 +39,6 @@ bool isRunningTests();
 
 bool isPhone();
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-void discardSplashScreen();
-#endif
-
 /* Return the URL the app was opened with, or an empty string
  You also get notified with "UrlOpened" event when app is opened with an url during run (not at startup)
  */
