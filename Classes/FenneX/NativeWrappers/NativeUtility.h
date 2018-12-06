@@ -83,6 +83,7 @@ void copyResourceFileToLocal(const std::string& path);
 std::string getLocalLanguage();
 
 void preventIdleTimerSleep(bool prevent);
+bool doesPreventIdleTimerSleep();
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 //The real goal of those methods (which should be called when starting a scene initialisation and after it's fully initialized and drawn)

@@ -200,6 +200,16 @@ void preventIdleTimerSleep(bool prevent)
     minfo.env->DeleteLocalRef(minfo.classID);
 }
 
+bool doesPreventIdleTimerSleep()
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "doesPreventIdleTimerSleep", "()Z");
+    CCAssert(functionExist, "Function doesn't exist");
+    bool result = minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID, (jboolean)prevent);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    return result;
+}
+
 void startSceneInitialisation()
 {
     JniMethodInfo minfo;

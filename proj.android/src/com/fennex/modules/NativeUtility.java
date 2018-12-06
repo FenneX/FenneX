@@ -205,6 +205,13 @@ public class NativeUtility
    	    }
    	});
     }
+
+    @SuppressWarnings("unused")
+    public static boolean doesPreventIdleTimerSleep()
+    {
+        int flags = getMainActivity().getWindow().getAttributes().flags;
+        return (flags & WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) != 0;
+    }
     
     @TargetApi(19)
     @SuppressWarnings("unused")

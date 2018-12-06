@@ -191,6 +191,11 @@ void preventIdleTimerSleep(bool prevent)
     [UIApplication sharedApplication].idleTimerDisabled = prevent;
 }
 
+bool doesPreventIdleTimerSleep()
+{
+    return [UIApplication sharedApplication].idleTimerDisabled;
+}
+
 //will format the date in short format (example : 9/8/2010) according user local
 std::string formatDate(time_t date)
 {
