@@ -63,6 +63,7 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 		{
 			try {
 				NativeUtility.notifyUrlOpened(this.getIntent().getDataString());
+				this.getIntent().putExtra("IsUrlAlreadyOpened", true);
 			}
 			catch(UnsatisfiedLinkError e) {
 				Log.d("FenneX", "This app is launching for the first time so we can't notify for url opening : " + e.getMessage());
@@ -214,6 +215,17 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 		for(ActivityObserver observer : observers)
 		{
 			observer.onStateChanged(ActivityObserver.RESUME);
+		}
+
+		if(this.getIntent().getDataString() != null && !this.getIntent().getBooleanExtra("IsUrlAlreadyOpened", false))
+		{
+			try {
+				NativeUtility.notifyUrlOpened(this.getIntent().getDataString());
+				this.getIntent().putExtra("IsUrlAlreadyOpened", true);
+			}
+			catch(UnsatisfiedLinkError e) {
+				Log.d("FenneX", "During onResume, native lib isn't loaded, so we can't notify for url opening : " + e.getMessage());
+			}
 		}
 	}
 	
