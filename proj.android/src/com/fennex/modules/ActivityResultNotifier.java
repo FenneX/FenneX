@@ -139,6 +139,7 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 		}
 	}
 	
+	@Override
 	protected void onNewIntent(Intent intent)
 	{
 		LocalNotification.onNewIntent(intent);
