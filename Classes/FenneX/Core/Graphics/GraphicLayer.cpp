@@ -339,7 +339,7 @@ Panel* GraphicLayer::createPanel(std::string name, ValueMap values)
     return obj;
 }
 
-Panel* GraphicLayer::createPanelFromNode(Node* cocosNode, Panel* parent)
+Panel* GraphicLayer::createPanelFromNode(std::string file, Node* cocosNode, Panel* parent)
 {
     Panel* obj = new Panel(cocosNode);
     if(obj != nullptr)
@@ -354,7 +354,7 @@ Panel* GraphicLayer::createPanelFromNode(Node* cocosNode, Panel* parent)
         obj->release();
     }
     this->loadBaseNodeAttributes(dynamic_cast<CustomBaseNode*>(cocosNode), obj);
-    loadNodeToFenneX(obj->getNode(), obj);
+    loadNodeToFenneX(file, obj->getNode(), obj);
     return obj;
 }
 

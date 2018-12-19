@@ -67,7 +67,6 @@ THE SOFTWARE.
 
 //Utility
 #include "InactivityTimer.h"
-#include "Localization.h"
 #include "Pausable.h"
 #include "PListPersist.h"
 #include "RandomHelper.h"

@@ -34,6 +34,17 @@ USING_NS_CC;
 #include "Panel.h"
 
 NS_FENNEX_BEGIN
+
+/*
+ Every text loaded (for Labels and InputLabels) will be passed through this function.
+ Useful for translation purposes, or any other text transformation you need to do during CCB loading.
+ Function parameters:
+ - ccb file name passed to loadCCBFromFile
+ - text to transform
+ - object parameters
+*/
+void setCCBLoadingTextTransform(std::function<std::string(const std::string&, const std::string&, const ValueMap&)> _textTransform);
+
 /* This method is used to load a hierarchy from a .ccbi file into into FenneX. The file must not have a .ccbi extension
  Specify a panel if you want the file to be loaded in a panel rather than as GraphicLayer base node (for a popup for example)
  Note : Label in CocosBuilder must be added in the same resolution as DesignResolution (from AppMacros.h)
@@ -53,7 +64,7 @@ Panel* loadCCBFromFileToFenneX(std::string file, std::string inPanel = "", int z
  
  CustomObject, if required, could be a derived Node
  */
-void loadNodeToFenneX(Node* baseNode, Panel* parent = nullptr);
+void loadNodeToFenneX(std::string file, Node* baseNode, Panel* parent = nullptr);
 //It is required to do another pass after loadNodeToFenneX to reorder Zindex (especially because of InputLabel which are created and added at the end instead of the right place)
 void reorderZindex();
 //It is required to do another pass after loadNodeToFenneX to have the input labels linked to their LabelTTF

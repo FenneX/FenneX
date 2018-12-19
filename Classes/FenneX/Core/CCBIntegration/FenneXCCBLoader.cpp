@@ -26,7 +26,6 @@ THE SOFTWARE.
 #include "GraphicLayer.h"
 #include "Shorteners.h"
 #include "AppMacros.h"
-#include "Localization.h"
 
 #include "CustomScaleSprite.h"
 #include "CustomSprite.h"
@@ -41,6 +40,8 @@ NS_FENNEX_BEGIN
 static float _loadingScale = 1;
 static Size _loadSize = Size(-1, -1);
 static bool isPhoneLayout = false;
+
+static std::function<std::string(const std::string&, const std::string&, const ValueMap&)> textTransform = nullptr;
 
 //Don't retain the CCBAnimationManager, because it's troublesome to release them at the right time. Soft references is enough.
 static std::vector<CCBAnimationManager*> animManagers;
@@ -93,6 +94,12 @@ void resizeChildren(Node* parentNode, Node* resizeNode, float usedScale, int dep
             }
         }
     }
+}
+
+
+void setCCBLoadingTextTransform(std::function<std::string(const std::string&, const std::string&, const ValueMap&)> _textTransform)
+{
+    textTransform = _textTransform;
 }
 
 Panel* loadCCBFromFileToFenneX(std::string file, std::string inPanel, int zIndex)
@@ -244,7 +251,7 @@ Panel* loadCCBFromFileToFenneX(std::string file, std::string inPanel, int zIndex
         parent = GraphicLayer::sharedLayer()->createPanelWithNode(inPanel, myNode, zIndex);
     }
     
-    loadNodeToFenneX(myNode, parent);
+    loadNodeToFenneX(file, myNode, parent);
     reorderZindex();
     linkInputLabels();
     
@@ -260,7 +267,7 @@ Panel* loadCCBFromFileToFenneX(std::string file, std::string inPanel, int zIndex
     return parent;
 }
 
-void loadNodeToFenneX(Node* baseNode, Panel* parent)
+void loadNodeToFenneX(std::string file, Node* baseNode, Panel* parent)
 {
     GraphicLayer* layer = GraphicLayer::sharedLayer();
     if(parent == nullptr)
@@ -270,6 +277,8 @@ void loadNodeToFenneX(Node* baseNode, Panel* parent)
         log("replaced base layer by CCB node : position : %f, %f, scale : %f", baseNode->getPosition().x, baseNode->getPosition().y, baseNode->getScale());
 #endif
     }
+    
+    ValueMap emptyParams;
     
     //Use an index because InputLabel modify the array, so you need to rewind a bit at some point
     for(int i = 0; i < baseNode->getChildren().size(); i++)
@@ -285,20 +294,15 @@ void loadNodeToFenneX(Node* baseNode, Panel* parent)
 #if VERBOSE_LOAD_CCB
             log("label, font : %s", label->getSystemFontName().c_str());
 #endif
-            std::string translationKey;
-            if(isKindOfClass(label, CustomBaseNode))
-            {
-                ValueMap& parameters = dynamic_cast<CustomBaseNode*>(label)->getParameters();
-                if(parameters.find("translationKey") != parameters.end())
-                {
-                    translationKey = parameters["translationKey"].asString();
-                }
-            }
+            ValueMap& parameters = isKindOfClass(label, CustomBaseNode) ? dynamic_cast<CustomBaseNode*>(label)->getParameters() : emptyParams;
             
-            const std::string translated = Localization::getLocalizedString(!translationKey.empty() ? translationKey : label->getString());
-            if(translationKey.size() == 0 || translationKey != translated)
-            { //Don't replace the string if it's the same, as it may only be a key, not a real label
-                label->setString(translated);
+            if(textTransform)
+            {
+                std::string transformed = textTransform(file, label->getString(), parameters);
+                if(transformed != label->getString())
+                {//Don't replace the string if it's the same, as it may only be a key, not a real label
+                    label->setString(transformed);
+                }
             }
             result = layer->createLabelTTFromLabel(label, parent);
         }
@@ -317,23 +321,19 @@ void loadNodeToFenneX(Node* baseNode, Panel* parent)
 #endif
             ui::Scale9Sprite* sprite = (ui::Scale9Sprite*)node;
             
-            std::string translationKey;
-            if(isKindOfClass(sprite, CustomBaseNode))
-            {
-                ValueMap& parameters = dynamic_cast<CustomBaseNode*>(sprite)->getParameters();
-                if(parameters.find("translationKey") != parameters.end())
-                {
-                    translationKey = parameters["translationKey"].asString();
-                }
-            }
-            std::string placeHolder = isKindOfClass(sprite, CustomInput) ? ((CustomInput*) sprite)->getPlaceHolder() : "";
+            ValueMap& parameters = isKindOfClass(sprite, CustomBaseNode) ? dynamic_cast<CustomBaseNode*>(sprite)->getParameters() : emptyParams;
+            
             
             result = layer->createInputLabelFromScale9Sprite(sprite, parent);
             
-            const std::string text = Localization::getLocalizedString(!translationKey.empty() ? translationKey : placeHolder);
-            if(translationKey.size() == 0 || translationKey != text)
-            { //Don't replace the string if it's the same, as it may only be a key, not a real label
-                ((InputLabel*) result)->setInitialText(text);
+            if(textTransform)
+            {
+                std::string placeHolder = isKindOfClass(sprite, CustomInput) ? ((CustomInput*) sprite)->getPlaceHolder() : "";
+                std::string transformed = textTransform(file, placeHolder, parameters);
+                if(transformed != placeHolder)
+                {//Don't replace the string if it's the same, as it may only be a key, not a real label
+                    ((InputLabel*) result)->setInitialText(transformed);
+                }
             }
             i--;
         }
@@ -358,7 +358,7 @@ void loadNodeToFenneX(Node* baseNode, Panel* parent)
 #if VERBOSE_LOAD_CCB
             log("Edit Box");
 #endif
-            result = layer->createPanelFromNode(node, parent);
+            result = layer->createPanelFromNode(file, node, parent);
         }
 #if VERBOSE_LOAD_CCB
         if(result != nullptr)
