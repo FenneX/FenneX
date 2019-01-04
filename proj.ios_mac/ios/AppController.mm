@@ -85,7 +85,7 @@ static AppDelegate s_sharedApplication;
             
             [mailer addAttachmentData:[NSData dataWithContentsOfFile:path] mimeType:@"application/xml" fileName:@"results.plist"];
         }
-        [self.viewController presentModalViewController:mailer animated:YES];
+        [self.viewController presentViewController:mailer animated:YES completion:nil];
         
         [mailer release];
     }
@@ -118,7 +118,7 @@ static AppDelegate s_sharedApplication;
     }
 	
 	// Remove the mail view
-    [self.viewController dismissModalViewControllerAnimated:YES];
+    [self.viewController dismissViewControllerAnimated:YES completion:nil];
 }
 
 void uncaughtExceptionHandler(NSException *exception)

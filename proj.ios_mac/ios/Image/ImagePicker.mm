@@ -63,7 +63,7 @@ void pickImageFrom(const std::string& saveName, FileLocation location, PickOptio
         }
         else
         {
-            [[AppController sharedController].viewController presentModalViewController:[ImagePicker sharedPicker].controller animated:YES];
+            [[AppController sharedController].viewController presentViewController:[ImagePicker sharedPicker].controller animated:YES completion:nil];
         }
     }
 }
@@ -201,7 +201,7 @@ static ImagePicker* _sharedPicker = nil;
     {
         NSLog(@"Problem : picked a media which is not an image");
     }
-    [picker dismissModalViewControllerAnimated:YES];
+    [picker dismissViewControllerAnimated:YES completion:nil];
     Director::getInstance()->startAnimation();
     if(popOver)
     {
@@ -217,7 +217,7 @@ static ImagePicker* _sharedPicker = nil;
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
     // Dismiss the image selection and close the program
-    [picker dismissModalViewControllerAnimated:YES];
+    [picker dismissViewControllerAnimated:YES completion:nil];
     Director::getInstance()->startAnimation();
     if(popOver)
     {

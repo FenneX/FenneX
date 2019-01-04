@@ -84,7 +84,7 @@ void pickVideoFromLibrary(const std::string& saveName, FileLocation location)
         }
         else
         {
-            [[AppController sharedController].viewController presentModalViewController:[VideoPicker sharedPicker].controller animated:YES];
+            [[AppController sharedController].viewController presentViewController:[VideoPicker sharedPicker].controller animated:YES completion:nil];
         }
     }
 }
@@ -98,7 +98,7 @@ void pickVideoFromCamera(const std::string& saveName, FileLocation location)
         [VideoPicker sharedPicker].saveLocation = location;
         [[VideoPicker sharedPicker] setSourceType:UIImagePickerControllerSourceTypeCamera];
         [VideoPicker sharedPicker].useCamera = true;
-        [[AppController sharedController].viewController presentModalViewController:[VideoPicker sharedPicker].controller animated:YES];
+        [[AppController sharedController].viewController presentViewController:[VideoPicker sharedPicker].controller animated:YES completion:nil];
     }
 }
 
@@ -264,7 +264,7 @@ static VideoPicker* _sharedPicker = nil;
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
     // Dismiss the image selection and close the program
-    [picker dismissModalViewControllerAnimated:YES];
+    [picker dismissViewControllerAnimated:YES completion:nil];
     if(popOver)
     {
         [popOver dismissPopoverAnimated:YES];

@@ -45,7 +45,7 @@ bool pickSound(const std::string& promptText, const std::string& saveName, const
     NSLog(@"Picking sound %s", saveName.c_str());
     if([AppController sharedController] != nullptr)
     {
-        [[AppController sharedController].viewController presentModalViewController:[AudioPicker sharedPicker].controller animated:YES];
+        [[AppController sharedController].viewController presentViewController:[AudioPicker sharedPicker].controller animated:YES completion:nil];
         return true;
     }
     return false;
@@ -136,7 +136,7 @@ static AudioPicker* _sharedPicker = nil;
 
 - (void) mediaPickerDidCancel:(MPMediaPickerController *)mediaPicker
 {
-    [mediaPicker dismissModalViewControllerAnimated: YES];
+    [mediaPicker dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void) saveSong:(MPMediaItem*)song toFile:(NSString*)targetFile
