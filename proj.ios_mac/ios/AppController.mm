@@ -147,7 +147,7 @@ void uncaughtExceptionHandler(NSException *exception)
     
     // Use RootViewController manage EAGLView
     viewController = [[RootViewController alloc] initWithNibName:nil bundle:nil];
-    viewController.wantsFullScreenLayout = YES;
+    // Note: there used to be wantsFullScreenLayout here. It was deprecated in iOS7, and it is now the default on iOS, as views are supposed to include status bar with the right style, or none if they want full screen.  
     viewController.view = eaglView;
     
     // Set RootViewController to window
