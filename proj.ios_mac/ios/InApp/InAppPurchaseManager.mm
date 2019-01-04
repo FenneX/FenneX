@@ -245,8 +245,24 @@ static InAppPurchaseManager* _sharedManager = nil;
             }
             else
             {
-                SKPayment *payment = [SKPayment paymentWithProductIdentifier:productIdentifier];
-                [[SKPaymentQueue defaultQueue] addPayment:payment];
+                SKProduct* targetProduct = nil;
+                for(SKProduct* product in productsInfos)
+                {
+                    if([product.productIdentifier isEqualToString:productIdentifier])
+                    {
+                        targetProduct = product;
+                    }
+                }
+                if(targetProduct != nil)
+                {
+                    SKPayment *payment = [SKPayment paymentWithProduct:targetProduct];
+                    [[SKPaymentQueue defaultQueue] addPayment:payment];
+                }
+                else
+                {
+                    Value toSend = Value(ValueMap({{"ProductID", Value([productIdentifier UTF8String])}, {"Reason", Value("Product for identifier not found")}}));
+                    Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ErrorTransactionFailure", &toSend);
+                }
             }
         }
         else
