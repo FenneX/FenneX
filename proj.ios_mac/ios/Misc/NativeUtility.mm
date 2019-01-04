@@ -224,6 +224,10 @@ std::string formatDateTime(time_t date)
     return std::string([result UTF8String]);
 }
 
+//Ignore the deprecations about "volume" and "setVolume".
+//There is no proper replacement, the suggestion to use MPVolumeView is bad, as we don't want a view there
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 float getDeviceVolume()
 {
     if(invisibleVolumeView == nullptr)
@@ -243,6 +247,8 @@ void setDeviceVolume(float volume)
 {
     return [[MPMusicPlayerController applicationMusicPlayer] setVolume:volume];
 }
+
+#pragma GCC diagnostic pop
 
 void setDeviceNotificationVolume(float volume)
 {

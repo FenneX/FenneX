@@ -35,6 +35,7 @@
 
 - (void) orientationChanged:(NSNotification*)data
 {
+    // We need to properly let the view rotate with orientation, but that's a lot of rewrite and testing for a component that is not used a lot
 	UIInterfaceOrientation orientation = ((UIViewController*)[AppController sharedController].viewController).interfaceOrientation;
 	if(UIInterfaceOrientationIsLandscape(orientation) && orientation != currentOrientation)
     {
