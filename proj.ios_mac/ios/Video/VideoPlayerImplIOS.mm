@@ -34,40 +34,23 @@ USING_NS_FENNEX;
 
 @implementation VideoPlayerImplIOS (Private)
 
-//In iOS8, behavior of VideoPlayer was changed. It used to need being rotated for iOS 7 and older, but now it doesn't anymore
-#define IS_IOS8_OR_NEWER ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0)
-
 - (void) orientationChanged:(NSNotification*)data
 {
     UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
     if(UIInterfaceOrientationIsLandscape(orientation) && orientation != currentOrientation)
     {
-        CGAffineTransform transform = IS_IOS8_OR_NEWER ? CGAffineTransformIdentity : CGAffineTransformMakeRotation(orientation == UIInterfaceOrientationLandscapeRight ? M_PI / 2 : -M_PI / 2);
+        CGAffineTransform transform = CGAffineTransformIdentity;
         if(isFullScreen)
         {
             CGRect bounds = [[UIScreen mainScreen] bounds];
             float scale = 0;
-            if(IS_IOS8_OR_NEWER)
+            if(_size.height / bounds.size.height > _size.width / bounds.size.width)
             {
-                if(_size.height / bounds.size.height > _size.width / bounds.size.width)
-                {
-                    scale = bounds.size.height / _size.height;
-                }
-                else
-                {
-                    scale = bounds.size.width / _size.width;
-                }
+                scale = bounds.size.height / _size.height;
             }
             else
             {
-                if(_size.width / bounds.size.height > _size.height / bounds.size.width)
-                {
-                    scale = bounds.size.height / _size.width;
-                }
-                else
-                {
-                    scale = bounds.size.width / _size.height;
-                }
+                scale = bounds.size.width / _size.width;
             }
             transform = CGAffineTransformScale(transform, scale, scale);
         }
@@ -89,16 +72,8 @@ USING_NS_FENNEX;
     }
     else
     {
-        if(IS_IOS8_OR_NEWER)
-        {
-            //Y-axis is inverted
-            [playerController.view setCenter:CGPointMake(_position.x, bounds.size.height - _position.y)];
-        }
-        else
-        {
-            [playerController.view setCenter:CGPointMake((currentOrientation == UIInterfaceOrientationLandscapeRight ? _position.y : bounds.size.width - _position.y),
-                                                         (currentOrientation == UIInterfaceOrientationLandscapeLeft ? _position.x : bounds.size.height - _position.x))];
-        }
+        //Y-axis is inverted
+        [playerController.view setCenter:CGPointMake(_position.x, bounds.size.height - _position.y)];
     }
 }
 
@@ -177,17 +152,7 @@ USING_NS_FENNEX;
         [playerController.view setBounds:CGRectMake(0, 0, _size.width, _size.height)];
         
         CGRect bounds = [[UIScreen mainScreen] bounds];
-        CGPoint newCenter;
-        if(IS_IOS8_OR_NEWER)
-        {
-            newCenter = CGPointMake(_position.x,
-                                    bounds.size.height - _position.y);
-        }
-        else
-        {
-            newCenter = CGPointMake((currentOrientation == UIInterfaceOrientationLandscapeRight ? _position.y : bounds.size.width - _position.y),
-                                    (currentOrientation == UIInterfaceOrientationLandscapeLeft ? _position.x : bounds.size.height - _position.x));
-        }
+        CGPoint newCenter = CGPointMake(_position.x, bounds.size.height - _position.y);
         playerController.view.center = newCenter;
     }
     else
@@ -207,33 +172,15 @@ USING_NS_FENNEX;
         }
         CGRect bounds = [[UIScreen mainScreen] bounds];
         
-        CGPoint newCenter;
+        CGPoint newCenter = CGPointMake(_position.x, bounds.size.height - _position.y);;
         float scale = 0;
-        if(IS_IOS8_OR_NEWER)
+        if(size.height / _size.height > size.width / _size.width)
         {
-            newCenter = CGPointMake(_position.x,
-                                    bounds.size.height - _position.y);
-            if(size.height / _size.height > size.width / _size.width)
-            {
-                scale = size.height / _size.height;
-            }
-            else
-            {
-                scale = size.width / _size.width;
-            }
+            scale = size.height / _size.height;
         }
         else
         {
-            newCenter = CGPointMake((currentOrientation == UIInterfaceOrientationLandscapeRight ? _position.y : bounds.size.width - _position.y),
-                                    (currentOrientation == UIInterfaceOrientationLandscapeLeft ? _position.x : bounds.size.height - _position.x));
-            if(size.width / _size.height > size.height / _size.width)
-            {
-                scale = size.width / _size.height;
-            }
-            else
-            {
-                scale = size.height / _size.width;
-            }
+            scale = size.width / _size.width;
         }
         
         [UIView animateWithDuration: 0.5
@@ -334,35 +281,16 @@ USING_NS_FENNEX;
             }
         }
         
-        CGPoint newCenter;
+        CGPoint newCenter = fullscreen ? CGPointMake(bounds.size.width / 2, bounds.size.height/2) :
+            CGPointMake(_position.x, bounds.size.height - _position.y);;
         float scale = 0;
-        if(IS_IOS8_OR_NEWER)
+        if(_size.height / bounds.size.height > _size.width / bounds.size.width)
         {
-            newCenter = fullscreen ? CGPointMake(bounds.size.width / 2, bounds.size.height/2) :
-            CGPointMake(_position.x,
-                        bounds.size.height - _position.y);
-            if(_size.height / bounds.size.height > _size.width / bounds.size.width)
-            {
-                scale = fullscreen ? bounds.size.height / _size.height : _size.height / bounds.size.height;
-            }
-            else
-            {
-                scale = fullscreen ? bounds.size.width / _size.width : _size.width / bounds.size.width;
-            }
+            scale = fullscreen ? bounds.size.height / _size.height : _size.height / bounds.size.height;
         }
         else
         {
-            newCenter = fullscreen ? CGPointMake(bounds.size.width / 2, bounds.size.height/2) :
-            CGPointMake((currentOrientation == UIInterfaceOrientationLandscapeRight ? _position.y : bounds.size.width - _position.y),
-                        (currentOrientation == UIInterfaceOrientationLandscapeLeft ? _position.x : bounds.size.height - _position.x));
-            if(_size.width / bounds.size.height > _size.height / bounds.size.width)
-            {
-                scale = fullscreen ? bounds.size.height / _size.width : _size.width / bounds.size.height;
-            }
-            else
-            {
-                scale = fullscreen ? bounds.size.width / _size.height : _size.height / bounds.size.width;
-            }
+            scale = fullscreen ? bounds.size.width / _size.width : _size.width / bounds.size.width;
         }
         
         [UIView animateWithDuration: 0.5

@@ -26,8 +26,6 @@ THE SOFTWARE.
 #import "AppController.h"
 #import "DropDownListWrapper.h"
 
-#define IS_IOS8_OR_NEWER ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0)
-
 @implementation DropDownListImplIOS
 
 - (id) init
@@ -40,20 +38,10 @@ THE SOFTWARE.
         CGFloat screenWidth = screenRect.size.width;
         CGFloat screenHeight = screenRect.size.height;
         
-        currentOrientation = ((UIViewController*)[AppController sharedController].viewController).interfaceOrientation;
-        
         UIViewController* rootVC = (UIViewController*)[AppController sharedController].viewController;
         
         // Take a quarter of a screen in dimension.
-        if(!IS_IOS8_OR_NEWER)
-        {
-            pickerView = [[UIPickerView alloc] initWithFrame:CGRectMake(screenWidth/4, screenHeight/2, screenWidth/2, screenHeight/2)];
-            pickerView.transform = CGAffineTransformMakeRotation(((UIViewController*)[AppController sharedController].viewController).interfaceOrientation == UIInterfaceOrientationLandscapeRight ? M_PI / 2 : -M_PI / 2);
-        }
-        else
-        {
-            pickerView = [[UIPickerView alloc] initWithFrame:CGRectMake(screenWidth/4, screenHeight/2, screenWidth/2, screenHeight/4)];
-        }
+        pickerView = [[UIPickerView alloc] initWithFrame:CGRectMake(screenWidth/4, screenHeight/2, screenWidth/2, screenHeight/4)];
         
         pickerView.center = rootVC.view.superview.center;
         [pickerView setDelegate:self];
@@ -63,15 +51,7 @@ THE SOFTWARE.
         
         // Add Title view
         titleView = [[UILabel alloc] initWithFrame: CGRectMake(screenWidth/4, screenHeight/2 - rowHeight, screenWidth/2, rowHeight)];
-        if(IS_IOS8_OR_NEWER)
-        {
-            titleView.center = CGPointMake(rootVC.view.superview.center.x, rootVC.view.superview.center.y - pickerView.bounds.size.height/2 - rowHeight/2);
-        }
-        else
-        {
-            titleView.center = CGPointMake(rootVC.view.superview.center.x  + pickerView.bounds.size.height/2 + rowHeight/2, rootVC.view.superview.center.y);
-            titleView.transform = CGAffineTransformMakeRotation(currentOrientation == UIInterfaceOrientationLandscapeRight ? M_PI / 2 : -M_PI / 2);
-        }
+        titleView.center = CGPointMake(rootVC.view.superview.center.x, rootVC.view.superview.center.y - pickerView.bounds.size.height/2 - rowHeight/2);
         titleView.backgroundColor = [UIColor lightGrayColor];
         titleView.textColor = [UIColor whiteColor];
         [titleView setFont:[UIFont boldSystemFontOfSize:25]];
@@ -94,31 +74,8 @@ THE SOFTWARE.
         [background addGestureRecognizer:singleTap];
         [self hide];
         _identifier = -1;
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:@"UIDeviceOrientationDidChangeNotification" object:nil];
     }
     return self;
-}
-
-- (void) orientationChanged:(NSNotification*)data
-{ // Just in case
-    if(titleView != nil && pickerView != nil && !IS_IOS8_OR_NEWER)
-    {
-        UIInterfaceOrientation orientation = ((UIViewController*)[AppController sharedController].viewController).interfaceOrientation;
-        if(UIInterfaceOrientationIsLandscape(orientation) && orientation != currentOrientation)
-        {
-            CGAffineTransform transform = IS_IOS8_OR_NEWER ? CGAffineTransformIdentity : CGAffineTransformMakeRotation(orientation == UIInterfaceOrientationLandscapeRight ? M_PI / 2 : -M_PI / 2);
-            
-            [UIView transitionWithView:titleView duration:data == nil ? 0 : 0.5 options:UIViewAnimationOptionTransitionNone
-                            animations:^{titleView.transform = transform;}
-                            completion:nullptr];
-            [UIView transitionWithView:pickerView duration:data == nil ? 0 : 0.5 options:UIViewAnimationOptionTransitionNone
-                            animations:^{pickerView.transform = transform;}
-                            completion:nullptr];
-            
-            currentOrientation = orientation;
-        }
-    }
 }
 
 - (void) show

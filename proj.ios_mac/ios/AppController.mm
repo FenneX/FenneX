@@ -151,16 +151,7 @@ void uncaughtExceptionHandler(NSException *exception)
     viewController.view = eaglView;
     
     // Set RootViewController to window
-    if ( [[UIDevice currentDevice].systemVersion floatValue] < 6.0)
-    {
-        // warning: addSubView doesn't work on iOS6
-        [window addSubview: viewController.view];
-    }
-    else
-    {
-        // use this method on ios6
-        [window setRootViewController:viewController];
-    }
+    [window setRootViewController:viewController];
     
     
     [window makeKeyAndVisible];
