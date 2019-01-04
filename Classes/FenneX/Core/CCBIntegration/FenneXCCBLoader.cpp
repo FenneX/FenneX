@@ -278,7 +278,7 @@ void loadNodeToFenneX(std::string file, Node* baseNode, Panel* parent)
 #endif
     }
     
-    ValueMap emptyParams;
+    ValueMap emptyParams = {};
     
     //Use an index because InputLabel modify the array, so you need to rewind a bit at some point
     for(int i = 0; i < baseNode->getChildren().size(); i++)
