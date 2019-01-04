@@ -174,13 +174,13 @@ static AudioPlayerRecorderImpl* _sharedAudio = nil;
 {
     AVAudioSession * audioSession = [AVAudioSession sharedInstance];
     //Set the general audio session category
-    [audioSession setCategory: enabled ? AVAudioSessionCategoryPlayAndRecord : AVAudioSessionCategorySoloAmbient error: &error];
-    
     if(enabled)
     {
-        //Make the default sound route for the session be to use the speaker
-        UInt32 doChangeDefaultRoute = 1;
-        AudioSessionSetProperty (kAudioSessionProperty_OverrideCategoryDefaultToSpeaker, sizeof (doChangeDefaultRoute), &doChangeDefaultRoute);
+        [audioSession setCategory: AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionDefaultToSpeaker error: &error];
+    }
+    else
+    {
+        [audioSession setCategory: AVAudioSessionCategorySoloAmbient error: &error];
     }
     
     //Activate the customized audio session
