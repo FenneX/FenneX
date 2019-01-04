@@ -53,31 +53,6 @@
 // Returns a rescaled copy of the image, taking into account its orientation
 // The image will be scaled disproportionately if necessary to fit the bounds specified by the parameter
 - (UIImage *)resizedImage:(CGSize)newSize interpolationQuality:(CGInterpolationQuality)quality {
-    /*BOOL drawTransposed;
-    
-    CGAffineTransform transform = CGAffineTransformIdentity;    
-    if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 5.0) {        
-        // Apprently in iOS 5 the image is already correctly rotated, so we don't need to rotate it manually        
-        drawTransposed = NO;
-    } else {
-        switch (self.imageOrientation) {
-            case UIImageOrientationLeft:
-            case UIImageOrientationLeftMirrored:
-            case UIImageOrientationRight:
-            case UIImageOrientationRightMirrored:
-                drawTransposed = YES;
-                break;
-            default:
-                drawTransposed = NO;
-        }
-        transform = [self transformForOrientation:newSize];
-    }
-    
-    return [self resizedImage:newSize            
-                    transform:transform            
-               drawTransposed:drawTransposed
-         interpolationQuality:quality];*/
-    // Original code, which is supposed to have problem with iOS 5
     BOOL drawTransposed;
     
     switch (self.imageOrientation) {
