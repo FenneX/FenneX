@@ -201,6 +201,20 @@ bool pickFile()
     return result;
 }
 
+time_t getFileLastModificationDate(const std::string& fullpath)
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME,"getFileLastModificationDate", "(Ljava/lang/String;)J");
+    CCAssert(functionExist, "Function doesn't exist");
+    jstring jPath = minfo.env->NewStringUTF(fullpath.c_str());
+    time_t result = (time_t)minfo.env->CallStaticBooleanMethod(minfo.classID,
+                                                     minfo.methodID,
+                                                     jPath);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(jPath);
+    return result;
+}
+
 NS_FENNEX_END
 
 extern "C"

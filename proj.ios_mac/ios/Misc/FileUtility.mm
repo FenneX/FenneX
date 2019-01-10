@@ -7,6 +7,7 @@
 //
 #import "NSFileManager+ApplicationSupport.h"
 #include "FileUtility.h"
+#include "NSStringUtility.h"
 
 NS_FENNEX_BEGIN
 
@@ -88,6 +89,13 @@ bool moveFile(std::string path, std::string destinationFolder)
 bool pickFile()
 {
     return true;
+}
+
+time_t getFileLastModificationDate(const std::string& fullpath)
+{
+    NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:getNSString(fullpath) error:nil];
+    NSDate *date = [attributes fileModificationDate];
+    return (time_t)[date timeIntervalSince1970];
 }
 
 NS_FENNEX_END

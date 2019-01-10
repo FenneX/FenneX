@@ -395,6 +395,12 @@ public class FileUtility implements ActivityResultResponder {
         return error;
     }
 
+    @SuppressWarnings("unused")
+    public static long getFileLastModificationDate(String path)  {
+        File file = new File(path);
+        return file.lastModified() / 1000L; //Convert to seconds
+    }
+
     @Override
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
         isPending = false;

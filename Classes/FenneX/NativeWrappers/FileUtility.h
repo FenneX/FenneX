@@ -118,6 +118,10 @@ bool moveFile(std::string path, std::string destinationFolder);
  **/
 bool pickFile();
 
+//File metadata: last modification dates. Returns -1 if the file isn't found or something else fails
+//Creation can't be done easily, and there is no easy way on Android. See https://stackoverflow.com/questions/1408272/get-file-creation-time-with-python-on-linux
+time_t getFileLastModificationDate(const std::string& fullpath);
+
 static inline void notifyFilePicked(std::string fullPath)
 {
     FenneX::DelayedDispatcher::eventAfterDelay("FilePicked", Value(ValueMap({{"Path", Value(fullPath)}})), 0.01);
