@@ -38,6 +38,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.os.Build;
+import android.os.Environment;
+import android.os.StatFs;
 import android.os.Vibrator;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
@@ -138,6 +140,20 @@ public class NativeUtility
     public static int getDeviceSDK()
     {
         return Build.VERSION.SDK_INT;
+    }
+
+    @SuppressWarnings("unused")
+    public static long getTotalStorageSpace()
+    {
+        StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
+        return stat.getTotalBytes();
+    }
+
+    @SuppressWarnings("unused")
+    public static long getAvailableStorageSpace()
+    {
+        StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
+        return stat.getAvailableBytes();
     }
 
     @SuppressWarnings("unused")

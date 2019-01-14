@@ -174,6 +174,29 @@ int getDeviceSDK()
     return sdk;
 }
 
+uint64_t getTotalStorageSpace()
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "getTotalStorageSpace", "()J");
+    CCAssert(functionExist, "Function doesn't exist");
+
+    //jlong is a 64-bit signed integer. Cast it to a 64-bit unsigned integer
+    uint64_t totalSpace = (uint64_t)minfo.env->CallStaticLongMethod(minfo.classID, minfo.methodID);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    return totalSpace;
+}
+
+uint64_t getAvailableStorageSpace()
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "getAvailableStorageSpace", "()J");
+    CCAssert(functionExist, "Function doesn't exist");
+
+    uint64_t availableSpace = (uint64_t)minfo.env->CallStaticIntMethod(minfo.classID, minfo.methodID);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    return availableSpace;
+}
+
 
 void copyResourceFileToLocal(const std::string& path)
 {

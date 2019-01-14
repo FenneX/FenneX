@@ -72,6 +72,10 @@ std::string getDeviceVersion();
 //Return Android SDK version or major iOS version
 int getDeviceSDK();
 
+//Expressed in bytes. A long is not enough, since it only goes up to 2Gb. We specifically want 64bit, and might as well have it unsigned (though that's not supported on Android)
+uint64_t getTotalStorageSpace();
+uint64_t getAvailableStorageSpace();
+
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 void copyResourceFileToLocal(const std::string& path);
 #endif

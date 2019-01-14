@@ -168,6 +168,28 @@ int getDeviceSDK()
     return [[[UIDevice currentDevice] systemVersion] intValue];
 }
 
+uint64_t getTotalStorageSpace()
+{
+    NSError *error = nil;
+    NSDictionary *dictionary = [[NSFileManager defaultManager] attributesOfFileSystemForPath:NSHomeDirectory() error: &error];
+    if (!dictionary) {
+        NSLog(@"Error Obtaining System Memory Info: Domain = %@, Code = %ld", [error domain], (long)[error code]);
+        return 0;
+    }
+    return [[dictionary objectForKey: NSFileSystemSize] unsignedLongLongValue];
+}
+
+uint64_t getAvailableStorageSpace()
+{
+    NSError *error = nil;
+    NSDictionary *dictionary = [[NSFileManager defaultManager] attributesOfFileSystemForPath:NSHomeDirectory() error: &error];
+    if (!dictionary) {
+        NSLog(@"Error Obtaining System Memory Info: Domain = %@, Code = %ld", [error domain], (long)[error code]);
+        return 0;
+    }
+    return [[dictionary objectForKey:NSFileSystemFreeSize] unsignedLongLongValue];
+}
+
 std::string getUniqueIdentifier()
 {
     return [[[[UIDevice currentDevice] identifierForVendor] UUIDString] UTF8String];
