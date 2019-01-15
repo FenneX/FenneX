@@ -192,7 +192,7 @@ uint64_t getAvailableStorageSpace()
     bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "getAvailableStorageSpace", "()J");
     CCAssert(functionExist, "Function doesn't exist");
 
-    uint64_t availableSpace = (uint64_t)minfo.env->CallStaticIntMethod(minfo.classID, minfo.methodID);
+    uint64_t availableSpace = (uint64_t)minfo.env->CallStaticLongMethod(minfo.classID, minfo.methodID);
     minfo.env->DeleteLocalRef(minfo.classID);
     return availableSpace;
 }
