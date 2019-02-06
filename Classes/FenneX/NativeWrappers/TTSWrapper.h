@@ -36,6 +36,7 @@ USING_NS_FENNEX;
 void initTTS();
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 jobject getInstance();
+void initTTS(std::string engineName);
 #endif
 //SpeechID is currently not properly implemented(will always return last speechID)
 bool speakText(std::vector<std::string> text, int speechID = -1);

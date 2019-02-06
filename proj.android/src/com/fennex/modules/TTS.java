@@ -25,17 +25,17 @@ THE SOFTWARE.
 package com.fennex.modules;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
 import android.annotation.SuppressLint;
 import android.speech.tts.TextToSpeech;
-import android.speech.tts.TextToSpeech.OnUtteranceCompletedListener;
 import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
 
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"deprecation", "unused"})
 public class TTS implements TextToSpeech.OnInitListener
 {
 	static private TTS instance = null;
@@ -45,7 +45,7 @@ public class TTS implements TextToSpeech.OnInitListener
 	private float desiredRate;
 	private String engineName;
 	private ArrayList<String> preinitQueue;
-	HashMap<String, String> settings;
+	private HashMap<String, String> settings;
 	
     public native static void onTTSEnd();
 	
@@ -58,13 +58,12 @@ public class TTS implements TextToSpeech.OnInitListener
 		return instance;
 	}
 
-	static TTS getInstance(String engineName)
+	static void initInstance(String engineName)
 	{
 		if(instance == null)
 		{
 			instance = new TTS(engineName);
 		}
-		return instance;
 	}
 	
 	@SuppressLint("NewApi")
@@ -77,46 +76,29 @@ public class TTS implements TextToSpeech.OnInitListener
 		engine.setPitch(1.0f);
 		engine.setSpeechRate(0.75f);
 		engineName = getTTSDefaultEngineName();
-		preinitQueue = new ArrayList<String>();
-		settings = new HashMap<String, String>();
+		preinitQueue = new ArrayList<>();
+		settings = new HashMap<>();
 		desiredRate = 1.0f;
-		if(android.os.Build.VERSION.SDK_INT >= 15 )
+		engine.setOnUtteranceProgressListener(new UtteranceProgressListener()
 		{
-			engine.setOnUtteranceProgressListener(new UtteranceProgressListener()
+			@Override
+			public void onStart(String utteranceId)
 			{
-				
-				@Override
-				public void onStart(String utteranceId)
-				{
-					//do nothing
-				}
-				
-				@Override
-				public void onError(String utteranceId)
-				{
-					onTTSEnd();
-				}
-				
-				@Override
-				public void onDone(String utteranceId)
-				{
-					onTTSEnd();
-				}
-			});
-		}
-		else
-		{
-			engine.setOnUtteranceCompletedListener(new OnUtteranceCompletedListener()
-			{
+				//do nothing
+			}
 
-				@Override
-				public void onUtteranceCompleted(String utteranceId)
-				{
-					onTTSEnd();
-				}
-			
-			});
-		}
+			@Override
+			public void onError(String utteranceId)
+			{
+				onTTSEnd();
+			}
+
+			@Override
+			public void onDone(String utteranceId)
+			{
+				onTTSEnd();
+			}
+		});
 	}
 	@SuppressLint("NewApi")
 	private TTS(String _engineName)
@@ -128,44 +110,29 @@ public class TTS implements TextToSpeech.OnInitListener
 		engine.setLanguage(Locale.FRANCE);
 		engine.setPitch(1.0f);
 		engine.setSpeechRate(0.75f);
-		preinitQueue = new ArrayList<String>();
-		settings = new HashMap<String, String>();
+		preinitQueue = new ArrayList<>();
+		settings = new HashMap<>();
 		desiredRate = 1.0f;
-		if(android.os.Build.VERSION.SDK_INT >= 15 )
+		engine.setOnUtteranceProgressListener(new UtteranceProgressListener()
 		{
-			engine.setOnUtteranceProgressListener(new UtteranceProgressListener()
+			@Override
+			public void onStart(String utteranceId)
 			{
+				//do nothing
+			}
 
-				@Override
-				public void onStart(String utteranceId)
-				{
-					//do nothing
-				}
-
-				@Override
-				public void onError(String utteranceId)
-				{
-					onTTSEnd();
-				}
-
-				@Override
-				public void onDone(String utteranceId)
-				{
-					onTTSEnd();
-				}
-			});
-		}
-		else
-		{
-			engine.setOnUtteranceCompletedListener(new OnUtteranceCompletedListener()
+			@Override
+			public void onError(String utteranceId)
 			{
-				@Override
-				public void onUtteranceCompleted(String utteranceId)
-				{
-					onTTSEnd();
-				}
-			});
-		}
+				onTTSEnd();
+			}
+
+			@Override
+			public void onDone(String utteranceId)
+			{
+				onTTSEnd();
+			}
+		});
 	}
 
 	@Override
@@ -173,18 +140,15 @@ public class TTS implements TextToSpeech.OnInitListener
 		isInit = true;
 		available = status == TextToSpeech.SUCCESS;
 		if(available && preinitQueue != null && engine != null) {
-			for(String s : preinitQueue)
-			{	
-				if(s == preinitQueue.get(preinitQueue.size()-1))
-				{
+			for(int i = 0; i < preinitQueue.size(); i++) {
+				String s = preinitQueue.get(i);
+				if(i == preinitQueue.size()-1) {
 					engine.speak(s, TextToSpeech.QUEUE_ADD, settings);
 				}
-                else if(s == preinitQueue.get(0))
-                {
-                    engine.speak(s, TextToSpeech.QUEUE_FLUSH, null);
-                }
-				else
-				{
+				else if(i == 0) {
+					engine.speak(s, TextToSpeech.QUEUE_FLUSH, null);
+				}
+				else {
 					engine.speak(s, TextToSpeech.QUEUE_ADD, null);
 				}
 				engine.speak(s, TextToSpeech.QUEUE_ADD, settings);
@@ -196,20 +160,21 @@ public class TTS implements TextToSpeech.OnInitListener
 			Log.i("TTS", "TTS unavailable, init failed");
 		}
 	}
-	
+
+    @SuppressWarnings("unused")
 	public void notifyTTSEnd()
 	{
 		onTTSEnd();
 	}
-	
+
+    @SuppressWarnings("unused")
 	public boolean speakText(String[] text) {
 		if(isInit && available && engine != null) {
-			for(String item : text)
-			{
-
-				if(item == text[text.length-1])
+			for(int i = 0; i < text.length; i++){
+				String item = text[i];
+				if(i == text.length-1)
 				{
-					settings.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID,"messageID");
+					settings.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "messageID");
 					engine.speak(item, TextToSpeech.QUEUE_ADD, settings);
 				}
 				else
@@ -217,23 +182,19 @@ public class TTS implements TextToSpeech.OnInitListener
 					engine.speak(item, TextToSpeech.QUEUE_ADD, null);
 					engine.playSilence(1000, TextToSpeech.QUEUE_ADD, null);
 				}
-					
 			}
 			return true;
 		}
 		else if(!isInit)
 		{
-			for(String item : text)
-			{
-				preinitQueue.add(item);		
-			}
-			
+			Collections.addAll(preinitQueue, text);
 			return true;
 		}
 		Log.i("TTS", "TTS unavailable, init failed");
 		return false;
 	}
-	
+
+    @SuppressWarnings("unused")
 	public boolean isSpeaking() {
 		if(isInit && available && engine != null) {
             return engine.isSpeaking();
@@ -241,12 +202,14 @@ public class TTS implements TextToSpeech.OnInitListener
         return false;
 	}
 
+    @SuppressWarnings("unused")
 	public void stopSpeakText() {
 		if(isInit && available && engine != null) {
 			engine.stop();
 		}
 	}
 
+    @SuppressWarnings("unused")
 	public String getTTSEngineName()
 	{
 		if(!engineName.isEmpty())
@@ -256,11 +219,12 @@ public class TTS implements TextToSpeech.OnInitListener
 		return "android.tts.engine";
 	}
 
+    @SuppressWarnings("unused")
 	public String[][] getTTSEngines()
 	{
-		if(engine != null && android.os.Build.VERSION.SDK_INT >= 14) // sdk 14 = Android 4.0
+		if(engine != null)
 		{
-			List<String[]> toReturn = new ArrayList<String[]>();
+			List<String[]> toReturn = new ArrayList<>();
 			for(TextToSpeech.EngineInfo currentEngine : engine.getEngines())
 			{
 				toReturn.add(new String[]{currentEngine.name, currentEngine.label});
@@ -272,9 +236,10 @@ public class TTS implements TextToSpeech.OnInitListener
 		return new String[][]{{"android.tts.engine", ""}};
 	}
 
+    @SuppressWarnings("unused")
 	public static void setTTSEngine(String ttsEngine)
 	{
-		if(getInstance().engineName != ttsEngine)
+		if(!getInstance().engineName.equals(ttsEngine))
 		{
 			float rate = getInstance().getTTSPlayRate();
 			instance = new TTS(ttsEngine);
@@ -282,11 +247,13 @@ public class TTS implements TextToSpeech.OnInitListener
 		}
 	}
 
+    @SuppressWarnings("WeakerAccess")
 	public float getTTSPlayRate()
 	{
 		return desiredRate;
 	}
 
+    @SuppressWarnings("WeakerAccess")
 	public void setTTSPlayRate(float rate)
 	{
 		desiredRate = rate;

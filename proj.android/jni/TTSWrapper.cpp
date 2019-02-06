@@ -32,6 +32,17 @@ void initTTS()
     getInstance();
 }
 
+void initTTS(std::string ttsEngine)
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "initInstance", "(Ljava/lang/String;)V");
+    CCAssert(functionExist, "Function doesn't exist");
+    jstring jEngineName = minfo.env->NewStringUTF(ttsEngine.c_str());
+    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jEngineName);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(jEngineName);
+}
+
 jobject getInstance()
 {
     JniMethodInfo minfo;
