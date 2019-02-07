@@ -115,8 +115,6 @@ Cocos2d-x V3.16 Modifications
 * network/HttpClient/HttpRequest => change _requestData from std::vector<char> to std::string and add inline void setRequestData(const std::string& data)
 * network/* => allow to set a file to upload in body for POST and PUT request (note: multipart is no longer supported)
 * Remove AudioEngine
-* cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHttpURLConnection.java => change setVerifySSL to return a boolean with true when succeed and false otherwise
-* cocos/network/HttpClient-android.cpp => change setVerifySSL to return a boolean with true when succeed and false otherwise
 * cocos/2d/misc-nodes/CCClippingNode.h/.cpp => subclass CCActionTweenDelegate to be able to change width/height, add setSquareStencil() to use a square the size of ContentSize
 * Moves all libs from cocos/platform/android/java/libs/ to proj.android/libs/
 * Remove AudioFocusManager and all usages in cocos2dxActivity

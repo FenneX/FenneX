@@ -102,11 +102,10 @@ public class Cocos2dxHttpURLConnection
 
     }
 
-    static boolean setVerifySSL(HttpURLConnection urlConnection, String sslFilename) {
-        // This function was changed by FenneX to return a success boolean (otherwise, it can fail and still send the request when a certificate is not good)
+    static void setVerifySSL(HttpURLConnection urlConnection, String sslFilename) {
 
         if(!(urlConnection instanceof HttpsURLConnection))
-            return false;
+            return;
         
 
         HttpsURLConnection httpsURLConnection = (HttpsURLConnection)urlConnection;
@@ -145,9 +144,7 @@ public class Cocos2dxHttpURLConnection
             httpsURLConnection.setSSLSocketFactory(context.getSocketFactory());
         } catch (Exception e) {
             Log.e("URLConnection exception", e.toString());
-            return false;
         }
-        return true;
     }
 
     //Add header
