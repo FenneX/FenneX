@@ -208,10 +208,10 @@ Node* Image::getAnimationTarget()
 
 void Image::update(float deltaTime)
 {
-    if(!isLoadingTexture && !file.empty())
+    if(!isLoadingTexture && !loadingFile.empty())
     {
         isLoadingTexture = true;
-        Director::getInstance()->getTextureCache()->addImageAsync(file, CC_CALLBACK_1(Image::textureLoaded, this));
+        Director::getInstance()->getTextureCache()->addImageAsync(loadingFile, CC_CALLBACK_1(Image::textureLoaded, this));
     }
 }
 
