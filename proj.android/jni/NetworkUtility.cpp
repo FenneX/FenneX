@@ -58,61 +58,77 @@ void openWifiSettings()
 
 int nextDownloadID = 0;
 std::map<int, std::function<void()>> onSuccessCallbacks;
-std::map<int, std::function<void(DownloadError)>> onErrorCallbacks;
-std::map<int, std::function<void(float)>> onProgressCallbacks;
-std::map<int, std::function<void(int)>> onSizeReceivedCallbacks;
+std::map<int, std::function<void(int, const std::string&)>> onErrorCallbacks;
+std::map<int, std::function<void(long, long)>> onProgressCallbacks;
+std::map<int, std::function<void(long)>> onSizeReceivedCallbacks;
 
-void downloadFile(std::string url, std::string localPath, std::function<void()> onSuccess, std::function<void(DownloadError)>onError, std::function<void(float)>onProgressUpdate, std::function<void(int)> onSizeReceived)
+
+void downloadFile(std::string url,
+                  std::string fullPath,
+                  std::function<void()> onFileDownloaded,
+                  std::function<void(int, const std::string&)> onDownloadFailure,
+                  std::function<void(long, long)>onProgressUpdate,
+                  std::function<void(long)> onSizeReceived)
 {
     JniMethodInfo minfo;
     bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "downloadFile", "(ILjava/lang/String;Ljava/lang/String;)V");
     CCAssert(functionExist, "Function doesn't exist");
     jstring jurl = minfo.env->NewStringUTF(url.c_str());
-    jstring jpath = minfo.env->NewStringUTF(localPath.c_str());
+    jstring jpath = minfo.env->NewStringUTF(fullPath.c_str());
     minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, (jint)nextDownloadID, jurl, jpath);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(jurl);
     minfo.env->DeleteLocalRef(jpath);
-    if(onSuccess) onSuccessCallbacks[nextDownloadID] = onSuccess;
-    if(onError) onErrorCallbacks[nextDownloadID] = onError;
+    if(onFileDownloaded) onSuccessCallbacks[nextDownloadID] = onFileDownloaded;
+    if(onDownloadFailure) onErrorCallbacks[nextDownloadID] = onDownloadFailure;
     if(onProgressUpdate) onProgressCallbacks[nextDownloadID] = onProgressUpdate;
     if(onSizeReceived) onSizeReceivedCallbacks[nextDownloadID] = onSizeReceived;
     nextDownloadID++;
 }
 
+void cleanCallbacks(int downloadID)
+{
+    if(onSuccessCallbacks.find(downloadID) != onSuccessCallbacks.end()) onSuccessCallbacks.erase(downloadID);
+    if(onErrorCallbacks.find(downloadID) != onErrorCallbacks.end()) onErrorCallbacks.erase(downloadID);
+    if(onProgressCallbacks.find(downloadID) != onProgressCallbacks.end()) onProgressCallbacks.erase(downloadID);
+    if(onSizeReceivedCallbacks.find(downloadID) != onSizeReceivedCallbacks.end()) onSizeReceivedCallbacks.erase(downloadID);
+}
+
 void notifySuccess(int downloadID)
 {
-    std::map<int, std::function<void()>>::iterator result = onSuccessCallbacks.find((int)downloadID);
+    std::map<int, std::function<void()>>::iterator result = onSuccessCallbacks.find(downloadID);
     if (result != onSuccessCallbacks.end())
     {
         result->second();
     }
+    cleanCallbacks(downloadID);
 }
 
-void notifyError(int downloadID, int errorCode)
+void notifyError(int downloadID, int errorCode, std::string errorResponse)
 {
-    std::map<int, std::function<void(DownloadError)>>::iterator result = onErrorCallbacks.find((int)downloadID);
+    std::map<int, std::function<void(int, const std::string&)>>::iterator result = onErrorCallbacks.find(downloadID);
     if (result != onErrorCallbacks.end())
     {
-        result->second((DownloadError)errorCode);
+        result->second(errorCode, errorResponse);
     }
+    cleanCallbacks(downloadID);
 }
 
-void notifyProgressUpdate(int downloadID, float percent)
+void notifyProgressUpdate(int downloadID, long current, long total)
 {
-    std::map<int, std::function<void(float)>>::iterator result = onProgressCallbacks.find((int)downloadID);
+    std::map<int, std::function<void(long, long)>>::iterator result = onProgressCallbacks.find(downloadID);
     if (result != onProgressCallbacks.end())
     {
-        result->second(percent);
+        result->second(current, total);
     }
 }
 
-void notifyLengthResolved(int downloadID, int length)
+void notifyLengthResolved(int downloadID, long total)
 {
-    std::map<int, std::function<void(int)>>::iterator result = onSizeReceivedCallbacks.find((int)downloadID);
+    std::map<int, std::function<void(long)>>::iterator result = onSizeReceivedCallbacks.find(downloadID);
     if (result != onSizeReceivedCallbacks.end())
     {
-        result->second(length);
+        result->second(total);
     }
 }
 
@@ -125,18 +141,18 @@ extern "C"
         notifySuccess((int)downloadID);
     }
     
-    void Java_com_fennex_modules_NetworkUtility_notifyError(JNIEnv* env, jobject thiz, jint downloadID, jint errorCode)
+    void Java_com_fennex_modules_NetworkUtility_notifyError(JNIEnv* env, jobject thiz, jint downloadID, jint errorCode, jstring errorResponse)
     {
-        notifyError((int)downloadID, (int)errorCode);
+        notifyError((int)downloadID, (int)errorCode, JniHelper::jstring2string(errorResponse));
     }
     
-    void Java_com_fennex_modules_NetworkUtility_notifyProgressUpdate(JNIEnv* env, jobject thiz, jint downloadID, jfloat percent)
+    void Java_com_fennex_modules_NetworkUtility_notifyProgressUpdate(JNIEnv* env, jobject thiz, jint downloadID, jlong current, jlong total)
     {
-        notifyProgressUpdate((int)downloadID, (float)percent);
+        notifyProgressUpdate((int)downloadID, (long)current, (long)total);
     }
     
-    void Java_com_fennex_modules_NetworkUtility_notifyLengthResolved(JNIEnv* env, jobject thiz, jint downloadID, jint length)
+    void Java_com_fennex_modules_NetworkUtility_notifyLengthResolved(JNIEnv* env, jobject thiz, jint downloadID, jlong total)
     {
-        notifyLengthResolved((int)downloadID, (int)length);
+        notifyLengthResolved((int)downloadID, (long)total);
     }
 }

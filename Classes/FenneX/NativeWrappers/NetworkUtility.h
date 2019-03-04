@@ -37,26 +37,25 @@ bool isConnected();
 // It will go directly to the wifi settings on android
 void openWifiSettings();
 
-
-typedef enum
-{
-    NotImplemented = -1,
-    UnknownError = 1,
-    ServerError = 2,
-    NetworkUnavailable = 3,
-    CannotWrite = 4,
-}DownloadError;
-
-/* Download a file to a specific location. The url must be publicly accessible, and the localPath writable
+/*
+ Warning: currently not implemented on iOS, will return error NotImplemented all the time and throw an assertion
+ Require OkHttp on Android, add dependency in build.gradle: implementation 'com.squareup.okhttp3:okhttp:3.12.1'
+ Note: OkHttp 3.12.x support Android 4, and is supported until December 2020. OkHttp 3.13+ is Android 5+ only.
+ 
+ Download a file to a specific location. The url must be publicly accessible, and the fullPath writable
  url: full URL, containing the protocol (http/https)
- localPath: absolute path, must be writable
+ fullPath: absolute path, must be writable
  onSuccess: callback when the file is fully downloaded
- onError: callback when there is an error. The parameter indicates the error type
- onProgressUpdate: callback when the progress % change. The parameter is a float between 0 and 1 indicating the completion
- onSizeReceived: callback when we know the total size of the file. The parameter is an int of the total size in bytes
- Warning: currently not implemented on iOS, will return error NotImplemented all the time
+ onError: callback when there is an error. Include http error code (or -1 if it's not a http error) and error response
+ onProgressUpdate: callback with progress update, only called every 2%, with number of bytes downloaded and total size in bytes
+ onSizeReceived: callback when we know the total size of the file, in bytes, as indicated by Content-Length header
  */
-void downloadFile(std::string url, std::string localPath, std::function<void()> onSuccess, std::function<void(DownloadError)>onError, std::function<void(float)>onProgressUpdate, std::function<void(int)> onSizeReceived);
+void downloadFile(std::string url,
+                  std::string fullPath,
+                  std::function<void()> onFileDownloaded,
+                  std::function<void(int, const std::string&)> onDownloadFailure,
+                  std::function<void(long, long)>onProgressUpdate,
+                  std::function<void(long)> onSizeReceived);
 
 NS_FENNEX_END
 

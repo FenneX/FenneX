@@ -42,10 +42,15 @@ void openWifiSettings()
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
 }
 
-
-void downloadFile(std::string url, std::string localPath, std::function<void()> onSuccess, std::function<void(DownloadError)>onError, std::function<void(float)>onProgressUpdate, std::function<void(int)> onSizeReceived)
+void downloadFile(std::string url,
+                  std::string fullPath,
+                  std::function<void()> onFileDownloaded,
+                  std::function<void(int, const std::string&)> onDownloadFailure,
+                  std::function<void(long, long)>onProgressUpdate,
+                  std::function<void(long)> onSizeReceived)
 {
-    onError(NotImplemented);
+    CCASSERT(1, "iOS downloadFile is not implemented on iOS, please use FileDownloader, which use Cocos2d-x Downloader");
+    onDownloadFailure(-1, "NotImplemented");
 }
 
 NS_FENNEX_END
