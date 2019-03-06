@@ -74,8 +74,7 @@ public class ExpansionSupport extends DownloaderService implements ActivityObser
             84, 15, -86, -39, 63, 96, 55, -50, -96, -86, 64, -48, -1, 5
     };
     private static IStub mDownloaderClientStub = null;
-    private IDownloaderService mRemoteService = null;
-    
+
     //try to get the publicKey and store it for when the activity is NULL
     private static String publicKey;
     public static XAPKFile[] xAPKS = null;
@@ -106,32 +105,24 @@ public class ExpansionSupport extends DownloaderService implements ActivityObser
 
 
     private static volatile ExpansionSupport instance = null;
-    public ExpansionSupport() 
-    { 
-    	if(instance != null && instance != this)
-    	{
+    public ExpansionSupport() {
+    	if(instance != null && instance != this) {
     		Log.w(TAG, "Warning, an instance of ExpansionSupport already exists");
     	}
-    	else if(instance == this)
-    	{
+    	else if(instance == this) {
     		return;
     	}
     	instance = this;
-    	if(NativeUtility.getMainActivity() != null)
-    	{
+    	if(NativeUtility.getMainActivity() != null) {
     		NativeUtility.getMainActivity().addObserver(instance);
     		publicKey = NativeUtility.getMainActivity().getPublicKey();
     	}
     }
 
-    public static ExpansionSupport getInstance() 
-    {
-        if (instance == null) 
-        {
-            synchronized (ExpansionSupport.class)
-            {
-                if (instance == null) 
-                {
+    public static ExpansionSupport getInstance() {
+        if (instance == null) {
+            synchronized (ExpansionSupport.class) {
+                if (instance == null) {
                 	instance = new ExpansionSupport();
                 }
             }
@@ -145,22 +136,15 @@ public class ExpansionSupport extends DownloaderService implements ActivityObser
      * 
      * @return true if the expansion was delivered, false if it's starting to download
      */
-    public static boolean checkExpansionFiles() 
-    {
+    @SuppressWarnings("unused")
+    public static boolean checkExpansionFiles() {
 		boolean isDebuggable =  ( 0 != ( NativeUtility.getMainActivity().getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE ) );
-		if(isDebuggable)
-		{
-			//return true;
-		}
-		if(xAPKS == null)
-		{
+		if(xAPKS == null) {
 			return true;
 		}
-        for (XAPKFile xf : xAPKS) 
-        {
+        for (XAPKFile xf : xAPKS)  {
             String fileName = Helpers.getExpansionAPKFileName(NativeUtility.getMainActivity(), xf.mIsMain, xf.mFileVersion);
-            if (!Helpers.doesFileExist(NativeUtility.getMainActivity(), fileName, xf.mFileSize, false))
-            {  
+            if (!Helpers.doesFileExist(NativeUtility.getMainActivity(), fileName, xf.mFileSize, false)) {
             	// Build an Intent to start this activity from the Notification
                 Intent notifierIntent = new Intent(NativeUtility.getMainActivity(), NativeUtility.getMainActivity().getClass());
                 notifierIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
@@ -171,39 +155,29 @@ public class ExpansionSupport extends DownloaderService implements ActivityObser
 
                 // Start the download service (if required)
                 int startResult = -1;
-				try 
-				{
+				try {
 					startResult = DownloaderClientMarshaller.startDownloadServiceIfRequired(NativeUtility.getMainActivity(),
 					                pendingIntent, ExpansionSupport.class);
 				} 
-				catch (NameNotFoundException e) 
-				{
+				catch (NameNotFoundException e) {
 					e.printStackTrace();
 				}
                 // If download has started, initialize this activity to show download progress
-                if (startResult != DownloaderClientMarshaller.NO_DOWNLOAD_REQUIRED) 
-                {
+                if (startResult != DownloaderClientMarshaller.NO_DOWNLOAD_REQUIRED) {
                 	//The caller will setup the download UI
                 	Log.i(TAG, "creating stub for download ...");
-                	NativeUtility.getMainActivity().runOnUiThread(new Runnable() 
-                	{
-                		public void run() 
-                		{ //For some reasons, that needs to be runned on UI Thread because it requires a Looper ....
-                			try
-                			{
-		                	mDownloaderClientStub = DownloaderClientMarshaller.CreateStub(ExpansionSupport.getInstance(),
-		                            ExpansionSupport.class);
-		                	if(NativeUtility.getMainActivity().isActive())
-		                	{
-		                        mDownloaderClientStub.connect(NativeUtility.getMainActivity());
-		                	}
-                			}
-                			catch(Exception e)
-                			{
-                				e.printStackTrace();
-                			}
-                		}
-                	});
+                	NativeUtility.getMainActivity().runOnUiThread(() -> { //For some reasons, that needs to be runned on UI Thread because it requires a Looper ....
+                        try {
+                            mDownloaderClientStub = DownloaderClientMarshaller.CreateStub(ExpansionSupport.getInstance(),
+                                    ExpansionSupport.class);
+                            if(NativeUtility.getMainActivity().isActive())  {
+                                mDownloaderClientStub.connect(NativeUtility.getMainActivity());
+                            }
+                        }
+                        catch(Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
                 	Log.i(TAG, "Stub created! Returning false");
 
                     return false;
@@ -217,20 +191,17 @@ public class ExpansionSupport extends DownloaderService implements ActivityObser
     /* return the relative path of  the expansion if everything works well
      * return null if there is no information about that expansion
      */
-    public static String getExpansionFileName(boolean main)
-    {
+    public static String getExpansionFileName(boolean main) {
         String fileName = null;
         int version = 0;
-        for (XAPKFile xf : xAPKS)
-        {
-            if(xf.mIsMain)
-            {
+        for (XAPKFile xf : xAPKS) {
+            if(xf.mIsMain == main) {
                 fileName = Helpers.getExpansionAPKFileName(NativeUtility.getMainActivity(), xf.mIsMain, xf.mFileVersion);
                 version = xf.mFileVersion;
             }
         }
-        if(fileName == null || version == 0)
-        { //early return because there was an error
+        if(fileName == null || version == 0) {
+            //early return because there was an error
             return fileName;
         }
         String packageName = NativeUtility.getMainActivity().getPackageName();
@@ -244,8 +215,8 @@ public class ExpansionSupport extends DownloaderService implements ActivityObser
     /* return the absolute path of the expansion if everything works well
      * return null if there is no information about that expansion
      */
-    public static String getExpansionFileFullPath(boolean main)
-    {
+    @SuppressWarnings("unused")
+    public static String getExpansionFileFullPath(boolean main)  {
         String packageName = NativeUtility.getMainActivity().getPackageName();
         return Environment.getExternalStorageDirectory() +
                 "/Android/obb/" +
@@ -253,40 +224,34 @@ public class ExpansionSupport extends DownloaderService implements ActivityObser
                 File.separator + getExpansionFileName(main) ;
     }
 
-    public static boolean expansionExists(boolean main)
-    {
+    @SuppressWarnings("unused")
+    public static boolean expansionExists(boolean main) {
         String fileName = null;
         int version = 0;
-        for (XAPKFile xf : xAPKS)
-        {
-            if(xf.mIsMain)
-            {
+        for (XAPKFile xf : xAPKS) {
+            if(xf.mIsMain == main) {
                 fileName = Helpers.getExpansionAPKFileName(NativeUtility.getMainActivity(), xf.mIsMain, xf.mFileVersion);
-                if (!Helpers.doesFileExist(NativeUtility.getMainActivity(), fileName, xf.mFileSize, false))
-                {
+                if (!Helpers.doesFileExist(NativeUtility.getMainActivity(), fileName, xf.mFileSize, false))  {
                     fileName = "NOTDOWNLOADED";
                 }
-                else
-                {
+                else {
                     version = xf.mFileVersion;
                 }
             }
         }
-        return fileName != null && version != 0 && !fileName.equals(new String("NOTDOWNLAODED"));
+        return fileName != null && version != 0 && !fileName.equals("NOTDOWNLOADED");
     }
 
     /**
      * This is a little helper class that demonstrates simple testing of an
      * Expansion APK file delivered by Market.
      */
-    public static class XAPKFile 
-    {
-        public final boolean mIsMain;
-        public final int mFileVersion;
-        public final long mFileSize;
+    public static class XAPKFile {
+        final boolean mIsMain;
+        final int mFileVersion;
+        final long mFileSize;
 
-        public XAPKFile(boolean isMain, int fileVersion, long fileSize) 
-        {
+        public XAPKFile(boolean isMain, int fileVersion, long fileSize) {
             mIsMain = isMain;
             mFileVersion = fileVersion;
             mFileSize = fileSize;
@@ -294,112 +259,101 @@ public class ExpansionSupport extends DownloaderService implements ActivityObser
     }
 
     @Override
-    public String getPublicKey() 
-    {
+    public String getPublicKey() {
         return publicKey;
     }
 
     @Override
-    public byte[] getSALT() 
-    {
+    public byte[] getSALT() {
         return SALT;
     }
 
     @Override
-    public String getAlarmReceiverClassName() 
-    {
+    public String getAlarmReceiverClassName() {
         return ExpansionAlarmReceiver.class.getName();
     }
     
     //TODO :  since we call checkExpansionFiles() from native init and not from onCreate, the order may not be correct ... 
     //Try to see if we can call that from native instead ?
     @Override
-    public void onStateChanged(int state)
-    {
-    	switch(state)
-    	{
-    	case ActivityObserver.RESUME:
-            if (mDownloaderClientStub != null) 
-            {
-                mDownloaderClientStub.connect(NativeUtility.getMainActivity());
-            }    
-            break;
-    	case ActivityObserver.STOP:
-            destroy();   
-            break;
+    public void onStateChanged(int state) {
+    	switch(state) {
+            case ActivityObserver.RESUME:
+                if (mDownloaderClientStub != null) {
+                    mDownloaderClientStub.connect(NativeUtility.getMainActivity());
+                }
+                break;
+            case ActivityObserver.STOP:
+                destroy();
+                break;
     	}
     }
     
     @Override
-    public void destroy()
-    {
-        if (mDownloaderClientStub != null) 
-        {
+    public void destroy() {
+        if (mDownloaderClientStub != null)  {
             mDownloaderClientStub.disconnect(NativeUtility.getMainActivity());
         }
     }
 
 	@Override
-	public void onServiceConnected(Messenger m) 
-	{
-	    mRemoteService = DownloaderServiceMarshaller.CreateProxy(m);
+	public void onServiceConnected(Messenger m) {
+        IDownloaderService mRemoteService = DownloaderServiceMarshaller.CreateProxy(m);
 	    mRemoteService.onClientUpdated(mDownloaderClientStub.getMessenger());
 	    notifyServiceConnected();
 	}
 
 	@Override
-	public void onDownloadStateChanged(int newState) 
-	{
+	public void onDownloadStateChanged(int newState) {
 		Log.i(TAG, "on download state changed : " + newState + ", as string : " + NativeUtility.getMainActivity().getString(Helpers.getDownloaderStringResourceIDFromState(newState)));
-		switch (newState)
-		{
-		case IDownloaderClient.STATE_IDLE:
-			notifyDownloadStateChanged("", -1, "");
-			break;
-	    case IDownloaderClient.STATE_FETCHING_URL:
-	    case IDownloaderClient.STATE_CONNECTING:
-			notifyDownloadStateChanged("Récupération des informations de téléchargement en cours ...", 1, "AC_Expansion_Infos");
-			break;
-	    case IDownloaderClient.STATE_DOWNLOADING:
-			notifyDownloadStateChanged("Téléchargement du contenu additionnel de l'application ...", 2, "AC_Expansion_Download");
-			break;
-	    case IDownloaderClient.STATE_COMPLETED:
-	    	notifyDownloadCompleted();
-			break;
-	    case IDownloaderClient.STATE_PAUSED_BY_REQUEST:
-			notifyDownloadStateChanged("", -1, "");
-			//We don't want to go into the details of those states yet, just draw a generic "no connexion"
-	    case IDownloaderClient.STATE_PAUSED_NETWORK_UNAVAILABLE:
-	    case IDownloaderClient.STATE_PAUSED_WIFI_DISABLED_NEED_CELLULAR_PERMISSION:
-	    case IDownloaderClient.STATE_PAUSED_NEED_CELLULAR_PERMISSION:
-	    case IDownloaderClient.STATE_PAUSED_WIFI_DISABLED:
-	    case IDownloaderClient.STATE_PAUSED_NEED_WIFI:
-	    case IDownloaderClient.STATE_PAUSED_ROAMING:
-			notifyDownloadStateChanged("Aucune connexion réseau disponible, merci de réessayer après vous être connecté.", 3, "AC_Expansion_NoConnexion");
-			break;
-	    case IDownloaderClient.STATE_PAUSED_NETWORK_SETUP_FAILURE:
-			notifyDownloadStateChanged("Un problème s'est produit pendant la récupération des informations de téléchargement, merci de réessayer plus tard", 5, "AC_Expansion_ProblemInfos");
-			break;
-	    case IDownloaderClient.STATE_PAUSED_SDCARD_UNAVAILABLE:
-			notifyDownloadStateChanged("L'espace de stockage externe n'est pas disponible.", 4, "AC_Expansion_StorageNotFound");
-			break;
-	    case IDownloaderClient.STATE_FAILED_UNLICENSED:
-        case IDownloaderClient.STATE_FAILED_FETCHING_URL:
-			notifyDownloadStateChanged("Un problème s'est produit. Merci de ré-installer l'application depuis Google Play.", 5, "AC_Expansion_Reinstall");
-			break;
-	    case IDownloaderClient.STATE_FAILED_SDCARD_FULL:
-			notifyDownloadStateChanged("L'espace de stockage externe est plein. Merci de libérer de l'espace et réessayer.", 4, "AC_Expansion_StorageFull");
-			break;
-	    case IDownloaderClient.STATE_FAILED_CANCELED:
-	    case IDownloaderClient.STATE_FAILED:
-			notifyDownloadStateChanged("Un problème s'est produit. Merci de réessayer ultérieurement.", 5, "AC_Expansion_Problem");
-			break;
-		}	
-	}
+		switch (newState) {
+            case IDownloaderClient.STATE_IDLE:
+                notifyDownloadStateChanged("", -1, "");
+                break;
+            case IDownloaderClient.STATE_FETCHING_URL:
+            case IDownloaderClient.STATE_CONNECTING:
+                notifyDownloadStateChanged("Récupération des informations de téléchargement en cours ...", 1, "AC_Expansion_Infos");
+                break;
+            case IDownloaderClient.STATE_DOWNLOADING:
+                notifyDownloadStateChanged("Téléchargement du contenu additionnel de l'application ...", 2, "AC_Expansion_Download");
+                break;
+            case IDownloaderClient.STATE_COMPLETED:
+                Log.i(TAG, "Launching notifyDownloadCompleted");
+                notifyDownloadCompleted();
+                break;
+            case IDownloaderClient.STATE_PAUSED_BY_REQUEST:
+                notifyDownloadStateChanged("", -1, "");
+                //We don't want to go into the details of those states yet, just draw a generic "no connexion"
+            case IDownloaderClient.STATE_PAUSED_NETWORK_UNAVAILABLE:
+            case IDownloaderClient.STATE_PAUSED_WIFI_DISABLED_NEED_CELLULAR_PERMISSION:
+            case IDownloaderClient.STATE_PAUSED_NEED_CELLULAR_PERMISSION:
+            case IDownloaderClient.STATE_PAUSED_WIFI_DISABLED:
+            case IDownloaderClient.STATE_PAUSED_NEED_WIFI:
+            case IDownloaderClient.STATE_PAUSED_ROAMING:
+                notifyDownloadStateChanged("Aucune connexion réseau disponible, merci de réessayer après vous être connecté.", 3, "AC_Expansion_NoConnexion");
+                break;
+            case IDownloaderClient.STATE_PAUSED_NETWORK_SETUP_FAILURE:
+                notifyDownloadStateChanged("Un problème s'est produit pendant la récupération des informations de téléchargement, merci de réessayer plus tard", 5, "AC_Expansion_ProblemInfos");
+                break;
+            case IDownloaderClient.STATE_PAUSED_SDCARD_UNAVAILABLE:
+                notifyDownloadStateChanged("L'espace de stockage externe n'est pas disponible.", 4, "AC_Expansion_StorageNotFound");
+                break;
+            case IDownloaderClient.STATE_FAILED_UNLICENSED:
+            case IDownloaderClient.STATE_FAILED_FETCHING_URL:
+                notifyDownloadStateChanged("Un problème s'est produit. Merci de ré-installer l'application depuis Google Play.", 5, "AC_Expansion_Reinstall");
+                break;
+            case IDownloaderClient.STATE_FAILED_SDCARD_FULL:
+                notifyDownloadStateChanged("L'espace de stockage externe est plein. Merci de libérer de l'espace et réessayer.", 4, "AC_Expansion_StorageFull");
+                break;
+            case IDownloaderClient.STATE_FAILED_CANCELED:
+            case IDownloaderClient.STATE_FAILED:
+                notifyDownloadStateChanged("Un problème s'est produit. Merci de réessayer ultérieurement.", 5, "AC_Expansion_Problem");
+                break;
+        }
+    }
 
 	@Override
-	public void onDownloadProgress(DownloadProgressInfo progress) 
-	{
+	public void onDownloadProgress(DownloadProgressInfo progress) {
 		Log.i(TAG, "on download progress : " + Helpers.getDownloadProgressPercent(progress.mOverallProgress, progress.mOverallTotal));
 		notifyDownloadProgress((float)progress.mOverallProgress / (float)progress.mOverallTotal, progress.mOverallTotal);
 	}
