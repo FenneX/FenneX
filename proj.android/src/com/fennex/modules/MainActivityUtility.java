@@ -29,16 +29,16 @@ import android.net.Uri;
 public interface MainActivityUtility
 {
 	//Those responder will be called on Activity result
-	public void addResponder(ActivityResultResponder responder);
-	public void removeResponder(ActivityResultResponder responder);
+	void addResponder(ActivityResultResponder responder);
+	void removeResponder(ActivityResultResponder responder);
 	
 	//Return the public key for InApps
-	public String getPublicKey();
+	String getPublicKey();
 	
 	//return a resource ID in the application's package of the drawble to use, for the NotificationService
-	public int getSmallIcon();
-	public Uri getUriFromFileName(String fileName);
+	int getSmallIcon();
+	Uri getUriFromFileName(String fileName);
 	
 	//Returns true if the in-app product should be consumed before being returned. Usually, it's false, because you want to keep premium state
-	public boolean isConsumable(String productID);
+	boolean isConsumable(String productID);
 }

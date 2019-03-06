@@ -28,13 +28,13 @@ public interface ActivityObserver
 {
 	//Only one method instead of 7 to implement, so that implementations only need that method, and can intercept the state they want
 	//Don't use an enum since it has a significant overhead (this is an advice from Google Android team)
-	public static final int CREATE = 1;
-	public static final int START = 2;
-	public static final int RESUME = 3;
-	public static final int PAUSE = 4;
-	public static final int STOP = 5;
-	public static final int RESTART = 6;
-	public static final int DESTROY = 7;
-	public void onStateChanged(int state);
-    public void destroy();
+	int CREATE = 1;
+	int START = 2;
+	int RESUME = 3;
+	int PAUSE = 4;
+	int STOP = 5;
+	int RESTART = 6;
+	int DESTROY = 7;
+	void onStateChanged(int state);
+    void destroy();
 }

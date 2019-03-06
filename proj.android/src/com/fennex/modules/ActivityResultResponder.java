@@ -28,7 +28,7 @@ import android.content.Intent;
 
 public interface ActivityResultResponder 
 {
-    public static final String TOO_MUCH_APP = "Attention, beaucoup d'applications sont lancées sur votre tablette, ce qui risque de nuire à votre experience.";
-	public boolean onActivityResult(int requestCode, int resultCode, Intent data);
-    public void destroy();
+    String TOO_MUCH_APP = "Attention, beaucoup d'applications sont lancées sur votre tablette, ce qui risque de nuire à votre experience.";
+    boolean onActivityResult(int requestCode, int resultCode, Intent data);
+    void destroy();
 }
