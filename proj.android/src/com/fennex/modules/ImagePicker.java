@@ -88,7 +88,7 @@ public class ImagePicker implements ActivityResultResponder
     {
         if(isPending)
         {
-            Toast.makeText(NativeUtility.getMainActivity(), TOO_MUCH_APP, Toast.LENGTH_LONG).show();
+            NativeUtility.showToast("TooManyAppsLaunched", Toast.LENGTH_LONG);
             isPending = false;
         }
         instance = null;
@@ -106,48 +106,55 @@ public class ImagePicker implements ActivityResultResponder
             Log.d(TAG, "onActivityResult(" + requestCode + "," + resultCode + "," + (data != null ? data.getExtras() : "no data"));
             try {
                 Bitmap original;
-                if (requestCode == PICTURE_GALLERY) {
-                    Uri selectedImage = data.getData();
-                    String[] orientationColumn = {MediaStore.Images.Media.ORIENTATION};
-                    Cursor cur = NativeUtility.getMainActivity().getContentResolver().query(selectedImage, orientationColumn, null, null, null);
-                    int orientation = 0;
-                    if (cur != null && cur.moveToFirst()) {
-                        orientation = cur.getInt(cur.getColumnIndex(orientationColumn[0]));
-                    }
-                    InputStream imageStream;
-                    imageStream = NativeUtility.getMainActivity().getContentResolver().openInputStream(selectedImage);
-                    original = BitmapFactory.decodeStream(imageStream);
-                    original = rotateImage(original, orientation);
-                } else { //CAMERA_CAPTURE
+                try {
+                    if (requestCode == PICTURE_GALLERY) {
+                        Uri selectedImage = data.getData();
+                        String[] orientationColumn = {MediaStore.Images.Media.ORIENTATION};
+                        Cursor cur = NativeUtility.getMainActivity().getContentResolver().query(selectedImage, orientationColumn, null, null, null);
+                        int orientation = 0;
+                        if (cur != null && cur.moveToFirst()) {
+                            orientation = cur.getInt(cur.getColumnIndex(orientationColumn[0]));
+                        }
+                        InputStream imageStream;
+                        imageStream = NativeUtility.getMainActivity().getContentResolver().openInputStream(selectedImage);
+                        original = BitmapFactory.decodeStream(imageStream);
+                        original = rotateImage(original, orientation);
+                    } else { //CAMERA_CAPTURE
                     /* When not using EXTRA_OUTPUT, the Intent will produce a small image, depending on device and app used
                     original = data.getParcelableExtra("data");*/
-                    //The EXTRA_OUTPUT parameter of Intent
-                    File file = new File(getStorageDirectory(), _fileName);
-                    ExifInterface exif = new ExifInterface(file.getAbsolutePath());
-                    int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-                    int rotation = 0;
-                    if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
-                        rotation = 90;
-                    } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {
-                        rotation = 180;
-                    } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {
-                        rotation = 270;
-                    }
-                    original = BitmapFactory.decodeFile(file.getAbsolutePath());
-                    original = rotateImage(original, rotation);
-                    final Bitmap saveToGallery = original.copy(original.getConfig(), true);
-                    new Thread() {
-                        public void run() {
-                            try {
-                                insertPhotoIntoGallery(saveToGallery);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            saveToGallery.recycle();
+                        //The EXTRA_OUTPUT parameter of Intent
+                        File file = new File(getStorageDirectory(), _fileName);
+                        ExifInterface exif = new ExifInterface(file.getAbsolutePath());
+                        int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                        int rotation = 0;
+                        if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
+                            rotation = 90;
+                        } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {
+                            rotation = 180;
+                        } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {
+                            rotation = 270;
                         }
-                    }.start();
-                    //Clean file
-                    file.delete();
+                        original = BitmapFactory.decodeFile(file.getAbsolutePath());
+                        original = rotateImage(original, rotation);
+                        final Bitmap saveToGallery = original.copy(original.getConfig(), true);
+                        new Thread() {
+                            public void run() {
+                                try {
+                                    insertPhotoIntoGallery(saveToGallery);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                saveToGallery.recycle();
+                            }
+                        }.start();
+                        //Clean file
+                        file.delete();
+                    }
+                }
+                catch (OutOfMemoryError e) {
+                    Log.e(TAG, "OutOfMemoryError on ImagePicker while trying to get original Bitmap");
+                    NativeUtility.showToast("ImageTooLarge", Toast.LENGTH_LONG);
+                    original = null;
                 }
                 if (original != null) {
                     Bitmap bitmap = scaleToFill(original, _width, _height);
@@ -316,7 +323,7 @@ public class ImagePicker implements ActivityResultResponder
         }
         catch (OutOfMemoryError e) {
             Log.e(TAG, "OutOfMemoryError when trying to scale a bitmap with size " + b.getWidth() + "x" + b.getHeight());
-            Toast.makeText(NativeUtility.getMainActivity(), "L'image sélectionnée est trop grande, merci de réessayer avec une image plus petite", Toast.LENGTH_LONG).show();
+            NativeUtility.showToast("ImageTooLarge", Toast.LENGTH_LONG);
         }
         return result;
     }

@@ -50,7 +50,7 @@ public class NetworkUtility
     private static final int DOWNLOAD_BUFFER_SIZE = 1024;
 
     /** Sending the download's progress at most X time per second */
-    private static final int PROGRESS_UPDATE_PER_SECOND = 5;
+    private static final int PROGRESS_UPDATE_PER_SECOND = 15;
 
     public native static void notifySuccess(int downloadID);
     public native static void notifyError(int downloadID, int errorCode, String errorResponse);
@@ -91,6 +91,7 @@ public class NetworkUtility
     @SuppressWarnings("unused")
     public static void downloadFile(int downloadId, String url, String savePath) {
         if(currentlyDownloadingTask == null) {
+            Log.d(TAG, "Starting download immediately for " + url);
             currentlyDownloadingTask = downloadId;
             Thread thread = new Thread() {
                 @Override
@@ -101,6 +102,7 @@ public class NetworkUtility
             thread.start();
         }
         else {
+            Log.d(TAG, "Adding download task for " + url + ", already " + waitingDownloadTasks.size() + " waiting");
             waitingDownloadTasks.put(downloadId, new Pair<>(url, savePath));
         }
     }
@@ -110,12 +112,25 @@ public class NetworkUtility
             currentlyDownloadingTask = waitingDownloadTasks.keyAt(0);
             Pair<String, String> taskInfos = waitingDownloadTasks.get(currentlyDownloadingTask);
             waitingDownloadTasks.delete(currentlyDownloadingTask);
+            Log.d(TAG, "Launching download task for " + taskInfos.first + ", there are " + waitingDownloadTasks.size() + " tasks waiting in queue");
             downloadFileImpl(currentlyDownloadingTask, taskInfos.first, taskInfos.second);
+        }
+        else {
+            currentlyDownloadingTask = null;
         }
     }
 
     private static void downloadFileImpl(int downloadId, String url, String savePath) {
         Log.d(TAG,"Starting download of " + url);
+
+        //Ensure parent directory exists
+        int lastIndexOf = savePath.lastIndexOf("/");
+        if(lastIndexOf != -1) {
+            //noinspection ResultOfMethodCallIgnored
+            new File(savePath.substring(0, lastIndexOf + 1)).mkdirs();
+        }
+
+
         OkHttpClient client = new OkHttpClient();
         okhttp3.Request.Builder builder = new okhttp3.Request.Builder()
                 .method("GET", null)

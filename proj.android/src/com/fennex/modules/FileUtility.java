@@ -112,7 +112,7 @@ public class FileUtility implements ActivityResultResponder {
     {
         if(isPending)
         {
-            Toast.makeText(NativeUtility.getMainActivity(), TOO_MUCH_APP, Toast.LENGTH_LONG).show();
+            NativeUtility.showToast("TooManyAppsLaunched", Toast.LENGTH_LONG);
             isPending = false;
         }
         instance = null;

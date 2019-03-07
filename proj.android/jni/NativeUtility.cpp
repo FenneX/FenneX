@@ -412,5 +412,12 @@ extern "C"
     {
         notifyUrlOpened(JniHelper::jstring2string(name));
     }
+
+    jstring Java_com_fennex_modules_NativeUtility_getNativeString(JNIEnv* env, jobject thiz, jstring key)
+    {
+        std::string result = getNativeString(JniHelper::jstring2string(key));
+        jstring jresult = cocos2d::StringUtils::newStringUTFJNI(JniHelper::getEnv(), result.c_str());
+        return jresult;
+    }
 }
 

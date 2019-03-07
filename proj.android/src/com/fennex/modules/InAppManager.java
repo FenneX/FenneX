@@ -194,7 +194,8 @@ public class InAppManager implements ActivityResultResponder {
                                 mPurchaseFinishedListener, payload);
                 } catch (IllegalStateException e) {
                     Log.e("InAppManager", "Illegal state exception : " + e.getMessage());
-                    Toast.makeText(NativeUtility.getMainActivity(), "Please retry in a few seconds.", Toast.LENGTH_SHORT).show();
+
+                    NativeUtility.showToast("PleaseRetrySoon", Toast.LENGTH_SHORT);
                 }
             }
         });

@@ -156,6 +156,12 @@ static inline void notifyUrlOpened(std::string url)
     DelayedDispatcher::eventAfterDelay("UrlOpened", Value(ValueMap({{"Url", Value(url.c_str())}})), 0.01);
 }
 
+//Allow app to define how String displayed to user by native modules will be translated
+void setNativeStringConverter(std::function<std::string(const std::string&)> converter);
+
+//Internal-use function for native modules. Provide a key, get a translated string
+std::string getNativeString(const std::string& key);
+
 NS_FENNEX_END
 
 #endif

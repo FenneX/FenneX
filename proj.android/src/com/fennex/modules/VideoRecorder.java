@@ -191,7 +191,7 @@ public class VideoRecorder extends Activity implements SurfaceHolder.Callback, M
     			@Override
     			public void run() 
     			{
-    				Toast.makeText(NativeUtility.getMainActivity(), "Unable to copy the video to your Movies directory, it will stay in Logiral only", Toast.LENGTH_LONG).show();
+					NativeUtility.showToast("CantCopyVideo", Toast.LENGTH_LONG);
     			}
     		});
 			externalPath = null;
@@ -325,7 +325,15 @@ public class VideoRecorder extends Activity implements SurfaceHolder.Callback, M
 	        	@Override
 	        	public void run() 
 	        	{
-	        		Toast.makeText(NativeUtility.getMainActivity(), toastText, Toast.LENGTH_LONG).show();
+	        		if(what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
+						NativeUtility.showToast("VideoRecordingMaxDuration", Toast.LENGTH_LONG);
+					}
+					else if(what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED) {
+						NativeUtility.showToast("VideoRecordingMaxFilesize", Toast.LENGTH_LONG);
+					}
+					else {
+						NativeUtility.showToast("VideoRecordingError", Toast.LENGTH_LONG);
+					}
 	        	}
 	        });
     	}
@@ -349,7 +357,7 @@ public class VideoRecorder extends Activity implements SurfaceHolder.Callback, M
         			@Override
         			public void run() 
         			{
-        				Toast.makeText(getApplicationContext(), "Camera not available, another app is using it", Toast.LENGTH_LONG).show();
+						NativeUtility.showToast("CantUseCamera", Toast.LENGTH_LONG);
         			}
         		});
     		}

@@ -81,7 +81,7 @@ public class MailUrlManager {
         try {
             NativeUtility.getMainActivity().startActivity(Intent.createChooser(i, "Send mail..."));
         } catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(NativeUtility.getMainActivity(), "There are no email clients installed.", Toast.LENGTH_SHORT).show();
+			NativeUtility.showToast("NoMailClient", Toast.LENGTH_SHORT);
         }
     }
 
@@ -147,7 +147,7 @@ public class MailUrlManager {
 	    if(!MailUrlManager.copyToSDCard(attachment, "result.plist"))
 	    {
 	    	Log.e(TAG, "Copy file to SDCard failed, aborting message send");
-	        Toast.makeText(NativeUtility.getMainActivity(), "Problem copying file to a readable location", Toast.LENGTH_SHORT).show();
+			NativeUtility.showToast("CantCopyMailAttachment", Toast.LENGTH_SHORT);
 	    	return;
 	    }
 	    File file = new File(Environment.getExternalStorageDirectory() + java.io.File.separator + "result.plist");
@@ -159,7 +159,7 @@ public class MailUrlManager {
 	    try {
 	    	NativeUtility.getMainActivity().startActivity(Intent.createChooser(i, "Send mail..."));
 	    } catch (android.content.ActivityNotFoundException ex) {
-	        Toast.makeText(NativeUtility.getMainActivity(), "There are no email clients installed.", Toast.LENGTH_SHORT).show();
+			NativeUtility.showToast("NoMailClient", Toast.LENGTH_SHORT);
 	    }
     }
 }

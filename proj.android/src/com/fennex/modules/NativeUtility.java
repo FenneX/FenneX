@@ -45,6 +45,7 @@ import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.util.Log;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -60,6 +61,10 @@ public class NativeUtility
     
     public native static void notifyMemoryWarning();
     public native static void notifyVolumeChanged();
+
+    //Query a String to be displayed to user with a key
+    //It is C++ app responsibility to return a translated String for this key
+    public native static String getNativeString(String key);
     
 	private static volatile ActivityResultNotifier mainActivity;
     @SuppressWarnings("WeakerAccess")
@@ -408,5 +413,9 @@ public class NativeUtility
         }
 
         return version;
+    }
+
+    public static void showToast(String textKey, int toastLength) {
+        Toast.makeText(getMainActivity(), getNativeString(textKey), toastLength).show();
     }
 }
