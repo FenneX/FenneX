@@ -131,9 +131,6 @@ void setDeviceLuminosity(float);
 //Return true if the settings app will open
 bool openSystemSettings();
 
-//Launch Youtube intent on Android, simple openUrl on iOS
-void launchYoutube();
-
 //Return if a package is installed on android, return false on iOS
 bool isPackageInstalled(const std::string& packageName);
 

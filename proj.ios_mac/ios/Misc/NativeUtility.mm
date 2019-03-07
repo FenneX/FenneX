@@ -317,11 +317,6 @@ bool openSystemSettings()
     return true;
 }
 
-void launchYoutube()
-{
-    openUrl("http://www.youtube.fr/");
-}
-
 bool isPackageInstalled(const std::string& packageName)
 {
     return false;

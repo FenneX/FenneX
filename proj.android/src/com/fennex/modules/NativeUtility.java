@@ -380,14 +380,6 @@ public class NativeUtility
         return result;
     }
 
-    @SuppressWarnings("unused")
-    public static void launchYoutube()
-    {
-    	Intent youtubeIntent = getMainActivity().getPackageManager().getLaunchIntentForPackage("com.google.android.youtube");
-    	if (youtubeIntent != null) 
-    		getMainActivity().startActivity(youtubeIntent);
-    }
-
     public static boolean isPackageInstalled(String packageName) {
         Context myContext = NativeUtility.getMainActivity().getBaseContext();
         PackageManager myPackageMgr = myContext.getPackageManager();

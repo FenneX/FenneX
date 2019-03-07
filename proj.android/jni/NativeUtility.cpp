@@ -372,15 +372,6 @@ bool openSystemSettings()
     return result;
 }
 
-void launchYoutube()
-{
-    JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "launchYoutube", "()V");
-    CCAssert(functionExist, "Function doesn't exist");
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID);
-    minfo.env->DeleteLocalRef(minfo.classID);
-}
-
 bool isPackageInstalled(const std::string& packageId)
 {
     JniMethodInfo minfo;
