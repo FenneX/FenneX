@@ -190,6 +190,11 @@ uint64_t getAvailableStorageSpace()
     return [[dictionary objectForKey:NSFileSystemFreeSize] unsignedLongLongValue];
 }
 
+std::string getMovieFolderName()
+{
+    return "Movies";
+}
+
 std::string getUniqueIdentifier()
 {
     return [[[[UIDevice currentDevice] identifierForVendor] UUIDString] UTF8String];

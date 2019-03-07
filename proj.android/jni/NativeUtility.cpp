@@ -197,6 +197,19 @@ uint64_t getAvailableStorageSpace()
     return availableSpace;
 }
 
+std::string getMovieFolderName()
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "getMovieFolderName", "()Ljava/lang/String;");
+    CCAssert(functionExist, "Function doesn't exist");
+
+    jstring name = (jstring) minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID);
+    std::string folderName = JniHelper::jstring2string(name);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(name);
+    return folderName;
+}
+
 
 void copyResourceFileToLocal(const std::string& path)
 {

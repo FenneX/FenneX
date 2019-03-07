@@ -162,6 +162,11 @@ public class NativeUtility
     }
 
     @SuppressWarnings("unused")
+    public static String getMovieFolderName() {
+        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES).getName();
+    }
+
+    @SuppressWarnings("unused")
     public static boolean isPhone()
     {
     	boolean result = ((getMainActivity().getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) < Configuration.SCREENLAYOUT_SIZE_LARGE);

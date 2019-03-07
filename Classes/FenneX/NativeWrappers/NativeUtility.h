@@ -76,6 +76,9 @@ int getDeviceSDK();
 uint64_t getTotalStorageSpace();
 uint64_t getAvailableStorageSpace();
 
+//Return the movie folder name, without any "/", so that it can be displayed to client. Note: please do not use it on iOS, as there is no movie folder
+std::string getMovieFolderName();
+
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 void copyResourceFileToLocal(const std::string& path);
 #endif
