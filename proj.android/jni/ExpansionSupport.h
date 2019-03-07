@@ -69,9 +69,9 @@ static inline void notifyServiceConnected()
     DelayedDispatcher::eventAfterDelay("DownloadServiceConnected", Value(), 0.01);
 }
 
-static inline void notifyDownloadStateChanged(std::string status, int code, std::string translationKey)
+static inline void notifyDownloadStateChanged(std::string status, int code)
 {
-    DelayedDispatcher::eventAfterDelay("DownloadStateChanged", Value(ValueMap({{"Status", Value(status)}, {"Code", Value(code)}, {"TranslationKey", Value(translationKey)}})), 0.01);
+    DelayedDispatcher::eventAfterDelay("DownloadStateChanged", Value(ValueMap({{"Status", Value(status)}, {"Code", Value(code)}})), 0.01);
 }
 
 static inline void notifyDownloadCompleted()

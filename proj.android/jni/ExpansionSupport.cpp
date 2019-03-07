@@ -82,11 +82,10 @@ extern "C"
 	{
 		notifyServiceConnected();
 	}
-	void Java_com_fennex_modules_ExpansionSupport_notifyDownloadStateChanged(JNIEnv* env, jobject thiz, jstring status, jint code, jstring translationKey)
+	void Java_com_fennex_modules_ExpansionSupport_notifyDownloadStateChanged(JNIEnv* env, jobject thiz, jstring status, jint code)
 	{
 		std::string statusC = JniHelper::jstring2string(status);
-		std::string translationKeyC = JniHelper::jstring2string(translationKey);
-		notifyDownloadStateChanged(statusC, (int) code, translationKeyC);
+		notifyDownloadStateChanged(statusC, (int) code);
 	}
 	void Java_com_fennex_modules_ExpansionSupport_notifyDownloadCompleted(JNIEnv* env, jobject thiz)
 	{
