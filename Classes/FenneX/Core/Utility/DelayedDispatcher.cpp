@@ -51,6 +51,12 @@ void DelayedDispatcher::funcAfterDelay(std::function<void(EventCustom*)> func, V
     instance->funcs.push_back(FuncTuple(delay, func, userData, eventName));
 }
 
+void DelayedDispatcher::funcAfterDelay(std::function<void(cocos2d::EventCustom*)> func, float delay, std::string eventName)
+{
+    DelayedDispatcher* instance = getInstance();
+    instance->funcs.push_back(FuncTuple(delay, func, Value(), eventName));
+}
+
 bool DelayedDispatcher::cancelEvents(std::string eventName)
 {
     DelayedDispatcher* instance = getInstance();

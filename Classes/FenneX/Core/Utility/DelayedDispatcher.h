@@ -44,6 +44,7 @@ public:
     ~DelayedDispatcher();
     static void eventAfterDelay(std::string eventName, Value userData, float delay);
     static void funcAfterDelay(std::function<void(cocos2d::EventCustom*)> func, Value userData, float delay, std::string eventName="");
+    static void funcAfterDelay(std::function<void(cocos2d::EventCustom*)> func, float delay, std::string eventName="");
     //Return true if at least one was cancelled
     static bool cancelEvents(std::string eventName);
     static bool cancelFuncs(std::string eventName);
