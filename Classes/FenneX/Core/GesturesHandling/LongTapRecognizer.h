@@ -36,11 +36,11 @@ NS_FENNEX_BEGIN
 class LongTapDelegate
 {
 public:
-    virtual void LongTapRecognized(Touch* touch) = 0;
+    virtual void longTapRecognized(Touch* touch) = 0;
 };
 
 //Doesn't need to be updated
-// You need to subscribe to the recognizer by adding a delegate (it'll launch the LongTapRecognized method)
+// You need to subscribe to the recognizer by adding a delegate (it'll launch the longTapRecognized method)
 // A Long tap is longer than 2s
 class LongTapRecognizer : public DelegatingRecognizer<LongTapDelegate>
 {

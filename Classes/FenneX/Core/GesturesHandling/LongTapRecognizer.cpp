@@ -71,15 +71,15 @@ void LongTapRecognizer::onTouchEnded(Touch *touch, Event *pEvent)
     log("distance ? %s : real : %f", Scene::touchPosition(touch).getDistance(touchInitialPosition.at(touch->getID())) < 20 ? "yes" : "no", Scene::touchPosition(touch).getDistance(touchInitialPosition.at(touch->getID())));
     log("initial position : %f, %f, current : %f, %f", touchInitialPosition.at(touch->getID()).x, touchInitialPosition.at(touch->getID()).y, Scene::touchPosition(touch).x, Scene::touchPosition(touch).y);
 #endif
+    //Don't check if the touch is linked to an object, as it prevents drag + tap from working at the same time
     if(mainLinker != nullptr
-       //&& mainLinker->linkedObjectOf(touch) == nullptr //prevent drag + tap from working at the same time
        && touchStart.find(touch->getID()) != touchStart.end()
        && (TIME - touchStart.at(touch->getID())) >= 2.0
        && Scene::touchPosition(touch).getDistance(touchInitialPosition.at(touch->getID())) < 50 * RESOLUTION_MULTIPLIER)
     {
         for(LongTapDelegate* delegate : delegates)
         {
-            delegate->LongTapRecognized(touch);
+            delegate->longTapRecognized(touch);
         }
     }
     touchStart.erase(touch->getID());
