@@ -375,7 +375,7 @@ bool Image::generateScaledImage(std::string fileToScale, std::string fileToSave,
         return false;
     }
     //Make it async to avoid crash when already rendering
-    DelayedDispatcher::funcAfterDelay([fileToScale, fileToSave, scale, newTexture, format](EventCustom* event) {
+    DelayedDispatcher::funcAfterDelay([fileToScale, fileToSave, scale, newTexture, format]() {
         Sprite* image = Sprite::createWithTexture(newTexture);
         Size thumbnailSize = image->getContentSize() * scale;
         RenderTexture* thumbnail = RenderTexture::create(thumbnailSize.width, thumbnailSize.height);
@@ -399,7 +399,7 @@ bool Image::generateScaledImage(std::string fileToScale, std::string fileToSave,
                                   Value toSend = Value(ValueMap({{"Original", Value(fileToScale)}, {"Name", Value(fileSaveName)}}));
                                   Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ImageScaled", &toSend);
                               });
-    }, Value(), 0.01);
+    }, 0.01);
     return true;
 }
 NS_FENNEX_END

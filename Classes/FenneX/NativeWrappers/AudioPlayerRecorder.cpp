@@ -195,13 +195,13 @@ void AudioPlayerRecorder::onSoundEnded()
         else
         {
             interruptLoop = false;
-            DelayedDispatcher::funcAfterDelay([this](EventCustom* event)
+            DelayedDispatcher::funcAfterDelay([this]()
             {
                 if(!interruptLoop)
                 {
                     this->restart();
                 }
-            }, Value(), pauseBetween);
+            }, pauseBetween);
         }
         if(loops != -1)
         {

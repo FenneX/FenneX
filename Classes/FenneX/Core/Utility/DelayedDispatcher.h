@@ -33,7 +33,8 @@ USING_NS_CC;
 NS_FENNEX_BEGIN
 
 typedef std::tuple<float, std::string, Value> EventTuple;
-typedef std::tuple<float, std::function<void(cocos2d::EventCustom*)>, Value, std::string> FuncTuple;
+typedef std::tuple<float, std::function<void(cocos2d::EventCustom*)>, Value, std::string> FuncParamTuple;
+typedef std::tuple<float, std::function<void(void)>, std::string> FuncNoParamTuple;
 
 /* DelayedDispatcher works by attaching itself to current scene and monitoring updates.
  For retro-compatibility, it only works for current scene
@@ -44,7 +45,7 @@ public:
     ~DelayedDispatcher();
     static void eventAfterDelay(std::string eventName, Value userData, float delay);
     static void funcAfterDelay(std::function<void(cocos2d::EventCustom*)> func, Value userData, float delay, std::string eventName="");
-    static void funcAfterDelay(std::function<void(cocos2d::EventCustom*)> func, float delay, std::string eventName="");
+    static void funcAfterDelay(std::function<void()> func, float delay, std::string eventName="");
     //Return true if at least one was cancelled
     static bool cancelEvents(std::string eventName);
     static bool cancelFuncs(std::string eventName);
@@ -52,7 +53,8 @@ public:
 private:
     static DelayedDispatcher* getInstance();
     std::vector<EventTuple> events;
-    std::vector<FuncTuple> funcs;
+    std::vector<FuncParamTuple> funcsWithParam;
+    std::vector<FuncNoParamTuple> funcsWithoutParam;
 };
 
 NS_FENNEX_END

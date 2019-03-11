@@ -48,13 +48,13 @@ void DelayedDispatcher::eventAfterDelay(std::string eventName, Value userData, f
 void DelayedDispatcher::funcAfterDelay(std::function<void(EventCustom*)> func, Value userData, float delay, std::string eventName)
 {
     DelayedDispatcher* instance = getInstance();
-    instance->funcs.push_back(FuncTuple(delay, func, userData, eventName));
+    instance->funcsWithParam.push_back(FuncParamTuple(delay, func, userData, eventName));
 }
 
-void DelayedDispatcher::funcAfterDelay(std::function<void(cocos2d::EventCustom*)> func, float delay, std::string eventName)
+void DelayedDispatcher::funcAfterDelay(std::function<void(void)> func, float delay, std::string eventName)
 {
     DelayedDispatcher* instance = getInstance();
-    instance->funcs.push_back(FuncTuple(delay, func, Value(), eventName));
+    instance->funcsWithoutParam.push_back(FuncNoParamTuple(delay, func, eventName));
 }
 
 bool DelayedDispatcher::cancelEvents(std::string eventName)
@@ -69,15 +69,18 @@ bool DelayedDispatcher::cancelEvents(std::string eventName)
 bool DelayedDispatcher::cancelFuncs(std::string eventName)
 {
     DelayedDispatcher* instance = getInstance();
-    long before = instance->funcs.size();
+    long before = instance->funcsWithParam.size() + instance->funcsWithoutParam.size();
     if(before == 0) return false;
-    instance->funcs.erase(std::remove_if(instance->funcs.begin(), instance->funcs.end(), [&](const FuncTuple& tuple) { return std::get<3>(tuple) == eventName; }), instance->funcs.end());
-    return before != instance->funcs.size();
+    instance->funcsWithParam.erase(std::remove_if(instance->funcsWithParam.begin(), instance->funcsWithParam.end(), [&](const FuncParamTuple& tuple) { return std::get<3>(tuple) == eventName; }), instance->funcsWithParam.end());
+    instance->funcsWithoutParam.erase(std::remove_if(instance->funcsWithoutParam.begin(), instance->funcsWithoutParam.end(), [&](const FuncNoParamTuple& tuple) { return std::get<2>(tuple) == eventName; }), instance->funcsWithoutParam.end());
+    return before != instance->funcsWithParam.size() + instance->funcsWithoutParam.size();
 }
 
 void DelayedDispatcher::update(float deltaTime)
 {
     //Use a separate vector for calling, as called events can modify this vector
+    
+    //First, call events
     std::vector<EventTuple> eventsToCall;
     for(EventTuple& tuple : events)
     {
@@ -98,9 +101,10 @@ void DelayedDispatcher::update(float deltaTime)
     {
         events.erase(std::remove_if(events.begin(), events.end(), [](const EventTuple& tuple) { return std::get<0>(tuple) < 0; }), events.end());
     }
-    //Use a separate vector for calling, as called func can modify this vector
-    std::vector<FuncTuple> funcsToCall;
-    for(FuncTuple& tuple : funcs)
+    
+    //Then call funcs with param
+    std::vector<FuncParamTuple> funcsToCall;
+    for(FuncParamTuple& tuple : funcsWithParam)
     {
         std::get<0>(tuple) -= deltaTime;
         if(std::get<0>(tuple) < 0)
@@ -108,7 +112,7 @@ void DelayedDispatcher::update(float deltaTime)
             funcsToCall.push_back(tuple);
         }
     }
-    for(FuncTuple& tuple : funcsToCall)
+    for(FuncParamTuple& tuple : funcsToCall)
     {
         EventCustom* event = EventCustom::create(std::get<3>(tuple), &std::get<2>(tuple));
 #if VERBOSE_GENERAL_INFO
@@ -116,9 +120,31 @@ void DelayedDispatcher::update(float deltaTime)
 #endif
         std::get<1>(tuple)(event);
     }
-    if(funcs.size() > 0)
+    if(funcsWithParam.size() > 0)
     {
-        funcs.erase(std::remove_if(funcs.begin(), funcs.end(), [](const FuncTuple& tuple) { return std::get<0>(tuple) < 0; }), funcs.end());
+        funcsWithParam.erase(std::remove_if(funcsWithParam.begin(), funcsWithParam.end(), [](const FuncParamTuple& tuple) { return std::get<0>(tuple) < 0; }), funcsWithParam.end());
+    }
+    
+    //Last, call funcs without param
+    std::vector<FuncNoParamTuple> funcsToCallNoParam;
+    for(FuncNoParamTuple& tuple : funcsWithoutParam)
+    {
+        std::get<0>(tuple) -= deltaTime;
+        if(std::get<0>(tuple) < 0)
+        {
+            funcsToCallNoParam.push_back(tuple);
+        }
+    }
+    for(FuncNoParamTuple& tuple : funcsToCallNoParam)
+    {
+#if VERBOSE_GENERAL_INFO
+        log("Launching func named %s", std::get<2>(tuple).c_str());
+#endif
+        std::get<1>(tuple)();
+    }
+    if(funcsWithoutParam.size() > 0)
+    {
+        funcsWithoutParam.erase(std::remove_if(funcsWithoutParam.begin(), funcsWithoutParam.end(), [](const FuncNoParamTuple& tuple) { return std::get<0>(tuple) < 0; }), funcsWithoutParam.end());
     }
 }
 
