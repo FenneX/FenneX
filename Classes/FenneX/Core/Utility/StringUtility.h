@@ -57,7 +57,8 @@ long utf8_len( const std::string& s);
 std::vector<std::string> split(const std::string& s, char seperator);
 
 // Format string, code from https://stackoverflow.com/questions/2342162/stdstring-formatting-like-sprintf
-std::string string_format(const std::string fmt, ...);
+std::string string_format(const std::string to_format, ...);
+std::string vstring_format(const std::string to_format, va_list args);
 
 // Return a new String with all oldWord occurence from the baseString changed to newWord
 std::string replaceWord(const std::string& baseString, const std::string& oldWord, const std::string& newWord);
