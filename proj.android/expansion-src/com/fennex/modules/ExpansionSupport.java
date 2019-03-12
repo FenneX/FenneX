@@ -303,6 +303,7 @@ public class ExpansionSupport extends DownloaderService implements ActivityObser
 	    notifyServiceConnected();
 	}
 
+	//Those values are used by C++ code, and thus must not change
     private static final int IDLE = -1;
 	private static final int CONNECTING = 1;
     private static final int DOWNLOADING = 2;

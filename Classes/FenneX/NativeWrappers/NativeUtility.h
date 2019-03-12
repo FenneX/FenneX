@@ -159,7 +159,20 @@ static inline void notifyUrlOpened(std::string url)
     DelayedDispatcher::eventAfterDelay("UrlOpened", Value(ValueMap({{"Url", Value(url.c_str())}})), 0.01);
 }
 
-//Allow app to define how String displayed to user by native modules will be translated
+/**
+ Allow app to define how String displayed to user by native modules will be translated.
+ Here is the list of all string that need to be translated:
+ * "TooManyAppsLaunched" => There are too many apps executing. User should quit some apps.
+ * "PleaseRetrySoon" => Something failed, user should retry soon.
+ * "ImageTooLarge" => Image selected by user cannot be read because it is too large.
+ * "NoMailClient" => The device doesn't have any mail client available.
+ * "CantCopyMailAttachment" => The attachment couldn't be copied to a public location for the mail client.
+ * "CantCopyVideo" => The video cannot be copied in public Movies folder.
+ * "CantUseCamera" => Cannot use the camera. It is used by another app, or there is no camera
+ * "VideoRecordingMaxDuration" => Max duration for video recording reached (configured to 1 hour). The video was saved.
+ * "VideoRecordingMaxFilesize" => Max file size for video recording reached (configured to 1Go). The video was saved.
+ * "VideoRecordingError" => Error while trying to record a video.
+*/
 void setNativeStringConverter(std::function<std::string(const std::string&)> converter);
 
 //Internal-use function for native modules. Provide a key, get a translated string
