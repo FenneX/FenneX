@@ -85,7 +85,7 @@ public:
     InputLabel* createInputLabelFromScale9Sprite(ui::Scale9Sprite* cocosSprite, Panel* parent);
     
     Panel* createPanel(std::string name, ValueMap values);
-    Panel* createPanelFromNode(Node* cocosNode, Panel* parent);
+    Panel* createPanelFromNode(std::string file, Node* cocosNode, Panel* parent);
     //Special case : when you want the panel to be the host for a .ccbi file, the Node is already created
     Panel* createPanelWithNode(std::string name, Node* panelNode, int zOrder = 0);
     
