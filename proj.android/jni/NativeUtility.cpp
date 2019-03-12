@@ -290,6 +290,19 @@ std::string formatDateTime(time_t dateTime)
     return dateTimeString;
 }
 
+std::string formatDurationShort(int seconds)
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "formatDurationShort", "(I)Ljava/lang/String;");
+    CCAssert(functionExist, "Function doesn't exist");
+
+    jstring result = (jstring) minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID, (jint)seconds);
+    std::string dateTimeString = JniHelper::jstring2string(result);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(result);
+    return dateTimeString;
+}
+
 float getDeviceVolume()
 {
     JniMethodInfo minfo;

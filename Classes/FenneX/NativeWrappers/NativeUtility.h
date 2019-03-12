@@ -103,6 +103,8 @@ void runGarbageCollector();
 std::string formatDate(time_t date);
 //will format the date in long format (example: November 23, 1937) and time in short format (example: 3:30 PM) according to user local
 std::string formatDateTime(time_t date);
+//Will format a duration in seconds into hours/minutes/seconds displayable to user (example: 1h 5m 20s on iOS, 1:05:20 on Android)
+std::string formatDurationShort(int seconds);
 
 //Return a float between 0.0 (muted) and 1.0 (full volume)
 float getDeviceVolume();

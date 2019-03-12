@@ -251,6 +251,15 @@ std::string formatDateTime(time_t date)
     return std::string([result UTF8String]);
 }
 
+std::string formatDurationShort(int seconds)
+{
+    NSDateComponentsFormatter* formatter = [[[NSDateComponentsFormatter alloc] init] autorelease];
+    formatter.allowedUnits = NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
+    formatter.unitsStyle = NSDateComponentsFormatterUnitsStyleAbbreviated;
+    formatter.zeroFormattingBehavior = NSDateComponentsFormatterZeroFormattingBehaviorDefault;
+    return std::string([[formatter stringFromTimeInterval:seconds] UTF8String]);
+}
+
 //Ignore the deprecations about "volume" and "setVolume".
 //There is no proper replacement, the suggestion to use MPVolumeView is bad, as we don't want a view there
 #pragma GCC diagnostic push

@@ -275,6 +275,12 @@ public class NativeUtility
     }
 
     @SuppressWarnings("unused")
+    public static String formatDurationShort(int seconds)
+    {
+        return DateFormat.getTimeInstance(DateFormat.MEDIUM).format(seconds * 1000);
+    }
+
+    @SuppressWarnings("unused")
     public static float getDeviceVolume()
     {
     	AudioManager mAudioManager = (AudioManager) getMainActivity().getSystemService(Context.AUDIO_SERVICE);
