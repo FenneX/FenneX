@@ -120,7 +120,7 @@ LabelTTF::LabelTTF(std::string labelString, std::string filename, Vec2 position,
 loadingValue("")
 {
     name = labelString;
-    fitType = ResizeFont;
+    fitType = CutEnd;
     fontFile = filename;
     fullFontFile = filename;
     this->alignment = alignment;
@@ -165,7 +165,7 @@ LabelTTF::LabelTTF(Label* label) :
 loadingValue("")
 {
     name = label->getString();
-    fitType = ResizeFont;
+    fitType = CutEnd;
     fontFile = label->getSystemFontName();
     alignment = TextHAlignment::CENTER;
     realDimensions = label->getDimensions();
@@ -256,9 +256,9 @@ void LabelTTF::adjustLabel()
         }
         if(wasChanged && fitType == CutEnd)
         {
-            //TODO : refactor to compute the size with 3 '.' instead of just replacing the 3 last characters
+            //TODO : refactor to compute the size with '.' instead of just replacing the last character
             std::string value = delegate->getString();
-            value = utf8_substr(value, 0, utf8_len(value) - 3).append("...");
+            value = utf8_substr(value, 0, utf8_len(value) - 3).append(".");
             delegate->setString(value.c_str());
         }
     }

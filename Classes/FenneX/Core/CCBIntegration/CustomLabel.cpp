@@ -42,6 +42,7 @@ bool CustomLabel::onAssignCCBCustomProperty(Ref* pTarget, const char* pMemberVar
 
 bool CustomLabel::init()
 {
+    fitType = CutEnd;
     return true;
 }
 NS_FENNEX_END

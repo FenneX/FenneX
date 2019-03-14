@@ -33,8 +33,8 @@ USING_NS_CC;
 NS_FENNEX_BEGIN
 typedef enum
 {
-    ResizeFont = 0,//Default mode
-    CutEnd = 1,
+    ResizeFont = 0,
+    CutEnd = 1, //Default mode
     NoResize = 2
 }LabelFitType;
 
