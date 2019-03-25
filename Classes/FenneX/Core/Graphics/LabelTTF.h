@@ -79,6 +79,8 @@ protected:
     TextHAlignment alignment;
     
     std::string loadingValue;
+    
+    void updateFullFontFile();
 };
 NS_FENNEX_END
 

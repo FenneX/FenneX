@@ -98,16 +98,14 @@ float LabelTTF::getFontSize()
 void LabelTTF::setFontSize(float size)
 {
     delegate->setSystemFontSize(size);
-    /*TTFConfig newConfig = delegate->getTTFConfig();
-    newConfig.fontSize = size;
-    delegate->setTTFConfig(newConfig);*/
+    updateFullFontFile();
 }
 
 void LabelTTF::setFont(std::string filename)
 {
     fontFile = filename;
-    fullFontFile = filename;
     delegate->setSystemFontName(filename);
+    updateFullFontFile();
 }
 
 LabelTTF::LabelTTF() :
@@ -121,10 +119,8 @@ loadingValue("")
 {
     name = labelString;
     fitType = CutEnd;
-    fontFile = filename;
-    fullFontFile = filename;
     this->alignment = alignment;
-    int sizeBegin = -1, sizeEnd = -1;
+    int sizeBegin = -1, sizeEnd = -1, colorEnd = -1;
     for(int i = 0; i < filename.size(); i++)
     {
         bool isNumber = filename[i] >= '0' && filename[i] <= '9';
@@ -139,10 +135,10 @@ loadingValue("")
     }
     if(sizeEnd == -1 || sizeBegin == -1)
     {
-        log("LabelTTF : incorrect font formating, use : FontnameSizeColor");
+        log("LabelTTF : incorrect font formating, use : FontnameSizeColor. You tried %s", filename.c_str());
         return;
     }
-    std::string fontFile = filename.substr(sizeBegin);
+    fontFile = filename.substr(0, sizeBegin);
     std::string fontSize = filename.substr(sizeBegin, sizeEnd - sizeBegin);
     std::string color = filename.substr(sizeEnd);
     if(FileUtils::getInstance()->isFileExist(fontFile))
@@ -155,6 +151,7 @@ loadingValue("")
     delegate->setHorizontalAlignment(alignment);
     Color3B color3B = color == "Gray" ? Color3B::GRAY : color == "White" ? Color3B::WHITE : Color3B::BLACK;
     delegate->setColor(color3B);
+    updateFullFontFile();
     realDimensions = dimensions;
     delegate->setDimensions(realDimensions.width / this->getScale(), 0);
     //delegate->enableUpdate(true);
@@ -171,10 +168,7 @@ loadingValue("")
     realDimensions = label->getDimensions();
     delegate = label;
     label->retain();
-    fullFontFile = label->getSystemFontName() +
-        std::to_string((int)label->getSystemFontSize()) +
-        (isColorEqual(label->getColor() , Color3B::BLACK) ? "Black"
-         : isColorEqual(label->getColor() , Color3B::WHITE) ? "White" : "Gray");
+    updateFullFontFile();
     CustomLabel* customLabel = dynamic_cast<CustomLabel*>(label);
     if(customLabel != nullptr)
     {
@@ -282,4 +276,12 @@ TextHAlignment LabelTTF::getAlignment()
 {
     return delegate->getHorizontalAlignment();
 }
+
+void LabelTTF::updateFullFontFile()
+{
+    fullFontFile = fontFile + std::to_string((int)delegate->getSystemFontSize()) +
+    (isColorEqual(delegate->getColor() , Color3B::BLACK) ? "Black"
+     : isColorEqual(delegate->getColor() , Color3B::WHITE) ? "White" : "Gray");
+}
+
 NS_FENNEX_END
