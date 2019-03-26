@@ -50,6 +50,9 @@ public:
      Methods to create objects
      *********************************************************************************/
     
+    // Optional callback to be informed of all objects created and apply bulk modification
+    static void setOnObjectCreated(std::function<void(RawObject*)> callback);
+    
     /*
      Optional values for all objects :
      - X (float) default 0

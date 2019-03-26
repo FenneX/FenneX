@@ -33,6 +33,8 @@ NS_FENNEX_BEGIN
 // singleton stuff
 static GraphicLayer *s_SharedLayer = nullptr;
 
+static std::function<void(RawObject*)> onObjectCreated = nullptr;
+
 GraphicLayer* GraphicLayer::sharedLayer(void)
 {
     if (!s_SharedLayer)
@@ -42,6 +44,11 @@ GraphicLayer* GraphicLayer::sharedLayer(void)
     }
     
     return s_SharedLayer;
+}
+
+void GraphicLayer::setOnObjectCreated(std::function<void(RawObject*)> callback)
+{
+    onObjectCreated = callback;
 }
 
 void GraphicLayer::init()
@@ -146,6 +153,7 @@ Image* GraphicLayer::createImage(std::string imageFile, ValueMap values)
 #if VERBOSE_LOAD_CCB
     log("Ended creating Image");
 #endif
+    IFEXIST(onObjectCreated)(obj);
     return obj;
 }
 
@@ -170,6 +178,7 @@ Image* GraphicLayer::createAnimatedImage(std::string spriteSheetFile, int capaci
 #if VERBOSE_LOAD_CCB
     log("Ended creating animated Image");
 #endif
+    IFEXIST(onObjectCreated)(obj);
     return obj;
 }
 
@@ -187,6 +196,7 @@ Image* GraphicLayer::createImageFromSprite(Sprite* sprite, Panel* parent)
         obj->release();
     }
     this->loadBaseNodeAttributes(dynamic_cast<CustomBaseNode*>(sprite), obj);
+    IFEXIST(onObjectCreated)(obj);
     return obj;
 }
 
@@ -211,6 +221,7 @@ CustomObject* GraphicLayer::createCustomObject(Node* delegate, ValueMap values)
 #if VERBOSE_LOAD_CCB
     log("Ended creating CustomObject");
 #endif
+    IFEXIST(onObjectCreated)(obj);
     return obj;
 }
 
@@ -228,6 +239,7 @@ CustomObject* GraphicLayer::createCustomObjectFromNode(Node* node, Panel* parent
         obj->release();
     }
     this->loadBaseNodeAttributes(dynamic_cast<CustomBaseNode*>(node), obj);
+    IFEXIST(onObjectCreated)(obj);
     return obj;
 }
 
@@ -271,6 +283,7 @@ LabelTTF* GraphicLayer::createLabelTTF(std::string label, std::string fontFile, 
 #if VERBOSE_LOAD_CCB
     log("Ended creating LabelTTF");
 #endif
+    IFEXIST(onObjectCreated)(obj);
     return obj;
 }
 
@@ -288,6 +301,7 @@ LabelTTF* GraphicLayer::createLabelTTFromLabel(Label* cocosLabel, Panel* parent)
         obj->release();
     }
     this->loadBaseNodeAttributes(dynamic_cast<CustomBaseNode*>(cocosLabel), obj);
+    IFEXIST(onObjectCreated)(obj);
     return obj;
 }
 
@@ -311,6 +325,7 @@ InputLabel* GraphicLayer::createInputLabelFromScale9Sprite(ui::Scale9Sprite* coc
     }
     this->loadBaseNodeAttributes(dynamic_cast<CustomBaseNode*>(cocosSprite), obj);
     
+    IFEXIST(onObjectCreated)(obj);
     return obj;
 }
 
@@ -336,6 +351,7 @@ Panel* GraphicLayer::createPanel(std::string name, ValueMap values)
 #if VERBOSE_LOAD_CCB
     log("Ended creating Panel");
 #endif
+    IFEXIST(onObjectCreated)(obj);
     return obj;
 }
 
@@ -355,6 +371,7 @@ Panel* GraphicLayer::createPanelFromNode(std::string file, Node* cocosNode, Pane
     }
     this->loadBaseNodeAttributes(dynamic_cast<CustomBaseNode*>(cocosNode), obj);
     loadNodeToFenneX(file, obj->getNode(), obj);
+    IFEXIST(onObjectCreated)(obj);
     return obj;
 }
 
@@ -366,6 +383,7 @@ Panel* GraphicLayer::createPanelWithNode(std::string name, Node* panelNode, int 
         this->addObject(obj, zOrder);
         obj->release();
     }
+    IFEXIST(onObjectCreated)(obj);
     return obj;
 }
 
@@ -383,6 +401,7 @@ DropDownList* GraphicLayer::createDropDownListFromSprite(Sprite* sprite, Panel* 
         obj->release();
     }
     this->loadBaseNodeAttributes(dynamic_cast<CustomBaseNode*>(sprite), obj);
+    IFEXIST(onObjectCreated)(obj);
     return obj;
 }
 
@@ -471,6 +490,7 @@ RawObject* GraphicLayer::duplicateObject(RawObject* otherObject)
         }
         if(needLink) linkInputLabels();
     }
+    IFEXIST(onObjectCreated)(obj);
     return obj;
 }
 
