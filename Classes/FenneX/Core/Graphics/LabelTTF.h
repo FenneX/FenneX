@@ -43,11 +43,11 @@ class LabelTTF : public RawObject
     CC_SYNTHESIZE(LabelFitType, fitType, FitType);
 public:
     cocos2d::Rect getBoundingBox();
-    const char* getLabelValue();
+    std::string getLabelValue();
     void setLabelValue(std::string value, bool async = false);
     
     //will return only the font name
-    const char* getFontFile();
+    std::string getFontFile();
     float getFontSize();
     void setFontSize(float size);
     void setFont(std::string filename);

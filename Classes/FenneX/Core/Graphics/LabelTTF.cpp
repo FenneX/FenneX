@@ -79,14 +79,14 @@ void LabelTTF::setLabelValue(std::string value, bool async)
     }
 }
 
-const char* LabelTTF::getLabelValue()
+std::string LabelTTF::getLabelValue()
 {
-    return delegate->getString().c_str();
+    return delegate->getString();
 }
 
-const char* LabelTTF::getFontFile()
+std::string LabelTTF::getFontFile()
 {
-    return fontFile.c_str();
+    return fontFile;
 }
 
 float LabelTTF::getFontSize()
