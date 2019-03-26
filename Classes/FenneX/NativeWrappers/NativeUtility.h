@@ -101,8 +101,17 @@ void runGarbageCollector();
 
 //will format the date in short format (example : 9/8/2010) according user local
 std::string formatDate(time_t date);
-//will format the date in long format (example: November 23, 1937) and time in short format (example: 3:30 PM) according to user local
-std::string formatDateTime(time_t date);
+
+enum class DateFormat
+{
+    NONE, // Won't show anything
+    SHORT, // 12.13.52 or 3:30pm
+    MEDIUM, // Jan 12, 1952
+    LONG, // January 12, 1952 or 3:30:32pm
+    FULL, // Tuesday, April 12, 1952 AD or 3:30:42pm PST
+};
+// Will format the date depending on the DateFormat parameters
+std::string formatDateTime(time_t date, DateFormat dayFormat = DateFormat::LONG, DateFormat hourFormat = DateFormat::SHORT);
 //Will format a duration in seconds into hours/minutes/seconds displayable to user (example: 1h 5m 20s on iOS, 1:05:20 on Android)
 std::string formatDurationShort(int seconds);
 

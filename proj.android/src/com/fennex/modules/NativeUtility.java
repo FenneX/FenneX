@@ -268,16 +268,60 @@ public class NativeUtility
     }
 
     @SuppressWarnings("unused")
-    public static String formatDateTime(long dateTime)
+    public static String formatDateTime(long dateTime, int dayFormat, int hourFormat)
     {
         Date toConvert = new Date(dateTime * 1000);
-        return DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(toConvert);
+        int dayFormatInfo = -1;
+        int hourFormatInfo = -1;
+        switch (dayFormat)
+        {
+            case 1: // SHORT
+                dayFormatInfo = DateFormat.SHORT;
+                break;
+            case 2: // MEDIUM
+                dayFormatInfo = DateFormat.MEDIUM;
+                break;
+            case 3: // LONG
+                dayFormatInfo = DateFormat.LONG;
+                break;
+            case 4: // FULL
+                dayFormatInfo = DateFormat.FULL;
+                break;
+        }
+        switch (hourFormat)
+        {
+            case 1: // SHORT
+                hourFormatInfo = DateFormat.SHORT;
+                break;
+            case 2: // MEDIUM
+                hourFormatInfo = DateFormat.MEDIUM;
+                break;
+            case 3: // LONG
+                hourFormatInfo = DateFormat.LONG;
+                break;
+            case 4: // FULL
+                hourFormatInfo = DateFormat.FULL;
+                break;
+        }
+        if(dayFormatInfo != -1 && hourFormatInfo != -1)
+        {
+            return DateFormat.getDateTimeInstance(dayFormatInfo, hourFormatInfo).format(toConvert);
+        }
+        else if(dayFormatInfo != -1)
+        {
+            return DateFormat.getDateInstance(dayFormatInfo).format(toConvert);
+        }
+        else if(hourFormatInfo != -1)
+        {
+            return DateFormat.getTimeInstance(hourFormatInfo).format(toConvert);
+        }
+        return "";
     }
 
     @SuppressWarnings("unused")
     public static String formatDurationShort(int seconds)
     {
-        return DateFormat.getTimeInstance(DateFormat.MEDIUM).format(seconds * 1000);
+        return DateFormat.getTimeInstance(DateFormat.SHORT).format(seconds * 1000);
     }
 
     @SuppressWarnings("unused")

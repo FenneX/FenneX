@@ -277,13 +277,13 @@ std::string formatDate(time_t date)
     return dateString;
 }
 
-std::string formatDateTime(time_t dateTime)
+std::string formatDateTime(time_t dateTime, DateFormat dayFormat, DateFormat hourFormat)
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "formatDateTime", "(J)Ljava/lang/String;");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "formatDateTime", "(JII)Ljava/lang/String;");
     CCAssert(functionExist, "Function doesn't exist");
 
-    jstring result = (jstring) minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID, (jlong)dateTime);
+    jstring result = (jstring) minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID, (jlong)dateTime, (jint)dayFormat, (jint)hourFormat);
     std::string dateTimeString = JniHelper::jstring2string(result);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(result);
