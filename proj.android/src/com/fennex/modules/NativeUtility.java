@@ -267,42 +267,28 @@ public class NativeUtility
         return DateFormat.getDateInstance(DateFormat.SHORT).format(toConvert);
     }
 
+    private static int getDateFormat(int nativeFormat)
+    {
+        switch (nativeFormat)
+        {
+            case 1: // SHORT
+                return DateFormat.SHORT;
+            case 2: // MEDIUM
+                return DateFormat.MEDIUM;
+            case 3: // LONG
+                return DateFormat.LONG;
+            case 4: // FULL
+                return DateFormat.FULL;
+        }
+        return -1;
+    }
+
     @SuppressWarnings("unused")
     public static String formatDateTime(long dateTime, int dayFormat, int hourFormat)
     {
         Date toConvert = new Date(dateTime * 1000);
-        int dayFormatInfo = -1;
-        int hourFormatInfo = -1;
-        switch (dayFormat)
-        {
-            case 1: // SHORT
-                dayFormatInfo = DateFormat.SHORT;
-                break;
-            case 2: // MEDIUM
-                dayFormatInfo = DateFormat.MEDIUM;
-                break;
-            case 3: // LONG
-                dayFormatInfo = DateFormat.LONG;
-                break;
-            case 4: // FULL
-                dayFormatInfo = DateFormat.FULL;
-                break;
-        }
-        switch (hourFormat)
-        {
-            case 1: // SHORT
-                hourFormatInfo = DateFormat.SHORT;
-                break;
-            case 2: // MEDIUM
-                hourFormatInfo = DateFormat.MEDIUM;
-                break;
-            case 3: // LONG
-                hourFormatInfo = DateFormat.LONG;
-                break;
-            case 4: // FULL
-                hourFormatInfo = DateFormat.FULL;
-                break;
-        }
+        int dayFormatInfo = getDateFormat(dayFormat);
+        int hourFormatInfo = getDateFormat(hourFormat);
         if(dayFormatInfo != -1 && hourFormatInfo != -1)
         {
             return DateFormat.getDateTimeInstance(dayFormatInfo, hourFormatInfo).format(toConvert);

@@ -237,51 +237,32 @@ std::string formatDate(time_t date)
     return std::string([result UTF8String]);
 }
 
+NSDateFormatterStyle dateFormatToFormatterStyle(DateFormat format)
+{
+    switch (format)
+    {
+        case DateFormat::SHORT:
+            return NSDateFormatterShortStyle;
+        case DateFormat::MEDIUM:
+            return NSDateFormatterMediumStyle;
+        case DateFormat::LONG:
+            return NSDateFormatterLongStyle;
+        case DateFormat::FULL:
+            return NSDateFormatterFullStyle;
+        case DateFormat::NONE:
+        default:
+            return NSDateFormatterNoStyle;
+    }
+}
+
 //will format the date in long format (example: November 23, 1937) and time in short format (example: 3:30 PM) according to user local
 std::string formatDateTime(time_t date, DateFormat dayFormat, DateFormat hourFormat)
 {
     NSDate *nsdate = [NSDate dateWithTimeIntervalSince1970:date];//"yyyy/MM/dd"
     NSDateFormatter *formatter = [[[NSDateFormatter alloc] init] autorelease];
     
-    switch (dayFormat)
-    {
-        case DateFormat::SHORT:
-            [formatter setDateStyle:NSDateFormatterShortStyle];
-            break;
-        case DateFormat::MEDIUM:
-            [formatter setDateStyle:NSDateFormatterMediumStyle];
-            break;
-        case DateFormat::LONG:
-            [formatter setDateStyle:NSDateFormatterLongStyle];
-            break;
-        case DateFormat::FULL:
-            [formatter setDateStyle:NSDateFormatterFullStyle];
-            break;
-        case DateFormat::NONE:
-        default:
-            [formatter setDateStyle:NSDateFormatterNoStyle];
-            break;
-    }
-
-    switch (hourFormat)
-    {
-        case DateFormat::SHORT:
-            [formatter setTimeStyle:NSDateFormatterShortStyle];
-            break;
-        case DateFormat::MEDIUM:
-            [formatter setTimeStyle:NSDateFormatterMediumStyle];
-            break;
-        case DateFormat::LONG:
-            [formatter setTimeStyle:NSDateFormatterLongStyle];
-            break;
-        case DateFormat::FULL:
-            [formatter setTimeStyle:NSDateFormatterFullStyle];
-            break;
-        case DateFormat::NONE:
-        default:
-            [formatter setTimeStyle:NSDateFormatterNoStyle];
-            break;
-    }
+    [formatter setDateStyle:dateFormatToFormatterStyle(dayFormat)];
+    [formatter setTimeStyle:dateFormatToFormatterStyle(hourFormat)];
     
     NSString *result = [formatter stringForObjectValue:nsdate];
     return std::string([result UTF8String]);
