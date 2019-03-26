@@ -565,6 +565,7 @@ public:
         , _fontAlpha(255)
         , _enableWrap(true)
         , _overflow(0)
+        , _lineSpacing(1.0f)
     {}
 
     /// font name
@@ -592,6 +593,8 @@ public:
      * For more information, please refer to Label::Overflow enum class.
      */
     int                  _overflow;
+    /// CUSTOM ADDITION: line spacing
+    float                _lineSpacing;
 };
 
 /**

@@ -1072,7 +1072,7 @@ Texture2D::PixelFormat Texture2D::convertDataToFormat(const unsigned char* data,
 }
 
 // implementation Texture2D (Text)
-bool Texture2D::initWithString(const char *text, const std::string& fontName, float fontSize, const Size& dimensions/* = Size(0, 0)*/, TextHAlignment hAlignment/* =  TextHAlignment::CENTER */, TextVAlignment vAlignment/* =  TextVAlignment::TOP */, bool enableWrap /* = false */, int overflow /* = 0 */)
+bool Texture2D::initWithString(const char *text, const std::string& fontName, float fontSize, const Size& dimensions/* = Size(0, 0)*/, TextHAlignment hAlignment/* =  TextHAlignment::CENTER */, TextVAlignment vAlignment/* =  TextVAlignment::TOP */, bool enableWrap /* = false */, int overflow /* = 0 */, float lineSpacing /* = 1.0 */)
 {
     FontDefinition tempDef;
     
@@ -1088,6 +1088,7 @@ bool Texture2D::initWithString(const char *text, const std::string& fontName, fl
     tempDef._fontFillColor = Color3B::WHITE;
     tempDef._enableWrap    = enableWrap;
     tempDef._overflow      = overflow;
+    tempDef._lineSpacing   = lineSpacing;
 
     return initWithString(text, tempDef);
 }

@@ -487,7 +487,7 @@ void Label::reset()
     }
     _additionalKerning = 0.f;
     _lineHeight = 0.f;
-    _lineSpacing = 0.f;
+    _lineSpacing = 1.0f;
     _maxLineWidth = 0.f;
     _labelDimensions.width = 0.f;
     _labelDimensions.height = 0.f;
@@ -2083,6 +2083,7 @@ FontDefinition Label::_getFontDefinition() const
     systemFontDef._shadow._shadowEnabled = false;
     systemFontDef._enableWrap = _enableWrap;
     systemFontDef._overflow = (int)_overflow;
+    systemFontDef._lineSpacing = _lineSpacing;
 
     if (_currLabelEffect == LabelEffect::OUTLINE && _outlineSize > 0.f)
     {

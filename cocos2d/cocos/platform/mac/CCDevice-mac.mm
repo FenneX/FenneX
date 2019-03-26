@@ -235,7 +235,7 @@ static CGFloat _calculateTextDrawStartHeight(cocos2d::Device::TextAlign align, C
     return startH;
 }
 
-static bool _initWithString(const char * text, Device::TextAlign align, const char * fontName, int size, tImageInfo* info, const Color3B* fontColor, int fontAlpha, bool enableWrap, int overflow)
+static bool _initWithString(const char * text, Device::TextAlign align, const char * fontName, int size, tImageInfo* info, const Color3B* fontColor, int fontAlpha, bool enableWrap, int overflow, const float lineSpacing)
 {
     bool ret = false;
     
@@ -264,6 +264,7 @@ static bool _initWithString(const char * text, Device::TextAlign align, const ch
         NSTextAlignment textAlign = FontUtils::_calculateTextAlignment(align);
         
         NSMutableParagraphStyle *paragraphStyle = FontUtils::_calculateParagraphStyle(enableWrap, overflow);
+        [paragraphStyle setLineHeightMultiple:lineSpacing];
         [paragraphStyle setAlignment:textAlign];
         
         // attribute
@@ -346,7 +347,7 @@ Data Device::getTextureDataForText(const char * text, const FontDefinition& text
         info.width = textDefinition._dimensions.width;
         info.height = textDefinition._dimensions.height;
         
-        if (! _initWithString(text, align, textDefinition._fontName.c_str(), textDefinition._fontSize, &info, &textDefinition._fontFillColor, textDefinition._fontAlpha, textDefinition._enableWrap, textDefinition._overflow))
+        if (! _initWithString(text, align, textDefinition._fontName.c_str(), textDefinition._fontSize, &info, &textDefinition._fontFillColor, textDefinition._fontAlpha, textDefinition._enableWrap, textDefinition._overflow, textDefinition._lineSpacing))
         {
             break;
         }

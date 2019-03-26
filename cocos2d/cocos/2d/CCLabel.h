@@ -548,6 +548,9 @@ public:
      */
     float getLineHeight() const;
 
+    /**
+     * CUSTOM MODIF: supported on iOS, Mac (not tested) and Android
+     */
     void setLineSpacing(float height);
     float getLineSpacing() const;
 

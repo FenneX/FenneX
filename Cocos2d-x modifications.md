@@ -128,3 +128,4 @@ Cocos2d-x V3.16 Modifications
 * cocos/network/HttpClient/HttpRequest => add support for PATCH requests
 * cocos/network/CCDownloader => add support for Authorization header
 * cocos/network/CCDownloader-apple.mm => fix error response to use statusCode instead of 0
+* cocos2D/cocos/2d/CCLabel.h/.cpp (and other supporting files including CCDevice) => add support for lineSpacing on systemFont

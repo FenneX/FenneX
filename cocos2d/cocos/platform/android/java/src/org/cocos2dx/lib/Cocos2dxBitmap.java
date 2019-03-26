@@ -100,7 +100,7 @@ public final class Cocos2dxBitmap {
         return (int)Math.floor(lineCount * actualHeight);
     }
 
-    public static Typeface calculateShrinkTypeFace(String text, int width, int height, Layout.Alignment hAlignment, float textSize, TextPaint paint, boolean enableWrap)
+    public static Typeface calculateShrinkTypeFace(String text, int width, int height, Layout.Alignment hAlignment, float textSize, TextPaint paint, boolean enableWrap, float lineSpacing)
     {
         if (width == 0 || height == 0) {
             return  paint.getTypeface();
@@ -126,7 +126,7 @@ public final class Cocos2dxBitmap {
             while (actualHeight > height || actualWidth > width) {
                 fontSize = fontSize - 1;
 
-                Layout layout = new StaticLayout(text, paint, (int) width, hAlignment,1.0f,0.0f,false);
+                Layout layout = new StaticLayout(text, paint, (int) width, hAlignment, lineSpacing,0.0f,false);
                 actualWidth = layout.getWidth();
                 actualHeight = layout.getLineTop(layout.getLineCount());
 
@@ -146,7 +146,7 @@ public final class Cocos2dxBitmap {
                                                     int fontTintR, int fontTintG, int fontTintB, int fontTintA,
                                                     int alignment, int width, int height, 
                                                     boolean shadow, float shadowDX, float shadowDY, float shadowBlur, float shadowOpacity, 
-                                                    boolean stroke, int strokeR, int strokeG, int strokeB, int strokeA, float strokeSize, boolean enableWrap, int overflow) {
+                                                    boolean stroke, int strokeR, int strokeG, int strokeB, int strokeA, float strokeSize, boolean enableWrap, int overflow, float lineSpacing) {
         String string;
         if (bytes == null || bytes.length == 0) {
           return false;
@@ -189,12 +189,12 @@ public final class Cocos2dxBitmap {
 
         if (overflow == 1 && !enableWrap){
             int widthBoundary = (int)Math.ceil( StaticLayout.getDesiredWidth(string, paint));
-            layout = new StaticLayout(string, paint, widthBoundary , hAlignment,1.0f,0.0f,false);
+            layout = new StaticLayout(string, paint, widthBoundary , hAlignment, lineSpacing,0.0f,false);
         }else {
             if (overflow == 2) {
-                calculateShrinkTypeFace(string, width, height, hAlignment, fontSize, paint, enableWrap);
+                calculateShrinkTypeFace(string, width, height, hAlignment, fontSize, paint, enableWrap, lineSpacing);
             }
-            layout = new StaticLayout(string, paint, maxWidth , hAlignment,1.0f,0.0f,false);
+            layout = new StaticLayout(string, paint, maxWidth , hAlignment, lineSpacing,0.0f,false);
         }
 
         layoutWidth = layout.getWidth();

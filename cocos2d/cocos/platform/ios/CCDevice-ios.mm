@@ -390,7 +390,7 @@ static id _createSystemFont( const char * fontName, int size)
     return font;
 }
 
-static bool _initWithString(const char * text, cocos2d::Device::TextAlign align, const char * fontName, int size, tImageInfo* info, bool enableWrap, int overflow)
+static bool _initWithString(const char * text, cocos2d::Device::TextAlign align, const char * fontName, int size, tImageInfo* info, bool enableWrap, int overflow, const float lineSpacing)
 {
 
     bool bRet = false;
@@ -411,6 +411,7 @@ static bool _initWithString(const char * text, cocos2d::Device::TextAlign align,
 
         NSTextAlignment nsAlign = FontUtils::_calculateTextAlignment(align);
         NSMutableParagraphStyle* paragraphStyle = FontUtils::_calculateParagraphStyle(enableWrap, overflow);
+        [paragraphStyle setLineHeightMultiple:lineSpacing];
         paragraphStyle.alignment = nsAlign;
 
         // measure text size with specified font and determine the rectangle to draw text in
@@ -578,7 +579,7 @@ Data Device::getTextureDataForText(const char * text, const FontDefinition& text
         info.tintColorB             = textDefinition._fontFillColor.b / 255.0f;
         info.tintColorA             = textDefinition._fontAlpha / 255.0f;
 
-        if (! _initWithString(text, align, textDefinition._fontName.c_str(), textDefinition._fontSize, &info, textDefinition._enableWrap, textDefinition._overflow))
+        if (! _initWithString(text, align, textDefinition._fontName.c_str(), textDefinition._fontSize, &info, textDefinition._enableWrap, textDefinition._overflow, textDefinition._lineSpacing))
         {
             break;
         }
