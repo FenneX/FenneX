@@ -108,6 +108,16 @@ void LabelTTF::setFont(std::string filename)
     updateFullFontFile();
 }
 
+float LabelTTF::getLineSpacing()
+{
+    return delegate->getLineSpacing();
+}
+
+void LabelTTF::setLineSpacing(float spacing)
+{
+    delegate->setLineSpacing(spacing);
+}
+
 LabelTTF::LabelTTF() :
 delegate(nullptr),
 loadingValue("")

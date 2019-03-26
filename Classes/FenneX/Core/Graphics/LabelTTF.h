@@ -52,6 +52,9 @@ public:
     void setFontSize(float size);
     void setFont(std::string filename);
     
+    float getLineSpacing();
+    void setLineSpacing(float spacing);
+    
     virtual Node* getNode();
     
     void setDimensions(cocos2d::Size dimensions);
