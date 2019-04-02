@@ -426,6 +426,8 @@ public class InAppManager implements ActivityResultResponder {
 
             NativeUtility.getMainActivity().runOnGLThread(new Runnable() {
                 public void run() {
+                    String sku = purchase != null ? purchase.getSku() : "";
+                    String token = purchase != null ? purchase.getToken() : "";
                     if (result.isFailure()) {
                         Log.e(TAG, "Error purchasing: " + result);
 						/*If the activity is cancelled, we can't get IabHelper.IABHELPER_USER_CANCELLED, because it hides BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED
@@ -433,36 +435,36 @@ public class InAppManager implements ActivityResultResponder {
 						 Most of them default to ErrorTransactionFailure
 						 */
                         if (result.getResponse() == IabHelper.BILLING_RESPONSE_RESULT_USER_CANCELED) {
-                            getInstance().notifyInAppEvent("PayementCanceledTransactionFailure", "Failure", purchase.getToken(), "Purchase cancelled by user during purchaseFinished");
+                            getInstance().notifyInAppEvent("PayementCanceledTransactionFailure", "Failure", token, "Purchase cancelled by user during purchaseFinished");
                         } else if (result.getResponse() == IabHelper.BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED) {
-                            getInstance().notifyInAppEvent("ProductRestored", purchase.getSku(), purchase.getToken(), "Restore purchase successful during purchaseFinished: item already owned");
+                            getInstance().notifyInAppEvent("ProductRestored", sku, token, "Restore purchase successful during purchaseFinished: item already owned");
                         } else if (result.getResponse() == IabHelper.IABHELPER_VERIFICATION_FAILED) {
-                            getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload", purchase.getToken(), "IABHelper verification failed during purchaseFinished");
+                            getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload", token, "IABHelper verification failed during purchaseFinished");
                         } else {
-                            getInstance().notifyInAppEvent("ErrorTransactionFailure", "Failure", purchase != null ? purchase.getToken() : "", "Unhandled error during purchaseFinished: " + IABCodeToString(result.getResponse()) + ", code:" + result.getResponse());
+                            getInstance().notifyInAppEvent("ErrorTransactionFailure", "Failure", token, "Unhandled error during purchaseFinished: " + IABCodeToString(result.getResponse()) + ", code:" + result.getResponse());
                         }
                         return;
                     }
                     //noinspection ConstantConditions
                     if (!verifyDeveloperPayload(purchase)) {
                         Log.e(TAG, "Error purchasing. Authenticity verification failed.");
-                        getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload", purchase.getToken(), "Verify developer payload failed during purchaseFinished");
+                        getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload", token, "Verify developer payload failed during purchaseFinished");
                         return;
                     }
 
                     if (purchase != null && purchase.getPurchaseState() == 1) //CANCELED
                     {
-                        getInstance().notifyInAppEvent("PayementCanceledTransactionFailure", purchase.getSku(), purchase.getToken(), "Purchase cancelled by developer during purchaseFinished");
+                        getInstance().notifyInAppEvent("PayementCanceledTransactionFailure", sku, token, "Purchase cancelled by developer during purchaseFinished");
                         Log.d(TAG, "Purchase cancelled.");
                     } else if (purchase != null && purchase.getPurchaseState() == 2) //REFUNDED
                     {
 
-                        getInstance().notifyInAppEvent("ProductRefunded", purchase.getSku(), purchase.getToken(), "Purchase refunded during purchaseFinished");
+                        getInstance().notifyInAppEvent("ProductRefunded", sku, token, "Purchase refunded during purchaseFinished");
                         Log.d(TAG, "Purchase refunded.");
                     } else //PURCHASED, getPurchaseState should be 0
                     {
-                        if (NativeUtility.getMainActivity().isConsumable(purchase.getSku())) {
-                            Log.d(TAG, "Purchase successful, consuming it, sku : " + purchase.getSku());
+                        if (NativeUtility.getMainActivity().isConsumable(sku)) {
+                            Log.d(TAG, "Purchase successful, consuming it, sku : " + sku);
                             NativeUtility.getMainActivity().runOnUiThread(new Runnable() {
                                 public void run() {
                                     mHelper.consumeAsync(purchase, mConsumeFinishedListener);
@@ -470,7 +472,7 @@ public class InAppManager implements ActivityResultResponder {
                             });
                         } else {
                             Log.d(TAG, "Purchase successful, returning it");
-                            getInstance().notifyInAppEvent("ProductPurchased", purchase.getSku(), purchase.getToken(), "Non-consumable purchase successful");
+                            getInstance().notifyInAppEvent("ProductPurchased", sku, token, "Non-consumable purchase successful");
                         }
                     }
                 }
@@ -484,35 +486,37 @@ public class InAppManager implements ActivityResultResponder {
 
             NativeUtility.getMainActivity().runOnGLThread(new Runnable() {
                 public void run() {
+                    String sku = purchase != null ? purchase.getSku() : "";
+                    String token = purchase != null ? purchase.getToken() : "";
                     if (result.isFailure()) {
                         Log.e(TAG, "Error consuming: " + result);
                         if (result.getResponse() == IabHelper.IABHELPER_USER_CANCELLED) {
-                            getInstance().notifyInAppEvent("PayementCanceledTransactionFailure", "Failure", purchase.getToken(), "Purchase cancelled by user during consumeFinished");
+                            getInstance().notifyInAppEvent("PayementCanceledTransactionFailure", "Failure", token, "Purchase cancelled by user during consumeFinished");
                         } else if (result.getResponse() == IabHelper.IABHELPER_VERIFICATION_FAILED) {
-                            getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload", purchase.getToken(), "IABHelper verification failed during consumeFinished");
+                            getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload", token, "IABHelper verification failed during consumeFinished");
                         } else {
-                            getInstance().notifyInAppEvent("ErrorTransactionFailure", "Failure", purchase.getToken(), "Unhandled error during consumeFinished: " + IABCodeToString(result.getResponse()) + ", code:" + result.getResponse());
+                            getInstance().notifyInAppEvent("ErrorTransactionFailure", "Failure", token, "Unhandled error during consumeFinished: " + IABCodeToString(result.getResponse()) + ", code:" + result.getResponse());
                         }
                         return;
                     }
                     //noinspection ConstantConditions
                     if (!verifyDeveloperPayload(purchase)) {
                         Log.e(TAG, "Error consuming. Authenticity verification failed.");
-                        getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload", purchase.getToken(), "Verify developer payload failed during consumeFinished");
+                        getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload", token, "Verify developer payload failed during consumeFinished");
                         return;
                     }
 
                     if (purchase.getPurchaseState() == 1) //CANCELED
                     {
-                        getInstance().notifyInAppEvent("PayementCanceledTransactionFailure", purchase.getSku(), purchase.getToken(), "Purchase cancelled by developer during consumeFinished");
+                        getInstance().notifyInAppEvent("PayementCanceledTransactionFailure", sku, token, "Purchase cancelled by developer during consumeFinished");
                         Log.d(TAG, "Consume canceled.");
                     } else if (purchase.getPurchaseState() == 2) //REFUNDED
                     {
-                        getInstance().notifyInAppEvent("ProductRefunded", purchase.getSku(), purchase.getToken(), "Purchase refunded during consumeFinished");
+                        getInstance().notifyInAppEvent("ProductRefunded", sku, token, "Purchase refunded during consumeFinished");
                         Log.d(TAG, "Consume refunded.");
                     } else //PURCHASED, getPurchaseState should be 0
                     {
-                        getInstance().notifyInAppEvent("ProductPurchased", purchase.getSku(), purchase.getToken(), "Consumable purchase successful");
+                        getInstance().notifyInAppEvent("ProductPurchased", sku, token, "Consumable purchase successful");
                         Log.d(TAG, "Consume successful.");
                     }
                 }
