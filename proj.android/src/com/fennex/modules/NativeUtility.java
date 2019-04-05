@@ -426,8 +426,14 @@ public class NativeUtility
         return result;
     }
 
+    @SuppressWarnings("unused")
     public static boolean isPackageInstalled(String packageName) {
         Context myContext = NativeUtility.getMainActivity().getBaseContext();
+        return isPackageInstalled(myContext, packageName);
+    }
+
+    @SuppressWarnings("unused, WeakerAccess")
+    public static boolean isPackageInstalled(Context myContext, String packageName) {
         PackageManager myPackageMgr = myContext.getPackageManager();
         try {
             myPackageMgr.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
