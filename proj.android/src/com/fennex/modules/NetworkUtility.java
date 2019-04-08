@@ -58,7 +58,7 @@ public class NetworkUtility
     public native static void notifyLengthResolved(int downloadID, long total);
 
     private static Integer currentlyDownloadingTask = null;
-    private static SparseArray<Pair<String, String>> waitingDownloadTasks = new SparseArray<>();
+    private static SparseArray<Triplet<String, String, String>> waitingDownloadTasks = new SparseArray<>();
 
     @SuppressWarnings("unused")
     private static final String TAG = "NetworkUtility";
@@ -89,38 +89,38 @@ public class NetworkUtility
     }
 
     @SuppressWarnings("unused")
-    public static void downloadFile(int downloadId, String url, String savePath) {
+    public static void downloadFile(int downloadId, String url, String savePath, String authorizationHeader) {
         if(currentlyDownloadingTask == null) {
             Log.d(TAG, "Starting download immediately for " + url);
             currentlyDownloadingTask = downloadId;
             Thread thread = new Thread() {
                 @Override
                 public void run() {
-                    downloadFileImpl(downloadId, url, savePath);
+                    downloadFileImpl(downloadId, url, savePath, authorizationHeader);
                 }
             };
             thread.start();
         }
         else {
             Log.d(TAG, "Adding download task for " + url + ", already " + waitingDownloadTasks.size() + " waiting");
-            waitingDownloadTasks.put(downloadId, new Pair<>(url, savePath));
+            waitingDownloadTasks.put(downloadId, new Triplet<>(url, savePath, authorizationHeader));
         }
     }
 
     private static void launchNextTask() {
         if(waitingDownloadTasks.size() > 0) {
             currentlyDownloadingTask = waitingDownloadTasks.keyAt(0);
-            Pair<String, String> taskInfos = waitingDownloadTasks.get(currentlyDownloadingTask);
+            Triplet<String, String, String> taskInfos = waitingDownloadTasks.get(currentlyDownloadingTask);
             waitingDownloadTasks.delete(currentlyDownloadingTask);
             Log.d(TAG, "Launching download task for " + taskInfos.first + ", there are " + waitingDownloadTasks.size() + " tasks waiting in queue");
-            downloadFileImpl(currentlyDownloadingTask, taskInfos.first, taskInfos.second);
+            downloadFileImpl(currentlyDownloadingTask, taskInfos.first, taskInfos.second, taskInfos.third);
         }
         else {
             currentlyDownloadingTask = null;
         }
     }
 
-    private static void downloadFileImpl(int downloadId, String url, String savePath) {
+    private static void downloadFileImpl(int downloadId, String url, String savePath, String authorizationHeader) {
         Log.d(TAG,"Starting download of " + url);
 
         //Ensure parent directory exists
@@ -135,6 +135,9 @@ public class NetworkUtility
         okhttp3.Request.Builder builder = new okhttp3.Request.Builder()
                 .method("GET", null)
                 .url(url);
+        if(!authorizationHeader.isEmpty()) {
+            builder = builder.addHeader("Authorization", authorizationHeader);
+        }
         try {
             okhttp3.Response response = client.newCall(builder.build()).execute();
             if(!response.isSuccessful()) {

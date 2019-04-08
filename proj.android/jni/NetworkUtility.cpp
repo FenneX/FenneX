@@ -68,17 +68,20 @@ void downloadFile(std::string url,
                   std::function<void()> onFileDownloaded,
                   std::function<void(int, const std::string&)> onDownloadFailure,
                   std::function<void(long, long)>onProgressUpdate,
-                  std::function<void(long)> onSizeReceived)
+                  std::function<void(long)> onSizeReceived,
+                  std::string authorizationHeader)
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "downloadFile", "(ILjava/lang/String;Ljava/lang/String;)V");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "downloadFile", "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
     CCAssert(functionExist, "Function doesn't exist");
     jstring jurl = minfo.env->NewStringUTF(url.c_str());
     jstring jpath = minfo.env->NewStringUTF(fullPath.c_str());
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, (jint)nextDownloadID, jurl, jpath);
+    jstring jAuthorizationHeader = minfo.env->NewStringUTF(authorizationHeader.c_str());
+    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, (jint)nextDownloadID, jurl, jpath, jAuthorizationHeader);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(jurl);
     minfo.env->DeleteLocalRef(jpath);
+    minfo.env->DeleteLocalRef(jAuthorizationHeader);
     if(onFileDownloaded) onSuccessCallbacks[nextDownloadID] = onFileDownloaded;
     if(onDownloadFailure) onErrorCallbacks[nextDownloadID] = onDownloadFailure;
     if(onProgressUpdate) onProgressCallbacks[nextDownloadID] = onProgressUpdate;

@@ -49,13 +49,15 @@ void openWifiSettings();
  onError: callback when there is an error. Include http error code (or -1 if it's not a http error) and error response
  onProgressUpdate: callback with progress update, only called every 2%, with number of bytes downloaded and total size in bytes
  onSizeReceived: callback when we know the total size of the file, in bytes, as indicated by Content-Length header
+ authorizationHeader: optional "Authorization" header. You need to pass the value of the header (for example "Bearer XXXX"). Will be omitted if empty
  */
 void downloadFile(std::string url,
                   std::string fullPath,
                   std::function<void()> onFileDownloaded,
                   std::function<void(int, const std::string&)> onDownloadFailure,
                   std::function<void(long, long)>onProgressUpdate,
-                  std::function<void(long)> onSizeReceived);
+                  std::function<void(long)> onSizeReceived,
+                  std::string authorizationHeader = "");
 
 NS_FENNEX_END
 
