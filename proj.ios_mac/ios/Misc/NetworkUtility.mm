@@ -47,7 +47,8 @@ void downloadFile(std::string url,
                   std::function<void()> onFileDownloaded,
                   std::function<void(int, const std::string&)> onDownloadFailure,
                   std::function<void(long, long)>onProgressUpdate,
-                  std::function<void(long)> onSizeReceived)
+                  std::function<void(long)> onSizeReceived,
+                  std::string authorizationHeader)
 {
     CCASSERT(1, "iOS downloadFile is not implemented on iOS, please use FileDownloader, which use Cocos2d-x Downloader");
     onDownloadFailure(-1, "NotImplemented");
