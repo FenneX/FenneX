@@ -28,7 +28,7 @@ THE SOFTWARE.
 
 USING_NS_FENNEX;
 
-static AudioPlayerRecorder *s_SharedRecorder = NULL;
+static AudioPlayerRecorder *s_SharedRecorder = nullptr;
 
 AudioPlayerRecorder* AudioPlayerRecorder::sharedRecorder(void)
 {
@@ -43,7 +43,7 @@ AudioPlayerRecorder* AudioPlayerRecorder::sharedRecorder(void)
 
 AudioPlayerRecorder::AudioPlayerRecorder()
 {
-    link = NULL;
+    link = nullptr;
     path = "";
     loops = 0;
     noLinkObject = Node::create(); //the exact type isn't important, it just needs to be a Ref*
@@ -71,7 +71,7 @@ AudioPlayerRecorder::~AudioPlayerRecorder()
     {
         path = "";
     }
-    s_SharedRecorder = NULL;
+    s_SharedRecorder = nullptr;
 }
 
 void AudioPlayerRecorder::stopAll()
@@ -89,7 +89,7 @@ void AudioPlayerRecorder::stopAll()
 void AudioPlayerRecorder::playObject(EventCustom* event)
 {
     ValueMap infos = ((Value*)event->getUserData())->asValueMap();
-    RawObject* linkTo = NULL;
+    RawObject* linkTo = nullptr;
     if(isValueOfType(infos["Object"], INTEGER))
     {
         linkTo = GraphicLayer::sharedLayer()->first(infos["Object"].asInt());
@@ -112,7 +112,7 @@ void AudioPlayerRecorder::recordObject(EventCustom* event)
         this->stopPlaying();
     }
     ValueMap infos = ((Value*)event->getUserData())->asValueMap();
-    RawObject* linkTo = NULL;
+    RawObject* linkTo = nullptr;
     
     if(isValueOfType(infos["Object"], INTEGER))
     {
@@ -145,7 +145,7 @@ void AudioPlayerRecorder::recordObject(EventCustom* event)
         }
         this->record(file, loc, linkTo);
         ValueMap map = {{"OldFile", Value(oldFile)}};
-        if(linkTo != NULL) map["Object"] = linkTo->getID();
+        if(linkTo != nullptr) map["Object"] = linkTo->getID();
         Value toSend = Value(map);
         Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("RecordingStarted", &toSend);
     }
@@ -226,7 +226,7 @@ void AudioPlayerRecorder::setPath(const std::string& value, FileLocation loc)
         }
         else
         {
-            log("Chaning audio path to NULL");
+            log("Chaning audio path to nullptr");
         }
 #endif
         path = value;

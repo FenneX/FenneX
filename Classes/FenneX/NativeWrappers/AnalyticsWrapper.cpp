@@ -26,7 +26,7 @@ THE SOFTWARE.
 
 #include "AnalyticsWrapper.h"
 
-static AnalyticsWrapper *s_SharedInstance = NULL;
+static AnalyticsWrapper *s_SharedInstance = nullptr;
 
 AnalyticsWrapper* AnalyticsWrapper::sharedInstance(void)
 {

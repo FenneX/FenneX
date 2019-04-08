@@ -999,7 +999,7 @@ Vec2 GraphicLayer::getCenterRealPosition(RawObject* obj)
 bool GraphicLayer::isInClippingNode(FenneX::RawObject *obj, cocos2d::Vec2 pos)
 {
     Panel* parent = GraphicLayer::sharedLayer()->getContainingPanel(obj);
-    while(parent != NULL)
+    while(parent != nullptr)
     {
         if (parent->isACropNode() && !GraphicLayer::sharedLayer()->collision(pos, parent))
         {

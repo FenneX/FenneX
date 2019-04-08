@@ -97,7 +97,7 @@ public:
     void stopRecording();
     // volume is between 0 and 1, 1 is default value. Must be set just after the start of the sound.
     float play(const std::string& file, Ref* linkTo, bool independent = false, float volume = 1); //return the duration of the file
-    void stopPlaying(EventCustom* event = NULL);
+    void stopPlaying(EventCustom* event = nullptr);
     void fadeVolumeOut();
     
     void play();
@@ -119,7 +119,7 @@ public:
         - Author (CCString)
         - Title (CCString)
         - Duration (CCInteger, as seconds)
-     Anything can be NULL, including the returned Dictionary if something went wrong or not implemented
+     Anything can be nullptr, including the returned Dictionary if something went wrong or not implemented
      */
     static ValueMap getFileMetadata(const std::string& path);
 protected:
