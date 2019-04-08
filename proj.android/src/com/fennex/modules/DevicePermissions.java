@@ -37,15 +37,21 @@ public class DevicePermissions
     private static SparseIntArray currentRequest = new SparseIntArray();
     private static int lastID = 0;
 
-    @SuppressWarnings("WeakerAccess")
+    @SuppressWarnings("unused,WeakerAccess")
     public static boolean hasPermission(int permissionValue)
+    {
+        return hasPermission(NativeUtility.getMainActivity(), permissionValue);
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public static boolean hasPermission(Context context, int permissionValue)
     {
         String[] permissions = getPermissionString(permissionValue);
         boolean allowed = true;
         int i = 0;
         while(allowed && i < permissions.length)
         {
-            allowed = (ContextCompat.checkSelfPermission(NativeUtility.getMainActivity(), permissions[i]) == PackageManager.PERMISSION_GRANTED);
+            allowed = (ContextCompat.checkSelfPermission(context, permissions[i]) == PackageManager.PERMISSION_GRANTED);
             i++;
         }
         return allowed;
