@@ -60,9 +60,11 @@ public:
     void setFullscreen(bool fullscreen, bool animated = true);
     bool isFullscreen();
     
-    //All durations are in seconds
+    // get Duration of the current video in seconds 
     float getDuration();
+    // get video player's position in seconds on the currently playing video
     float getPosition();
+    // set video player's position in seconds on the currently playing video
     void setPosition(float position);
     
     void setMuted(bool muted);
