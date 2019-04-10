@@ -43,6 +43,7 @@ import android.os.StatFs;
 import android.os.Vibrator;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -307,7 +308,7 @@ public class NativeUtility
     @SuppressWarnings("unused")
     public static String formatDurationShort(int seconds)
     {
-        return DateFormat.getTimeInstance(DateFormat.SHORT).format(seconds * 1000);
+        return DateUtils.formatElapsedTime(seconds);
     }
 
     @SuppressWarnings("unused")
