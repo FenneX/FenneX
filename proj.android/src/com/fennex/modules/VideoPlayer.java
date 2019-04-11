@@ -1,6 +1,5 @@
 package com.fennex.modules;
 
-import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -11,7 +10,6 @@ import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
@@ -34,8 +32,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
-public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerationError, Runnable
-{
+public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerationError, Runnable {
 	/*
 	 * VideoPlayer implements two ways of displaying a video :
 	 * - using a native Android VideoView (default)
@@ -80,21 +77,17 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 
 	private static MediaPlayer videoViewMediaPlayer = null;
 
-	public static void setUseVLC(boolean use)
-	{
-	    if(videoView != null)
-	    {
+	@SuppressWarnings("unused")
+	public static void setUseVLC(boolean use) {
+	    if(videoView != null) {
 	        Log.e(TAG, "Can't change VideoPlayer VLC/VideoView mode after starting it");
 	        return;
 	    }
-	    if(use && !useVLC)
-	    { //If the app crash here, check that libvlc is properly compiled using compile.sh
-	    	try
-	    	{
+	    if(use && !useVLC) { //If the app crash here, check that LibVLC is properly compiled using compile.sh
+	    	try {
 	            Log.i(TAG, "LibVLC loaded");
 	    	}
-	    	catch(Exception e)
-	    	{
+	    	catch(Exception e) {
 	    		Log.e(TAG, "Exception while loading vlcjni, it's probably not compiled for the current architecture. Falling back to VideoView display");
                 e.printStackTrace();
 	    		useVLC = false;
@@ -103,10 +96,8 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 	    useVLC = use;
 	}
 	
-	public static VideoPlayer getInstance()
-	{
-		if(instance == null)
-		{
+	public static VideoPlayer getInstance() {
+		if(instance == null) {
 			instance = new VideoPlayer();
 		}
 		return instance;
@@ -117,8 +108,8 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 	public native static void notifyVideoEnded(String path);
     public native static void notifyVideoError(String path);
 	
-	public static void initVideoPlayer(String file, float x, float y, float height, float width, boolean front, boolean loop)
-	{
+	@SuppressWarnings("unused")
+	public static void initVideoPlayer(String file, float x, float y, float height, float width, boolean front, boolean loop) {
 		lastPlaybackRate = 1.0f;
 		path = file;
 		toFront = front;
@@ -132,295 +123,228 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 		videoViewMediaPlayer = null;
 
 		final File videoFile = getFile(path, FileUtility.FileLocation.Unknown);
-		if(videoFile == null || (!videoFile.exists() && NativeUtility.getMainActivity().getUriFromFileName(path) == null))
-		{
+		if(videoFile == null || (!videoFile.exists() && NativeUtility.getMainActivity().getUriFromFileName(path) == null)) {
 			return;
 		}
 		Log.i(TAG, "initVideoPlayer: path = " + path + ", x = " +
 				x + ", y = " + y + " height = " + height + ", width = " + width + " front = " + toFront);
 		
-		NativeUtility.getMainActivity().runOnUiThread(new Runnable() {
+		NativeUtility.getMainActivity().runOnUiThread(() -> {
+			mainFrame = NativeUtility.getMainActivity().getMainLayout();
+			base = new FrameLayout(NativeUtility.getMainActivity());
+			mainFrame.addView(base);
+			videoEnded = false;
+			if(VideoPlayer.useVLC) {
+				videoView = new SurfaceView(NativeUtility.getMainActivity());
+				SurfaceHolder mSurfaceHolder = videoView.getHolder();
+				mSurfaceHolder.setFormat(PixelFormat.RGBX_8888);
+				getInstance().releasePlayer();
+				try {
+					// Create LibVLC
+					// TODO: make this more robust, and sync with audio demo
+					ArrayList<String> options = new ArrayList<>();
+					//noinspection SpellCheckingInspection
+					options.add("--aout=opensles");
+					options.add("--audio-time-stretch"); // time stretching
+					libVLC = new LibVLC(options);
+					libVLC.setOnHardwareAccelerationError(getInstance());
+					mSurfaceHolder.setKeepScreenOn(true);
 
-			@Override
-			public void run() {
-				mainFrame = NativeUtility.getMainActivity().getMainLayout();
-				base = new FrameLayout(NativeUtility.getMainActivity());
-				mainFrame.addView(base);
-				videoEnded = false;
-				if(VideoPlayer.useVLC)
-				{
-					videoView = new SurfaceView(NativeUtility.getMainActivity());
-                    SurfaceHolder mSurfaceHolder = videoView.getHolder();
-					mSurfaceHolder.setFormat(PixelFormat.RGBX_8888);
-					getInstance().releasePlayer();
-					try {
-
-						// Create LibVLC
-						// TODO: make this more robust, and sync with audio demo
-						ArrayList<String> options = new ArrayList<String>();
-						options.add("--aout=opensles");
-						options.add("--audio-time-stretch"); // time stretching
-						libVLC = new LibVLC(options);
-						libVLC.setOnHardwareAccelerationError(getInstance());
-						mSurfaceHolder.setKeepScreenOn(true);
-
-						// Create media player
-						vlcMediaPlayer = new org.videolan.libvlc.MediaPlayer(libVLC);
-						vlcMediaPlayer.setEventListener(mPlayerListener);
-						Media m = new Media(libVLC, path);
-						vlcMediaPlayer.setMedia(m);
-						// Set up video output
-						final IVLCVout vout = vlcMediaPlayer.getVLCVout();
-						vout.setVideoView(videoView);
-						vout.addCallback(getInstance());
-						vout.attachViews();
-
-					} catch (Exception e) {
-						e.printStackTrace();
+					// Create media player
+					vlcMediaPlayer = new org.videolan.libvlc.MediaPlayer(libVLC);
+					vlcMediaPlayer.setEventListener(mPlayerListener);
+					Media m = new Media(libVLC, path);
+					vlcMediaPlayer.setMedia(m);
+					// Set up video output
+					final IVLCVout vout = vlcMediaPlayer.getVLCVout();
+					vout.setVideoView(videoView);
+					vout.addCallback(getInstance());
+					vout.attachViews();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				isPrepared = true;
+			}
+			else
+			{
+				VideoView video = new VideoView(NativeUtility.getMainActivity());
+				video.setOnPreparedListener(mp -> {
+					Log.i(TAG, "Video is prepared, playing it ...");
+					videoViewMediaPlayer = mp;
+					isPrepared = true;
+					play();
+					NativeUtility.getMainActivity().runOnGLThread(() -> notifyVideoDurationAvailable(path, getDuration()));
+				});
+				video.setOnCompletionListener(mp -> {
+					if(shouldLoop) {
+						Log.i(TAG, "Video ended, replaying it ...");
+						play();
 					}
-                    isPrepared = true;
+					else {
+						videoEnded = true;
+					}
+					NativeUtility.getMainActivity().runOnGLThread(() -> notifyVideoEnded(path));
+				});
+				video.setOnErrorListener((mp, what, extra) -> {
+					Log.e(TAG, "VideoView error : " + what + ", " + extra);
+					NativeUtility.getMainActivity().runOnGLThread(() -> notifyVideoError(path));
+					return false;
+				});
+
+				Uri uri;
+				if(videoFile.exists()) {
+					// TODO : Change to use a FileProvider
+					StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+					StrictMode.setVmPolicy(builder.build());
+					uri = Uri.fromFile(videoFile);
 				}
 				else
-			    {
-					VideoView video = new VideoView(NativeUtility.getMainActivity());
-					video.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+					uri = NativeUtility.getMainActivity().getUriFromFileName(path);
+				Log.i(TAG, "Using URI : " + uri.toString() + ", path : " + uri.getPath());
+				video.setVideoURI(uri);
+				FrameLayout.LayoutParams lp = VideoPlayer.isFullScreen ?
+					new FrameLayout.LayoutParams(VideoPlayer.widthScreen, VideoPlayer.heightScreen, Gravity.CENTER) :
+					new FrameLayout.LayoutParams((int) VideoPlayer.localWidth, (int) VideoPlayer.localHeight);
+				lp.leftMargin = (int)(VideoPlayer.isFullScreen ? 0 : localX - (localWidth / 2) + 0.5);
+				lp.topMargin = (int)(VideoPlayer.isFullScreen ? 0 : heightScreen - localY - (localHeight / 2) + 0.5);
+				lp.gravity = isFullScreen ? Gravity.CENTER : (Gravity.TOP | Gravity.START);
+				video.setLayoutParams(lp);
+				Log.i(TAG, "widthScreen : " + widthScreen);
+				Log.i(TAG, "heightScreen : " + heightScreen);
 
-    					@Override
-    					public void onPrepared(MediaPlayer mp) {
-    						Log.i(TAG, "Video is prepared, playing it ...");
-							videoViewMediaPlayer = mp;
-							isPrepared = true;
-    						play();
-                    		NativeUtility.getMainActivity().runOnGLThread(new Runnable() 
-                    		{
-                    			public void run()
-    	            			{
-                    				notifyVideoDurationAvailable(path, getDuration());
-    	            			}
-                    		});
-    					}
-    				});
-    				video.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+				Log.i(TAG, "localX : " + localX);
+				Log.i(TAG, "localY : " + localY);
 
-    					@Override
-    					public void onCompletion(MediaPlayer mp) {
-    						if(shouldLoop)
-    						{
-        						Log.i(TAG, "Video ended, replaying it ...");
-        						play();
-    						}
-    						else
-    						{
-                        		videoEnded = true;
-    						}
-    						NativeUtility.getMainActivity().runOnGLThread(new Runnable()
-							{
-								public void run()
-								{
-									notifyVideoEnded(path);
-								}
-							});
-    					}
-    				});
-    				video.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+				Log.i(TAG, "localWidth : " + localWidth);
+				Log.i(TAG, "localHeight : " + localHeight);
 
-						@Override
-						public boolean onError(MediaPlayer mp, int what,
-											   int extra) {
-							Log.e(TAG, "VideoView error : " + what + ", " + extra);
-                            NativeUtility.getMainActivity().runOnGLThread(new Runnable() {
-                                public void run() {
-                                    notifyVideoError(path);
-                                }
-                            });
-							return false;
-						}
-    				});
-
-    				Uri uri = null;
-    				if(videoFile.exists()) {
-						// TODO : Change to use a FileProvider
-						StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-						StrictMode.setVmPolicy(builder.build());
-						uri = Uri.fromFile(videoFile);
-					}
-    				else
-    					uri = NativeUtility.getMainActivity().getUriFromFileName(path);
-    				Log.i(TAG, "Using URI : " + uri.toString() + ", path : " + uri.getPath());
-    				video.setVideoURI(uri);
-                    FrameLayout.LayoutParams lp = VideoPlayer.isFullScreen ?
-                                                    new FrameLayout.LayoutParams(VideoPlayer.widthScreen, VideoPlayer.heightScreen, Gravity.CENTER) :
-                                                    new FrameLayout.LayoutParams((int) VideoPlayer.localWidth, (int) VideoPlayer.localHeight);
-            		lp.leftMargin = (int)(VideoPlayer.isFullScreen ? 0 : localX - (localWidth / 2) + 0.5);
-            		lp.topMargin = (int)(VideoPlayer.isFullScreen ? 0 : heightScreen - localY - (localHeight / 2) + 0.5);
-					lp.gravity = isFullScreen ? Gravity.CENTER : (Gravity.TOP | Gravity.START);
-            		video.setLayoutParams(lp);
-                    Log.i(TAG, "widthScreen : " + widthScreen);
-                    Log.i(TAG, "heightScreen : " + heightScreen);
-
-                    Log.i(TAG, "localX : " + localX);
-                    Log.i(TAG, "localY : " + localY);
-
-                    Log.i(TAG, "localWidth : " + localWidth);
-                    Log.i(TAG, "localHeight : " + localHeight);
-
-    				Log.i(TAG, "Placing video in x: " + lp.leftMargin);
-    				Log.i(TAG, "Placing video in y: " + lp.topMargin);
-    				videoView = video;
-			    }
-				FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams((int)widthScreen, (int)heightScreen);
-				base.setLayoutParams(layoutParams);
-			    
-				videoView.setZOrderMediaOverlay(VideoPlayer.toFront);
-				base.addView(videoView);
-
-				if(toFront)
-					base.bringToFront();
-				base.setClickable(false);
-				videoView.setClickable(false);
-        		videoView.invalidate();
-        		base.invalidate();
-        		mainFrame.invalidate();
+				Log.i(TAG, "Placing video in x: " + lp.leftMargin);
+				Log.i(TAG, "Placing video in y: " + lp.topMargin);
+				videoView = video;
 			}
+			FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(widthScreen, heightScreen);
+			base.setLayoutParams(layoutParams);
+
+			videoView.setZOrderMediaOverlay(VideoPlayer.toFront);
+			base.addView(videoView);
+
+			if(toFront)
+				base.bringToFront();
+			base.setClickable(false);
+			videoView.setClickable(false);
+			videoView.invalidate();
+			base.invalidate();
+			mainFrame.invalidate();
 		});
 	}
 
-	public static void setPlayerPosition(float x, float y, float height, float width, boolean animated)
-	{
+	@SuppressWarnings("unused")
+	public static void setPlayerPosition(float x, float y, float height, float width, boolean animated) {
 		localX = x;
 		localY = y;
 		localHeight = height;
 		localWidth = width;
-		NativeUtility.getMainActivity().runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if(videoView != null)
-				{
-					FrameLayout.LayoutParams lp = VideoPlayer.isFullScreen ?
-							new FrameLayout.LayoutParams(VideoPlayer.widthScreen, VideoPlayer.heightScreen, Gravity.CENTER) :
-							new FrameLayout.LayoutParams((int) VideoPlayer.localWidth, (int) VideoPlayer.localHeight);
-					lp.leftMargin = (int)(VideoPlayer.isFullScreen ? 0 : localX - (localWidth / 2) + 0.5);
-					lp.topMargin = (int)(VideoPlayer.isFullScreen ? 0 : heightScreen - localY - (localHeight / 2) + 0.5);
-					lp.gravity = isFullScreen ? Gravity.CENTER : (Gravity.TOP | Gravity.START);
-					videoView.setLayoutParams(lp);
-					videoView.invalidate();
-				}
-			}});
+		NativeUtility.getMainActivity().runOnUiThread(() -> {
+			if(videoView != null) {
+				FrameLayout.LayoutParams lp = VideoPlayer.isFullScreen ?
+						new FrameLayout.LayoutParams(VideoPlayer.widthScreen, VideoPlayer.heightScreen, Gravity.CENTER) :
+						new FrameLayout.LayoutParams((int) VideoPlayer.localWidth, (int) VideoPlayer.localHeight);
+				lp.leftMargin = (int)(VideoPlayer.isFullScreen ? 0 : localX - (localWidth / 2) + 0.5);
+				lp.topMargin = (int)(VideoPlayer.isFullScreen ? 0 : heightScreen - localY - (localHeight / 2) + 0.5);
+				lp.gravity = isFullScreen ? Gravity.CENTER : (Gravity.TOP | Gravity.START);
+				videoView.setLayoutParams(lp);
+				videoView.invalidate();
+			}
+		});
 	}
 
-	public static void play()
-	{
+	public static void play() {
 		Log.i(TAG, "Play.");
-		if(useVLC)
-		{
+		if(useVLC) {
 			if(vlcMediaPlayer != null) {
-				if(videoEnded)
-				{
+				if(videoEnded) {
 					Log.i(TAG, "videoEnded, restarting");
 					vlcMediaPlayer.stop();
 				}
 				vlcMediaPlayer.play();
 				videoEnded = false;
 			}
-			else
-			{
+			else {
 				Log.e(TAG, "stop vlcMediaPlayer is Null");
 			}
 		}
-		else if(isPrepared)
-		{
-			if(videoEnded)
-			{
+		else if(isPrepared) {
+			if(videoEnded) {
 				((VideoView)videoView).seekTo(0);
 			}
 			((VideoView)videoView).start();
 		}
-		if(hideOnPause)
-		{
-			NativeUtility.getMainActivity().runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					if(videoView != null)
-					{
-						videoView.setVisibility(View.VISIBLE);
-						videoView.invalidate();
-					}
-				}});
+		if(hideOnPause) {
+			NativeUtility.getMainActivity().runOnUiThread(() -> {
+                if(videoView != null) {
+                    videoView.setVisibility(View.VISIBLE);
+                    videoView.invalidate();
+                }
+            });
 		}
 		videoEnded = false;
 		setMuted(muted);
 	}
 
 
-	public static void pause()
-	{
+	public static void pause() {
 		Log.i(TAG, "Pause.");
-		if(useVLC)
-		{
-			if(vlcMediaPlayer != null && vlcMediaPlayer.isPlaying())
-			{
+		if(useVLC) {
+			if(vlcMediaPlayer != null && vlcMediaPlayer.isPlaying()) {
 				vlcMediaPlayer.pause();
 			}
-			else
-			{
+			else {
 				Log.e(TAG, "pause vlcMediaPlayer is Null or not playing");
 			}
 		}
-		else if(isPrepared)
-		{
+		else if(isPrepared) {
 			((VideoView)videoView).pause();
 		}
-		if(hideOnPause)
-		{
-			NativeUtility.getMainActivity().runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					if(videoView != null) {
-						videoView.setVisibility(View.GONE);
-						videoView.invalidate();
-					}
-				}});
+		if(hideOnPause) {
+			NativeUtility.getMainActivity().runOnUiThread(() -> {
+                if(videoView != null) {
+                    videoView.setVisibility(View.GONE);
+                    videoView.invalidate();
+                }
+            });
 		}
 	}
 
-	public static void stop()
-	{
+	public static void stop() {
 		Log.i(TAG, "Stop.");
-		NativeUtility.getMainActivity().runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if (base != null && videoView != null) {
-					if (useVLC) {
-						if(vlcMediaPlayer != null) {
-							vlcMediaPlayer.pause();
-						}
-						else
-						{
-							Log.e(TAG, "stop vlcMediaPlayer is Null");
-						}
-					} else {
-						((VideoView) videoView).stopPlayback();
-					}
-					base.removeAllViews();
-					mainFrame.removeView(base);
-				}
-			}
-		});
+		NativeUtility.getMainActivity().runOnUiThread(() -> {
+            if (base != null && videoView != null) {
+                if (useVLC) {
+                    if(vlcMediaPlayer != null) {
+                        vlcMediaPlayer.pause();
+                    }
+                    else {
+                        Log.e(TAG, "stop vlcMediaPlayer is Null");
+                    }
+                } else {
+                    ((VideoView) videoView).stopPlayback();
+                }
+                base.removeAllViews();
+                mainFrame.removeView(base);
+            }
+        });
 	}
 
-	public static float getPlaybackRate()
-	{
-		if(useVLC)
-		{
-			if(videoEnded)
-			{
+	@SuppressWarnings("unused")
+    public static float getPlaybackRate() {
+		if(useVLC) {
+			if(videoEnded) {
 				return lastPlaybackRate;
 			}
 			if(vlcMediaPlayer != null) {
 				return vlcMediaPlayer.getRate();
 			}
-			else
-			{
+			else {
 				Log.e(TAG, "getPlaybackRate vlcMediaPlayer is Null");
 			}
 			return lastPlaybackRate;
@@ -429,15 +353,13 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 		return 1;
 	}
 
-	public static void setPlaybackRate(float rate)
-	{
-		if(useVLC)
-		{
+	@SuppressWarnings("unused")
+    public static void setPlaybackRate(float rate) {
+		if(useVLC) {
 			if(vlcMediaPlayer != null) {
 				vlcMediaPlayer.setRate(rate);
 			}
-			else
-			{
+			else {
 				Log.e(TAG, "setPlaybackRate vlcMediaPlayer is Null");
 			}
 			lastPlaybackRate = rate;
@@ -446,70 +368,59 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 		Log.e(TAG, "setPlaybackRate is only implemented for LibVLC");
 	}
 
-	public static void setHideOnPause(boolean hide)
-	{
+	@SuppressWarnings("unused")
+    public static void setHideOnPause(boolean hide) {
 		hideOnPause = hide;
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	public static void setFullscreen(boolean fullscreen, boolean animated)
-	{
+	@SuppressWarnings("unused")
+    public static void setFullscreen(boolean fullscreen, boolean animated) {
 		//TODO : implement animated
 		isFullScreen = fullscreen;
-		if(useVLC)
-		{
+		if(useVLC) {
 			//This force LibVLC to recalculate the surface size to a correct value. Put 1,1 to not have a visual glitch
-			getInstance().setSurfaceSize((int)currentVideoWidth,(int)currentVideoHeight);
+			getInstance().setSurfaceSize(currentVideoWidth, currentVideoHeight);
 		}
-		else
-		{
-	        NativeUtility.getMainActivity().runOnUiThread(new Runnable() {
-	        	@Override
-	        	public void run() {
-					if(isFullScreen)
-					{
-						base.setBackgroundColor(Color.BLACK);
-						base.setAlpha((float) 0.6);
-					}
-					else
-					{
-						base.setAlpha((float) 0);
-					}
-		    		FrameLayout.LayoutParams lp = (android.widget.FrameLayout.LayoutParams) videoView.getLayoutParams();
-		    		lp.width  = isFullScreen ? (int) widthScreen : (int) localWidth;
-		    		lp.height = isFullScreen ? (int) heightScreen : (int) localHeight;
-					lp.leftMargin = (int)(isFullScreen ? 0 : localX - (localWidth / 2) + 0.5);
-					lp.topMargin = (int)(isFullScreen ? 0 : heightScreen - localY - (localHeight / 2) + 0.5);
-					lp.gravity = isFullScreen ? Gravity.CENTER : (Gravity.TOP | Gravity.START);
-					if(videoView != null) {
-						videoView.setLayoutParams(lp);
-						videoView.invalidate();
-					}
-	        	}
-	        });
+		else {
+	        NativeUtility.getMainActivity().runOnUiThread(() -> {
+                if(isFullScreen) {
+                    base.setBackgroundColor(Color.BLACK);
+                    base.setAlpha((float) 0.6);
+                }
+                else {
+                    base.setAlpha((float) 0);
+                }
+                FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) videoView.getLayoutParams();
+                lp.width  = isFullScreen ? widthScreen : (int) localWidth;
+                lp.height = isFullScreen ? heightScreen : (int) localHeight;
+                lp.leftMargin = (int)(isFullScreen ? 0 : localX - (localWidth / 2) + 0.5);
+                lp.topMargin = (int)(isFullScreen ? 0 : heightScreen - localY - (localHeight / 2) + 0.5);
+                lp.gravity = isFullScreen ? Gravity.CENTER : (Gravity.TOP | Gravity.START);
+                if(videoView != null) {
+                    videoView.setLayoutParams(lp);
+                    videoView.invalidate();
+                }
+            });
 		}
 	}
 
-	public static boolean isFullscreen()
-	{
+	@SuppressWarnings("unused")
+    public static boolean isFullscreen() {
 		return isFullScreen;
 	}
 	
-	public static float getDuration()
-	{
+	@SuppressWarnings("WeakerAccess")
+    public static float getDuration() {
 		float duration = 0;
-		if(useVLC)
-		{
+		if(useVLC) {
 			if(vlcMediaPlayer != null) {
 				duration = vlcMediaPlayer.getLength();
 			}
-			else
-			{
+			else {
 				Log.e(TAG, "getDuration vlcMediaPlayer is Null");
 			}
 		}
-		else if (isPrepared)
-		{
+		else if (isPrepared) {
 			try {
 				duration = ((VideoView)videoView).getDuration();
 			} catch (Exception e) {
@@ -523,21 +434,18 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 		return duration;
 	}
 	
-	public static float getPosition()
-	{
+	@SuppressWarnings("unused")
+    public static float getPosition() {
 		float position = 0;
-		if(useVLC)
-		{
+		if(useVLC) {
 			if(vlcMediaPlayer != null) {
 				position = vlcMediaPlayer.getTime();
 			}
-			else
-			{
+			else {
 				Log.e(TAG, "getPosition getPosition is Null");
 			}
 		}
-		else
-		{
+		else {
 			position = ((VideoView)videoView).getCurrentPosition();
 		}
 		//convert in seconds or to 0 for empty
@@ -545,58 +453,50 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 		return position;
 	}
 	
-	public static void setPosition(float position)
-	{
-		if(useVLC)
-		{
+	@SuppressWarnings("unused")
+    public static void setPosition(float position) {
+		if(useVLC) {
 			if(vlcMediaPlayer != null) {
-				position = vlcMediaPlayer.setTime((long)(position * 1000));
+				vlcMediaPlayer.setTime((long)(position * 1000));
 			}
-			else
-			{
+			else {
 				Log.e(TAG, "setPosition getPosition is Null");
 			}
 		}
-		else
-		{
+		else {
 			((VideoView)videoView).seekTo((int)(position * 1000));
 		}
 	}
 
-	public static void setMuted(boolean _muted)
-	{
-		if(useVLC)
-		{
+	@SuppressWarnings("WeakerAccess")
+    public static void setMuted(boolean _muted) {
+		if(useVLC) {
 			if(vlcMediaPlayer != null) {
 				vlcMediaPlayer.setVolume(_muted ? 0 : 100);
 			}
-			else
-			{
+			else {
 				Log.e(TAG, "setMuted vlcMediaPlayer is Null");
 			}
 		}
-		else
-		{
+		else {
 			muted = _muted;
-			try
-			{
-				if(videoViewMediaPlayer != null && videoViewMediaPlayer.isPlaying())
-				{
+			try {
+				if(videoViewMediaPlayer != null && videoViewMediaPlayer.isPlaying()) {
 					if (muted)
 						videoViewMediaPlayer.setVolume(0, 0);
 					else
 						videoViewMediaPlayer.setVolume(1.0f, 1.0f);
 				}
 			}
-			catch(Exception e)
-			{
+			catch(Exception e) {
 				Log.e(TAG, "setMuted Exception");
 				e.printStackTrace();
 			}
 		}
 	}
 	
-	public static String getThumbnail(String path, int videoLocation, String thumbnailPath, int thumbnailLocation)
+	@SuppressWarnings("unused")
+    public static String getThumbnail(String path, int videoLocation, String thumbnailPath, int thumbnailLocation)
 	{
         File videoFile = getFile(path, FileUtility.FileLocation.valueOf(videoLocation));
 		if(videoFile == null) {
@@ -609,8 +509,8 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 			String fileName = path.lastIndexOf('.') > -1 ? path.substring(0, path.lastIndexOf('.')) : path;
 			if(FileUtility.FileLocation.valueOf(videoLocation) == FileUtility.FileLocation.Absolute
 					&& FileUtility.FileLocation.valueOf(thumbnailLocation) != FileUtility.FileLocation.Absolute
-					&& fileName.lastIndexOf('/') > -1)
-			{// If we are not using absolute for thumbnail but we use it for video, that mean we have a path to parse
+					&& fileName.lastIndexOf('/') > -1) {
+			    // If we are not using absolute for thumbnail but we use it for video, that mean we have a path to parse
 				fileName = fileName.substring(fileName.lastIndexOf('/') + 1);
 			}
 			//Add -thumbnail. That's the path used by cocos2dx
@@ -619,8 +519,7 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 
 		String thumbPath = FileUtility.getFullPath(thumbName + ".png", thumbnailLocation);
 		//Don't redo it if it already exists
-		if(new File(thumbPath).exists())
-		{
+		if(new File(thumbPath).exists()) {
 			Log.d(TAG, "Video thumbnail already created at path: " + thumbName);
 			return thumbPath;
 		}
@@ -629,7 +528,6 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 			//Save the thumbnail in a PNG compressed format, and close everything. If something fails, return null
 			FileOutputStream streamThumbnail = new FileOutputStream(thumbPath);
 
-			Bitmap thumb = null;
 			MediaMetadataRetriever retriever = new MediaMetadataRetriever();
 			try {
 				Uri appUri = NativeUtility.getMainActivity().getUriFromFileName(path);
@@ -641,11 +539,10 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 					retriever.setDataSource(videoFile.getAbsolutePath());
 				}
 		        int timeInSeconds = 1;
-				thumb = retriever.getFrameAtTime(timeInSeconds * 1000000,
+                Bitmap thumb = retriever.getFrameAtTime(timeInSeconds * 1000000,
 				MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
-				if(thumb == null)
-				{
-					// Since the first method dind't work, let's try an other one
+				if(thumb == null) {
+					// Since the first method didn't work, let's try an other one
 					// The problem is that it doesn't allow to get at a specific time
 					thumb = ThumbnailUtils.createVideoThumbnail(videoFile.getAbsolutePath(), MediaStore.Images.Thumbnails.MINI_KIND);
 				}
@@ -675,8 +572,8 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 		return thumbPath;
 	}
 
-	public static float[] getVideoSize(String path, int location)
-	{
+    @SuppressWarnings("unused")
+	public static float[] getVideoSize(String path, int location) {
 		MediaMetadataRetriever retriever = new MediaMetadataRetriever();
 		File videoFile = getFile(path, FileUtility.FileLocation.valueOf(location));
 		float[] size = new float[2];
@@ -699,9 +596,9 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 		retriever.release();
 		return size;
 	}
-	
-	public static boolean videoExists(String path)
-	{
+
+    @SuppressWarnings("unused")
+	public static boolean videoExists(String path) {
         int dotIndex = path.lastIndexOf(".");
         if (dotIndex != -1) {
             String fileExt = path.substring(dotIndex);
@@ -718,8 +615,7 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 	private static File getFile(String path, FileUtility.FileLocation location) {
         File foundFile = null;
         if(location != FileUtility.FileLocation.Unknown) {
-            switch (location)
-            {
+            switch (location) {
                 case Resources:
                     // Search first in expansion
                     Uri expansionUri = NativeUtility.getMainActivity().getUriFromFileName(path);
@@ -813,58 +709,51 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 		currentVideoWidth = width;
 		currentVideoHeight = height;
 		// force surface buffer size
-		NativeUtility.getMainActivity().runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				SurfaceHolder mSurfaceHolder = videoView.getHolder();
-				mSurfaceHolder.setFixedSize(width, height);
+		NativeUtility.getMainActivity().runOnUiThread(() -> {
+            SurfaceHolder mSurfaceHolder = videoView.getHolder();
+            mSurfaceHolder.setFixedSize(width, height);
 
-				// set display size
-				//VideoPlayer.localWidth/Height is the frame maximum size, width/height is the video size
-				//visible_width/height should be ignored, it's how VLC think it should fit
-				float videoWidth = (VideoPlayer.isFullScreen ? VideoPlayer.widthScreen : VideoPlayer.localWidth);
-				float videoHeight = (VideoPlayer.isFullScreen ? VideoPlayer.heightScreen : VideoPlayer.localHeight);
-				float ratioWidth = videoWidth / (float)width;
-				float ratioHeight = videoHeight / (float)height;
-				if(ratioWidth > ratioHeight)
-				{
-					videoWidth = videoWidth / ratioWidth * ratioHeight;
-				}
-				else
-				{
-					videoHeight = videoHeight / ratioHeight * ratioWidth;
-				}
+            // set display size
+            //VideoPlayer.localWidth/Height is the frame maximum size, width/height is the video size
+            //visible_width/height should be ignored, it's how VLC think it should fit
+            float videoWidth = (VideoPlayer.isFullScreen ? VideoPlayer.widthScreen : VideoPlayer.localWidth);
+            float videoHeight = (VideoPlayer.isFullScreen ? VideoPlayer.heightScreen : VideoPlayer.localHeight);
+            float ratioWidth = videoWidth / (float)width;
+            float ratioHeight = videoHeight / (float)height;
+            if(ratioWidth > ratioHeight) {
+                videoWidth = videoWidth / ratioWidth * ratioHeight;
+            }
+            else {
+                videoHeight = videoHeight / ratioHeight * ratioWidth;
+            }
 
-				FrameLayout.LayoutParams lp = (android.widget.FrameLayout.LayoutParams) videoView.getLayoutParams();
-				lp.width  = (int)videoWidth;
-				lp.height = (int)videoHeight;
-				lp.leftMargin = (int)(VideoPlayer.isFullScreen ? 0 : widthScreen - localX - (videoWidth / 2));
-				lp.topMargin = (int)(VideoPlayer.isFullScreen ? 0 : heightScreen - localY - (videoHeight / 2));
-				lp.gravity = isFullScreen ? Gravity.CENTER : (Gravity.TOP | Gravity.START);
-				if(videoView != null) {
-					videoView.setLayoutParams(lp);
-					videoView.invalidate();
-				}
-			}
-		});
+            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) videoView.getLayoutParams();
+            lp.width  = (int)videoWidth;
+            lp.height = (int)videoHeight;
+            lp.leftMargin = (int)(VideoPlayer.isFullScreen ? 0 : widthScreen - localX - (videoWidth / 2));
+            lp.topMargin = (int)(VideoPlayer.isFullScreen ? 0 : heightScreen - localY - (videoHeight / 2));
+            lp.gravity = isFullScreen ? Gravity.CENTER : (Gravity.TOP | Gravity.START);
+            if(videoView != null) {
+                videoView.setLayoutParams(lp);
+                videoView.invalidate();
+            }
+        });
 	}
 
 	@Override
+    @SuppressWarnings("unused")
 	public void onNewLayout(IVLCVout vlcVout,final int width,final int height, int visibleWidth, int visibleHeight, int sarNum, int sarDen) {
 		if (width * height == 0)
 			return;
 
 		currentVideoWidth = width;
 		currentVideoHeight = height;
-		if(vlcVout != vlcMediaPlayer.getVLCVout())
-		{
-			try
-			{
+		if(vlcVout != vlcMediaPlayer.getVLCVout()) {
+			try {
 				vlcVout.setVideoView(videoView);
 				vlcVout.attachViews();
 			}
-			catch(IllegalStateException e)
-			{
+			catch(IllegalStateException e) {
 				e.printStackTrace();
 			}
 		}
@@ -872,10 +761,12 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 	}
 
 	@Override
+    @SuppressWarnings("unused")
 	public void onSurfacesCreated(IVLCVout vlcVout) {
 	}
 
 	@Override
+    @SuppressWarnings("unused")
 	public void onSurfacesDestroyed(IVLCVout vlcVout) {
 		this.releasePlayer();
 	}
@@ -889,10 +780,11 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 		private WeakReference<VideoPlayer> mOwner;
 
 		MyPlayerListener(VideoPlayer owner) {
-			mOwner = new WeakReference<VideoPlayer>(owner);
+			mOwner = new WeakReference<>(owner);
 		}
 
 		@Override
+        @SuppressWarnings("unused")
 		public void onEvent(org.videolan.libvlc.MediaPlayer.Event event) {
 			VideoPlayer player = mOwner.get();
 
@@ -900,17 +792,12 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 				case org.videolan.libvlc.MediaPlayer.Event.EndReached:
 					Log.d(TAG, "MediaPlayerEndReached");
 					videoEnded = true;
-					NativeUtility.getMainActivity().runOnGLThread(new Runnable()
-					{
-						public void run()
-						{
-							notifyVideoEnded(path);
-							if(shouldLoop)
-							{
-								play();
-							}
-						}
-					});
+					NativeUtility.getMainActivity().runOnGLThread(() -> {
+                        notifyVideoEnded(path);
+                        if(shouldLoop) {
+                            play();
+                        }
+                    });
 					break;
 				case org.videolan.libvlc.MediaPlayer.Event.Playing:
 				case org.videolan.libvlc.MediaPlayer.Event.Paused:
@@ -933,6 +820,7 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 	}
 
 	@Override
+    @SuppressWarnings("unused")
 	public void eventHardwareAccelerationError() {
 		// Handle errors with hardware acceleration
 		Log.e(TAG, "Error with hardware acceleration");
