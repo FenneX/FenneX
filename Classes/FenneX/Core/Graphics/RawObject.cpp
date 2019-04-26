@@ -164,10 +164,14 @@ bool RawObject::collision(Vec2 point)
 
 bool RawObject::collision(Rect rect)
 {
-    if(rect.origin.x + rect.size.width / 2 * this->getScaleX() >= this->getPosition().x - this->getSize().width / 2 * this->getScaleX()
-       && rect.origin.x - rect.size.width / 2 * this->getScaleX() < this->getPosition().x + this->getSize().width * (1-this->getNode()->getAnchorPoint().x) * this->getScaleX()
-       && rect.origin.y + rect.size.height / 2 * this->getScaleY() >= this->getPosition().y - this->getSize().height * this->getNode()->getAnchorPoint().y * this->getScaleY()
-       && rect.origin.y - rect.size.height / 2 * this->getScaleY() < this->getPosition().y + this->getSize().height * (1-this->getNode()->getAnchorPoint().y) * this->getScaleY())
+    const Vec2& position = this->getPosition();
+    const Size& size = this->getSize();
+    const Vec2& anchorPoint = this->getNode()->getAnchorPoint();
+    
+    if(rect.origin.x + rect.size.width / 2 * this->getScaleX() >= position.x - size.width / 2 * this->getScaleX()
+       && rect.origin.x - rect.size.width / 2 * this->getScaleX() < position.x + size.width * (1-anchorPoint.x) * this->getScaleX()
+       && rect.origin.y + rect.size.height / 2 * this->getScaleY() >= position.y - size.height * anchorPoint.y * this->getScaleY()
+       && rect.origin.y - rect.size.height / 2 * this->getScaleY() < position.y + size.height * (1-anchorPoint.y) * this->getScaleY())
     {
         return true;
     }
