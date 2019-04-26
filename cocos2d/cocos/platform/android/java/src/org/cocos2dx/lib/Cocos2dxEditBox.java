@@ -171,21 +171,33 @@ public class Cocos2dxEditBox extends EditText implements TimePickerDialog.OnTime
         Calendar calendar = Calendar.getInstance();
         if(inputMode == kEditBoxInputModeTime)
             {
-                        TimePickerDialog timePicker = new TimePickerDialog(
-                                context,
-                                this,
-                                calendar.get(Calendar.HOUR_OF_DAY),
-                                calendar.get(Calendar.MINUTE),
-                                DateFormat.is24HourFormat(context)
-                                );
-            timePicker.setTitle("Select Time");
+                TimePickerDialog timePicker = null;
+                int style = 0;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                    style = android.R.style.Theme_Material_Light_Dialog_Alert;
+                }
+                timePicker = new TimePickerDialog(
+                        context,
+                        style,
+                        this,
+                        calendar.get(Calendar.HOUR_OF_DAY),
+                        calendar.get(Calendar.MINUTE),
+                        DateFormat.is24HourFormat(context)
+                );
+                timePicker.setTitle("Select Time");
             timePicker.show();
             customInput = timePicker;
         }
         else if(inputMode == kEditBoxInputModeDate)
-            {
-                        DatePickerDialog datePicker = new DatePickerDialog(
+        {
+
+            int style = 0;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                style = android.R.style.Theme_Material_Light_Dialog_Alert;
+            }
+            DatePickerDialog datePicker = new DatePickerDialog(
                                 context,
+                                style,
                                 this,
                                 calendar.get(Calendar.YEAR),
                                 calendar.get(Calendar.MONTH),
