@@ -53,7 +53,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class NativeUtility 
@@ -303,6 +305,15 @@ public class NativeUtility
             return DateFormat.getTimeInstance(hourFormatInfo).format(toConvert);
         }
         return "";
+    }
+
+    @SuppressWarnings("unused")
+    public static String formatDateTime(long date, String formatTemplate)
+    {
+        String pattern = android.text.format.DateFormat.getBestDateTimePattern(Locale.getDefault(), formatTemplate);
+        Date toConvert = new Date(date * 1000);
+        String result = new SimpleDateFormat(pattern, Locale.getDefault()).format(toConvert);
+        return new SimpleDateFormat(pattern, Locale.getDefault()).format(toConvert);
     }
 
     @SuppressWarnings("unused")
