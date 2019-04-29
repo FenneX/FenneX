@@ -112,6 +112,12 @@ void stopSpeakText()
     minfo.env->DeleteLocalRef(minfo.classID);
 }
 
+float getCurrentVoiceWPM()
+{
+    //Right now, we don't have any WPM values for speech
+    return DEFAULT_SPEECH_WPM;
+}
+
 float getTTSPlayRate()
 {
     JniMethodInfo minfo;
