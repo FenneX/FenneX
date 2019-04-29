@@ -51,6 +51,12 @@ bool isSpeaking()
     return [[TTS sharedTTS] isSpeaking];
 }
 
+float getCurrentVoiceWPM()
+{
+    //Right now, we don't have any WPM values for speech
+    return DEFAULT_SPEECH_WPM;
+}
+
 float getTTSPlayRate()
 {
     return [TTS sharedTTS].playRate;
