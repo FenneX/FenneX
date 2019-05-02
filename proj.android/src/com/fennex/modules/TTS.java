@@ -143,15 +143,17 @@ public class TTS implements TextToSpeech.OnInitListener
 			for(int i = 0; i < preinitQueue.size(); i++) {
 				String s = preinitQueue.get(i);
 				if(i == preinitQueue.size()-1) {
+					//Only add settings (which contains Utterance ID) in last text
 					engine.speak(s, TextToSpeech.QUEUE_ADD, settings);
 				}
 				else if(i == 0) {
+					//First text flush the queue, just in case: TTS is not supposed to be initialized before
 					engine.speak(s, TextToSpeech.QUEUE_FLUSH, null);
 				}
 				else {
+					//Anything in-between is just added normally to the queue
 					engine.speak(s, TextToSpeech.QUEUE_ADD, null);
 				}
-				engine.speak(s, TextToSpeech.QUEUE_ADD, settings);
 			}
 			preinitQueue.clear();
 		}
