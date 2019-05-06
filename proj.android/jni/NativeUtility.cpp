@@ -302,7 +302,20 @@ std::string formatDateTime(time_t date, std::string formatTemplate)
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(jformatTemplate);
     minfo.env->DeleteLocalRef(result);
-    return dateString;    
+    return dateString;
+}
+
+long parseDate(const std::string& date, DateFormat dayFormat)
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "parseDate", "(Ljava/lang/String;I)J");
+    CCAssert(functionExist, "Function doesn't exist");
+
+    jstring jdate = minfo.env->NewStringUTF(date.c_str());
+    jlong result = (jlong) minfo.env->CallStaticLongMethod(minfo.classID, minfo.methodID, jdate, (jint)dayFormat);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(jdate);
+    return (long)result;
 }
 
 std::string formatDurationShort(int seconds)

@@ -54,6 +54,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.Locale;
 
@@ -314,6 +315,21 @@ public class NativeUtility
         Date toConvert = new Date(date * 1000);
         String result = new SimpleDateFormat(pattern, Locale.getDefault()).format(toConvert);
         return new SimpleDateFormat(pattern, Locale.getDefault()).format(toConvert);
+    }
+
+    @SuppressWarnings("unused")
+    public static long parseDate(String date, int dayFormat)
+    {
+        int dayFormatInfo = getDateFormat(dayFormat);
+        try
+        {
+            return DateFormat.getDateInstance(dayFormatInfo).parse(date).getTime() / 1000;
+        }
+        catch (ParseException e)
+        {
+            Log.i(TAG, "parse time failed with exception : " + e.getMessage());
+        }
+        return 0;
     }
 
     @SuppressWarnings("unused")

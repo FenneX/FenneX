@@ -280,6 +280,14 @@ std::string formatDateTime(time_t date, std::string formatTemplate)
     return std::string([result UTF8String]);
 }
 
+long parseDate(const std::string& date, DateFormat dayFormat)
+{
+    NSDateFormatter *formatter = [[[NSDateFormatter alloc] init] autorelease];
+    [formatter setDateStyle:dateFormatToFormatterStyle(dayFormat)];
+    NSDate *nsdate = [formatter dateFromString:[NSString stringWithFormat:@"%s", date.c_str()]];
+    return round([nsdate timeIntervalSince1970]);
+}
+
 std::string formatDurationShort(int seconds)
 {
     NSDateComponentsFormatter* formatter = [[[NSDateComponentsFormatter alloc] init] autorelease];
