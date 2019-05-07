@@ -79,6 +79,7 @@ protected:
     void adjustLabel();
     std::string fontFile;
     std::string fullFontFile;
+    std::string fullText;
     TextHAlignment alignment;
     
     std::string loadingValue;
