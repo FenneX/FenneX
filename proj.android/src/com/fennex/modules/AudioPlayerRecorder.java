@@ -151,7 +151,7 @@ public class AudioPlayerRecorder extends Handler {
             });
             mPlayer.setOnCompletionListener(new OnCompletionListener() {
                 public void onCompletion(MediaPlayer mp) {
-                    notifyPlayingSoundEnded();
+                    NativeUtility.getMainActivity().runOnGLThread(AudioPlayerRecorder::notifyPlayingSoundEnded);
                 }
             });
             currentFile = startMediaPlayer(mPlayer, fileName, true, true, newVolume);
@@ -261,7 +261,7 @@ public class AudioPlayerRecorder extends Handler {
             {
             	fullName = null;
                 Log.e(TAG, "prepare() failed from resources, exception : " + e.getLocalizedMessage());
-                notifyPlayingSoundEnded();
+                NativeUtility.getMainActivity().runOnGLThread(AudioPlayerRecorder::notifyPlayingSoundEnded);
             }
         }
         return fullName;
@@ -713,23 +713,11 @@ public class AudioPlayerRecorder extends Handler {
         int event = msg.getData().getInt("event", -1);
         if(event == EventHandler.MediaPlayerEncounteredError)
         {
-            NativeUtility.getMainActivity().runOnGLThread(new Runnable()
-            {
-                public void run()
-                {
-                    notifyPlayingSoundEnded();
-                }
-            });
+            NativeUtility.getMainActivity().runOnGLThread(AudioPlayerRecorder::notifyPlayingSoundEnded);
         }
         else if(event == EventHandler.MediaPlayerEndReached)
         {
-            NativeUtility.getMainActivity().runOnGLThread(new Runnable()
-            {
-                public void run()
-                {
-                    notifyPlayingSoundEnded();
-                }
-            });
+            NativeUtility.getMainActivity().runOnGLThread(AudioPlayerRecorder::notifyPlayingSoundEnded);
         }
         else if(event == EventHandler.HardwareAccelerationError)
         {
