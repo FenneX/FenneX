@@ -62,13 +62,8 @@ public class HtmlToPdf {
         File path = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_DOCUMENTS);
         if (!path.exists()) {
             if (!path.mkdirs()) {
-                NativeUtility.getMainActivity().runOnGLThread(new Runnable()
-                {
-                    public void run()
-                    {
-                        HtmlToPdf.notifyPdfCreationFailure(fileName, "CreateDirectoryFailed");
-                    }
-                });
+                NativeUtility.getMainActivity().runOnGLThread(() -> 
+                    HtmlToPdf.notifyPdfCreationFailure(fileName, "CreateDirectoryFailed"));
                 return;
             }
         }
@@ -91,8 +86,10 @@ public class HtmlToPdf {
             Intent intent = Intent.createChooser(target, "Open File");
             try {
                 NativeUtility.getMainActivity().startActivity(intent);
-                } catch (ActivityNotFoundException e) {
-                notifyPdfCreationFailure(fileName, "OpenPreviewFailed");
+            } catch (ActivityNotFoundException e) {
+                NativeUtility.getMainActivity().runOnGLThread(() -> {
+                    notifyPdfCreationFailure(fileName, "OpenPreviewFailed");
+                });
             }
         }
 }
