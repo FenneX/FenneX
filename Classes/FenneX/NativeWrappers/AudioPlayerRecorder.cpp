@@ -176,7 +176,6 @@ FileLocation AudioPlayerRecorder::getSaveLocation()
     return location;
 }
 
-
 void AudioPlayerRecorder::setNumberOfLoops(int loops, float pauseBetween)
 { //Looping is done is common code because pauseBetween isn't supported by any platform
     //Looping itself is fully supported on iOS, partially on MediaPlayer (only infinite) and partially on LibVLC (using MediaList, which is more of a workaround than real looping)
@@ -211,7 +210,7 @@ void AudioPlayerRecorder::onSoundEnded()
     else
     {
         pauseBetween = 0;
-        DelayedDispatcher::eventAfterDelay("PlayingSoundEnded", Value(), 0.01);
+        DelayedDispatcher::eventAfterDelay("PlayingSoundEnded", Value(ValueMap({{"Identifier", Value(playID)}})), 0.01);
     }
 }
 
@@ -241,4 +240,10 @@ void AudioPlayerRecorder::setLink(Ref* value)
         this->stopAll();
         link = value;
     }
+}
+
+float AudioPlayerRecorder::play(const std::string& file, int _playID, Ref* linkTo, bool independent, float volume)
+{
+    playID = _playID;
+    this->play(file, linkTo, independent, volume);
 }
