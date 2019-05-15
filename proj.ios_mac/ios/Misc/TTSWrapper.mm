@@ -30,14 +30,14 @@ void initTTS()
     [TTS sharedTTS];
 }
 
-bool speakText(std::vector<std::string> text, int speechID)
+bool speakText(std::vector<std::string> text, int speechID, float volume)
 {
     NSMutableArray* nsText = [NSMutableArray array];
     for(std::string t : text)
     {
         [nsText addObject:[NSString stringWithUTF8String:t.c_str()]];
     }
-    [[TTS sharedTTS] speakText:nsText callbackID:speechID];
+    [[TTS sharedTTS] speakText:nsText callbackID:speechID volume:volume];
     return true;
 }
 
