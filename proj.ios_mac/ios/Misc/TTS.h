@@ -24,7 +24,7 @@
 
 @property (nonatomic) float playRate;
 
-- (void) speakText:(NSArray*)text callbackID:(int)callbackID;
+- (void) speakText:(NSArray*)text callbackID:(int)callbackID volume:(float)volume;
 - (void) stopSpeakText;
 - (bool) isSpeaking;
 

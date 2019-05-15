@@ -43,7 +43,7 @@ jobject getInstance();
 void initTTS(std::string engineName);
 #endif
 //SpeechID is currently not properly implemented(will always return last speechID)
-bool speakText(std::vector<std::string> text, int speechID = -1);
+bool speakText(std::vector<std::string> text, int speechID = -1, float volume = 1);
 void stopSpeakText();
 bool isSpeaking();
 //It is not possible to get exact duration like AudioPlayer does, but we often don't need a precise duration
