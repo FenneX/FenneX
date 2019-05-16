@@ -245,5 +245,5 @@ void AudioPlayerRecorder::setLink(Ref* value)
 float AudioPlayerRecorder::play(const std::string& file, int _playID, Ref* linkTo, bool independent, float volume)
 {
     playID = _playID;
-    this->play(file, linkTo, independent, volume);
+    return this->play(file, linkTo, independent, volume);
 }
