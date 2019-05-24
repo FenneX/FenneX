@@ -29,6 +29,7 @@ import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
@@ -98,7 +99,9 @@ public class NativeUtility
     @SuppressWarnings("WeakerAccess")
     public static String getAppName()
     {
-    	return getMainActivity().getClass().getSimpleName();
+        ApplicationInfo applicationInfo = getMainActivity().getApplicationInfo();
+        int stringId = applicationInfo.labelRes;
+        return stringId == 0 ? applicationInfo.nonLocalizedLabel.toString() : getMainActivity().getString(stringId);
     }
 
     public static String getPackageIdentifier()
