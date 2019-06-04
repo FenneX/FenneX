@@ -62,7 +62,9 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 		if(launchTime != 0 && this.getIntent().getDataString() != null && !this.getIntent().getBooleanExtra("IsUrlAlreadyOpened", false))
 		{
 			try {
-				NativeUtility.notifyUrlOpened(this.getIntent().getDataString());
+				NativeUtility.getMainActivity().runOnGLThread(() -> {
+					NativeUtility.notifyUrlOpened(this.getIntent().getDataString());
+				});
 				this.getIntent().putExtra("IsUrlAlreadyOpened", true);
 			}
 			catch(UnsatisfiedLinkError e) {
@@ -146,7 +148,9 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 		super.onNewIntent(intent);
 		if(launchTime != 0 && intent.getDataString() != null)
 		{
-			NativeUtility.notifyUrlOpened(intent.getDataString());
+			NativeUtility.getMainActivity().runOnGLThread(() -> {
+				NativeUtility.notifyUrlOpened(intent.getDataString());
+			});
 		}
 	}
 	
@@ -166,13 +170,7 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 			return;
 		}*/
 
-		NativeUtility.getMainActivity().runOnGLThread(new Runnable() 
-		{
-			public void run()
-			{
-				NativeUtility.notifyMemoryWarning();
-			}
-		});
+		NativeUtility.getMainActivity().runOnGLThread(NativeUtility::notifyMemoryWarning);
 	}
 	
 	@Override
@@ -180,13 +178,7 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 	{
 		if(keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)
 		{
-    		NativeUtility.getMainActivity().runOnGLThread(new Runnable() 
-    		{
-    			public void run()
-    			{
-    				NativeUtility.notifyVolumeChanged();
-    			}
-    		});
+    		NativeUtility.getMainActivity().runOnGLThread(() -> NativeUtility.notifyVolumeChanged());
 		}
 		// This is done to handle problem from having a surfaceview (like in VideoPLayer) overriding onKeyDown. ( So we override it again)
 		return org.cocos2dx.lib.Cocos2dxGLSurfaceView.getInstance().onKeyUp(keyCode, event);
@@ -221,7 +213,9 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 		if(this.getIntent().getDataString() != null && !this.getIntent().getBooleanExtra("IsUrlAlreadyOpened", false))
 		{
 			try {
-				NativeUtility.notifyUrlOpened(this.getIntent().getDataString());
+				NativeUtility.getMainActivity().runOnGLThread(() -> {
+					NativeUtility.notifyUrlOpened(this.getIntent().getDataString());
+				});
 				this.getIntent().putExtra("IsUrlAlreadyOpened", true);
 			}
 			catch(UnsatisfiedLinkError e) {

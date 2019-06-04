@@ -30,6 +30,7 @@
 #import <AudioToolbox/AudioServices.h>
 #import <sys/utsname.h>
 #import "NSFileManager+ApplicationSupport.h"
+#import "NSStringUtility.h"
 
 NS_FENNEX_BEGIN
 
@@ -258,7 +259,7 @@ NSDateFormatterStyle dateFormatToFormatterStyle(DateFormat format)
 //will format the date in long format (example: November 23, 1937) and time in short format (example: 3:30 PM) according to user local
 std::string formatDateTime(time_t date, DateFormat dayFormat, DateFormat hourFormat)
 {
-    NSDate *nsdate = [NSDate dateWithTimeIntervalSince1970:date];//"yyyy/MM/dd"
+    NSDate *nsdate = [NSDate dateWithTimeIntervalSince1970:date];
     NSDateFormatter *formatter = [[[NSDateFormatter alloc] init] autorelease];
     
     [formatter setDateStyle:dateFormatToFormatterStyle(dayFormat)];
@@ -266,6 +267,25 @@ std::string formatDateTime(time_t date, DateFormat dayFormat, DateFormat hourFor
     
     NSString *result = [formatter stringForObjectValue:nsdate];
     return std::string([result UTF8String]);
+}
+
+std::string formatDateTime(time_t date, std::string formatTemplate)
+{
+    NSDate *nsdate = [NSDate dateWithTimeIntervalSince1970:date];
+    NSDateFormatter *formatter = [[[NSDateFormatter alloc] init] autorelease];
+    // The components will be reordered according to the locale
+    [formatter setDateFormat:[NSDateFormatter dateFormatFromTemplate:getNSString(formatTemplate) options:0 locale:[NSLocale currentLocale]]];
+    
+    NSString *result = [formatter stringFromDate:nsdate];
+    return std::string([result UTF8String]);
+}
+
+long parseDate(const std::string& date, DateFormat dayFormat)
+{
+    NSDateFormatter *formatter = [[[NSDateFormatter alloc] init] autorelease];
+    [formatter setDateStyle:dateFormatToFormatterStyle(dayFormat)];
+    NSDate *nsdate = [formatter dateFromString:[NSString stringWithFormat:@"%s", date.c_str()]];
+    return round([nsdate timeIntervalSince1970]);
 }
 
 std::string formatDurationShort(int seconds)

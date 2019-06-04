@@ -31,7 +31,7 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.text.InputFilter;
 import android.text.InputType;
-import android.text.format.DateFormat;
+import java.text.DateFormat;
 import android.text.method.PasswordTransformationMethod;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -41,6 +41,8 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TimePicker;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 public class Cocos2dxEditBox extends EditText implements TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener {
     /**
@@ -182,7 +184,7 @@ public class Cocos2dxEditBox extends EditText implements TimePickerDialog.OnTime
                         this,
                         calendar.get(Calendar.HOUR_OF_DAY),
                         calendar.get(Calendar.MINUTE),
-                        DateFormat.is24HourFormat(context)
+                        android.text.format.DateFormat.is24HourFormat(context)
                 );
                 timePicker.setTitle("Select Time");
             timePicker.show();
@@ -214,12 +216,13 @@ public class Cocos2dxEditBox extends EditText implements TimePickerDialog.OnTime
     }
 
     public void onTimeSet(TimePicker view, int selectedHour, int selectedMinute) {
-        this.setText(String.format("%02d:%02d", selectedHour, selectedMinute));
+        this.setText(String.format(Locale.getDefault(),"%02d:%02d", selectedHour, selectedMinute));
     }
 
      public void onDateSet(DatePicker datepicker, int selectedYear, int selectedMonth, int selectedDay) {
-        selectedMonth += 1;
-        this.setText("" + selectedDay + "/" + selectedMonth + "/" + selectedYear);
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(selectedYear, selectedMonth, selectedDay);
+        this.setText(DateFormat.getDateInstance(DateFormat.SHORT).format(calendar.getTime()));
     }
 
     public void setEditBoxViewRect(int left, int top, int maxWidth, int maxHeight) {
