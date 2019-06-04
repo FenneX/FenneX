@@ -50,6 +50,31 @@ Size::Size(const Vec2& point) : width(point.x), height(point.y)
 {
 }
 
+bool Size::operator== (const Size& other) const
+{
+    return (this->width == other.width && this->height == other.height);
+}
+
+bool Size::operator<= (const Size& other) const
+{
+    return !(this->width > other.width && this->height > other.height);
+}
+
+bool Size::operator>= (const Size& other) const
+{
+    return !(this->width < other.width && this->height < other.height);
+}
+
+bool Size::operator< (const Size& other) const
+{
+    return (this->width < other.width && this->height < other.height);
+}
+
+bool Size::operator> (const Size& other) const
+{
+    return (this->width > other.width && this->height > other.height);
+}
+
 Size& Size::operator= (const Size& other)
 {
     setSize(other.width, other.height);
