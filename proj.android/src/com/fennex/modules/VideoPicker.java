@@ -143,7 +143,7 @@ public class VideoPicker implements ActivityResultResponder {
                     File[] f = null;
 
                     // Skip some system folders
-                    if (dirPath.startsWith("/proc/") || dirPath.startsWith("/sys/") || dirPath.startsWith("/dev/"))
+                    if (dirPath.startsWith("/proc/") || dirPath.startsWith("/sys/") || dirPath.startsWith("/dev/") || dirPath.startsWith(FileUtility.getPublicPath() + "/Android"))
                         continue;
 
                     // Do not scan again if same canonical path
