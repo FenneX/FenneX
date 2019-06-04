@@ -29,7 +29,6 @@ import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
@@ -54,10 +53,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.text.ParseException;
 import java.util.Date;
-import java.util.Locale;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class NativeUtility 
@@ -99,9 +95,7 @@ public class NativeUtility
     @SuppressWarnings("WeakerAccess")
     public static String getAppName()
     {
-        ApplicationInfo applicationInfo = getMainActivity().getApplicationInfo();
-        int stringId = applicationInfo.labelRes;
-        return stringId == 0 ? applicationInfo.nonLocalizedLabel.toString() : getMainActivity().getString(stringId);
+    	return getMainActivity().getClass().getSimpleName();
     }
 
     public static String getPackageIdentifier()
@@ -309,30 +303,6 @@ public class NativeUtility
             return DateFormat.getTimeInstance(hourFormatInfo).format(toConvert);
         }
         return "";
-    }
-
-    @SuppressWarnings("unused")
-    public static String formatDateTime(long date, String formatTemplate)
-    {
-        String pattern = android.text.format.DateFormat.getBestDateTimePattern(Locale.getDefault(), formatTemplate);
-        Date toConvert = new Date(date * 1000);
-        String result = new SimpleDateFormat(pattern, Locale.getDefault()).format(toConvert);
-        return new SimpleDateFormat(pattern, Locale.getDefault()).format(toConvert);
-    }
-
-    @SuppressWarnings("unused")
-    public static long parseDate(String date, int dayFormat)
-    {
-        int dayFormatInfo = getDateFormat(dayFormat);
-        try
-        {
-            return DateFormat.getDateInstance(dayFormatInfo).parse(date).getTime() / 1000;
-        }
-        catch (ParseException e)
-        {
-            Log.i(TAG, "parse time failed with exception : " + e.getMessage());
-        }
-        return 0;
     }
 
     @SuppressWarnings("unused")

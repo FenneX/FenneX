@@ -30,14 +30,14 @@ void initTTS()
     [TTS sharedTTS];
 }
 
-bool speakText(std::vector<std::string> text, int speechID, float volume)
+bool speakText(std::vector<std::string> text, int speechID)
 {
     NSMutableArray* nsText = [NSMutableArray array];
     for(std::string t : text)
     {
         [nsText addObject:[NSString stringWithUTF8String:t.c_str()]];
     }
-    [[TTS sharedTTS] speakText:nsText callbackID:speechID volume:volume];
+    [[TTS sharedTTS] speakText:nsText callbackID:speechID];
     return true;
 }
 
@@ -49,12 +49,6 @@ void stopSpeakText()
 bool isSpeaking()
 {
     return [[TTS sharedTTS] isSpeaking];
-}
-
-float getCurrentVoiceWPM()
-{
-    //Right now, we don't have any WPM values for speech
-    return DEFAULT_SPEECH_WPM;
 }
 
 float getTTSPlayRate()

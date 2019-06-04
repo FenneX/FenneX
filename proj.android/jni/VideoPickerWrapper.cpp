@@ -32,25 +32,17 @@
 
 void startVideoRecordPreview(Vec2 position, cocos2d::Size size)
 {
-    DevicePermissions::ensurePermission(Permission::CAMERA, [=](){
-        DevicePermissions::ensurePermission(Permission::MICROPHONE, [=](){
-            JniMethodInfo minfo;
-            bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME_RECORDER,"startRecordPreview", "(FFFF)V");
-            CCAssert(functionExist, "Function doesn't exist");
-            minfo.env->CallStaticVoidMethod(
-                                            minfo.classID,
-                                            minfo.methodID,
-                                            (jfloat)position.x,
-                                            (jfloat)position.y,
-                                            (jfloat)size.width,
-                                            (jfloat)size.height);
-            minfo.env->DeleteLocalRef(minfo.classID);
-        }, [](){
-            notifyRecordingCancelled();
-        });
-    }, [](){
-        notifyRecordingCancelled();
-    });
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME_RECORDER,"startRecordPreview", "(FFFF)V");
+    CCAssert(functionExist, "Function doesn't exist");
+    minfo.env->CallStaticVoidMethod(
+                                    minfo.classID,
+                                    minfo.methodID,
+                                    (jfloat)position.x,
+                                    (jfloat)position.y,
+                                    (jfloat)size.width,
+                                    (jfloat)size.height);
+    minfo.env->DeleteLocalRef(minfo.classID);
 }
 
 void stopVideoRecordPreview()

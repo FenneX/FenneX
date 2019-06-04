@@ -90,9 +90,13 @@ private static volatile AudioPicker instance = null;
 				//FileOutputStream selectedMusic = new FileOutputStream(storageDirectory + "/" + _fileName + ".mp3");
 				is.read(buffer);
 				selectedMusic.write(buffer);
-				NativeUtility.getMainActivity().runOnGLThread(() -> {
-					notifySoundPickedWrap(_fileName + ".mp3", _identifier);
-				});
+        		NativeUtility.getMainActivity().runOnGLThread(new Runnable() 
+        		{
+        			public void run()
+        			{
+        				notifySoundPickedWrap(_fileName+".mp3", _identifier);
+        			}
+        		});
 				return true;
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();

@@ -63,7 +63,6 @@ void LabelTTF::setLabelValue(std::string value, bool async)
     }
     else
     {
-        fullText = value;
         /*if(delegate->isUpdateEnabled())
         { //group those 2 calls in a single updateTexture
             delegate->enableUpdate(false);
@@ -117,7 +116,6 @@ float LabelTTF::getLineSpacing()
 void LabelTTF::setLineSpacing(float spacing)
 {
     delegate->setLineSpacing(spacing);
-    adjustLabel();
 }
 
 LabelTTF::LabelTTF() :
@@ -130,7 +128,6 @@ LabelTTF::LabelTTF(std::string labelString, std::string filename, Vec2 position,
 loadingValue("")
 {
     name = labelString;
-    fullText = labelString;
     fitType = CutEnd;
     this->alignment = alignment;
     int sizeBegin = -1, sizeEnd = -1, colorEnd = -1;
@@ -175,7 +172,6 @@ LabelTTF::LabelTTF(Label* label) :
 loadingValue("")
 {
     name = label->getString();
-    fullText = label->getString();
     fitType = CutEnd;
     fontFile = label->getSystemFontName();
     alignment = TextHAlignment::CENTER;
@@ -210,7 +206,7 @@ void LabelTTF::adjustLabel()
     if(realDimensions.width != 0 && realDimensions.height != 0 && fitType != NoResize)
     {
         bool wasChanged = false;
-        std::string original = fullText;
+        std::string original = delegate->getString();
         delegate->setString("l");
         float lineHeight = delegate->getContentSize().height;
         delegate->setString(original);

@@ -32,10 +32,6 @@ THE SOFTWARE.
 #endif
 USING_NS_FENNEX;
 
-//When a particular voice WPM (words per minute) is not known, use this value as default
-//It's better to have a slower rather than faster default speech WPM, so that text is not cut off
-#define DEFAULT_SPEECH_WPM 130
-
 //TTS requires iOS 7.0+, and will work on any Android. It is advised to update TTS Engine on Android
 void initTTS();
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
@@ -43,13 +39,9 @@ jobject getInstance();
 void initTTS(std::string engineName);
 #endif
 //SpeechID is currently not properly implemented(will always return last speechID)
-bool speakText(std::vector<std::string> text, int speechID = -1, float volume = 1);
+bool speakText(std::vector<std::string> text, int speechID = -1);
 void stopSpeakText();
 bool isSpeaking();
-//It is not possible to get exact duration like AudioPlayer does, but we often don't need a precise duration
-//Takes into account both Voice WPM and current Play Rate, and return a duration in seconds
-float estimateSpeechDuration(std::string text);
-float getCurrentVoiceWPM();
 
 //Must be called before playing a TTS. The rate is global for all subsequent TTS
 float getTTSPlayRate();

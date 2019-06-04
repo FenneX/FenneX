@@ -143,7 +143,7 @@ public class VideoPicker implements ActivityResultResponder {
                     File[] f = null;
 
                     // Skip some system folders
-                    if (dirPath.startsWith("/proc/") || dirPath.startsWith("/sys/") || dirPath.startsWith("/dev/") || dirPath.startsWith(FileUtility.getPublicPath() + "/Android"))
+                    if (dirPath.startsWith("/proc/") || dirPath.startsWith("/sys/") || dirPath.startsWith("/dev/"))
                         continue;
 
                     // Do not scan again if same canonical path
@@ -185,33 +185,43 @@ public class VideoPicker implements ActivityResultResponder {
                 	final String path = file.getPath();
                 	if(path.length() > 0)
                 	{
-                		NativeUtility.getMainActivity().runOnGLThread(() -> {
-                              try
-                              {
-                                MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-                                Log.i(TAG, "Setting data source to : " + path);
-                                retriever.setDataSource(path); //SetDataSource can fail. If it does, the format is unsupported
-                                  notifyVideoFound(path);
-                                Log.i(TAG, "Setting data source success of : " + path);
-                                String title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-                                String videoName = title != null ? title : path.lastIndexOf('/') >= 0 ? path.substring(path.lastIndexOf('/')+1) : path;
-                                Log.i(TAG, "video found, path : " + path + ", name : " + videoName);
-                                notifyVideoName(path, videoName);
-                                String duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-                                if(duration != null && duration.length() > 0 && Integer.parseInt(duration) > 0)
-                                {
-                                    VideoPlayer.notifyVideoDurationAvailable(path, (float)Integer.parseInt(duration) / 1000.0f);
-                                }
-                              }
-                              catch(Exception e)
-                              {
-                                  Log.e(TAG, "Can't get metadata for path : " + path);
-                              }
-                          });
+                		NativeUtility.getMainActivity().runOnGLThread(new Runnable() 
+                		{
+                			public void run()
+	            			{
+	                          	try
+	                          	{
+		        	    	        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+		        	    	        Log.i(TAG, "Setting data source to : " + path);
+		        	    	        retriever.setDataSource(path); //SetDataSource can fail. If it does, the format is unsupported
+		                          	notifyVideoFound(path); 
+		        	    	        Log.i(TAG, "Setting data source success of : " + path);
+		        	    	        String title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+		        	    	        String videoName = title != null ? title : path.lastIndexOf('/') >= 0 ? path.substring(path.lastIndexOf('/')+1) : path;
+		        	    	        Log.i(TAG, "video found, path : " + path + ", name : " + videoName);
+		        	    	        notifyVideoName(path, videoName);
+		        	    	        String duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+		        	    	        if(duration != null && duration.length() > 0 && Integer.parseInt(duration) > 0)
+		        	    	        {
+		        	    	        	VideoPlayer.notifyVideoDurationAvailable(path, (float)Integer.parseInt(duration) / 1000.0f);
+		        	    	        }
+	                          	}
+	                          	catch(Exception e)
+	                          	{
+	                          		Log.e(TAG, "Can't get metadata for path : " + path);
+	                          	}
+            		  		}
+            			});
                 	}
                 }
 
-        		NativeUtility.getMainActivity().runOnGLThread(() -> notifyGetAllVideosFinished());
+        		NativeUtility.getMainActivity().runOnGLThread(new Runnable() 
+        		{
+        			public void run()
+        			{
+        				notifyGetAllVideosFinished();
+        			}
+        		});
             }
         };
         thread.start();
@@ -271,7 +281,7 @@ public class VideoPicker implements ActivityResultResponder {
         isPending = false;
         if(resultCode == RESULT_CANCELED)
         {
-            NativeUtility.getMainActivity().runOnGLThread(VideoPicker::notifyVideoPickCancelled);
+            notifyVideoPickCancelled();
         }
         else if (requestCode == VIDEO_GALLERY || requestCode == CAMERA_CAPTURE)
 		{
@@ -317,7 +327,13 @@ public class VideoPicker implements ActivityResultResponder {
             }
             final String name = _fileName; // In case we relaunch with a new filename before the thread run
             final FileUtility.FileLocation location = _location;
-    		NativeUtility.getMainActivity().runOnGLThread(() -> notifyVideoPickedWrap(name, location.getValue()));
+    		NativeUtility.getMainActivity().runOnGLThread(new Runnable() 
+    		{
+    			public void run()
+    			{
+    				notifyVideoPickedWrap(name, location.getValue());
+    			}
+    		});
 			return true;
 		}
 		else

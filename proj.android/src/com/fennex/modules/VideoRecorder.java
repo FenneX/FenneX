@@ -187,14 +187,18 @@ public class VideoRecorder extends Activity implements SurfaceHolder.Callback, M
     	{
 			Log.e(TAG,e.getMessage());
 			e.printStackTrace();
-    		NativeUtility.getMainActivity().runOnUiThread(() -> NativeUtility.showToast("CantCopyVideo", Toast.LENGTH_LONG));
+    		NativeUtility.getMainActivity().runOnUiThread(new Runnable() {
+    			@Override
+    			public void run() 
+    			{
+					NativeUtility.showToast("CantCopyVideo", Toast.LENGTH_LONG);
+    			}
+    		});
 			externalPath = null;
     	}
 
         final String path = externalPath != null ? externalPath : videoPath;
-
-		NativeUtility.getMainActivity().runOnGLThread(() ->
-				VideoPicker.notifyVideoPickedWrap(path, FileUtility.FileLocation.Absolute.getValue()));
+        VideoPicker.notifyVideoPickedWrap(path, FileUtility.FileLocation.Absolute.getValue());
         //Execute this part in another thread since MediaMetadataRetriever can take some time
         Thread thread = new Thread()
         {
@@ -203,11 +207,8 @@ public class VideoRecorder extends Activity implements SurfaceHolder.Callback, M
                 MediaMetadataRetriever retriever = new MediaMetadataRetriever();
                 retriever.setDataSource(path);
                 String title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-
-				NativeUtility.getMainActivity().runOnGLThread(() -> 
-                    VideoPicker.notifyVideoName(
-                        path, 
-                        title != null ? title : path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('.'))));
+                VideoPicker.notifyVideoName(path, 
+                		title != null ? title : path.substring(path.lastIndexOf('/')+1, path.lastIndexOf('.')));
             }
         };
 
@@ -235,16 +236,20 @@ public class VideoRecorder extends Activity implements SurfaceHolder.Callback, M
     	}
     	if(stopped && notify)
     	{
-			NativeUtility.getMainActivity().runOnGLThread(() -> {
-				//A little sleep otherwise there are some problems with other views which intercepts touches
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+			NativeUtility.getMainActivity().runOnGLThread(new Runnable() 
+			{
+				public void run()
+				{
+					//A little sleep otherwise there are some problems with other views which intercepts touches
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					notifyRecordingCancelled();
 				}
-
-				notifyRecordingCancelled();
 			});
     	}
 		return stopped;

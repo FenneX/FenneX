@@ -29,15 +29,19 @@ public class DropDownList {
     {
         if(NativeUtility.getMainActivity() != null)
         {
-            NativeUtility.getMainActivity().runOnUiThread(() -> {
-                AlertDialog.Builder builder = new AlertDialog.Builder(NativeUtility.getMainActivity());
-                builder.setTitle(title);
-                builder.setItems(possibleValues, (dialog, which) -> {
-
-                    NativeUtility.getMainActivity().runOnGLThread(() -> notifySelectionDone(identifier, possibleValues[which]));
-                    dialog.dismiss();
-                });
-                builder.show();
+            NativeUtility.getMainActivity().runOnUiThread(new Runnable() {
+                public void run() {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(NativeUtility.getMainActivity());
+                    builder.setTitle(title);
+                    builder.setItems(possibleValues, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            notifySelectionDone(identifier, possibleValues[which]);
+                            dialog.dismiss();
+                        }
+                    });
+                    builder.show();
+                }
             });
         }
     }

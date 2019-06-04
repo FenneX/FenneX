@@ -99,7 +99,7 @@ public class ImagePicker implements ActivityResultResponder
         isPending = false;
         if(resultCode == RESULT_CANCELED)
         {
-            NativeUtility.getMainActivity().runOnGLThread(ImagePicker::notifyImagePickCancelled);
+            notifyImagePickCancelled();
         }
         else if (requestCode == PICTURE_GALLERY || requestCode == CAMERA_CAPTURE)
 		{
@@ -171,7 +171,11 @@ public class ImagePicker implements ActivityResultResponder
                         saveBitmap(bitmap, FileUtility.getFullPath(_fileName, _location));
                         bitmap.recycle();
                     }
-                    NativeUtility.getMainActivity().runOnGLThread(() -> notifyImagePickedWrap(_fileName, _location.getValue(), _identifier));
+                    NativeUtility.getMainActivity().runOnGLThread(new Runnable() {
+                        public void run() {
+                            notifyImagePickedWrap(_fileName, _location.getValue(), _identifier);
+                        }
+                    });
                 }
             } catch (IOException e) {
                 Log.d(TAG, "IOException while handling Intent result");
