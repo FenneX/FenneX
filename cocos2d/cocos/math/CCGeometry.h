@@ -70,6 +70,13 @@ public:
      * @js NA
      * @lua NA
      */
+    
+    bool operator== (const Size& other) const;
+    bool operator<= (const Size& other) const;
+    bool operator>= (const Size& other) const;
+    bool operator< (const Size& other) const;
+    bool operator> (const Size& other) const;
+    
     Size& operator= (const Size& other);
     /**
      * @js NA

@@ -117,12 +117,12 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 
     private static void adjustBaseView() {
         FrameLayout mainFrame = NativeUtility.getMainActivity().getMainLayout();
+        if(mainFrame == null) return;
         FrameLayout base = mainFrame.findViewById(baseId);
-        if(base == null)
-            return;
+        if(base == null) return;
 
         //Size is API 21, since we still support API 19, abuse Point
-        Point screen = new Point(NativeUtility.getMainActivity().getMainLayout().getWidth(), NativeUtility.getMainActivity().getMainLayout().getHeight());
+        Point screen = new Point(mainFrame.getWidth(), mainFrame.getHeight());
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
                 VideoPlayer.isFullScreen ? screen.x : (int) embeddedPos.width(),
                 VideoPlayer.isFullScreen ? screen.y : (int) embeddedPos.height(),
@@ -157,6 +157,7 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 
             //Prepare base view
             FrameLayout mainFrame = NativeUtility.getMainActivity().getMainLayout();
+            if(mainFrame == null) return;
             FrameLayout base = new FrameLayout(NativeUtility.getMainActivity());
             baseId = View.generateViewId();
             base.setId(baseId);
@@ -251,7 +252,14 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
 
     private static SurfaceView getVideoView() {
         if(baseId == null || videoViewId == null) return null;
-        return NativeUtility.getMainActivity().getMainLayout().findViewById(baseId).findViewById(videoViewId);
+        try
+        {
+            return NativeUtility.getMainActivity().getMainLayout().findViewById(baseId).findViewById(videoViewId);
+        }
+        catch (NullPointerException e)
+        {
+            return null;
+        }
     }
 
     @SuppressWarnings("unused")
@@ -338,7 +346,9 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
                     ((VideoView) videoView).stopPlayback();
                 }
                 FrameLayout mainFrame = NativeUtility.getMainActivity().getMainLayout();
+                if(mainFrame == null) return;
                 FrameLayout base = mainFrame.findViewById(baseId);
+                if(base == null) return;
                 base.removeAllViews();
                 mainFrame.removeView(base);
                 baseId = null;
@@ -401,7 +411,9 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
         }
         else if (baseId != null) {
             NativeUtility.getMainActivity().runOnUiThread(() -> {
-                FrameLayout base = NativeUtility.getMainActivity().getMainLayout().findViewById(baseId);
+                FrameLayout mainFrame = NativeUtility.getMainActivity().getMainLayout();
+                if(mainFrame == null) return;
+                FrameLayout base = mainFrame.findViewById(baseId);
                 if(base != null) {
                     if(isFullScreen) {
                         base.setBackgroundColor(Color.BLACK);
@@ -722,7 +734,9 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
         currentVideoHeight = height;
         // force surface buffer size
         NativeUtility.getMainActivity().runOnUiThread(() -> {
-            FrameLayout base = NativeUtility.getMainActivity().getMainLayout().findViewById(baseId);
+            FrameLayout mainFrame = NativeUtility.getMainActivity().getMainLayout();
+            if(mainFrame == null) return;
+            FrameLayout base = mainFrame.findViewById(baseId);
             SurfaceView videoView = getVideoView();
             if(videoView != null && base != null) {
                 SurfaceHolder mSurfaceHolder = videoView.getHolder();

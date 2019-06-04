@@ -70,13 +70,13 @@ public:
     void setMuted(bool muted);
     
     /**
-     * Return the path of the thumbnail (PNG file), absolute path, with .png extension
-     * May return nullptr if there was a problem generating the thumbnail
+     * Return the path of the screenshot (PNG file), absolute path, with .png extension
+     * May return nullptr if there was a problem generating the screenshot
      * path and videoLocation represent where to find the video
-     * thumbnailPath and thumbnailLocation represent where to save the thumbnail. If thumbnailPath is empty, path will be used with the add of "-thumbnail" at the end of it
+     * screenshotPath and screenshotLocation represent where to save the screenshot. If screenshotPath is empty, path will be used with the add of "-screenshot" at the end of it
      * Default value are legacy behavior
-    **/
-    static std::string getThumbnail(const std::string& path, FileLocation videoLocation = FileLocation::Absolute, const std::string& thumbnailPath = "", FileLocation thumbnailLocation = FileLocation::Local);
+     **/
+    static std::string getScreenshot(const std::string& path, FileLocation videoLocation = FileLocation::Absolute, const std::string& screenshotPath = "", FileLocation screenshotLocation = FileLocation::Local);
     
     //Return the size of the video
     //May return (0,0) if there was a problem with the video
