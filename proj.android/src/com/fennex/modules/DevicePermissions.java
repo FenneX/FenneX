@@ -79,13 +79,11 @@ public class DevicePermissions
                                                   int[] grantResults) {
         if(NativeUtility.getMainActivity() != null)
         {
-            NativeUtility.getMainActivity().runOnGLThread(() -> {
-                notifyPermissionRequestEnded(currentRequest.get(requestID),
-                        grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
-                currentRequest.delete(requestID);
-            });
+            notifyPermissionRequestEnded(currentRequest.get(requestID),
+                    grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
         }
 
+        currentRequest.delete(requestID);
     }
 
     //Syncronized with C++ enum class Permission

@@ -407,7 +407,13 @@ public class FileUtility implements ActivityResultResponder {
         if (requestCode == FILE_PICK && NativeUtility.getMainActivity() != null) {
             Log.d(TAG, "intent data: " + data.getDataString());
             final Uri fileUri = data.getData();
-            NativeUtility.getMainActivity().runOnGLThread(() -> notifyFilePicked(fileUri.getPath()));
+            NativeUtility.getMainActivity().runOnGLThread(new Runnable()
+            {
+                public void run()
+                {
+                    notifyFilePicked(fileUri.getPath());
+                }
+            });
             return true;
         }
         return false;

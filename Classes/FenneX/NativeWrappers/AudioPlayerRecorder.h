@@ -97,7 +97,6 @@ public:
     void stopRecording();
     // volume is between 0 and 1, 1 is default value. Must be set just after the start of the sound.
     float play(const std::string& file, Ref* linkTo, bool independent = false, float volume = 1); //return the duration of the file
-    float play(const std::string& file, int playID, Ref* linkTo, bool independent = false, float volume = 1); //return the duration of the file
     void stopPlaying(EventCustom* event = nullptr);
     void fadeVolumeOut();
     
@@ -127,7 +126,6 @@ protected:
     AudioPlayerRecorder();
     void init();
     Ref* link; //the object that required the record/play
-    int playID = -1;
     std::string path; //the current path being recorded/played
     FileLocation location; //For record only right now, Playing will use findFullPath
     void setPath(const std::string& value, FileLocation loc = FileLocation::ApplicationSupport);

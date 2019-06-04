@@ -66,14 +66,24 @@ public class PdfConverter {
                             documentAdapter.onWrite(new PageRange[]{PageRange.ALL_PAGES}, PdfConverter.getOutputFileDescriptor(file), null, new PrintDocumentAdapter.WriteResultCallback() {
                                 @Override
                                 public void onWriteFinished(PageRange[] pages) {
-                                    NativeUtility.getMainActivity().runOnGLThread(() -> 
-                                        HtmlToPdf.notifyPdfCreationSuccess(file.getName()));
+                                    NativeUtility.getMainActivity().runOnGLThread(new Runnable()
+                                    {
+                                        public void run()
+                                        {
+                                            HtmlToPdf.notifyPdfCreationSuccess(file.getName());
+                                        }
+                                    });
                                     documentAdapter.onFinish();
                                 }                                
                                 @Override
                                 public void onWriteFailed(CharSequence error) {
-                                    NativeUtility.getMainActivity().runOnGLThread(() -> 
-                                        HtmlToPdf.notifyPdfCreationFailure(file.getName(), "WritePDFFailed"));
+                                    NativeUtility.getMainActivity().runOnGLThread(new Runnable()
+                                    {
+                                        public void run()
+                                        {
+                                            HtmlToPdf.notifyPdfCreationFailure(file.getName(), "WritePDFFailed");
+                                        }
+                                    });
                                     documentAdapter.onFinish();
                                 }
 
@@ -81,15 +91,25 @@ public class PdfConverter {
                         }
                         catch (IOException e)
                         {
-                            NativeUtility.getMainActivity().runOnGLThread(() -> 
-                                HtmlToPdf.notifyPdfCreationFailure(file.getName(), "RenderFailed"));
+                            NativeUtility.getMainActivity().runOnGLThread(new Runnable()
+                            {
+                                public void run()
+                                {
+                                    HtmlToPdf.notifyPdfCreationFailure(file.getName(), "RenderFailed");
+                                }
+                            });
                             documentAdapter.onFinish();
                         }
                     }
                     @Override
                     public void  onLayoutFailed(CharSequence error)   {
-                        NativeUtility.getMainActivity().runOnGLThread(() -> 
-                            HtmlToPdf.notifyPdfCreationFailure(file.getName(), "RenderFailed"));
+                        NativeUtility.getMainActivity().runOnGLThread(new Runnable()
+                        {
+                            public void run()
+                            {
+                                HtmlToPdf.notifyPdfCreationFailure(file.getName(), "RenderFailed");
+                            }
+                        });
                         documentAdapter.onFinish();
                     }
                 }, null);

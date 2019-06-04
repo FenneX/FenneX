@@ -67,7 +67,13 @@ public class LocalNotification{
 			final Object[] array = (Object[]) intent.getExtras().getSerializable("array");
 			if(array != null)
 			{
-        		NativeUtility.getMainActivity().runOnGLThread(() -> notifyNotifClickedWrap(array));
+        		NativeUtility.getMainActivity().runOnGLThread(new Runnable() 
+        		{
+        			public void run()
+        			{
+        				notifyNotifClickedWrap(array);
+        			}
+        		});
 				Log.i("TimeIn", "alertBody: " + alertBody + " alertAction: " + alertAction + " soundName: "+ soundName);
 			}
 		}

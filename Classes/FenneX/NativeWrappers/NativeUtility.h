@@ -112,11 +112,6 @@ enum class DateFormat
 };
 // Will format the date depending on the DateFormat parameters
 std::string formatDateTime(time_t date, DateFormat dayFormat = DateFormat::LONG, DateFormat hourFormat = DateFormat::SHORT);
-// Format a date according a template (for example MMdd for day of month and month in numbers). It uses current locale to generate the correct format, according to which field you need.
-std::string formatDateTime(time_t date, std::string formatTemplate);
-// Will parse the strings depending on the DateFormat parameters
-long parseDate(const std::string&  date, DateFormat dayFormat = DateFormat::LONG);
-
 //Will format a duration in seconds into hours/minutes/seconds displayable to user (example: 1h 5m 20s on iOS, 1:05:20 on Android)
 std::string formatDurationShort(int seconds);
 

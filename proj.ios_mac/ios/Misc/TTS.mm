@@ -50,7 +50,7 @@ static TTS* _sharedTTS = nil;
     return self;
 }
 
-- (void) speakText:(NSArray*)text callbackID:(int)callbackID volume:(float)volume
+- (void) speakText:(NSArray*)text callbackID:(int)callbackID
 {
     lastID = callbackID;
     
@@ -72,7 +72,6 @@ static TTS* _sharedTTS = nil;
             utterance.rate = 0.3;
         }
         utterance.rate *= desiredPlayRate;
-        utterance.volume = volume;
         [engine speakUtterance:utterance];
         lastUtterance = utterance;
     }
