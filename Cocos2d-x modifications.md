@@ -129,3 +129,4 @@ Cocos2d-x V3.16 Modifications
 * cocos/network/CCDownloader => add support for Authorization header
 * cocos/network/CCDownloader-apple.mm => fix error response to use statusCode instead of 0
 * cocos2D/cocos/2d/CCLabel.h/.cpp (and other supporting files including CCDevice) => add support for lineSpacing on systemFont
+* cocos2D/cocos/2d/math/CCGeometry.cpp/.h => add '==', '<=', '>=' , '<', '>' operators for Size class
