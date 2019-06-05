@@ -224,7 +224,10 @@ USING_NS_FENNEX;
 
 - (void) setPlaybackRate:(float)rate
 {
-    playerController.player.rate = rate;
+    if(playerController.player.rate != 0)
+    {
+        playerController.player.rate = rate;
+    }
     desiredPlaybackRate = rate;
 }
 
