@@ -57,7 +57,7 @@
 - (void) setFullscreen:(BOOL)fullscreen animated:(BOOL)animated;
 - (void) setMuted:(BOOL)muted;
 
-+ (BOOL) getThumbnail:(NSString*)path thumbnailName:(NSString*)thumbnailName;
++ (BOOL) getScreenshot:(NSString*)path screenshotName:(NSString*)screenshotName;
 + (CGSize) getVideoSize:(NSString*)path;
 + (BOOL) videoExists:(NSString*)path;
 

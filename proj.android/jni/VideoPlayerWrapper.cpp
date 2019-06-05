@@ -192,23 +192,23 @@ void VideoPlayer::setMuted(bool muted)
     minfo.env->DeleteLocalRef(minfo.classID);
 }
 
-std::string VideoPlayer::getThumbnail(const std::string& path, FileLocation videoLocation, const std::string& thumbnailPath, FileLocation thumbnailLocation)
+std::string VideoPlayer::getScreenshot(const std::string& path, FileLocation videoLocation, const std::string& screenshotPath, FileLocation screenshotLocation)
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"getThumbnail", "(Ljava/lang/String;ILjava/lang/String;I)Ljava/lang/String;");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"getScreenshot", "(Ljava/lang/String;ILjava/lang/String;I)Ljava/lang/String;");
     CCAssert(functionExist, "Function doesn't exist");
     
     jstring stringArg = minfo.env->NewStringUTF(path.c_str());
-    jstring thumbnailStringArg = minfo.env->NewStringUTF(thumbnailPath.c_str());
-    jstring result = (jstring)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID, stringArg, (jint)videoLocation, thumbnailStringArg, (jint)thumbnailLocation);
+    jstring screenshotStringArg = minfo.env->NewStringUTF(screenshotPath.c_str());
+    jstring result = (jstring)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID, stringArg, (jint)videoLocation, screenshotStringArg, (jint)screenshotLocation);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(stringArg);
-    minfo.env->DeleteLocalRef(thumbnailStringArg);
+    minfo.env->DeleteLocalRef(screenshotStringArg);
     
-    std::string thumbnailPathRet = JniHelper::jstring2string(result);
+    std::string screenshotPathRet = JniHelper::jstring2string(result);
     minfo.env->DeleteLocalRef(result);
     
-    return thumbnailPathRet;
+    return screenshotPath;
 }
 
 cocos2d::Size VideoPlayer::getVideoSize(const std::string& path, FileLocation location)

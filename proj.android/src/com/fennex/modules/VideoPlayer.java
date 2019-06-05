@@ -520,37 +520,37 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
     }
 
     @SuppressWarnings("unused")
-    public static String getThumbnail(String path, int videoLocation, String thumbnailPath, int thumbnailLocation)
+    public static String getScreenshot(String path, int videoLocation, String screenshotPath, int screenshotLocation)
     {
         File videoFile = getFile(path, FileUtility.FileLocation.valueOf(videoLocation));
         if(videoFile == null) {
             return null;
         }
-        String thumbName = thumbnailPath;
+        String thumbName = screenshotPath;
         if(thumbName.isEmpty())
         {
             //Get the video full path, without extension
             String fileName = path.lastIndexOf('.') > -1 ? path.substring(0, path.lastIndexOf('.')) : path;
             if(FileUtility.FileLocation.valueOf(videoLocation) == FileUtility.FileLocation.Absolute
-                    && FileUtility.FileLocation.valueOf(thumbnailLocation) != FileUtility.FileLocation.Absolute
+                    && FileUtility.FileLocation.valueOf(screenshotLocation) != FileUtility.FileLocation.Absolute
                     && fileName.lastIndexOf('/') > -1) {
-                // If we are not using absolute for thumbnail but we use it for video, that mean we have a path to parse
+                // If we are not using absolute for screenshot but we use it for video, that mean we have a path to parse
                 fileName = fileName.substring(fileName.lastIndexOf('/') + 1);
             }
             //Add -thumbnail. That's the path used by cocos2dx
             thumbName = fileName + "-thumbnail";
         }
 
-        String thumbPath = FileUtility.getFullPath(thumbName + ".png", thumbnailLocation);
+        String thumbPath = FileUtility.getFullPath(thumbName + ".png", screenshotLocation);
         //Don't redo it if it already exists
         if(new File(thumbPath).exists()) {
-            Log.d(TAG, "Video thumbnail already created at path: " + thumbName);
+            Log.d(TAG, "Video screenshot already created at path: " + thumbName);
             return thumbPath;
         }
         try {
-            Log.d(TAG, "saving video thumbnail at path: " + thumbName + ", video path: " + videoFile.getAbsolutePath());
-            //Save the thumbnail in a PNG compressed format, and close everything. If something fails, return null
-            FileOutputStream streamThumbnail = new FileOutputStream(thumbPath);
+            Log.d(TAG, "saving video screenshot at path: " + thumbName + ", video path: " + videoFile.getAbsolutePath());
+            //Save the screenshot in a PNG compressed format, and close everything. If something fails, return null
+            FileOutputStream streamScreenshot = new FileOutputStream(thumbPath);
 
             MediaMetadataRetriever retriever = new MediaMetadataRetriever();
             try {
@@ -571,19 +571,19 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
                     thumb = ThumbnailUtils.createVideoThumbnail(videoFile.getAbsolutePath(), MediaStore.Images.Thumbnails.MINI_KIND);
                 }
                 if(thumb != null) {
-                    thumb.compress(CompressFormat.PNG, 80, streamThumbnail);
+                    thumb.compress(CompressFormat.PNG, 80, streamScreenshot);
                     thumb.recycle(); //ensure the image is freed;
                 }
                 else {
                     thumbPath = null;
                 }
             } catch (Exception ex) {
-                Log.i(TAG, "MediaMetadataRetriever in getThumbnail got exception:" + ex);
+                Log.i(TAG, "MediaMetadataRetriever in getScreenshot got exception:" + ex);
                 thumbPath = null;
             }
             retriever.release();
-            streamThumbnail.close();
-            Log.d(TAG, "thumbnail saved successfully");
+            streamScreenshot.close();
+            Log.d(TAG, "screenshot saved successfully");
         } catch (FileNotFoundException e) {
             Log.d(TAG, "File Not Found Exception : check directory path");
             e.printStackTrace();

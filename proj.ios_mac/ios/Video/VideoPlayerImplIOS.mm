@@ -338,15 +338,15 @@ USING_NS_FENNEX;
     return [moviePath hasPrefix:@"assets-library://"] || [moviePath hasPrefix:@"ipod-library://"] ? [NSURL URLWithString:moviePath] :  [NSURL fileURLWithPath:moviePath];
 }
 
-+ (BOOL) getThumbnail:(NSString*)path thumbnailName:(NSString*)thumbnailName
++ (BOOL) getScreenshot:(NSString*)path screenshotName:(NSString*)screenshotName
 {
-    //NSString* thumbnailPath = [path stringByReplacingOccurrencesOfString:[path lastPathComponent] withString:thumbnailFileName];
-    UIImage *thumbnail = nullptr;
+    //NSString* screenshotPath = [path stringByReplacingOccurrencesOfString:[path lastPathComponent] withString:screenshotFileName];
+    UIImage *screenshot = nullptr;
     //Only generate it if it doesn't exist
     //This method is badly named, it will check for ANY file, not just videos
-    if(![VideoPlayerImplIOS videoExists:thumbnailName])
+    if(![VideoPlayerImplIOS videoExists:screenshotName])
     {
-        //Try to get the thumbnail from Photo app first
+        //Try to get the screenshot from Photo app first
         AVURLAsset *asset = [[[AVURLAsset alloc] initWithURL:[VideoPlayerImplIOS URLFromPath:path] options:nil] autorelease];
         AVAssetImageGenerator *generateImg = [[[AVAssetImageGenerator alloc] initWithAsset:asset] autorelease];
         NSError *error = nullptr;
@@ -354,11 +354,11 @@ USING_NS_FENNEX;
         CGImageRef refImg = [generateImg copyCGImageAtTime:time actualTime:nullptr error:&error];
         if(error == nullptr)
         {
-            thumbnail = [[[UIImage alloc] initWithCGImage:refImg] autorelease];
-            //Fix the thumbnail orientation by rotating it (on iOS, the video can be rotated and there is a metadata that indicate that)
+            screenshot = [[[UIImage alloc] initWithCGImage:refImg] autorelease];
+            //Fix the screenshot orientation by rotating it (on iOS, the video can be rotated and there is a metadata that indicate that)
             AVAssetTrack *videoAssetTrack = [[asset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
             CGAffineTransform videoTransform = videoAssetTrack != nil ? videoAssetTrack.preferredTransform : CGAffineTransformIdentity;
-            thumbnail = [thumbnail imageRotatedWithTransform:videoTransform];
+            screenshot = [screenshot imageRotatedWithTransform:videoTransform];
         }
         //The asset is not available on Photos app, try to get it from Videos app
         else
@@ -381,22 +381,22 @@ USING_NS_FENNEX;
                 MPMediaItemArtwork *itemArtwork = [movie valueForProperty:MPMediaItemPropertyArtwork];
                 if(itemArtwork != nil)
                 {
-                    thumbnail = [itemArtwork imageWithSize:[itemArtwork bounds].size];
+                    screenshot = [itemArtwork imageWithSize:[itemArtwork bounds].size];
                 }
             }
         }
         
-        if(thumbnail != nullptr)
+        if(screenshot != nullptr)
         {
-            BOOL result = [UIImagePNGRepresentation(thumbnail) writeToFile:thumbnailName options:NSDataWritingAtomic error:&error];
-            NSLog(@"Write result for thumbnail %@ : %@", thumbnailName, (result ? @"OK" : @"Problem"));
+            BOOL result = [UIImagePNGRepresentation(screenshot) writeToFile:screenshotName options:NSDataWritingAtomic error:&error];
+            NSLog(@"Write result for screenshot %@ : %@", screenshotName, (result ? @"OK" : @"Problem"));
             if(result)
             {
-                Director::getInstance()->getTextureCache()->removeTextureForKey([thumbnailName UTF8String]);
+                Director::getInstance()->getTextureCache()->removeTextureForKey([screenshotName UTF8String]);
             }
             else
             {
-                NSLog(@"Write error for thumbnail description: %@, reason: %@", [error localizedDescription], [error localizedFailureReason]);
+                NSLog(@"Write error for screenshot description: %@, reason: %@", [error localizedDescription], [error localizedFailureReason]);
             }
             return result;
         }
