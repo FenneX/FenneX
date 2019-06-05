@@ -45,7 +45,7 @@ bool DevicePermissions::hasPermission(Permission permission)
 
 void DevicePermissions::ensurePermission(Permission permission, const std::function<void()> funcOnSuccess, const std::function<void()> funcOnDeny)
 {
-    if(std::find(acceptedPermission.begin(), acceptedPermission.end(), permission) != acceptedPermission.end())
+    if(hasPermission(permission))
     {
         funcOnSuccess();
     }

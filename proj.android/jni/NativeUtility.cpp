@@ -290,6 +290,34 @@ std::string formatDateTime(time_t dateTime, DateFormat dayFormat, DateFormat hou
     return dateTimeString;
 }
 
+std::string formatDateTime(time_t date, std::string formatTemplate)
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "formatDateTime", "(JLjava/lang/String;)Ljava/lang/String;");
+    CCAssert(functionExist, "Function doesn't exist");
+
+    jstring jformatTemplate = minfo.env->NewStringUTF(formatTemplate.c_str());
+    jstring result = (jstring) minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID, (jlong)date, jformatTemplate);
+    std::string dateString = JniHelper::jstring2string(result);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(jformatTemplate);
+    minfo.env->DeleteLocalRef(result);
+    return dateString;
+}
+
+long parseDate(const std::string& date, DateFormat dayFormat)
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "parseDate", "(Ljava/lang/String;I)J");
+    CCAssert(functionExist, "Function doesn't exist");
+
+    jstring jdate = minfo.env->NewStringUTF(date.c_str());
+    jlong result = (jlong) minfo.env->CallStaticLongMethod(minfo.classID, minfo.methodID, jdate, (jint)dayFormat);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(jdate);
+    return (long)result;
+}
+
 std::string formatDurationShort(int seconds)
 {
     JniMethodInfo minfo;
