@@ -370,7 +370,7 @@ bool Image::generateScaledImage(std::string fileToScale, std::string fileToSave,
     if(format == cocos2d::Image::Format::UNKNOWN || newTexture == nullptr)
     {
 #if VERBOSE_WARNING
-        log("Warning : Problem with asset : %s, texture not replaced", fileToScale.c_str());
+        log("Warning : Problem with asset : %s during generateScaleImage, no image generated", fileToScale.c_str());
 #endif
         return false;
     }
