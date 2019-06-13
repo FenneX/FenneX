@@ -208,7 +208,7 @@ std::string VideoPlayer::getScreenshot(const std::string& path, FileLocation vid
     std::string screenshotPathRet = JniHelper::jstring2string(result);
     minfo.env->DeleteLocalRef(result);
     
-    return screenshotPath;
+    return screenshotPathRet;
 }
 
 cocos2d::Size VideoPlayer::getVideoSize(const std::string& path, FileLocation location)
