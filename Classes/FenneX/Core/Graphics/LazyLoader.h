@@ -53,6 +53,9 @@ protected:
     void checkState(LabelTTF* label);
     void loadLabel(LabelTTF* label);
     
+    //limit distance
+    float distance;
+    
     //Images
     Vector<Image*> images; //The images which should load dynamically
     std::vector<std::string> textures; //The textures associated with those images

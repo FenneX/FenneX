@@ -162,6 +162,7 @@ void LazyLoader::addDynamicLoadFunc(FenneX::Image* image, std::string key, std::
 void LazyLoader::init()
 {
     this->clear();
+    distance = MAX(Director::getInstance()->getWinSize().width, Director::getInstance()->getWinSize().height);
 }
 
 void LazyLoader::clear()
@@ -180,7 +181,7 @@ void LazyLoader::checkState(FenneX::Image* img)
 {
     if(images.find(img) != images.end()
        && loadedImages.find(img) == loadedImages.end()
-       && GraphicLayer::sharedLayer()->isOnScreen(img, *sizes.at(images.getIndex(img))))
+       && GraphicLayer::sharedLayer()->isCloseToScreen(img, *sizes.at(images.getIndex(img)), distance))
     {
         this->loadImage(img);
     }

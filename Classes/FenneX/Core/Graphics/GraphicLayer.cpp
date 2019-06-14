@@ -842,6 +842,25 @@ bool GraphicLayer::isOnScreen(RawObject* obj, Size size)
     return false;
 }
 
+bool GraphicLayer::isCloseToScreen(RawObject* obj, Size size, float distance)
+{
+    Vec2 position = this->getRealPosition(obj);
+    if(size.width == 0 && size.height == 0)
+    {
+        size = SizeMult(obj->getSize(), this->getRealScale(obj));
+    }
+    Vec2 anchorPoint = obj->getNode()->getAnchorPoint();
+    Size bounds = Director::getInstance()->getOpenGLView()->getFrameSize();
+    if(bounds.width + distance > position.x - size.width * anchorPoint.x
+       && 0 - distance < position.x + size.width * (1-anchorPoint.x)
+       && bounds.height + distance > position.y - size.height * anchorPoint.y
+       && 0 - distance < position.y + size.height * (1-anchorPoint.y))
+    {
+        return true;
+    }
+    return false;
+}
+
 bool GraphicLayer::isInFront(RawObject* obj1, RawObject* obj2)
 {
     return storedObjects.getIndex(obj1) < storedObjects.getIndex(obj2);
