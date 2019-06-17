@@ -130,3 +130,4 @@ Cocos2d-x V3.16 Modifications
 * cocos/network/CCDownloader-apple.mm => fix error response to use statusCode instead of 0
 * cocos2D/cocos/2d/CCLabel.h/.cpp (and other supporting files including CCDevice) => add support for lineSpacing on systemFont
 * cocos2D/cocos/2d/math/CCGeometry.cpp/.h => add '==', '<=', '>=' , '<', '>' operators for Size class
+* Cocos2dxActivity.java => use setZOrderMediaOverlay on main GL SurfaceView to work around a bug where VideoPlayer SurfaceView appear in front of GL SurfaceView instead of behind with Oreo (Android 8)

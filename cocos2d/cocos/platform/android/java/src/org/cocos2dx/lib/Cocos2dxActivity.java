@@ -265,6 +265,15 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
 
         // Cocos2dxGLSurfaceView
         this.mGLSurfaceView = this.onCreateView();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            /*
+             * There is an issue with VideoPlayer in background that appear on top of GL Surface View
+             * that first appeared in Oreo update. To solve this issue, GL Surface View need to be forced
+             * as an overlay, then VideoPlayer can use the same method to choose whether to be on top
+             * or behind
+             */
+            this.mGLSurfaceView.setZOrderMediaOverlay(true);
+        }
 
         // ...add to FrameLayout
         mFrameLayout.addView(this.mGLSurfaceView);
