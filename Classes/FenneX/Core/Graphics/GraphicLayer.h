@@ -198,7 +198,7 @@ public:
     //Return true if at least some part of the object is on screen
     bool isOnScreen(RawObject* obj, cocos2d::Size size = cocos2d::Size(0, 0));
     
-    bool isCloseToScreen(RawObject* obj, Size size = cocos2d::Size(0, 0), float distance = 0);
+    bool isCloseToScreen(RawObject* obj, cocos2d::Size size = cocos2d::Size(0, 0), float distance = 0);
     
     //Return true if obj1 is in front of obj2
     bool isInFront(RawObject* obj1, RawObject* obj2);
