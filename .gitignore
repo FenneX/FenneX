@@ -56,6 +56,7 @@ xcuserdata
 
 !project.pbxproj
 proj.ios_mac/.idea/*
+proj.ios_mac/build/*
 
 #.LSOverride#
 
