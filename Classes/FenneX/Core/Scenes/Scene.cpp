@@ -31,6 +31,7 @@ THE SOFTWARE.
 #include "NativeUtility.h"
 #include "InactivityTimer.h"
 #include "StringUtility.h"
+#include "FileLogger.h"
 
 NS_FENNEX_BEGIN
 void Scene::initScene()
@@ -207,7 +208,7 @@ void Scene::update(float deltaTime)
     if(frameNumber <= 3)
     {
         gettimeofday(&endTime, nullptr);
-        log("Frame %d of scene %s loaded in %f ms", frameNumber, formatSceneToString(sceneName), getTimeDifferenceMS(startTime, endTime));
+        FileLogger::info("Scene", "Frame " + std::to_string(frameNumber) + " of scene " + formatSceneToString(sceneName) + " loaded in " + std::to_string(getTimeDifferenceMS(startTime, endTime)) + " ms");
     }
 #endif
 }

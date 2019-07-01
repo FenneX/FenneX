@@ -28,6 +28,7 @@ THE SOFTWARE.
 #include "SynchronousReleaser.h"
 #include "FenneXCCBLoader.h"
 #include "InputLabel.h"
+#include "FileLogger.h"
 
 NS_FENNEX_BEGIN
 // singleton stuff
@@ -79,8 +80,9 @@ void SceneSwitcher::trySceneSwitch(float deltaTime)
     if(nextScene != None && !isEventFired)
     {
 #if VERBOSE_GENERAL_INFO
-        log("next scene : %s, current scene : %s", formatSceneToString(nextScene), formatSceneToString(currentSceneName));
+        log("next scene : %s, current scene : %s", formatSceneToString(nextScene).c_str(), formatSceneToString(currentSceneName).c_str());
 #endif
+        FileLogger::info("SceneSwitcher", "Going from " + formatSceneToString(currentSceneName) + " to " + formatSceneToString(nextScene));
         if(nextScene != currentSceneName || reloadAllowed)
         {
             //TODO : add delay : requires GraphicLayer : implementation of closePanel needed
@@ -134,7 +136,7 @@ void SceneSwitcher::takeQueuedScene()
     if(nextScene != queuedScene)
     {
 #if VERBOSE_GENERAL_INFO
-        log("Taking queued scene : %s", formatSceneToString(queuedScene));
+        log("Taking queued scene : %s", formatSceneToString(queuedScene).c_str());
 #endif
         nextScene = queuedScene;
         frameDelay = false;
@@ -143,7 +145,7 @@ void SceneSwitcher::takeQueuedScene()
     else
     {
 #if VERBOSE_GENERAL_INFO
-        log("Queued scene is the same as current : %s", formatSceneToString(queuedScene));
+        log("Queued scene is the same as current : %s", formatSceneToString(queuedScene).c_str());
 #endif
         nextScene = None;
         queuedParam.clear();
@@ -161,7 +163,7 @@ void SceneSwitcher::planSceneSwitch(EventCustom* event)
         Director::getInstance()->getTextureCache()->unbindAllImageAsync();
         nextScene = (SceneName) infos["Scene"].asInt();
 #if VERBOSE_GENERAL_INFO
-        log("Planning Scene Switch to %s", formatSceneToString(nextScene));
+        log("Planning Scene Switch to %s", formatSceneToString(nextScene).c_str());
 #endif
         frameDelay = false;
         nextSceneParam = ValueMap(infos);
@@ -209,7 +211,7 @@ void SceneSwitcher::replaceScene()
     if(sceneSwitchCancelled)
     {
 #if VERBOSE_GENERAL_INFO
-        log("Ignoring scene %s as it was cancelled", formatSceneToString(currentSceneName));
+        log("Ignoring scene %s as it was cancelled", formatSceneToString(currentSceneName).c_str());
 #endif
         this->takeQueuedScene();
         sceneSwitchCancelled = false;
