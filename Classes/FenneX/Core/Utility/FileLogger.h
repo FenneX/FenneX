@@ -54,6 +54,9 @@ public:
     static void warning(std::string module, std::string message);
     static void error(std::string module, std::string message);
     static void critical(std::string module, std::string message);
+    
+    static std::string getLogsPath();
+    static std::string currentFilename();
 private:
     static void removeOldLogs();
     static std::string getFilePath();

@@ -80,6 +80,16 @@ void FileLogger::critical(std::string module, std::string message)
     _log(Severity::CRITICAL, module, message);
 }
 
+std::string FileLogger::getLogsPath()
+{
+    return logsPath;
+}
+
+std::string FileLogger::currentFilename()
+{
+    return currentFileDate + logFileExtension;
+}
+
 void FileLogger::removeOldLogs()
 {
     if(logFilePreservationDelay == FILE_LOGGER_NEVER_DELETE) return;
@@ -100,7 +110,7 @@ std::string FileLogger::getFilePath()
 {
     FileUtils::getInstance()->createDirectory(logsPath);
     FileUtils::getInstance()->createDirectory(logsPath + getPackageIdentifier() + "/");
-    return logsPath + getPackageIdentifier() + "/" + currentFileDate + logFileExtension;
+    return logsPath + getPackageIdentifier() + "/" + currentFilename();
 }
 
 std::string FileLogger::severityPrint(Severity severity)
