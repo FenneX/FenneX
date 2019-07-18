@@ -40,6 +40,7 @@
 class FileLogger
 {
 public:
+    //You need to ensure you have Storage permission before calling setup, otherwise old log won't be removed
     static void setup(std::string logsPath, int deleteAfter = FILE_LOGGER_NEVER_DELETE);
     enum class Severity
     { // Mirror Django severity levels

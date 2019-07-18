@@ -26,6 +26,7 @@
 #include "FenneX.h"
 #include "NativeUtility.h"
 #include <iomanip>
+#include "DevicePermissions.h"
 
 USING_NS_CC;
 USING_NS_FENNEX;
@@ -92,7 +93,7 @@ std::string FileLogger::currentFilename()
 
 void FileLogger::removeOldLogs()
 {
-    if(logFilePreservationDelay == FILE_LOGGER_NEVER_DELETE) return;
+    if(logFilePreservationDelay == FILE_LOGGER_NEVER_DELETE || !DevicePermissions::hasPermission(Permission::STORAGE)) return;
     
     std::vector<std::string> logFiles = getFilesInFolder(logsPath + getPackageIdentifier() + "/");
     time_t now = time(nullptr);
@@ -146,12 +147,22 @@ void FileLogger::_log(Severity severity, std::string module, std::string message
 {
     log("%s: %s", module.c_str(), message.c_str());
     
-    //FileLogger isn't setup, don't try to save to file
-    if(currentFileDate.empty()) return;
+    std::string logStr = currentDatePrint() + " - " + severityPrint(severity) + " - " + module + " - " + message + "\n";
+    if(!DevicePermissions::hasPermission(Permission::STORAGE))
+    {
+        unsavedLogs.push_back(logStr);
+        log("FileLogger can't write to log file without storage permission. Log will be written next time.");
+        return;
+    }
+    
+    if(currentFileDate.empty())
+    {
+        unsavedLogs.push_back(logStr);
+        log("FileLogger isn't setup yet. Log will be written next time.");
+        return;
+    }
     
     std::string fullPath = getFilePath();
-    
-    std::string logStr = currentDatePrint() + " - " + severityPrint(severity) + " - " + module + " - " + message + "\n";
     
     //Compose the full string that needs to be saved to file with logs that couldn't be saved first
     std::string dataStr;
