@@ -43,7 +43,7 @@ public:
     //property-like methods that will actually call getNode
     virtual const Vec2& getPosition();
     virtual void setPosition(const Vec2& newPosition);
-    virtual void setVisible(bool newVisible);
+    virtual void setVisible(bool newVisible = true);
     virtual bool isVisible();
     const cocos2d::Size& getSize();
     const int getZOrder();
