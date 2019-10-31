@@ -37,27 +37,27 @@ import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
-public class AudioPicker implements ActivityResultResponder{
-private static final String TAG = "AudioPicker";
-private static final int MUSIC_LIBRARY = 30;
+public class AudioPicker implements ActivityResultResponder {
+    private static final String TAG = "AudioPicker";
+    private static final int MUSIC_LIBRARY = 30;
 
-private static String _fileName;
-private static String _identifier;
-private static String storageDirectory;
-private static boolean isPending = false;
+    private static String _fileName;
+    private static String _identifier;
+    private static String storageDirectory;
+    private static boolean isPending = false;
 
-private static volatile AudioPicker instance = null;
-    
+    private static volatile AudioPicker instance = null;
+
     private AudioPicker() { }
 
-    public static AudioPicker getInstance() 
+    public static AudioPicker getInstance()
     {
-        if (instance == null) 
+        if (instance == null)
         {
             isPending = false;
             synchronized (AudioPicker .class)
             {
-                if (instance == null) 
+                if (instance == null)
                 {
                 	instance = new AudioPicker ();
         			NativeUtility.getMainActivity().addResponder(instance);
@@ -76,7 +76,7 @@ private static volatile AudioPicker instance = null;
         }
         instance = null;
     }
-	
+
 	public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
         isPending = false;
 		Log.d(TAG, "OnActivityResult: requestCode = " + requestCode + " resultCode = " + resultCode + " data = " + data);
@@ -112,19 +112,20 @@ private static volatile AudioPicker instance = null;
 		Log.d(TAG, "Build version:" + Build.VERSION.SDK_INT);
 		_fileName = saveName;
 		_identifier = identifier;
-		if (Build.VERSION.SDK_INT >= 19){
+		if (Build.VERSION.SDK_INT >= 19) {
 			intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
 		    intent.addCategory(Intent.CATEGORY_OPENABLE);
-		} else {
+		}
+		else {
 			intent = new Intent(Intent.ACTION_GET_CONTENT);
 			//createTemporaryFolder();
 		}
-		 intent.setType("audio/*");
+		intent.setType("audio/*");
         isPending = true;
-		 NativeUtility.getMainActivity().startActivityForResult(intent, MUSIC_LIBRARY);
+		NativeUtility.getMainActivity().startActivityForResult(intent, MUSIC_LIBRARY);
 		return true;
 	}
-	
+
 	void notifySoundPicked(String name, String identifier){
 		//TODO notifySoundPicked
 	}
@@ -141,15 +142,15 @@ private static volatile AudioPicker instance = null;
 	void stopAudioPickerExport(){
 		//TODO stopAudioPickerExport
 	}
-	
+
 	static void createTemporaryFolder()
 	{
-		if((Environment.getExternalStorageState() != Environment.MEDIA_BAD_REMOVAL &&
-        		Environment.getExternalStorageState() != Environment.MEDIA_MOUNTED_READ_ONLY &&
-        		Environment.getExternalStorageState() != Environment.MEDIA_NOFS &&
-        		Environment.getExternalStorageState() != Environment.MEDIA_REMOVED &&
-        		Environment.getExternalStorageState() != Environment.MEDIA_UNMOUNTABLE &&
-        		Environment.getExternalStorageState() != Environment.MEDIA_UNMOUNTED))
+		if((!Environment.getExternalStorageState().equals(Environment.MEDIA_BAD_REMOVAL) &&
+        		!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED_READ_ONLY) &&
+        		!Environment.getExternalStorageState().equals(Environment.MEDIA_NOFS) &&
+        		!Environment.getExternalStorageState().equals(Environment.MEDIA_REMOVED) &&
+        		!Environment.getExternalStorageState().equals(Environment.MEDIA_UNMOUNTABLE) &&
+        		!Environment.getExternalStorageState().equals(Environment.MEDIA_UNMOUNTED)))
         {
 			storageDirectory = Environment.getExternalStorageDirectory().toString();
 	    	File directory = new File(storageDirectory + "/TimeIn");
@@ -165,6 +166,6 @@ private static volatile AudioPicker instance = null;
 		else
 			Log.e(TAG, "Error external storage.");
 	}
-	
-	 private native static void notifySoundPickedWrap(String name, String identifier);
+
+	private native static void notifySoundPickedWrap(String name, String identifier);
 }
