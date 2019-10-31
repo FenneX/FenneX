@@ -197,6 +197,27 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
                 isPrepared = true;
             }
             else {
+
+                Uri uri;
+                if(videoFile.exists()) {
+                    // TODO : Change to use a FileProvider
+                    StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+                    StrictMode.setVmPolicy(builder.build());
+                    uri = Uri.fromFile(videoFile);
+                }
+                else {
+                    Log.i(TAG, "File " + videoFile.getAbsolutePath() + " doesn't exist, trying to find URI from main activity");
+                    uri = NativeUtility.getMainActivity().getUriFromFileName(path);
+                }
+
+                if(uri == null) {
+                    Log.e(TAG, "URI is null for file: " + videoFile.getAbsolutePath() + ", cannot start Video player");
+                    mainFrame.removeView(base);
+                    baseId = null;
+                    NativeUtility.getMainActivity().runOnGLThread(() -> notifyVideoError(path));
+                    return;
+                }
+
                 VideoView video = new VideoView(NativeUtility.getMainActivity());
                 video.setOnPreparedListener(mp -> {
                     Log.i(TAG, "Video is prepared, playing it ...");
@@ -220,16 +241,6 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
                     NativeUtility.getMainActivity().runOnGLThread(() -> notifyVideoError(path));
                     return false;
                 });
-
-                Uri uri;
-                if(videoFile.exists()) {
-                    // TODO : Change to use a FileProvider
-                    StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-                    StrictMode.setVmPolicy(builder.build());
-                    uri = Uri.fromFile(videoFile);
-                }
-                else
-                    uri = NativeUtility.getMainActivity().getUriFromFileName(path);
                 Log.i(TAG, "Using URI : " + uri.toString() + ", path : " + uri.getPath());
                 video.setVideoURI(uri);
                 videoView = video;
