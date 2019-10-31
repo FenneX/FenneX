@@ -29,18 +29,17 @@ import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
+import androidx.exifinterface.media.ExifInterface;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -108,34 +107,30 @@ public class ImagePicker implements ActivityResultResponder
                 Bitmap original;
                 try {
                     if (requestCode == PICTURE_GALLERY) {
+                        assert data != null;
                         Uri selectedImage = data.getData();
-                        String[] orientationColumn = {MediaStore.Images.Media.ORIENTATION};
-                        Cursor cur = NativeUtility.getMainActivity().getContentResolver().query(selectedImage, orientationColumn, null, null, null);
-                        int orientation = 0;
-                        if (cur != null && cur.moveToFirst()) {
-                            orientation = cur.getInt(cur.getColumnIndex(orientationColumn[0]));
-                        }
-                        InputStream imageStream;
-                        imageStream = NativeUtility.getMainActivity().getContentResolver().openInputStream(selectedImage);
+                        assert selectedImage != null;
+
+                        //Try to get exif data from the stream (will default to rotation = 0 if anything fails)
+                        ExifInterface exif = null;
+                        try (InputStream in = NativeUtility.getMainActivity().getContentResolver().openInputStream(selectedImage)) {
+                            assert in != null;
+                            exif = new ExifInterface(in);
+                        } catch (IOException ignored) {}
+
+                        InputStream imageStream = NativeUtility.getMainActivity().getContentResolver().openInputStream(selectedImage);
+                        assert imageStream != null;
                         original = BitmapFactory.decodeStream(imageStream);
-                        original = rotateImage(original, orientation);
+                        original = rotateImage(original, getRotationFromExif(exif));
+                        imageStream.close();
                     } else { //CAMERA_CAPTURE
                     /* When not using EXTRA_OUTPUT, the Intent will produce a small image, depending on device and app used
                     original = data.getParcelableExtra("data");*/
                         //The EXTRA_OUTPUT parameter of Intent
                         File file = new File(getStorageDirectory(), _fileName);
                         ExifInterface exif = new ExifInterface(file.getAbsolutePath());
-                        int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-                        int rotation = 0;
-                        if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
-                            rotation = 90;
-                        } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {
-                            rotation = 180;
-                        } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {
-                            rotation = 270;
-                        }
                         original = BitmapFactory.decodeFile(file.getAbsolutePath());
-                        original = rotateImage(original, rotation);
+                        original = rotateImage(original, getRotationFromExif(exif));
                         final Bitmap saveToGallery = original.copy(original.getConfig(), true);
                         new Thread() {
                             public void run() {
@@ -182,6 +177,20 @@ public class ImagePicker implements ActivityResultResponder
             Log.d(TAG, "not image picker activity");
         }
         return false;
+    }
+
+    private int getRotationFromExif(ExifInterface data) {
+        if (data == null) return 0;
+        int exifOrientation = data.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+        int rotation = 0;
+        if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
+            rotation = 90;
+        } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {
+            rotation = 180;
+        } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {
+            rotation = 270;
+        }
+        return rotation;
     }
 
     private Bitmap rotateImage(Bitmap image, int rotationAngle)
