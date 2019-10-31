@@ -262,14 +262,14 @@ public class ImagePicker implements ActivityResultResponder
                 Intent intent;
                 if(pickOption == PICK_OPTION.PHOTO_LIBRARY.getValue())
                 {
-                    intent = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    intent = new Intent(Intent.ACTION_PICK);
                 }
                 else
                 {
-                    intent = new Intent(Intent.ACTION_GET_CONTENT ,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    intent = new Intent(Intent.ACTION_GET_CONTENT );
                     intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
                 }
-                intent.setType("image/*");
+                intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
                 isPending = true;
                 NativeUtility.getMainActivity().startActivityForResult(intent, PICTURE_GALLERY);
     		}

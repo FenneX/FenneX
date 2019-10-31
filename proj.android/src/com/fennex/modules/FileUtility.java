@@ -381,9 +381,9 @@ public class FileUtility implements ActivityResultResponder {
         try
         {
             Intent intent;
-            intent = new Intent(Intent.ACTION_GET_CONTENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "file/*");
             intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-            intent.setType("file/*");
             isPending = true;
             NativeUtility.getMainActivity().startActivityForResult(intent, FILE_PICK);
         }

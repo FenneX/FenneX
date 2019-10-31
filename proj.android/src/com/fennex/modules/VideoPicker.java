@@ -85,8 +85,8 @@ public class VideoPicker implements ActivityResultResponder {
         _location = FileUtility.FileLocation.valueOf(location);
 		try
 		{
-			Intent intent = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-			intent.setType("video/*");
+			Intent intent = new Intent(Intent.ACTION_PICK);
+			intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "video/*");
             isPending = true;
 			NativeUtility.getMainActivity().startActivityForResult(intent, VIDEO_GALLERY);
 		}
