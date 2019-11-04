@@ -34,51 +34,18 @@ USING_NS_FENNEX;
 class AnalyticsWrapper
 {
 public:
-    //Start methods and agent version, specific to the platform since the token is different
-    static void GAStartSession(const std::string& apiKey);
-    static std::string GAGetGAAgentVersion();
-    
-    //Common methods
-    //Call those methods before start session of each tracker
-    static void setAppVersion(const std::string& version);
-    
-    //Call those methods after start session of each tracker
-    static void setDebugLogEnabled(bool value);
-    static void setSecureTransportEnabled(bool value);
-    
     //Common usage methods
     static void logPageView(const std::string& pageName); //log a timed scene event + pageview in GA
     static void logEvent(const std::string& eventName, const std::string& label = "", int value = 0); // log eventName - log eventName with the Scene as a category in GA
-    static void endSession();
     
     static void firebaseSetProperty(const std::string& propertyName, const std::string& propertyValue);
 private:
-    //GA only methods
-    
-    //GA tracker methods (require start session)
-    static void GASetAppVersion(const std::string& version);
-    static void GASetSecureTransportEnabled(bool value);
-    
-    //GA shared methods (can be called before start session)
-    static void GASetDebugLogEnabled(bool value);
-    static void GASetTrackExceptionsEnabled(bool value);
-    
-    //Common usage methods
-    static void GALogPageView(const std::string& pageName);
-    static void GALogEvent(const std::string& eventName, const std::string& label = "", int value = 0); //The category is the current scene
-    static void GAEndSession();
-    
-    //Common usage methods
     static void firebaseLogPageView(const std::string& pageName);
     static void firebaseLogEvent(const std::string& eventName);
     static void firebaseLogEventWithParameters(const std::string& eventName, const std::string& label = "", const std::string& value = "");
-    
 protected:
     //the variables can't be static, use a shared instance to access them instead
     static AnalyticsWrapper* sharedInstance();
-    //For GA, you must set it AFTER starting the version
-    //To go around that, AnalyticsWrapper requires to set them before starting the session, and will call GA methods after the start session
-    std::string appVersion;
     std::string lastPageName;
 };
 

@@ -38,44 +38,21 @@ AnalyticsWrapper* AnalyticsWrapper::sharedInstance(void)
     return s_SharedInstance;
 }
 
-void AnalyticsWrapper::setAppVersion(const std::string& version)
-{
-    // automatic with firebase
-    sharedInstance()->appVersion = version;
-}
-
-void AnalyticsWrapper::setDebugLogEnabled(bool value)
-{
-    GASetDebugLogEnabled(value);
-}
-
-void AnalyticsWrapper::setSecureTransportEnabled(bool value)
-{
-    GASetSecureTransportEnabled(value);
-}
-
 void AnalyticsWrapper::logPageView(const std::string& pageName)
 {
-    GALogPageView(pageName);
     firebaseLogPageView(pageName);
     sharedInstance()->lastPageName = pageName;
 }
 
 void AnalyticsWrapper::logEvent(const std::string& eventName, const std::string& label, int value)
 {
-    GALogEvent(eventName, label, value);
-    std::string fullFlurryName = eventName + " - " + (!sharedInstance()->lastPageName.empty()? sharedInstance()->lastPageName : "NoScene");
+    std::string fullEventName = eventName + " - " + (!sharedInstance()->lastPageName.empty()? sharedInstance()->lastPageName : "NoScene");
     if(label.empty())
     {
-        firebaseLogEvent(fullFlurryName);
+        firebaseLogEvent(fullEventName);
     }
     else
     {
-        firebaseLogEventWithParameters(fullFlurryName, label, std::to_string(value));
+        firebaseLogEventWithParameters(fullEventName, label, std::to_string(value));
     }
-}
-
-void AnalyticsWrapper::endSession()
-{
-    GAEndSession();
 }

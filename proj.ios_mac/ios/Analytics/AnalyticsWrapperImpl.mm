@@ -26,69 +26,7 @@
 
 #include "AnalyticsWrapper.h"
 #import "AnalyticXStringUtil.h"
-#import "GAI.h"
-#import "GAIFields.h"
-#import "GAIDictionaryBuilder.h"
 #import "Firebase.h"
-
-//Start and get agent methods
-void AnalyticsWrapper::GAStartSession(const std::string& apiKey)
-{
-    [[GAI sharedInstance] trackerWithTrackingId:[NSString stringWithFormat:@"%s", apiKey.c_str()]];
-    if(!sharedInstance()->appVersion.empty())
-    {
-        GASetAppVersion(sharedInstance()->appVersion.c_str());
-        sharedInstance()->appVersion = "";
-    }
-}
-
-std::string AnalyticsWrapper::GAGetGAAgentVersion()
-{
-    return [kGAIVersion UTF8String];
-}
-
-//GA methods
-void AnalyticsWrapper::GASetAppVersion(const std::string& version)
-{
-    [[[GAI sharedInstance] defaultTracker] set:kGAIAppVersion value:[NSString stringWithFormat:@"%s", version.c_str()]];
-}
-
-void AnalyticsWrapper::GASetSecureTransportEnabled(bool value)
-{
-    [[[GAI sharedInstance] defaultTracker] set:kGAIUseSecure value:[(value ? @YES : @NO) stringValue]];
-}
-
-void AnalyticsWrapper::GASetDebugLogEnabled(bool value)
-{
-    [[GAI sharedInstance].logger setLogLevel:value ? kGAILogLevelVerbose : kGAILogLevelError];
-}
-
-void AnalyticsWrapper::GASetTrackExceptionsEnabled(bool value)
-{
-    [GAI sharedInstance].trackUncaughtExceptions = value;
-}
-
-void AnalyticsWrapper::GALogPageView(const std::string& pageName)
-{
-    [[[GAI sharedInstance] defaultTracker] set:kGAIScreenName value:[NSString stringWithFormat:@"%s", pageName.c_str()]];
-    [[[GAI sharedInstance] defaultTracker] send:[[GAIDictionaryBuilder createAppView]  build]];
-}
-
-void AnalyticsWrapper::GALogEvent(const std::string& eventName, const std::string& label, int value)
-{
-    [[[GAI sharedInstance] defaultTracker]
-     send:[[[GAIDictionaryBuilder createEventWithCategory:[NSString stringWithFormat:@"%s", !sharedInstance()->lastPageName.empty() ? sharedInstance()->lastPageName.c_str() : "NoScene"]
-                                                   action:[NSString stringWithFormat:@"%s", eventName.c_str()]
-                                                    label:!label.empty() ? [NSString stringWithFormat:@"%s", label.c_str()] : nullptr
-                                                    value:[NSNumber numberWithInt:value]]
-            set:@"start" forKey:kGAISessionControl]
-           build]];
-}
-
-void AnalyticsWrapper::GAEndSession()
-{
-    [[[GAI sharedInstance] defaultTracker] set:kGAISessionControl value:@"end"];
-}
 
 void AnalyticsWrapper::firebaseSetProperty(const std::string& propertyName, const std::string& propertyValue)
 {
