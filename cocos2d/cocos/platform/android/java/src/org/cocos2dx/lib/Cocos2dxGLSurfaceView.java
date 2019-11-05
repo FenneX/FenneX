@@ -216,7 +216,9 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
         if (mSoftKeyboardShown){
             InputMethodManager imm = (InputMethodManager)this.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
             View view = ((Activity)this.getContext()).getCurrentFocus();
-            imm.hideSoftInputFromWindow(view.getWindowToken(),0);
+            if(view != null && imm != null) {
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
             this.requestFocus();
             mSoftKeyboardShown = false;
         }
