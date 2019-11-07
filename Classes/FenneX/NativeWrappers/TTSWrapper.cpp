@@ -19,5 +19,5 @@ float estimateSpeechDuration(std::string text)
         count += (isspace1 && !isspace2);
     }
     //Right now, we don't have any WPM values for speech
-    return count / getCurrentVoiceWPM() * 60 * getTTSPlayRate();
+    return count / getCurrentVoiceWPM() * 60 * getTTSPlayRate() + SPEECH_DURATION_BUFFER;
 }

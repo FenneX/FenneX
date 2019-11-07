@@ -35,6 +35,8 @@ USING_NS_FENNEX;
 //When a particular voice WPM (words per minute) is not known, use this value as default
 //It's better to have a slower rather than faster default speech WPM, so that text is not cut off
 #define DEFAULT_SPEECH_WPM 130
+//When estimating speech duration, add a buffer (in seconds) because we'd rather overestimate than underestimate duration
+#define SPEECH_DURATION_BUFFER 1
 
 //TTS requires iOS 7.0+, and will work on any Android. It is advised to update TTS Engine on Android
 void initTTS();
