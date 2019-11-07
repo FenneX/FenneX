@@ -159,6 +159,10 @@ public class Cocos2dxEditBox extends EditText implements TimePickerDialog.OnTime
 
     private int inputMode = kEditBoxInputModeAny;
 
+    public boolean shouldShowKeyboard() {
+        return inputMode != kEditBoxInputModeTime && inputMode != kEditBoxInputModeDate;
+    }
+
     // package private
     int endAction = kEndActionUnknown;
 
@@ -172,21 +176,21 @@ public class Cocos2dxEditBox extends EditText implements TimePickerDialog.OnTime
     {
         Calendar calendar = Calendar.getInstance();
         if(inputMode == kEditBoxInputModeTime)
-            {
-                TimePickerDialog timePicker = null;
-                int style = 0;
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                    style = android.R.style.Theme_Material_Light_Dialog_Alert;
-                }
-                timePicker = new TimePickerDialog(
-                        context,
-                        style,
-                        this,
-                        calendar.get(Calendar.HOUR_OF_DAY),
-                        calendar.get(Calendar.MINUTE),
-                        android.text.format.DateFormat.is24HourFormat(context)
-                );
-                timePicker.setTitle("Select Time");
+        {
+            TimePickerDialog timePicker = null;
+            int style = 0;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                style = android.R.style.Theme_Material_Light_Dialog_Alert;
+            }
+            timePicker = new TimePickerDialog(
+                    context,
+                    style,
+                    this,
+                    calendar.get(Calendar.HOUR_OF_DAY),
+                    calendar.get(Calendar.MINUTE),
+                    android.text.format.DateFormat.is24HourFormat(context)
+            );
+            timePicker.setTitle("Select Time");
             timePicker.show();
             customInput = timePicker;
         }

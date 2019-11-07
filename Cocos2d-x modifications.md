@@ -132,3 +132,4 @@ Cocos2d-x V3.16 Modifications
 * cocos2D/cocos/2d/math/CCGeometry.cpp/.h => add '==', '<=', '>=' , '<', '>' operators for Size class
 * Cocos2dxActivity.java => use setZOrderMediaOverlay on main GL SurfaceView to work around a bug where VideoPlayer SurfaceView appear in front of GL SurfaceView instead of behind with Oreo (Android 8)
 * cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxGLSurfaceView => fix a nullpointer exception happening on SM-T510 in onTouchEvent
+* Cocos2dxEditBoxHelper.java && Cocos2dxEditBox.java -> add shouldShowKeyboard to Cocos2dxEditBox and use it in Cocos2dxEditBoxHelper.openKeyboardOnUiThread to avoid launching imm.showSoftInput when not needed

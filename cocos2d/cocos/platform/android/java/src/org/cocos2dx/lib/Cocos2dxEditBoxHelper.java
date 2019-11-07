@@ -444,7 +444,10 @@ public class Cocos2dxEditBoxHelper {
         if (null != editBox) {
             editBox.requestFocus();
             mCocos2dxActivity.getGLSurfaceView().requestLayout();
-            imm.showSoftInput(editBox, 0);
+            // This is to avoid launching keyboard when using the date/Time Picker
+            if(editBox.shouldShowKeyboard()) {
+                imm.showSoftInput(editBox, 0);
+            }
             mCocos2dxActivity.getGLSurfaceView().setSoftKeyboardShown(true);
         }
     }
