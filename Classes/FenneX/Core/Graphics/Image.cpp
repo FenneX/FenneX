@@ -28,6 +28,7 @@ THE SOFTWARE.
 #include "StringUtility.h"
 #include <sstream>
 #include <iomanip>
+#include "GraphicLayer.h"
 
 NS_FENNEX_BEGIN
 Rect Image::getBoundingBox()
@@ -211,7 +212,13 @@ void Image::update(float deltaTime)
     if(!isLoadingTexture && !loadingFile.empty())
     {
         isLoadingTexture = true;
-        Director::getInstance()->getTextureCache()->addImageAsync(loadingFile, CC_CALLBACK_1(Image::textureLoaded, this));
+        int currentId = identifier;
+        Director::getInstance()->getTextureCache()->addImageAsync(loadingFile, [this, currentId](Texture2D* tex) {
+            //Before trying to load the texture, ensure the Image is still active and valid
+            if(GraphicLayer::sharedLayer()->first(currentId) == this) {
+                this->textureLoaded(tex);
+            }
+        });
     }
 }
 
