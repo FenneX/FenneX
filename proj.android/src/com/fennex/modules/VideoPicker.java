@@ -49,7 +49,7 @@ public class VideoPicker implements ActivityResultResponder {
         if (instance == null) 
         {
             isPending = false;
-            synchronized (ImagePicker .class)
+            synchronized (VideoPicker .class)
             {
                 if (instance == null) 
                 {
@@ -86,7 +86,7 @@ public class VideoPicker implements ActivityResultResponder {
 		try
 		{
 			Intent intent = new Intent(Intent.ACTION_PICK);
-			intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "video/*");
+			intent.setDataAndType(android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI, "video/*");
             isPending = true;
 			NativeUtility.getMainActivity().startActivityForResult(intent, VIDEO_GALLERY);
 		}
