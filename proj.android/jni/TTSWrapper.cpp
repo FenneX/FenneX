@@ -69,35 +69,31 @@ bool isSpeaking()
 static int speechIDStatic = -1;
 bool speakText(std::vector<std::string> text, int speechID, float volume)
 {
-    if(!isSpeaking())
-    {
-        speechIDStatic = speechID;
-        JniMethodInfo minfo;
-        jobject instance = getInstance();
-        bool functionExist = JniHelper::getMethodInfo(minfo, CLASS_NAME, "speakText", "([Ljava/lang/String;F)Z");
-        CCAssert(functionExist, "Function doesn't exist");
-        minfo.env->DeleteLocalRef(minfo.classID); //Not required, we call the method directly on the instance
+    speechIDStatic = speechID;
+    JniMethodInfo minfo;
+    jobject instance = getInstance();
+    bool functionExist = JniHelper::getMethodInfo(minfo, CLASS_NAME, "speakText", "([Ljava/lang/String;F)Z");
+    CCAssert(functionExist, "Function doesn't exist");
+    minfo.env->DeleteLocalRef(minfo.classID); //Not required, we call the method directly on the instance
 
-        jclass jStringCls = minfo.env->FindClass("java/lang/String");
-        jstring string = minfo.env->NewStringUTF("");
-        jobjectArray ret = (jobjectArray)minfo.env->NewObjectArray(text.size(),
-                                                                   jStringCls,
-                                                                   string);
-        minfo.env->DeleteLocalRef(jStringCls);
+    jclass jStringCls = minfo.env->FindClass("java/lang/String");
+    jstring string = minfo.env->NewStringUTF("");
+    jobjectArray ret = (jobjectArray)minfo.env->NewObjectArray(text.size(),
+                                                               jStringCls,
+                                                               string);
+    minfo.env->DeleteLocalRef(jStringCls);
+    minfo.env->DeleteLocalRef(string);
+    
+    for(int i = 0; i < text.size(); i++)
+    {
+        string = minfo.env->NewStringUTF(text[i].c_str());
+        minfo.env->SetObjectArrayElement(ret, i, string);
         minfo.env->DeleteLocalRef(string);
-        
-        for(int i = 0; i < text.size(); i++)
-        {
-            string = minfo.env->NewStringUTF(text[i].c_str());
-            minfo.env->SetObjectArrayElement(ret, i, string);
-            minfo.env->DeleteLocalRef(string);
-        }
-        
-        minfo.env->CallBooleanMethod(instance, minfo.methodID, ret, (jfloat)volume);
-        minfo.env->DeleteLocalRef(instance);
-        minfo.env->DeleteLocalRef(ret);
     }
     
+    minfo.env->CallBooleanMethod(instance, minfo.methodID, ret, (jfloat)volume);
+    minfo.env->DeleteLocalRef(instance);
+    minfo.env->DeleteLocalRef(ret);
     return false;
 }
 
