@@ -131,8 +131,9 @@ std::string VideoPlayer::getScreenshot(const std::string& path, FileLocation vid
         { // If we are not using absolute for screenshot but we use it for video, that mean we have a path to parse
             fileName = path.substr(path.find_last_of('/') + 1);
         }
-        fileName += "-thumbnail.png";
+        fileName += "-thumbnail";
     }
+    fileName += ".png";
     NSString* screenshotPathString = [NSString stringWithUTF8String:getFullPath(fileName, screenshotLocation).c_str()];
     BOOL result = [VideoPlayerImplIOS getScreenshot:[NSString stringWithUTF8String:getFullPath(path, videoLocation).c_str()]
                                      screenshotName:screenshotPathString];
