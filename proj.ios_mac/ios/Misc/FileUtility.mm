@@ -98,4 +98,10 @@ time_t getFileLastModificationDate(const std::string& fullpath)
     return (time_t)[date timeIntervalSince1970];
 }
 
+void setFileLastModificationDate(const std::string& fullpath, time_t date)
+{
+    NSDictionary* attr = [NSDictionary dictionaryWithObjectsAndKeys:[NSDate dateWithTimeIntervalSince1970:date], NSFileModificationDate, nil];
+    [[NSFileManager defaultManager] setAttributes:attr ofItemAtPath:getNSString(fullpath) error:nil];
+}
+
 NS_FENNEX_END

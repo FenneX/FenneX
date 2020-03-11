@@ -25,6 +25,7 @@ THE SOFTWARE.
 
 package com.fennex.modules;
 
+import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -399,6 +400,13 @@ public class FileUtility implements ActivityResultResponder {
     public static long getFileLastModificationDate(String path)  {
         File file = new File(path);
         return file.lastModified() / 1000L; //Convert to seconds
+    }
+    @SuppressLint("Assert")
+    @SuppressWarnings("unused")
+    public static void setFileLastModificationDate(String path, long date)  {
+        File file = new File(path);
+        boolean result = file.setLastModified(date*1000L); //Convert to ms
+        assert result; //Ensure the operation succeeded, currently function isn't designed to fail
     }
 
     @Override
