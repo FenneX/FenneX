@@ -215,6 +215,20 @@ time_t getFileLastModificationDate(const std::string& fullpath)
     return result;
 }
 
+void setFileLastModificationDate(const std::string& fullpath, time_t date)
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME,"setFileLastModificationDate", "(Ljava/lang/String;J)V");
+    CCAssert(functionExist, "Function doesn't exist");
+    jstring jPath = minfo.env->NewStringUTF(fullpath.c_str());
+    minfo.env->CallStaticVoidMethod(minfo.classID,
+                                    minfo.methodID,
+                                    jPath,
+                                    (jlong)date);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(jPath);
+}
+
 NS_FENNEX_END
 
 extern "C"

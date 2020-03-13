@@ -122,6 +122,9 @@ bool pickFile();
 //Creation can't be done easily, and there is no easy way on Android. See https://stackoverflow.com/questions/1408272/get-file-creation-time-with-python-on-linux
 time_t getFileLastModificationDate(const std::string& fullpath);
 
+//Change last modification date of a file.
+void setFileLastModificationDate(const std::string& fullpath, time_t date);
+
 static inline void notifyFilePicked(std::string fullPath)
 {
     FenneX::DelayedDispatcher::eventAfterDelay("FilePicked", Value(ValueMap({{"Path", Value(fullPath)}})), 0.01);
