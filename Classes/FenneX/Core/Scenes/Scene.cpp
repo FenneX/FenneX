@@ -149,7 +149,7 @@ void Scene::update(float deltaTime)
         //Manual release for updateList Ref*
         for(Pausable* obj : updatablesToRemove)
         {
-            if(isKindOfClass(obj, Ref))
+            if(isKindOf(obj, Ref))
             {
                 dynamic_cast<Ref*>(obj)->release();
             }
@@ -448,7 +448,7 @@ void Scene::addUpdatable(Pausable* obj)
        && std::find(updatablesToAdd.begin(), updatablesToAdd.end(), obj) == updatablesToAdd.end())
     {
         updatablesToAdd.push_back(obj);
-        if(isKindOfClass(obj, Ref))
+        if(isKindOf(obj, Ref))
         {
             dynamic_cast<Ref*>(obj)->retain();
         }
@@ -462,7 +462,7 @@ void Scene::removeUpdatable(Pausable* obj)
        && std::find(updatablesToRemove.begin(), updatablesToRemove.end(), obj) == updatablesToRemove.end())
     {
         updatablesToRemove.push_back(obj);
-        if(isKindOfClass(obj, Ref))
+        if(isKindOf(obj, Ref))
         {
             dynamic_cast<Ref*>(obj)->retain();
         }
