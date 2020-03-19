@@ -73,6 +73,7 @@ public:
     //The main purpose is to generate thumbnails
     //Throw event ImageScaled with "Name" key for filename
     static bool generateScaledImage(std::string fileToScale, std::string fileToSave, float scale);
+    static cocos2d::Image::Format detectFormat(std::string& file);
     
 protected:
     //the actual Sprite which will perform cocos2d actions

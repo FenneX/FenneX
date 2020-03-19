@@ -350,7 +350,7 @@ bool Image::collision(Vec2 point)
 }
 
 
-cocos2d::Image::Format detectFormat(std::string& file)
+cocos2d::Image::Format Image::detectFormat(std::string& file)
 {
     //Try to detect extension
     if(stringEndsWith(file, ".png")) return cocos2d::Image::Format::PNG;
