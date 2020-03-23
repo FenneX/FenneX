@@ -246,7 +246,7 @@ void Scene::stop()
     for(Pausable* obj : updateList)
     {
         obj->stop();
-        if(isKindOfClass(obj, Ref))
+        if(isKindOf(obj, Ref))
         {
             dynamic_cast<Ref*>(obj)->release();
         }
