@@ -283,4 +283,17 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 		DevicePermissions.onRequestPermissionsResult(requestCode, permissions, grantResults);
 	}
+	
+
+// This is to avoid loosing app information while using startActivityForResult
+// https://stackoverflow.com/questions/8988946/android-is-killing-my-application-whenever-startactivityforresult-is-called
+	@Override
+	public void onSaveInstanceState(Bundle savedInstanceState){
+		super.onSaveInstanceState(savedInstanceState);
+	}
+
+	@Override
+	public void onRestoreInstanceState(Bundle savedInstanceState){
+		super.onRestoreInstanceState(savedInstanceState);
+	}
 }
