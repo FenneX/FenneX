@@ -85,9 +85,9 @@ CustomObject::~CustomObject()
 {
     delegate->release();
 #if VERBOSE_DEALLOC
-    if(this->getName() != nullptr)
+    if(this->getName().empty())
     {
-        log("Dealloc CustomObject %s", this->getName());
+        log("Dealloc CustomObject %s", this->getName().c_str());
     }
     else
     {

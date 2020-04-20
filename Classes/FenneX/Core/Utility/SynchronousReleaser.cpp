@@ -62,8 +62,8 @@ void SynchronousReleaser::emptyReleasePool()
     {
         if(obj->getReferenceCount() != 1)
         {
-            const char* name = isKindOfClass(obj, RawObject) ? ((RawObject*)obj)->getName() : "Unknown";
-            log("!!Warning!! before releasing from ReleasePool, obj %s have retainCount %d", name, obj->getReferenceCount());
+            const std::string name = isKindOfClass(obj, RawObject) ? ((RawObject*)obj)->getName() : "Unknown";
+            log("!!Warning!! before releasing from ReleasePool, obj %s have retainCount %d", name.c_str(), obj->getReferenceCount());
         }
     }
 #endif
