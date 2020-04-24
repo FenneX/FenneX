@@ -64,9 +64,11 @@ DropDownList::DropDownList(Sprite* sprite)
  void DropDownList::init()
 {
     linkTo = nullptr;
+    selectedId = -1;
     isOpened = false;
     initialText = "";
     dropList = new DropDownListWrapper();
+    _possibleValues = {};
     this->setEventActivated(true);
     this->setEventName("ShowSelectDropDownList");
     listeners.pushBack(Director::getInstance()->getEventDispatcher()->addCustomEventListener("ShowSelectDropDownList", std::bind(&DropDownList::showDropDownList, this, std::placeholders::_1)));
@@ -84,16 +86,60 @@ DropDownList::~DropDownList()
     listeners.clear();
 }
 
+int DropDownList::getSelectedId()
+{
+    return selectedId;
+}
+
+void DropDownList::setSelectedId(int selectedId)
+{
+    if(linkTo != nullptr && _possibleValues.find(selectedId) != _possibleValues.end())
+    {
+        linkTo->setLabelValue(_possibleValues[selectedId]);
+    }
+}
+
+void DropDownList::setValues(std::map<int, std::string> possibleValues)
+{
+    _possibleValues = possibleValues;
+    std::vector<std::string> valuesVector;
+    for(const auto& val : _possibleValues)
+    {
+        valuesVector.push_back(val.second);
+    }
+    dropList->setPossibleValues(valuesVector);
+}
+
 std::string DropDownList::getSelectedValue()
 {
-    if(linkTo == nullptr || std::find(possibleValues.begin(), possibleValues.end(),  linkTo->getLabelValue()) != possibleValues.end())
+    if(_possibleValues.find(selectedId) == _possibleValues.end())
     {
         return "";
     }
-    else
+    return _possibleValues[selectedId];
+}
+
+void DropDownList::setLabelSelectedValue(std::string selectedValue)
+{
+    if(linkTo == nullptr) return;
+    for(const auto& val : _possibleValues)
     {
-        return linkTo->getLabelValue();
+        if (val.second == selectedValue)
+        {
+            selectedId = val.first;
+            linkTo->setLabelValue(val.second);
+        }
     }
+}
+
+void DropDownList::setValues(std::vector<std::string> possibleValues)
+{
+    _possibleValues.clear();
+    for(int i = 0; i < possibleValues.size(); i++)
+    {
+        _possibleValues[i] = possibleValues[i];
+    }
+    dropList->setPossibleValues(possibleValues);
 }
 
 void DropDownList::setSelectedValue(EventCustom* event)
@@ -106,19 +152,6 @@ void DropDownList::setSelectedValue(EventCustom* event)
     {
         setLabelSelectedValue(infos["SelectedValue"].asString());
     }
-}
-
-void DropDownList::setLabelSelectedValue(std::string selectedValue)
-{
-    if(linkTo != nullptr)
-    {
-        linkTo->setLabelValue(selectedValue.c_str());
-    }
-}
-
-void DropDownList::setValues(std::vector<std::string> possibleValues)
-{
-    dropList->setPossibleValues(possibleValues);
 }
 
 void DropDownList::setTitle(std::string title)
