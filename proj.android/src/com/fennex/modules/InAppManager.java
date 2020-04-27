@@ -349,20 +349,17 @@ public class InAppManager implements ActivityResultResponder {
             e.printStackTrace();
             // There is a bug in Java see here : https://stackoverflow.com/questions/15586099/numberformat-parse-fails-for-some-currency-strings
             // So we have to extract the price an other way :
-            try
-            {
+            try {
                 // Regex to extract double
                 String regex ="(-)?(([^\\\\d])(0)|[1-9][0-9]*)(.)([0-9]+)";
                 Matcher matcher = Pattern.compile( regex ).matcher(details.getPrice());
-                if(matcher.find())
-                {
+                if(matcher.find()) {
                     priceString = matcher.group();
                     needReplace = true;
                     price = Double.valueOf(priceString);
                 }
             }
-            catch (Exception scannerException)
-            {
+            catch (Exception scannerException) {
                 // TODO Auto-generated catch block
                 scannerException.printStackTrace();
             }
@@ -377,11 +374,11 @@ public class InAppManager implements ActivityResultResponder {
             if (lastNumberIndex < productId.length()) {
                 unitsNumber = Integer.parseInt(productId.substring(lastNumberIndex));
                 if (unitsNumber > 0) {
-                    if(!needReplace) {
-                        pricePerUnit = currencyFormatter.format(price.doubleValue() / unitsNumber);
+                    if(needReplace) {
+                        pricePerUnit = details.getPrice().replace(priceString, String.valueOf(price));
                     }
                     else {
-                        pricePerUnit = details.getPrice().replace(priceString, String.valueOf(price));
+                        pricePerUnit = currencyFormatter.format(price.doubleValue() / unitsNumber);
                     }
                 }
             }
