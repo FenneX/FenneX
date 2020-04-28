@@ -38,7 +38,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerationError, Runnable {
+public class VideoPlayer implements IVLCVout.Callback, Runnable {
     /*
      * VideoPlayer implements two ways of displaying a video :
      * - using a native Android VideoView (default)
@@ -177,8 +177,7 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
                     //noinspection SpellCheckingInspection
                     options.add("--aout=opensles");
                     options.add("--audio-time-stretch"); // time stretching
-                    libVLC = new LibVLC(options);
-                    libVLC.setOnHardwareAccelerationError(getInstance());
+                    libVLC = new LibVLC(NativeUtility.getMainActivity(), options);
                     mSurfaceHolder.setKeepScreenOn(true);
 
                     // Create media player
@@ -810,6 +809,12 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
     }
 
     @Override
+    public void onHardwareAccelerationError(IVLCVout vlcVout) {
+        Log.e(TAG, "Error with hardware acceleration");
+        this.releasePlayer();
+    }
+
+    @Override
     public void run() {
         play();
     }
@@ -855,13 +860,5 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
         vout.detachViews();
         libVLC.release();
         libVLC = null;
-    }
-
-    @Override
-    @SuppressWarnings("unused")
-    public void eventHardwareAccelerationError() {
-        // Handle errors with hardware acceleration
-        Log.e(TAG, "Error with hardware acceleration");
-        this.releasePlayer();
     }
 }

@@ -90,7 +90,7 @@ public class AudioPlayerRecorder extends Handler {
         { //If the app crash here, check that libvlc is properly compiled using compile.sh
             try
             {
-                libVLC = new LibVLC();
+                libVLC = new LibVLC(NativeUtility.getMainActivity());
                 Log.i(TAG, "LibVLC loaded");
             }
             catch(Exception e)
@@ -292,8 +292,16 @@ public class AudioPlayerRecorder extends Handler {
                     vlcMediaPlayer = new org.videolan.libvlc.MediaPlayer(player);
                 }
                 Media m = new Media(player, fullName);
-                //Native crash for no good reason, as if the instance is invalid (it has been init by LibVLC before)
-                EventHandler.getInstance().addHandler(getInstance());
+                vlcMediaPlayer.setEventListener(event -> {
+                    if(event.type == org.videolan.libvlc.MediaPlayer.Event.EncounteredError)
+                    {
+                        NativeUtility.getMainActivity().runOnGLThread(AudioPlayerRecorder::notifyPlayingSoundEnded);
+                    }
+                    else if(event.type == org.videolan.libvlc.MediaPlayer.Event.EndReached)
+                    {
+                        NativeUtility.getMainActivity().runOnGLThread(AudioPlayerRecorder::notifyPlayingSoundEnded);
+                    }
+                });
                 vlcMediaPlayer.setMedia(m);
                 vlcMediaPlayer.setVolume((int)(volume*100));
                 vlcMediaPlayer.play();
@@ -705,23 +713,5 @@ public class AudioPlayerRecorder extends Handler {
     public static String getTitle(String file)
     {
         return getMetadata(file).extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-    }
-
-    @Override
-    public void handleMessage(Message msg)
-    {
-        int event = msg.getData().getInt("event", -1);
-        if(event == EventHandler.MediaPlayerEncounteredError)
-        {
-            NativeUtility.getMainActivity().runOnGLThread(AudioPlayerRecorder::notifyPlayingSoundEnded);
-        }
-        else if(event == EventHandler.MediaPlayerEndReached)
-        {
-            NativeUtility.getMainActivity().runOnGLThread(AudioPlayerRecorder::notifyPlayingSoundEnded);
-        }
-        else if(event == EventHandler.HardwareAccelerationError)
-        {
-            Log.i(TAG, "Hardware Acceleration Error, disabling hardware acceleration");
-        }
     }
 }
