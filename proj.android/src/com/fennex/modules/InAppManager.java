@@ -44,6 +44,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class InAppManager implements ActivityResultResponder {
@@ -70,7 +72,6 @@ public class InAppManager implements ActivityResultResponder {
 
     private static Inventory mInventory = null;
 
-    @SuppressWarnings("JniMissingFunction")
     private native void notifyInAppEvent(String name, String argument, String token, String reason);
 
     private static String payload = "test";
@@ -338,12 +339,30 @@ public class InAppManager implements ActivityResultResponder {
         Log.i("InAppManager", "Price String : " + details.getPrice() + ", type : " + details.getType());
         NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance();
         Number price = null;
+        // This is a simple tricks to work around the currency bug. To keep the same format between the price and the price per unit
+        boolean needReplace = false;
+        String priceString = details.getPrice();
         try {
             price = currencyFormatter.parse(details.getPrice());
             Log.i("InAppManager", "Price : " + price.toString() + " for " + productId);
         } catch (ParseException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            // There is a bug in Java see here : https://stackoverflow.com/questions/15586099/numberformat-parse-fails-for-some-currency-strings
+            // So we have to extract the price an other way :
+            try {
+                // Regex to extract double
+                String regex ="(-)?(([^\\\\d])(0)|[1-9][0-9]*)(.)([0-9]+)";
+                Matcher matcher = Pattern.compile( regex ).matcher(details.getPrice());
+                if(matcher.find()) {
+                    priceString = matcher.group();
+                    needReplace = true;
+                    price = Double.valueOf(priceString);
+                }
+            }
+            catch (Exception scannerException) {
+                // TODO Auto-generated catch block
+                scannerException.printStackTrace();
+            }
         }
         String pricePerUnit = null;
         int unitsNumber = 1;
@@ -355,7 +374,12 @@ public class InAppManager implements ActivityResultResponder {
             if (lastNumberIndex < productId.length()) {
                 unitsNumber = Integer.parseInt(productId.substring(lastNumberIndex));
                 if (unitsNumber > 0) {
-                    pricePerUnit = currencyFormatter.format(price.doubleValue() / unitsNumber);
+                    if(needReplace) {
+                        pricePerUnit = details.getPrice().replace(priceString, String.valueOf(price));
+                    }
+                    else {
+                        pricePerUnit = currencyFormatter.format(price.doubleValue() / unitsNumber);
+                    }
                 }
             }
         }

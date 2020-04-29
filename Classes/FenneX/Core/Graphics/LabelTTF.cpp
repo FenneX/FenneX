@@ -200,7 +200,7 @@ loadingValue("")
 LabelTTF::~LabelTTF()
 {
 #if VERBOSE_DEALLOC
-    log("Dealloc label %s, font : %s", name.c_str(), fullFontFile->getCString());
+    log("Dealloc label %s, font : %s", name.c_str(), fullFontFile.c_str());
 #endif
     delegate->release();
 }

@@ -38,7 +38,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerationError, Runnable {
+public class VideoPlayer implements IVLCVout.Callback, Runnable {
     /*
      * VideoPlayer implements two ways of displaying a video :
      * - using a native Android VideoView (default)
@@ -177,8 +177,7 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
                     //noinspection SpellCheckingInspection
                     options.add("--aout=opensles");
                     options.add("--audio-time-stretch"); // time stretching
-                    libVLC = new LibVLC(options);
-                    libVLC.setOnHardwareAccelerationError(getInstance());
+                    libVLC = new LibVLC(NativeUtility.getMainActivity(), options);
                     mSurfaceHolder.setKeepScreenOn(true);
 
                     // Create media player
@@ -621,6 +620,7 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
                 retriever.setDataSource(NativeUtility.getMainActivity(), appUri);
             }
             else {
+                assert videoFile != null;
                 retriever.setDataSource(videoFile.getAbsolutePath());
             }
             size[0] = Integer.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
@@ -647,50 +647,47 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
     }
 
     // location support Unknown which trigger legacy case
+    @SuppressLint("SetWorldReadable")
     private static File getFile(String path, FileUtility.FileLocation location) {
         File foundFile = null;
         if(location != FileUtility.FileLocation.Unknown) {
-            switch (location) {
-                case Resources:
-                    // Search first in expansion
-                    Uri expansionUri = NativeUtility.getMainActivity().getUriFromFileName(path);
-                    if(expansionUri != null) {
-                        foundFile = new File(expansionUri.getPath());
-                    }
-                    // Search inside the assets if it's not in the expansion
-                    if(foundFile == null || !foundFile.exists() || !foundFile.canRead()) {
-                        // TODO: code copy/pasted from below, refactor me
-                        ContentResolver cr = NativeUtility.getMainActivity().getContentResolver();
-                        String[] projection = {MediaStore.MediaColumns.DATA};
-                        Cursor cur = cr.query(Uri.parse(path), projection, null, null, null);
-                        if (cur != null && cur.moveToFirst()) {
-                            String filePath = cur.getString(0);
-                            cur.close();
-                            foundFile = new File(filePath);
-                            if (foundFile.exists()) {
-                                foundFile.setReadable(true, false);
-                                Log.i(TAG, "File found, path : " + filePath);
-                                if (!foundFile.canRead()) {
-                                    Log.e(TAG, "Error, cannot read file");
-                                    return null;
-                                }
-                            } else {
-                                Log.e(TAG, "File not found for path : " + filePath);
+            if (location == FileUtility.FileLocation.Resources) {// Search first in expansion
+                Uri expansionUri = NativeUtility.getMainActivity().getUriFromFileName(path);
+                if (expansionUri != null) {
+                    foundFile = new File(Objects.requireNonNull(expansionUri.getPath()));
+                }
+                // Search inside the assets if it's not in the expansion
+                if (foundFile == null || !foundFile.exists() || !foundFile.canRead()) {
+                    // TODO: code copy/pasted from below, refactor me
+                    ContentResolver cr = NativeUtility.getMainActivity().getContentResolver();
+                    String[] projection = {MediaStore.MediaColumns.DATA};
+                    Cursor cur = cr.query(Uri.parse(path), projection, null, null, null);
+                    if (cur != null && cur.moveToFirst()) {
+                        String filePath = cur.getString(0);
+                        cur.close();
+                        foundFile = new File(filePath);
+                        if (foundFile.exists()) {
+                            boolean result = foundFile.setReadable(true, false);
+                            Log.i(TAG, "File found, path : " + filePath + " could set readable ? " + (result ? "true" : "false"));
+                            if (!foundFile.canRead()) {
+                                Log.e(TAG, "Error, cannot read file");
                                 return null;
                             }
                         } else {
-                            Log.e(TAG, "Invalid URI or other problem with path : " + path);
+                            Log.e(TAG, "File not found for path : " + filePath);
                             return null;
                         }
-                    }
-                    break;
-                default:
-                    String fullPath = FileUtility.getFullPath(path, location);
-                    foundFile = new File(fullPath);
-                    if(!foundFile.exists() || !foundFile.canRead())  {
+                    } else {
+                        Log.e(TAG, "Invalid URI or other problem with path : " + path);
                         return null;
                     }
-                    break;
+                }
+            } else {
+                String fullPath = FileUtility.getFullPath(path, location);
+                foundFile = new File(fullPath);
+                if (!foundFile.exists() || !foundFile.canRead()) {
+                    return null;
+                }
             }
         }
         else {
@@ -706,7 +703,7 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
                 }
             }
             if (localURI != null) {
-                foundFile = new File(localURI.getPath());
+                foundFile = new File(Objects.requireNonNull(localURI.getPath()));
             } else if (path.startsWith(FileUtility.getLocalPath())
                     || startWithStorageDict) {
                 foundFile = new File(path);
@@ -719,8 +716,8 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
                     cur.close();
                     foundFile = new File(filePath);
                     if (foundFile.exists()) {
-                        foundFile.setReadable(true, false);
-                        Log.i(TAG, "File found, path : " + filePath);
+                        boolean result = foundFile.setReadable(true, false);
+                        Log.i(TAG, "File found, path : " + filePath + " could set readable ? " + (result ? "true" : "false"));
                         if (!foundFile.canRead()) {
                             Log.e(TAG, "Error, cannot read file");
                             return null;
@@ -810,6 +807,12 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
     }
 
     @Override
+    public void onHardwareAccelerationError(IVLCVout vlcVout) {
+        Log.e(TAG, "Error with hardware acceleration");
+        this.releasePlayer();
+    }
+
+    @Override
     public void run() {
         play();
     }
@@ -855,13 +858,5 @@ public class VideoPlayer implements IVLCVout.Callback, LibVLC.HardwareAccelerati
         vout.detachViews();
         libVLC.release();
         libVLC = null;
-    }
-
-    @Override
-    @SuppressWarnings("unused")
-    public void eventHardwareAccelerationError() {
-        // Handle errors with hardware acceleration
-        Log.e(TAG, "Error with hardware acceleration");
-        this.releasePlayer();
     }
 }

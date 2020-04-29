@@ -51,10 +51,25 @@ public:
     DropDownList(std::string filename, Vec2 location, int capacity);
     DropDownList(Sprite* sprite);
     ~DropDownList();
-    std::string getSelectedValue();
+    
+    /*
+     Recommended behavior using IDs instead of strings directly to identify which is selected
+     Warning: currently, DropDownListWrapper still works with std::string instead of IDs, so it cannot differentiate when there are several times the same string
+     */
+    int getSelectedId();
+    void setSelectedId(int selectedId);
+    void setValues(std::map<int, std::string> possibleValues);
+    
+    /*
+     Legacy behavior, using strings as identifier.
+     It is fine to keep using it when the values are pre-determined one.
+     It should not be used when there can be several times the same string, in particular when it handles user content
+     */
+    CC_DEPRECATED_ATTRIBUTE std::string getSelectedValue();
+    CC_DEPRECATED_ATTRIBUTE void setLabelSelectedValue(std::string selectedValue);
+    CC_DEPRECATED_ATTRIBUTE void setValues(std::vector<std::string> possibleValues);
+    
     virtual void setSelectedValue(EventCustom* event);
-    void setLabelSelectedValue(std::string selectedValue);
-    void setValues(std::vector<std::string> possibleValues);
     void setTitle(std::string title);
 private:
     void init();
@@ -62,7 +77,8 @@ private:
     DropDownListWrapper* dropList;
     bool isOpened;
     std::string initialText;
-    std::vector<std::string> possibleValues;
+    int selectedId;
+    std::map<int, std::string> _possibleValues;
     Vector<EventListenerCustom*> listeners;
 };
 
