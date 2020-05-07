@@ -134,28 +134,26 @@ public class InAppManager implements ActivityResultResponder {
         // Start setup. This is asynchronous and the specified listener
         // will be called once setup completes.
         Log.d(TAG, "Starting setup.");
-        mHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
-            public void onIabSetupFinished(IabResult result) {
-                Log.d(TAG, "Setup finished.");
+        mHelper.startSetup(result -> {
+            Log.d(TAG, "Setup finished.");
 
-                if (!result.isSuccess()) {
-                    // Oh noes, there was a problem.
-                    Log.e(TAG, "Problem setting up in-app billing: " + result);
-                    return;
-                }
+            if (!result.isSuccess()) {
+                // Oh noes, there was a problem.
+                Log.e(TAG, "Problem setting up in-app billing: " + result);
+                return;
+            }
 
-                // Hooray, IAB is fully set up. Now, let's get an inventory of stuff we own.
-                if (skuToQuery != null) {
-                    Log.d(TAG, "Setup successful. Querying inventory with " + skuToQuery.size() + " SKUs:");
-                    for(String sku : skuToQuery) {
-                        Log.d(TAG, "    SKU: " + sku);
-                    }
-                    mHelper.queryInventoryAsync(true, skuToQuery, mGotInventoryListener);
-                    skuToQuery = null;
-                } else {
-                    Log.d(TAG, "Setup successful. Querying inventory with no SKU");
-                    mHelper.queryInventoryAsync(mGotInventoryListener);
+            // Hooray, IAB is fully set up. Now, let's get an inventory of stuff we own.
+            if (skuToQuery != null) {
+                Log.d(TAG, "Setup successful. Querying inventory with " + skuToQuery.size() + " SKUs:");
+                for(String sku : skuToQuery) {
+                    Log.d(TAG, "    SKU: " + sku);
                 }
+                mHelper.queryInventoryAsync(true, skuToQuery, mGotInventoryListener);
+                skuToQuery = null;
+            } else {
+                Log.d(TAG, "Setup successful. Querying inventory with no SKU");
+                mHelper.queryInventoryAsync(mGotInventoryListener);
             }
         });
     }
@@ -179,7 +177,6 @@ public class InAppManager implements ActivityResultResponder {
             } else {
                 Purchase existingPurchase = mInventory.getPurchase(productID);
                 //Purchase state = 0 means purchased. 1 is canceled (allow to re-buy), 2 is refunded (allow to re-buy)
-                //noinspection ConstantConditions
                 if (existingPurchase != null && verifyDeveloperPayload(existingPurchase) && existingPurchase.getPurchaseState() == 0) {
                     Log.d(TAG, "Restoring product");
                     getInstance().notifyInAppEvent("ProductRestored", productID, existingPurchase.getToken(), "Restore purchase successful using buyProductIdentifier, skipping purchase flow");
@@ -212,7 +209,6 @@ public class InAppManager implements ActivityResultResponder {
                     getInstance().notifyInAppEvent(event, argument, "", "InApps system not initialized during restoreTransaction");
                 } else {
                     Purchase existingPurchase = mInventory.getPurchase(productID);
-                    //noinspection ConstantConditions
                     if (existingPurchase != null && verifyDeveloperPayload(existingPurchase) && existingPurchase.getPurchaseState() == 0) {
                         Log.d(TAG, "Restoring product");
                         getInstance().notifyInAppEvent("ProductRestored", productID, existingPurchase.getToken(), "Restore purchase successful using restoreTransaction");
@@ -308,11 +304,7 @@ public class InAppManager implements ActivityResultResponder {
         Collections.addAll(list, ids);
         if (queryFinished) {
             queryFinished = false;
-            NativeUtility.getMainActivity().runOnUiThread(new Thread(new Runnable() {
-                public void run() {
-                    mHelper.queryInventoryAsync(true, list, mGotInventoryListener);
-                }
-            }));
+            NativeUtility.getMainActivity().runOnUiThread(new Thread(() -> mHelper.queryInventoryAsync(true, list, mGotInventoryListener)));
         } else {
             if (skuToQuery == null) {
                 skuToQuery = new ArrayList<>();
@@ -466,7 +458,6 @@ public class InAppManager implements ActivityResultResponder {
                     }
                     return;
                 }
-                //noinspection ConstantConditions
                 if (!verifyDeveloperPayload(purchase)) {
                     Log.e(TAG, "Error purchasing. Authenticity verification failed.");
                     getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload", token, "Verify developer payload failed during purchaseFinished");
@@ -500,45 +491,42 @@ public class InAppManager implements ActivityResultResponder {
         }
     };
 
-    static OnConsumeFinishedListener mConsumeFinishedListener = new IabHelper.OnConsumeFinishedListener() {
-        public void onConsumeFinished(final Purchase purchase, final IabResult result) {
-            Log.d(TAG, "Consume finished: " + result + ", purchase: " + purchase);
+    static OnConsumeFinishedListener mConsumeFinishedListener = (purchase, result) -> {
+        Log.d(TAG, "Consume finished: " + result + ", purchase: " + purchase);
 
-            NativeUtility.getMainActivity().runOnGLThread(() -> {
-                String sku = purchase != null ? purchase.getSku() : "";
-                String token = purchase != null ? purchase.getToken() : "";
-                if (result.isFailure()) {
-                    Log.e(TAG, "Error consuming: " + result);
-                    if (result.getResponse() == IabHelper.IABHELPER_USER_CANCELLED) {
-                        getInstance().notifyInAppEvent("PayementCanceledTransactionFailure", "Failure", token, "Purchase cancelled by user during consumeFinished");
-                    } else if (result.getResponse() == IabHelper.IABHELPER_VERIFICATION_FAILED) {
-                        getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload", token, "IABHelper verification failed during consumeFinished");
-                    } else {
-                        getInstance().notifyInAppEvent("ErrorTransactionFailure", "Failure", token, "Unhandled error during consumeFinished: " + IABCodeToString(result.getResponse()) + ", code:" + result.getResponse());
-                    }
-                    return;
+        NativeUtility.getMainActivity().runOnGLThread(() -> {
+            String sku = purchase != null ? purchase.getSku() : "";
+            String token = purchase != null ? purchase.getToken() : "";
+            if (result.isFailure()) {
+                Log.e(TAG, "Error consuming: " + result);
+                if (result.getResponse() == IabHelper.IABHELPER_USER_CANCELLED) {
+                    getInstance().notifyInAppEvent("PayementCanceledTransactionFailure", "Failure", token, "Purchase cancelled by user during consumeFinished");
+                } else if (result.getResponse() == IabHelper.IABHELPER_VERIFICATION_FAILED) {
+                    getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload", token, "IABHelper verification failed during consumeFinished");
+                } else {
+                    getInstance().notifyInAppEvent("ErrorTransactionFailure", "Failure", token, "Unhandled error during consumeFinished: " + IABCodeToString(result.getResponse()) + ", code:" + result.getResponse());
                 }
-                //noinspection ConstantConditions
-                if (!verifyDeveloperPayload(purchase)) {
-                    Log.e(TAG, "Error consuming. Authenticity verification failed.");
-                    getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload", token, "Verify developer payload failed during consumeFinished");
-                    return;
-                }
+                return;
+            }
+            if (!verifyDeveloperPayload(purchase)) {
+                Log.e(TAG, "Error consuming. Authenticity verification failed.");
+                getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload", token, "Verify developer payload failed during consumeFinished");
+                return;
+            }
 
-                if (purchase.getPurchaseState() == 1) //CANCELED
-                {
-                    getInstance().notifyInAppEvent("PayementCanceledTransactionFailure", sku, token, "Purchase cancelled by developer during consumeFinished");
-                    Log.d(TAG, "Consume canceled.");
-                } else if (purchase.getPurchaseState() == 2) //REFUNDED
-                {
-                    getInstance().notifyInAppEvent("ProductRefunded", sku, token, "Purchase refunded during consumeFinished");
-                    Log.d(TAG, "Consume refunded.");
-                } else //PURCHASED, getPurchaseState should be 0
-                {
-                    getInstance().notifyInAppEvent("ProductPurchased", sku, token, "Consumable purchase successful");
-                    Log.d(TAG, "Consume successful.");
-                }
-            });
-        }
+            if (purchase.getPurchaseState() == 1) //CANCELED
+            {
+                getInstance().notifyInAppEvent("PayementCanceledTransactionFailure", sku, token, "Purchase cancelled by developer during consumeFinished");
+                Log.d(TAG, "Consume canceled.");
+            } else if (purchase.getPurchaseState() == 2) //REFUNDED
+            {
+                getInstance().notifyInAppEvent("ProductRefunded", sku, token, "Purchase refunded during consumeFinished");
+                Log.d(TAG, "Consume refunded.");
+            } else //PURCHASED, getPurchaseState should be 0
+            {
+                getInstance().notifyInAppEvent("ProductPurchased", sku, token, "Consumable purchase successful");
+                Log.d(TAG, "Consume successful.");
+            }
+        });
     };
 }
