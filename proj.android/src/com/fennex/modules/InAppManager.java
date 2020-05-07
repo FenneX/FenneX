@@ -24,6 +24,7 @@
 
 package com.fennex.modules;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -329,6 +330,7 @@ public class InAppManager implements ActivityResultResponder {
         return Arrays.copyOf(objectArray, objectArray.length, String[].class);
     }
 
+    @SuppressLint("DefaultLocale")
     static String[] getProductsInfos(String productId) {
         if (mInventory == null) {
             Log.w(TAG, "mInventory is null, can't get products infos");
@@ -375,7 +377,7 @@ public class InAppManager implements ActivityResultResponder {
                 unitsNumber = Integer.parseInt(productId.substring(lastNumberIndex));
                 if (unitsNumber > 0) {
                     if(needReplace) {
-                        pricePerUnit = details.getPrice().replace(priceString, String.valueOf(price));
+                        pricePerUnit = details.getPrice().replace(priceString, String.format("%.2f", price.doubleValue() / unitsNumber));
                     }
                     else {
                         pricePerUnit = currencyFormatter.format(price.doubleValue() / unitsNumber);
