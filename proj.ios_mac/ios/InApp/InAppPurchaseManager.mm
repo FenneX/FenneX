@@ -117,6 +117,7 @@ static InAppPurchaseManager* _sharedManager = nil;
         {
             NSLog(@"Product price per unit as string: %@", [product pricePerUnit:[number intValue]]);
         }
+        NSLog(@"---");
     }
     BOOL invalid = false;
     for (NSString *invalidProductId in response.invalidProductIdentifiers)
