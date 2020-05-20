@@ -300,6 +300,8 @@ public class InAppManager implements ActivityResultResponder {
     }
 
     static void requestProductsData(String[] ids) {
+        if (ids == null)
+            return ;
         final List<String> list = new ArrayList<>();
         Collections.addAll(list, ids);
         if (queryFinished) {
