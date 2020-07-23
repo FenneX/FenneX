@@ -74,6 +74,33 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
         if(launchTime == 0) {
             launchTime = SystemClock.elapsedRealtime();
         }
+
+		/* Android 4.4 and earlier do not have built-in TLSv1.2 support.
+		 * We need to force the update of the Provider for the Java Security API
+		 * Note: This section applies only to apps targeting devices that have Google Play services installed.
+		 *
+		 * Code copied from https://stackoverflow.com/a/38962842/1353852
+		 */
+		if (android.os.Build.VERSION.SDK_INT < 21) {
+			try {
+				ProviderInstaller.installIfNeededAsync(this, new ProviderInstaller.ProviderInstallListener() {
+					@Override
+					public void onProviderInstalled() {
+						Log.i("ActivityResultNotifier", "Security Provider installed");
+						logAvailableSSLProtocols();
+					}
+
+					@Override
+					public void onProviderInstallFailed(int i, Intent intent) {
+						Log.i("ActivityResultNotifier", "Security Provider install failed");
+					}
+				});
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		logAvailableSSLProtocols();
+
 		super.onCreate(savedInstanceState);
     	NativeUtility.setMainActivity(this);
 		for(ActivityObserver observer : observers)
@@ -82,6 +109,24 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 		}
 		NativeUtility.getMainActivity().getWindow().setSoftInputMode(
 				WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+	}
+
+	private void logAvailableSSLProtocols() {
+		//Print all TLS protocols supported, copied from: https://stackoverflow.com/a/42856460/1353852
+		//Some platforms are beginning to drop TLSv1 and TLSv1.1, this allows to check if the device supports TLSv1.2
+		SSLParameters sslParameters;
+		try {
+			sslParameters = SSLContext.getDefault()
+					.getDefaultSSLParameters();
+
+			// SSLv3, TLSv1, TLSv1.1, TLSv1.2 etc.
+			for(String protocol : sslParameters.getProtocols())
+			{
+				Log.i("ActivityResultNotifier", "Support protocol: " + protocol);
+			}
+		} catch (NoSuchAlgorithmException e) {
+			// ...
+		}
 	}
 	
 	@Override
