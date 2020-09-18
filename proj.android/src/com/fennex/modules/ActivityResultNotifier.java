@@ -24,9 +24,10 @@ THE SOFTWARE.
 
 package com.fennex.modules;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
 
 import org.cocos2dx.lib.Cocos2dxActivity;
 
@@ -37,6 +38,8 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+
+import com.google.android.gms.security.ProviderInstaller;
 
 /* Implements ActivityResult so that the MainActivity doesn't have to redo all this common code
  * Responders are used to respond to ActivityResult (when you get the response of an Intent)
