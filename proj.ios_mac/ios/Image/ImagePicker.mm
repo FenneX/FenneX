@@ -32,22 +32,17 @@
 USING_NS_CC;
 USING_NS_FENNEX;
 
-void pickImageFrom(const std::string& saveName, FileLocation location, PickOption pickOption, int width, int height, const std::string& identifier)
+//JPG compression is between 0.0 and 1.0, where 1.0 means best quality.
+#define DEFAULT_JPG_COMPRESSION 1.0
+
+void startWidget(UIImagePickerControllerSourceType sourceType)
 {
-    CCASSERT(stringEndsWith(saveName, ".png"), "Error: save name must end with .png");
     Director::getInstance()->stopAnimation();
-    [ImagePicker sharedPicker].saveName = [NSString stringWithFormat:@"%s", saveName.c_str()];
-    [ImagePicker sharedPicker].saveLocation = location;
-    [ImagePicker sharedPicker].identifier = [NSString stringWithFormat:@"%s", identifier.c_str()];
-    [ImagePicker sharedPicker].width = width;
-    [ImagePicker sharedPicker].height = height;
     [[ImagePicker sharedPicker] initController];
-    NSLog(@"Picking image %s", saveName.c_str());
-    
-    [[ImagePicker sharedPicker] setSourceType:pickOption == PickOption::Camera ? UIImagePickerControllerSourceTypeCamera : UIImagePickerControllerSourceTypePhotoLibrary];
+    [[ImagePicker sharedPicker] setSourceType:sourceType];
     if([AppController sharedController] != nullptr)
     {
-        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad && !(pickOption == PickOption::Camera))
+        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad && sourceType == UIImagePickerControllerSourceTypePhotoLibrary)
         {
             UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:[ImagePicker sharedPicker].controller];
             [popover setDelegate:[ImagePicker sharedPicker]];
@@ -68,6 +63,17 @@ void pickImageFrom(const std::string& saveName, FileLocation location, PickOptio
     }
 }
 
+void pickImageWithWidget()
+{
+    startWidget(UIImagePickerControllerSourceTypePhotoLibrary);
+    
+}
+void takePhotoWithWidget()
+{
+    startWidget(UIImagePickerControllerSourceTypeCamera);
+    
+}
+
 bool isCameraAvailable()
 {
     return [UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera];
@@ -76,11 +82,6 @@ bool isCameraAvailable()
 @implementation ImagePicker
 
 @synthesize controller;
-@synthesize saveName;
-@synthesize saveLocation;
-@synthesize identifier;
-@synthesize width;
-@synthesize height;
 @synthesize popOver;
 static ImagePicker* _sharedPicker = nil;
 
@@ -135,10 +136,8 @@ static ImagePicker* _sharedPicker = nil;
 // For responding to the user accepting a newly-captured picture or movie
 - (void) imagePickerController:(UIImagePickerController*) picker didFinishPickingMediaWithInfo:(NSDictionary*) info
 {
-    NSLog(@"Image picked, save name : %@", saveName);
     NSString *mediaType = [info objectForKey: UIImagePickerControllerMediaType];
     UIImage *originalImage, *editedImage, *imageToSave;
-    bool notified = false;
     
     if (CFStringCompare ((CFStringRef) mediaType, kUTTypeImage, 0) == kCFCompareEqualTo)
     {
@@ -156,50 +155,33 @@ static ImagePicker* _sharedPicker = nil;
         
         //To convert to CCSprite : http://www.cocos2d-x.org/boards/6/topics/3922
         NSLog(@"Original Image size : %f, %f", imageToSave.size.width, imageToSave.size.height);
-        UIImage* resultImage = imageToSave;
         
-        CGSize targetSize = imageToSave.size;
-        float scaleX = width/imageToSave.size.width;
-        float scaleY = height/imageToSave.size.height;
-        float scale = MIN(scaleX, scaleY);
-        if(scale < 1)
-        {
-            //hard resize because the image can be way too heavy (1536x2048 on 3GS ....)
-            targetSize.width *= scale;
-            targetSize.height *= scale;
-            resultImage = [imageToSave resizedImage:targetSize interpolationQuality:kCGInterpolationHigh];
-            NSLog(@"Image size after resize : %f, %f", resultImage.size.width, resultImage.size.height);
-        }
-        controller.view.hidden = YES;
+        //We need to save the image to a temporary file: Cocos2d-x is not able to read the file directly from an assets-library:// url, which is the only type we can get from ALAssetsLibrary
+        NSString * filename = [NSString stringWithFormat: @"%f.jpg",[[NSDate date]timeIntervalSinceReferenceDate]];
+        NSString * tmpfile = [NSTemporaryDirectory() stringByAppendingPathComponent:filename];
         
-        std::string imagePathStd = getFullPath([saveName UTF8String], saveLocation);
-        if(imagePathStd.rfind("/") != std::string::npos)
-        { //Ensure parent directory is created
-            FileUtils::getInstance()->createDirectory(imagePathStd.substr(0,imagePathStd.rfind("/")));
-        }
-        
-        NSString* imagePath = [NSString stringWithFormat:@"%s", imagePathStd.c_str()];
         NSError* error = nullptr;
-        BOOL result = [UIImagePNGRepresentation(resultImage) writeToFile:imagePath options:NSDataWritingAtomic error:&error];
-        NSLog(@"Write result for file %@ : %@, full path: %@", saveName, (result ? @"OK" : @"Problem"), imagePath);
+        BOOL result = [UIImageJPEGRepresentation(imageToSave, DEFAULT_JPG_COMPRESSION) writeToFile:tmpfile options:NSDataWritingAtomic error:&error];
+        NSLog(@"Write result for file %@ : %@, full path: %@", filename, (result ? @"OK" : @"Problem"), tmpfile);
         if(result)
         {
-            Director::getInstance()->getTextureCache()->removeTextureForKey([imagePath UTF8String]);
-            notifyImagePicked([saveName UTF8String], saveLocation, [identifier UTF8String]);
-            notified = true;
+            Director::getInstance()->getTextureCache()->removeTextureForKey([tmpfile UTF8String]);
+            notifyImagePicked([tmpfile UTF8String]);
         }
         else
         {
             NSLog(@"Write error description: %@, reason: %@", [error localizedDescription], [error localizedFailureReason]);
-            //TODO : add a notification for failed save
+            notifyImagePickCancelled();
         }
         
+        controller.view.hidden = YES;
         controller = [[UIImagePickerController alloc] init];
         controller.delegate = self;
     }
     else
     {
         NSLog(@"Problem : picked a media which is not an image");
+        notifyImagePickCancelled();
     }
     [picker dismissViewControllerAnimated:YES completion:nil];
     Director::getInstance()->startAnimation();
@@ -207,7 +189,6 @@ static ImagePicker* _sharedPicker = nil;
     {
         [popOver dismissPopoverAnimated:YES];
     }
-    if(!notified) notifyImagePickCancelled();
 }
 
 - (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController {

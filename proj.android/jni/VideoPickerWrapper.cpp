@@ -27,74 +27,13 @@
 #include "VideoPickerWrapper.h"
 #include "DevicePermissions.h"
 
-#define CLASS_NAME_RECORDER "com/fennex/modules/VideoRecorder"
-#define CLASS_NAME_PICKER "com/fennex/modules/VideoPicker"
-
-void startVideoRecordPreview(Vec2 position, cocos2d::Size size)
-{
-    DevicePermissions::ensurePermission(Permission::CAMERA, [=](){
-        DevicePermissions::ensurePermission(Permission::MICROPHONE, [=](){
-            JniMethodInfo minfo;
-            bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME_RECORDER,"startRecordPreview", "(FFFF)V");
-            CCAssert(functionExist, "Function doesn't exist");
-            minfo.env->CallStaticVoidMethod(
-                                            minfo.classID,
-                                            minfo.methodID,
-                                            (jfloat)position.x,
-                                            (jfloat)position.y,
-                                            (jfloat)size.width,
-                                            (jfloat)size.height);
-            minfo.env->DeleteLocalRef(minfo.classID);
-        }, [](){
-            notifyRecordingCancelled();
-        });
-    }, [](){
-        notifyRecordingCancelled();
-    });
-}
-
-void stopVideoRecordPreview()
-{
-    JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME_RECORDER,"stopRecordPreview", "()V");
-    CCAssert(functionExist, "Function doesn't exist");
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID);
-    minfo.env->DeleteLocalRef(minfo.classID);
-}
-
-void startVideoRecording()
-{
-    JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME_RECORDER, "startRecording", "()V");
-    CCAssert(functionExist, "Function doesn't exist");
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID);
-    minfo.env->DeleteLocalRef(minfo.classID);
-}
-
-void stopVideoRecording()
-{
-    JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME_RECORDER,"stopRecording", "()V");
-    CCAssert(functionExist, "Function doesn't exist");
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID);
-    minfo.env->DeleteLocalRef(minfo.classID);
-}
-
-bool cancelRecording(bool notify)
-{
-    JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME_RECORDER,"cancelRecording", "(Z)Z");
-    CCAssert(functionExist, "Function doesn't exist");
-    bool result = minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID, (jboolean)notify);
-    minfo.env->DeleteLocalRef(minfo.classID);
-    return result;
-}
+#define CLASS_NAME "com/fennex/modules/VideoPicker"
 
 void pickVideoFromLibrary(const std::string& saveName, FileLocation location)
 {
     DevicePermissions::ensurePermission(Permission::STORAGE, [=](){
         JniMethodInfo minfo;
-        bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME_PICKER, "pickVideoFromLibrary", "(Ljava/lang/String;I)V");
+        bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "pickVideoFromLibrary", "(Ljava/lang/String;I)V");
         CCAssert(functionExist, "Function doesn't exist");
         jstring jSaveName = minfo.env->NewStringUTF(saveName.c_str());
         minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jSaveName, (jint)location);
@@ -109,7 +48,7 @@ void pickVideoFromCamera(const std::string& saveName, FileLocation location)
 {
     DevicePermissions::ensurePermission(Permission::CAMERA, [=](){
         JniMethodInfo minfo;
-        bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME_PICKER, "pickVideoFromCamera", "(Ljava/lang/String;I)V");
+        bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "pickVideoFromCamera", "(Ljava/lang/String;I)V");
         CCAssert(functionExist, "Function doesn't exist");
         jstring jSaveName = minfo.env->NewStringUTF(saveName.c_str());
         minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jSaveName, (jint)location);
@@ -123,7 +62,7 @@ void pickVideoFromCamera(const std::string& saveName, FileLocation location)
 void getAllVideos()
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME_PICKER, "getAllVideos", "()V");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "getAllVideos", "()V");
     CCAssert(functionExist, "Function doesn't exist");
     minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID);
     minfo.env->DeleteLocalRef(minfo.classID);
@@ -145,11 +84,6 @@ extern "C"
     void Java_com_fennex_modules_VideoPicker_notifyVideoName(JNIEnv* env, jobject thiz, jstring path, jstring name)
     {
         notifyVideoName(JniHelper::jstring2string(path), JniHelper::jstring2string(name));
-    }
-    
-    void Java_com_fennex_modules_VideoRecorder_notifyRecordingCancelled(JNIEnv* env, jobject thiz)
-    {
-        notifyRecordingCancelled();
     }
     
     void Java_com_fennex_modules_VideoPicker_notifyGetAllVideosFinished(JNIEnv* env, jobject thiz)

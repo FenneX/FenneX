@@ -25,7 +25,7 @@
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
 
-@interface VideoRecorder : NSObject <AVCaptureFileOutputRecordingDelegate>
+@interface CameraHandler : NSObject <AVCaptureFileOutputRecordingDelegate>
 {
 	BOOL isRecording;
 	AVCaptureSession *CaptureSession;
@@ -42,7 +42,7 @@
 
 - (void) cameraSetOutputProperties:(AVCaptureDevice*)device;
 - (AVCaptureDevice *) cameraWithPosition:(AVCaptureDevicePosition)position;
-- (void) setPreviewPosition:(CGPoint)position size:(CGSize)size;
+- (void) setPreviewPosition:(CGPoint)position size:(CGSize)size front:(bool)front;
 - (void) startPreview;
 - (void) stopPreview;
 - (void) startRecord;
@@ -51,7 +51,7 @@
 - (BOOL) canToggleCamera;
 - (void) toggleCamera;
 
-+ (VideoRecorder*) sharedRecorder;
++ (CameraHandler*) sharedHandler;
 
 
 @end

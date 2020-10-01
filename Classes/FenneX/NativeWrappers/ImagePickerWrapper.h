@@ -28,41 +28,29 @@ THE SOFTWARE.
 #include "FenneX.h"
 USING_NS_FENNEX;
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+// Pick an image using a widget (Intent on Android, UIImagePicker on iOS). On Android, default to a regular File explorer with image mimetype filter instead of specific photo library, because photo libraries generally have usability issues
+void pickImageWithWidget();
 
-typedef enum
-{
-    Camera = 0, // launch the camera apps and take a normal picture
-    PhotoLibrary = 1, // launch the galleryApp to pick from it
-    FileLibrary = 2, // on iOS, same as PhotoLibrary, on Android launch a file explorer app where the name is visible. The user can choose the app, so if it's a custom one, it can potentially return something wrong and not apply the filter.
-}PickOption;
-/**
- * pickImageFrom launch a platform-dependant widget to pick an image, either by taking a picture with the camera, or by using a library
- *
- * saveName: the file to save (can be in a subdirectory). Must ends with .png, as it will only generate PNG
- * location: the location the file must be saved in
- * pickOption: which widget to use to pick the image
- * width: max width of the image. It will be downscaled if necessary, by keeping ratio
- * height: max height of the image. It will be downscaled if necessary, by keeping ratio
- * identifier: an identifier which will be passed on result, to identify what the image was picked for
- *
- * will throw either
- * - ImagePicked, with file name, location and identifier, if the pick was successful
- * - ImagePickerCancelled if the user cancelled the widget
- **/
-void pickImageFrom(const std::string& saveName, FileLocation location, PickOption pickOption, int width, int height, const std::string& identifier);
+// Taking a photo with widget in only available on iOS, as Android Intent have a fatal flaw we don't want to work around: the app can be killed because of OOM when the Intent takes the picture
+// This definitly happens often on some Android devices. You should instead use CameraHandler to take the picture in the app
+#if CC_TARGET_PLATFORM == CC_PLATFORM_IOS
+void takePhotoWithWidget();
+#endif
+
 bool isCameraAvailable();
 
-static inline void notifyImagePicked(std::string name, FileLocation location, std::string identifier)
+static inline void notifyImagePicked(const std::string& fullpath)
 {
-    Value toSend = Value(ValueMap({{"Name", Value(name)}, {"Location", Value((int)location)}, {"Identifier", Value(identifier)}}));
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+    //Android always save permanent files in the media directory that cocos2d-x is able to access
+    Value toSend = Value(ValueMap({{"Path", Value(fullpath)}, {"Temporary", Value(false)}}));
     DelayedDispatcher::eventAfterDelay("ImagePicked", toSend, 0.001);
 #else
+    //iOS always save temporary files because cocos2d-x isn't able to directly access library files
+    Value toSend = Value(ValueMap({{"Path", Value(fullpath)}, {"Temporary", Value(true)}}));
     Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("ImagePicked", &toSend);
 #endif
 }
-#endif
 
 
 
