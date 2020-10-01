@@ -28,38 +28,10 @@
 #import <MobileCoreServices/UTCoreTypes.h>
 #include "FenneX.h"
 #include "VideoPickerWrapper.h"
-#include "VideoRecorder.h"
-#include "VideoPlayer.h"
 #import <AssetsLibrary/AssetsLibrary.h>
 #import "VideoPlayerImplIOS.h"
 USING_NS_CC;
 USING_NS_FENNEX;
-
-void startVideoRecordPreview(Vec2 position, cocos2d::Size size)
-{
-    [[VideoRecorder sharedRecorder] setPreviewPosition:CGPointMake(position.x, position.y) size:CGSizeMake(size.width, size.height)];
-    [[VideoRecorder sharedRecorder] startPreview];
-}
-
-void stopVideoRecordPreview()
-{
-    [[VideoRecorder sharedRecorder] stopPreview];    
-}
-
-void startVideoRecording()
-{
-    [[VideoRecorder sharedRecorder] startRecord];
-}
-
-void stopVideoRecording()
-{
-    [[VideoRecorder sharedRecorder] stopRecord];
-}
-
-bool cancelRecording(bool notify)
-{
-    return [[VideoRecorder sharedRecorder] cancelRecording:notify];
-}
 
 void pickVideoFromLibrary(const std::string& saveName, FileLocation location)
 {
