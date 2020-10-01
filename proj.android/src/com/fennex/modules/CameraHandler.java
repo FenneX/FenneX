@@ -107,7 +107,8 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 
 	@SuppressWarnings("unused")
 	public static void startCameraPreview(float x, float y, float width, float height, boolean front) {
-		if(!ImagePicker.isCameraAvailable() || previewRunning) {
+		if(!ImagePicker.isCameraAvailable()) return;
+		if(previewRunning && cameraView != null) {
 			cameraView.setZOrderMediaOverlay(front);
 			cameraView.invalidate();
 			return;
