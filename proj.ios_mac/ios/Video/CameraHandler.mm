@@ -96,16 +96,16 @@ bool cancelRecording(bool notify)
 @synthesize isRecording;
 @synthesize previewLayer;
 
-static CameraHandler* _sharedRecorder = nil;
+static CameraHandler* _sharedHandler = nil;
 
-+ (CameraHandler*) sharedRecorder
++ (CameraHandler*) sharedHandler
 {
 	@synchronized([CameraHandler class])
 	{
-		if (!_sharedRecorder)
+		if (!_sharedHandler)
 			[[self alloc] init];
 		
-		return _sharedRecorder;
+		return _sharedHandler;
 	}
 	
 	return nil;
@@ -115,9 +115,9 @@ static CameraHandler* _sharedRecorder = nil;
 {
 	@synchronized([CameraHandler class])
 	{
-		NSAssert(_sharedRecorder == nil, @"Attempted to allocate a second instance of CameraHandler singleton.");
-		_sharedRecorder = [super alloc];
-		return _sharedRecorder;
+		NSAssert(_sharedHandler == nil, @"Attempted to allocate a second instance of CameraHandler singleton.");
+		_sharedHandler = [super alloc];
+		return _sharedHandler;
 	}
 	
 	return nil;
