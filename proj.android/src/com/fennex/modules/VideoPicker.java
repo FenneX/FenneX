@@ -78,6 +78,7 @@ public class VideoPicker implements ActivityResultResponder {
     public native static void notifyVideoPickCancelled();
 
     
+    @SuppressWarnings("unused")
     public static void pickVideoFromLibrary(String saveName, int location)
     {
     	VideoPicker.getInstance(); //ensure the instance is created
@@ -96,6 +97,7 @@ public class VideoPicker implements ActivityResultResponder {
 		}
     }
 
+    @SuppressWarnings("unused")
     public static void pickVideoFromCamera(String saveName, int location)
     {
         VideoPicker.getInstance(); //ensure the instance is created
@@ -113,6 +115,7 @@ public class VideoPicker implements ActivityResultResponder {
         }
     }
     
+    @SuppressWarnings("unused")
     public static void getAllVideos()
     {
     	//This code is heavily copied from VLC org.videolan.vlc.MediaLibrary
@@ -121,10 +124,10 @@ public class VideoPicker implements ActivityResultResponder {
             @Override
             public void run() {
 
-            	final Stack<File> directories = new Stack<File>();
-            	final HashSet<String> directoriesScanned = new HashSet<String>();
+            	final Stack<File> directories = new Stack<>();
+            	final HashSet<String> directoriesScanned = new HashSet<>();
 
-                String storageDirs[] = getStorageDirectories();
+                String[] storageDirs = getStorageDirectories();
                 for (String dir: storageDirs)
                 {
                     File f = new File(dir);
@@ -134,13 +137,13 @@ public class VideoPicker implements ActivityResultResponder {
 
                 MediaItemFilter mediaFileFilter = new MediaItemFilter();
 
-                ArrayList<File> mediaToScan = new ArrayList<File>();
+                ArrayList<File> mediaToScan = new ArrayList<>();
                 
                 // Count total files, and stack them
                 while (!directories.isEmpty()) {
                     File dir = directories.pop();
                     String dirPath = dir.getAbsolutePath();
-                    File[] f = null;
+                    File[] f;
 
                     // Skip some system folders
                     if (dirPath.startsWith("/proc/") || dirPath.startsWith("/sys/") || dirPath.startsWith("/dev/") || dirPath.startsWith(FileUtility.getPublicPath() + "/Android"))
@@ -211,7 +214,7 @@ public class VideoPicker implements ActivityResultResponder {
                 	}
                 }
 
-        		NativeUtility.getMainActivity().runOnGLThread(() -> notifyGetAllVideosFinished());
+        		NativeUtility.getMainActivity().runOnGLThread(VideoPicker::notifyGetAllVideosFinished);
             }
         };
         thread.start();
@@ -220,16 +223,15 @@ public class VideoPicker implements ActivityResultResponder {
     static String[] getStorageDirectories()
     {
         String[] dirs = null;
-        BufferedReader bufReader = null;
-        try {
-            bufReader = new BufferedReader(new FileReader("/proc/mounts"));
-            ArrayList<String> list = new ArrayList<String>();
+        try (BufferedReader bufReader = new BufferedReader(new FileReader("/proc/mounts"))) {
+            ArrayList<String> list = new ArrayList<>();
             list.add(Environment.getExternalStorageDirectory().getPath());
             String line;
-            while((line = bufReader.readLine()) != null) {
-                if(line.contains("vfat") || line.contains("exfat") ||
-                   line.contains("/mnt") || line.contains("/Removable")) {
+            while ((line = bufReader.readLine()) != null) {
+                if (line.contains("vfat") || line.contains("exfat") ||
+                        line.contains("/mnt") || line.contains("/Removable")) {
                     StringTokenizer tokens = new StringTokenizer(line, " ");
+                    //noinspection UnusedAssignment
                     String s = tokens.nextToken();
                     s = tokens.nextToken(); // Take the second token, i.e. mount point
 
@@ -238,12 +240,12 @@ public class VideoPicker implements ActivityResultResponder {
 
                     if (line.contains("/dev/block/vold")) {
                         if (!line.startsWith("tmpfs") &&
-                            !line.startsWith("/dev/mapper") &&
-                            !s.startsWith("/mnt/secure") &&
-                            !s.startsWith("/mnt/shell") &&
-                            !s.startsWith("/mnt/asec") &&
-                            !s.startsWith("/mnt/obb")
-                            ) {
+                                !line.startsWith("/dev/mapper") &&
+                                !s.startsWith("/mnt/secure") &&
+                                !s.startsWith("/mnt/shell") &&
+                                !s.startsWith("/mnt/asec") &&
+                                !s.startsWith("/mnt/obb")
+                        ) {
                             list.add(s);
                         }
                     }
@@ -254,14 +256,7 @@ public class VideoPicker implements ActivityResultResponder {
             for (int i = 0; i < list.size(); i++) {
                 dirs[i] = list.get(i);
             }
-        } catch (IOException ignored) {}
-        finally {
-            if (bufReader != null) {
-                try {
-                    bufReader.close();
-                }
-                catch (IOException ignored) {}
-            }
+        } catch (IOException ignored) {
         }
         return dirs;
     }
@@ -284,13 +279,14 @@ public class VideoPicker implements ActivityResultResponder {
             _fileName += path.substring(path.lastIndexOf("."));
             String destinationPath = FileUtility.getFullPath(_fileName, _location);
             File destinationFile = new File(destinationPath);
+            //noinspection ResultOfMethodCallIgnored,ConstantConditions
             destinationFile.getParentFile().mkdirs();
 
             Log.d(TAG, "video path : " + path + ", new filename : " + _fileName);
             if(!destinationFile.exists())
             {
-                InputStream in = null;
-                OutputStream out = null;
+                InputStream in;
+                OutputStream out;
                 try
                 {
                     in = new FileInputStream(path);
@@ -301,12 +297,10 @@ public class VideoPicker implements ActivityResultResponder {
                         out.write(buffer, 0, read);
                     }
                     in.close();
-                    in = null;
 
                     // write the output file
                     out.flush();
                     out.close();
-                    out = null;
                 }
                 catch(Exception e)
                 {
@@ -370,8 +364,7 @@ public class VideoPicker implements ActivityResultResponder {
                         "/media/audio/notifications",
                         "/media/audio/ringtones",
                         "/Android/data/" };
-                HashSet<String> folderBlacklist = new HashSet<String>();
-                folderBlacklist.addAll(Arrays.asList(folder_blacklist));
+                HashSet<String> folderBlacklist = new HashSet<>(Arrays.asList(folder_blacklist));
                 if (f.isDirectory() && !folderBlacklist.contains(f.getPath().toLowerCase(Locale.ENGLISH))) {
                     accepted = true;
                 } else {
@@ -379,7 +372,7 @@ public class VideoPicker implements ActivityResultResponder {
                     int dotIndex = fileName.lastIndexOf(".");
                     if (dotIndex != -1) {
                         String fileExt = fileName.substring(dotIndex);
-                        accepted = //Media.AUDIO_EXTENSIONS.contains(fileExt) || //Logiral doesn't need audio files
+                        accepted = //Media.AUDIO_EXTENSIONS.contains(fileExt) || // We only care about Video files
                                 Extensions.VIDEO.contains(fileExt);
                     }
                 }

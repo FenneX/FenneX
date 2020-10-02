@@ -26,34 +26,13 @@ THE SOFTWARE.
 #define FenneX_VideoPickerWrapper_h
 
 #include "cocos2d.h"
-#include "DelayedDispatcher.h"
 #include "FileUtility.h"
+#include "DelayedDispatcher.h"
 
 USING_NS_FENNEX;
 
-//Warning : picking a video from camera will launch VideoRecorder on background. You'll need to manually stop it with a foreground button
-//the zone it should be recording in is specified when starting the preview, otherwise it's full screen
-//If you start a videoRecordPreview, you must either stop it or pick a video from camera, then stop the recording
-//Warning : picking a video from camera is incompatible with AudioPlayerRecorder
-//Requires permissions on Android :
-//  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-//  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-//  <uses-permission android:name="android.permission.RECORD_VIDEO" />
-//  <uses-permission android:name="android.permission.CAMERA" />
-
-//Before actually starting a video record, you should show a Preview.
-void startVideoRecordPreview(Vec2 position, cocos2d::Size size);
-void stopVideoRecordPreview();
-//You can start a video recording directly after a Preview. When you stop it, a VideoPicked notify will be thrown
-void startVideoRecording();
-void stopVideoRecording();
-
-//Will cancel either preview or recording (depending which mode you are on) without generating a file and a notification if you are recording. Return true if something was cancelled
-//Pass true to get a VideoRecordingCancelled when it's done
-bool cancelRecording(bool notify = true);
 
 void pickVideoFromLibrary(const std::string& saveName, FileLocation location);
-
 void pickVideoFromCamera(const std::string& saveName, FileLocation location);
 
 //Will start the process of getting all videos path, names and duration, which will be notified with VideoFound, VideoNameResolved and VideoDurationAvailable (from VideoPlayer)
@@ -75,11 +54,6 @@ static inline void notifyVideoFound(std::string fullPath)
 static inline void notifyVideoName(std::string path, std::string name)
 {
     DelayedDispatcher::eventAfterDelay("VideoNameResolved", Value(ValueMap({{"Name", Value(name)}, {"Path", Value(path)}})), 0.01);
-}
-
-static inline void notifyRecordingCancelled()
-{
-    DelayedDispatcher::eventAfterDelay("VideoRecordingCancelled", Value(), 0.01);
 }
 
 static inline void notifyGetAllVideosFinished()

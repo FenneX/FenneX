@@ -190,7 +190,6 @@ public class Cocos2dxEditBox extends EditText implements TimePickerDialog.OnTime
                     calendar.get(Calendar.MINUTE),
                     android.text.format.DateFormat.is24HourFormat(context)
             );
-            timePicker.setTitle("Select Time");
             timePicker.show();
             customInput = timePicker;
         }
@@ -209,7 +208,6 @@ public class Cocos2dxEditBox extends EditText implements TimePickerDialog.OnTime
                                 calendar.get(Calendar.MONTH),
                                 calendar.get(Calendar.DAY_OF_MONTH)
                                 );
-            datePicker.setTitle("Select Date");
             datePicker.show();
             customInput = datePicker;
         }

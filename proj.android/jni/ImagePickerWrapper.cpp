@@ -31,26 +31,14 @@
 
 USING_NS_FENNEX;
 
-void pickImageFrom(const std::string& saveName, FileLocation location, PickOption pickOption, int width, int height, const std::string& identifier)
+void pickImageWithWidget()
 {
-    DevicePermissions::ensurePermission(pickOption == PickOption::Camera ? Permission::CAMERA : Permission::STORAGE, [=](){
-        CCASSERT(stringEndsWith(saveName, ".png"), "Error: save name must end with .png");
+    DevicePermissions::ensurePermission(Permission::STORAGE, [=](){
         JniMethodInfo minfo;
-        bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"pickImageFrom", "(Ljava/lang/String;IIIILjava/lang/String;)V");
+        bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"pickImageWithWidget", "()V");
         CCAssert(functionExist, "Function doesn't exist");
-        jstring jSaveName = minfo.env->NewStringUTF(saveName.c_str());
-        jstring jIdentifier = minfo.env->NewStringUTF(identifier.c_str());
         minfo.env->CallStaticVoidMethod(minfo.classID,
-                                        minfo.methodID,
-                                        jSaveName,
-                                        (jint)location,
-                                        (jint)pickOption,
-                                        (jint)width,
-                                        (jint)height,
-                                        jIdentifier);
-        minfo.env->DeleteLocalRef(minfo.classID);
-        minfo.env->DeleteLocalRef(jSaveName);
-        minfo.env->DeleteLocalRef(jIdentifier);
+                                        minfo.methodID);
     }, [](){
         notifyImagePickCancelled();
     });
@@ -69,9 +57,9 @@ bool isCameraAvailable()
 extern "C"
 {
     //extension for long name : __Ljava_lang_String_2Ljava_lang_String_2
-    void Java_com_fennex_modules_ImagePicker_notifyImagePickedWrap(JNIEnv* env, jobject thiz, jstring name, jint location, jstring identifier)
+    void Java_com_fennex_modules_ImagePicker_notifyImagePickedWrap(JNIEnv* env, jobject thiz, jstring path)
     {
-        notifyImagePicked(JniHelper::jstring2string(name), (FileLocation)location, JniHelper::jstring2string(identifier));
+        notifyImagePicked(JniHelper::jstring2string(path));
     }
 
     void Java_com_fennex_modules_ImagePicker_notifyImagePickCancelled(JNIEnv* env, jobject thiz)

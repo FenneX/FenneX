@@ -28,6 +28,7 @@ THE SOFTWARE.
 #include "AnalyticsWrapper.h"
 #include "AudioPickerWrapper.h"
 #include "AudioPlayerRecorder.h"
+#include "CameraHandlerWrapper.h"
 #include "ImagePickerWrapper.h"
 #include "InAppWrapper.h"
 #include "LocalNotificationWrapper.h"

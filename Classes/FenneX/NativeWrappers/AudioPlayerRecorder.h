@@ -45,7 +45,7 @@ USING_NS_FENNEX;
 //currently record as .caf on iOS and as .3gp on Android
 //The filename to read MUST be accessible via FileUtility findFullPath. In doubt, just use an absolute path
 //TODO : unify as only 1 audio format (wav for example)
-//Warning : incompatible with VideoRecorder (picking video from camera) on iOS
+//Warning : incompatible with CameraHandler (picking video from camera) on iOS
 /* If the app crash on record on Android, check that you have those lines in your AndroidManifest.xml :
 	<uses-permission android:name="android.permission.RECORD_AUDIO" />
 	<uses-feature android:name="android.hardware.microphone"/>

@@ -22,16 +22,53 @@
  THE SOFTWARE.
  ****************************************************************************///
 
-#import "VideoRecorder.h"
+#import <AssetsLibrary/AssetsLibrary.h>
+#import "CameraHandler.h"
 #import "AppController.h"
 #import "RootViewController.h"
-#import <AssetsLibrary/AssetsLibrary.h>
-#include "VideoPickerWrapper.h"
 #import "platform/ios/CCEAGLView-ios.h"
+#include "CameraHandlerWrapper.h"
+#include "VideoPickerWrapper.h"
 
-#define CAPTURE_FRAMES_PER_SECOND		60
+#define CAPTURE_FRAMES_PER_SECOND        60
 
-@implementation VideoRecorder (Private)
+USING_NS_CC;
+USING_NS_FENNEX;
+
+void startCameraPreview(Vec2 position, cocos2d::Size size, bool front, bool requiresAudio)
+{
+    [[CameraHandler sharedHandler] setPreviewPosition:CGPointMake(position.x, position.y) size:CGSizeMake(size.width, size.height) front:front];
+    [[CameraHandler sharedHandler] startPreview];
+}
+
+void stopCameraPreview()
+{
+    [[CameraHandler sharedHandler] stopPreview];
+}
+
+bool canSwitchCamera()
+{
+    //There is no supported device that don't have a front-facing camera
+    //Note: apps should still declare front-facing-camera = true in UIRequiredDeviceCapabilities if they plan to switch camera
+    return true;
+}
+
+void startVideoRecording()
+{
+    [[CameraHandler sharedHandler] startRecord];
+}
+
+void stopVideoRecording()
+{
+    [[CameraHandler sharedHandler] stopRecord];
+}
+
+bool cancelRecording(bool notify)
+{
+    return [[CameraHandler sharedHandler] cancelRecording:notify];
+}
+
+@implementation CameraHandler (Private)
 
 - (void) orientationChanged:(NSNotification*)data
 {
@@ -54,21 +91,21 @@
 
 @end
 
-@implementation VideoRecorder
+@implementation CameraHandler
 
 @synthesize isRecording;
 @synthesize previewLayer;
 
-static VideoRecorder* _sharedRecorder = nil;
+static CameraHandler* _sharedHandler = nil;
 
-+ (VideoRecorder*) sharedRecorder
++ (CameraHandler*) sharedHandler
 {
-	@synchronized([VideoRecorder class])
+	@synchronized([CameraHandler class])
 	{
-		if (!_sharedRecorder)
+		if (!_sharedHandler)
 			[[self alloc] init];
 		
-		return _sharedRecorder;
+		return _sharedHandler;
 	}
 	
 	return nil;
@@ -76,11 +113,11 @@ static VideoRecorder* _sharedRecorder = nil;
 
 + (id) alloc
 {
-	@synchronized([VideoRecorder class])
+	@synchronized([CameraHandler class])
 	{
-		NSAssert(_sharedRecorder == nil, @"Attempted to allocate a second instance of VideoRecorder singleton.");
-		_sharedRecorder = [super alloc];
-		return _sharedRecorder;
+		NSAssert(_sharedHandler == nil, @"Attempted to allocate a second instance of CameraHandler singleton.");
+		_sharedHandler = [super alloc];
+		return _sharedHandler;
 	}
 	
 	return nil;
@@ -266,8 +303,15 @@ static VideoRecorder* _sharedRecorder = nil;
 	return nil;
 }
 
-- (void) setPreviewPosition:(CGPoint)position size:(CGSize)size
+- (void) setPreviewPosition:(CGPoint)position size:(CGSize)size front:(bool)front
 {
+    UIView* mainView = [AppController sharedController].viewController.view.superview;
+    if(front) {
+        [mainView bringSubviewToFront:cameraView];
+    }
+    else {
+        [mainView sendSubviewToBack:cameraView];
+    }
     _position = position;
     cocos2d::GLView *glview = cocos2d::Director::getInstance()->getOpenGLView();
     CCEAGLView *eaglview = (CCEAGLView*) glview->getEAGLView();
