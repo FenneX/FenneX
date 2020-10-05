@@ -71,8 +71,11 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 	private static float localWidth = widthScreen;
 	private static float localHeight = heightScreen;
 
+	private static final int MAX_RECORD_DURATION = 3600000; // 1 hour
+	private static final int MAX_RECORD_SIZE = 1000000000; // Approximately 1000 megabytes
+
 	public native static void notifyRecordingCancelled();
-	protected native static void notifyPictureTaken(String fullpath);
+	protected native static void notifyPictureTaken(String fullPath);
 
 	//The init goal is to create the cameraView (which will be valid during any preview/recording session)
 	@SuppressWarnings("deprecation")
@@ -356,15 +359,13 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 		recorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
 		recorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH));
 
-		String currentDate = DateFormat.format("dd:MM:yyyy-kk:mm:ss", new Date().getTime()).toString();
-		//There are some problems with ':" in file path, use "_" instead
-		currentDate = currentDate.replace(':', '-');
+		String currentDate = DateFormat.format("dd-MM-yyyy_hh-mm-ss", new Date().getTime()).toString();
 
 		videoPath = NativeUtility.getMainActivity().getFilesDir().getPath() + "/" + NativeUtility.getAppName() + " " + currentDate + ".mp4";
 		Log.i(TAG, "Saving video at path : " + videoPath);
 		recorder.setOutputFile(videoPath);
-		recorder.setMaxDuration(3600000); // 1 hour
-		recorder.setMaxFileSize(1000000000); // Approximately 1000 megabytes
+		recorder.setMaxDuration(MAX_RECORD_DURATION);
+		recorder.setMaxFileSize(MAX_RECORD_SIZE);
 		recorder.setPreviewDisplay(cameraView.getHolder().getSurface());
 		recorderStopped = false;
 
