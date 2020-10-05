@@ -458,7 +458,7 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 		int cameraOrientation = 0;
 		if(orientation == Configuration.ORIENTATION_PORTRAIT)
 			cameraOrientation += 90;
-		if(rotation == Surface.ROTATION_180)
+		if(rotation == Surface.ROTATION_180 || rotation == Surface.ROTATION_270)
 			cameraOrientation += 180;
 		return cameraOrientation;
 	}
