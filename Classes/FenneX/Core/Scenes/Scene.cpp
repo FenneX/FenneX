@@ -462,10 +462,6 @@ void Scene::removeUpdatable(Pausable* obj)
        && std::find(updatablesToRemove.begin(), updatablesToRemove.end(), obj) == updatablesToRemove.end())
     {
         updatablesToRemove.push_back(obj);
-        if(isKindOf(obj, Ref))
-        {
-            dynamic_cast<Ref*>(obj)->retain();
-        }
     }
 }
 
