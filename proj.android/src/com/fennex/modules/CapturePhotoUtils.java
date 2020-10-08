@@ -12,13 +12,13 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
+import android.text.format.DateFormat;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -29,6 +29,11 @@ import java.util.Date;
  * - save in DCIM/Camera folder instead of default "Pictures" folder
  */
 class CapturePhotoUtils {
+
+    //Quality of JPEG exports, where 0 is the worst quality and 100 the highest quality
+    private static final int LIBRARY_JPEG_QUALITY = 90;
+    private static final int THUMBNAIL_IMAGE_QUALITY = 80;
+
     @SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
     public static String insertImage(String imagePath, String name, String description) throws FileNotFoundException {
         // Check if file exists with a FileInputStream
@@ -82,8 +87,8 @@ class CapturePhotoUtils {
             //Legacy incantations to save in /DCIM/Camera
             values.put(Images.Media.BUCKET_DISPLAY_NAME, CAMERA_IMAGE_BUCKET_NAME);
             values.put(Images.Media.BUCKET_ID, CAMERA_IMAGE_BUCKET_ID);
-            @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy_hh-mm-ss");
-            values.put(Images.Media.DATA, CAMERA_IMAGE_FULL_PATH + File.separator + sdf.format(new Date()) + ".jpg");
+            String currentDate = DateFormat.format("dd-MM-yyyy_hh-mm-ss", new Date().getTime()).toString();
+            values.put(Images.Media.DATA, CAMERA_IMAGE_FULL_PATH + File.separator + currentDate + ".jpg");
         }
 
         Uri url = null;
@@ -94,7 +99,7 @@ class CapturePhotoUtils {
 
             if (source != null && url != null) {
                 try (OutputStream imageOut = cr.openOutputStream(url)) {
-                    source.compress(Bitmap.CompressFormat.JPEG, 50, imageOut);
+                    source.compress(Bitmap.CompressFormat.JPEG, LIBRARY_JPEG_QUALITY, imageOut);
                 }
 
                 long id = ContentUris.parseId(url);
@@ -159,7 +164,7 @@ class CapturePhotoUtils {
         if(url != null) {
             try {
                 OutputStream thumbOut = cr.openOutputStream(url);
-                thumb.compress(Bitmap.CompressFormat.JPEG, 100, thumbOut);
+                thumb.compress(Bitmap.CompressFormat.JPEG, THUMBNAIL_IMAGE_QUALITY, thumbOut);
                 assert thumbOut != null;
                 thumbOut.close();
                 return thumb;

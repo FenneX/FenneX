@@ -2,6 +2,7 @@ package com.fennex.modules;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
@@ -14,6 +15,8 @@ import android.media.MediaRecorder;
 import android.os.Environment;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.OrientationEventListener;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.FrameLayout;
@@ -48,6 +51,7 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 	}
 
 	private static Camera camera;
+	private static OrientationEventListener mOrientationEventListener = null;
 	private static int cameraID = 0;
 	@SuppressLint("StaticFieldLeak")
 	private static SurfaceView cameraView;
@@ -67,14 +71,29 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 	private static float localWidth = widthScreen;
 	private static float localHeight = heightScreen;
 
+	private static final int MAX_RECORD_DURATION = 3600000; // 1 hour
+	private static final int MAX_RECORD_SIZE = 1000000000; // Approximately 1000 megabytes
+
 	public native static void notifyRecordingCancelled();
-	protected native static void notifyPictureTaken(String fullpath);
+	protected native static void notifyPictureTaken(String fullPath);
 
 	//The init goal is to create the cameraView (which will be valid during any preview/recording session)
 	@SuppressWarnings("deprecation")
 	private static void init(boolean front) {
 		if(cameraView == null) {
 			NativeUtility.getMainActivity().runOnUiThread(() -> {
+				if(mOrientationEventListener == null) {
+					mOrientationEventListener = new OrientationEventListener(NativeUtility.getMainActivity()) {
+						@Override
+						public void onOrientationChanged(int orientation) {
+							if(camera != null) camera.setDisplayOrientation(getImageRotation());
+						}
+					};
+				}
+
+				if (mOrientationEventListener.canDetectOrientation())
+					mOrientationEventListener.enable();
+
 				FrameLayout mainFrame = NativeUtility.getMainActivity().getMainLayout();
 
 				cameraView = new SurfaceView(NativeUtility.getMainActivity());
@@ -98,6 +117,7 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 				FrameLayout mainFrame = NativeUtility.getMainActivity().getMainLayout();
 				mainFrame.removeView(cameraView);
 				cameraView = null;
+				mOrientationEventListener.disable();
 			});
 		}
 	}
@@ -259,15 +279,21 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 						//Save data directly to a temporary jpeg file
 						file = File.createTempFile("PickedImage", ".jpg");
 
-						if(cameraID == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-							//Front-facing camera requires flipping the image horizontally
-							//as the preview show the image in the expected rotation, but the capture takes it horizontally flipped
+						//Front-facing camera requires flipping the image horizontally
+						//as the preview show the image in the expected rotation, but the capture takes it horizontally flipped
+						boolean flipHorizontal = cameraID == Camera.CameraInfo.CAMERA_FACING_FRONT;
+
+						//Unless you are in regular landscape mode, the image needs to be rotated
+						int imageRotation = getImageRotation();
+
+						if(flipHorizontal || imageRotation != 0) {
 							ByteArrayInputStream jpegInput = new ByteArrayInputStream(jpegData);
 							Bitmap original = BitmapFactory.decodeStream(jpegInput);
 							jpegInput.close();
 
 							Matrix matrix = new Matrix();
-							matrix.setScale(-1, 1);
+							if(flipHorizontal) matrix.setScale(-1, 1);
+							matrix.postRotate(imageRotation);
 							Bitmap flipped = Bitmap.createBitmap(original, 0, 0, original.getWidth(), original.getHeight(), matrix, true);
 
 							FileOutputStream fileOutputStream = new FileOutputStream(file);
@@ -275,7 +301,7 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 							fileOutputStream.close();
 							flipped.recycle();
 						}
-						else { //For back-facing camera, we can just save jpeg data as-is
+						else { //For back-facing camera in landscape mode, we can just save jpeg data as-is
 							FileOutputStream fileOutputStream = new FileOutputStream(file);
 							fileOutputStream.write(jpegData);
 							fileOutputStream.close();
@@ -333,15 +359,13 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 		recorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
 		recorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH));
 
-		String currentDate = DateFormat.format("dd:MM:yyyy-kk:mm:ss", new Date().getTime()).toString();
-		//There are some problems with ':" in file path, use "_" instead
-		currentDate = currentDate.replace(':', '-');
+		String currentDate = DateFormat.format("dd-MM-yyyy_hh-mm-ss", new Date().getTime()).toString();
 
 		videoPath = NativeUtility.getMainActivity().getFilesDir().getPath() + "/" + NativeUtility.getAppName() + " " + currentDate + ".mp4";
 		Log.i(TAG, "Saving video at path : " + videoPath);
 		recorder.setOutputFile(videoPath);
-		recorder.setMaxDuration(3600000); // 1 hour
-		recorder.setMaxFileSize(1000000000); // Approximately 1000 megabytes
+		recorder.setMaxDuration(MAX_RECORD_DURATION);
+		recorder.setMaxFileSize(MAX_RECORD_SIZE);
 		recorder.setPreviewDisplay(cameraView.getHolder().getSurface());
 		recorderStopped = false;
 
@@ -428,8 +452,21 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 		return previewSize;
 	}
 
+	private static int getImageRotation() {
+		final int orientation = NativeUtility.getMainActivity().getResources().getConfiguration().orientation;
+		final int rotation = NativeUtility.getMainActivity().getWindowManager().getDefaultDisplay()
+				.getRotation();
+		int cameraOrientation = 0;
+		if(orientation == Configuration.ORIENTATION_PORTRAIT)
+			cameraOrientation += 90;
+		if(rotation == Surface.ROTATION_180 || rotation == Surface.ROTATION_270)
+			cameraOrientation += 180;
+		return cameraOrientation;
+	}
+
 	private static void updatePreviewSize() {
 		Camera.Parameters p = camera.getParameters();
+		camera.setDisplayOrientation(getImageRotation());
 		Size previewSize = getPreviewSize(camera);
 
 		Log.i(TAG, "Setting preview size : " + previewSize.width + ", " + previewSize.height);
