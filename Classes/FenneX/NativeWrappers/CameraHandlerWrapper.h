@@ -54,6 +54,9 @@ bool cancelRecording(bool notify = true);
 //the native code has the opportunity to save the file to Camera roll
 //This is done asynchronously so that the UI is notified earlier of the file being available, to make it more responsive
 void capturePicture();
+
+//When switching camera, the interface should be locked until the CameraSwitched event is fired.
+//Capturing a picture during the switch causes a crash otherwise
 void switchCamera();
 #endif
 
@@ -65,6 +68,11 @@ static inline void notifyPictureTaken(std::string path)
 static inline void notifyRecordingCancelled()
 {
     DelayedDispatcher::eventAfterDelay("VideoRecordingCancelled", Value(), 0.01);
+}
+
+static inline void notifyCameraSwitched()
+{
+    DelayedDispatcher::eventAfterDelay("CameraSwitched", Value(), 0.01);
 }
 
 #endif
