@@ -76,6 +76,7 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 
 	public native static void notifyRecordingCancelled();
 	protected native static void notifyPictureTaken(String fullPath);
+	private native static void notifyCameraSwitched();
 
 	//The init goal is to create the cameraView (which will be valid during any preview/recording session)
 	@SuppressWarnings("deprecation")
@@ -345,6 +346,7 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 					e.printStackTrace();
 				}
 				camera.startPreview();
+				NativeUtility.getMainActivity().runOnGLThread(() -> notifyCameraSwitched());
 			});
 		}
 	}

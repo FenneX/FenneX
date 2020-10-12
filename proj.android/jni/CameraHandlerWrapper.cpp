@@ -137,4 +137,9 @@ extern "C"
     {
         notifyRecordingCancelled();
     }
+
+    void Java_com_fennex_modules_CameraHandler_notifyCameraSwitched(JNIEnv* env, jobject thiz)
+    {
+        notifyCameraSwitched();
+    }
 }
