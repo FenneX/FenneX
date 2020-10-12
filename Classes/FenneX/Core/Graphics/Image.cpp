@@ -381,6 +381,14 @@ bool Image::generateScaledImage(std::string fileToScale, std::string fileToSave,
 #endif
         return false;
     }
+
+    if(fileToSave.find_last_of("/") != std::string::npos)
+    {
+        std::string parentDirectory = fileToSave.substr(fileToSave.find_last_of("/") + 1);
+        bool result = FileUtils::getInstance()->createDirectory(parentDirectory);
+        CCAssert(result, "generateScaledImage: failed creating directory for image");
+    }
+    
     //Make it async to avoid crash when already rendering
     DelayedDispatcher::funcAfterDelay([fileToScale, fileToSave, scale, newTexture, format]() {
         Sprite* image = Sprite::createWithTexture(newTexture);
