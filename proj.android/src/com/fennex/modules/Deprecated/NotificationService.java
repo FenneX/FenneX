@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************///
 
-package com.fennex.modules;
+package com.fennex.modules.deprecated;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -36,6 +36,8 @@ import android.content.Context;
 import android.content.Intent;
 import androidx.core.app.NotificationCompat;
 import android.util.Log;
+
+import com.fennex.modules.NativeUtility;
 
 
 public class NotificationService extends IntentService{

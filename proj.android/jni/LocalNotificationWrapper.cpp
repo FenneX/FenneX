@@ -32,7 +32,7 @@
 
 USING_NS_FENNEX;
 
-#define  CLASS_NAME "com/fennex/modules/LocalNotification"
+#define  CLASS_NAME "com/fennex/modules/deprecated/LocalNotification"
 
 void scheduleNotification(float timeFromNow, const std::string& alertBody, const std::string& alertAction, const std::string& soundName, ValueMap userInfo)
 {

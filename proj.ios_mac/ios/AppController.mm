@@ -171,17 +171,11 @@ void uncaughtExceptionHandler(NSException *exception)
     cocos2d::Director::getInstance()->setOpenGLView(glview);
     [FIRApp configure];
     cocos2d::Application::getInstance()->run();
+
+    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+    center.delegate = self;
     
     NSLog(@"app launch");
-    if([launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey] != nullptr)
-    {
-        UILocalNotification* notif = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
-        if([notif.userInfo objectForKey:@"CallbackEvent"] != nil)
-        {
-            NSLog(@"local notif with callback event");
-            DelayedDispatcher::eventAfterDelay([[notif.userInfo objectForKey:@"CallbackEvent"] UTF8String], Value([NSCCConverter valueMapFromNSDictionary:notif.userInfo]), 0.01);
-        }
-    }
     return YES;
 }
 
@@ -197,23 +191,39 @@ void uncaughtExceptionHandler(NSException *exception)
     return YES;
 }
 
-- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification*)notif
-{
-    if (application.applicationState == UIApplicationStateActive) {
-        NSLog(@"receive local notif in UIApplicationStateActive : do not intercept notification");
+- (void) dealWithNotification:(UNNotification*) notification {
+    if([notification.request.content.userInfo objectForKey:@"CallbackEvent"] != nil)
+    {
+        NSLog(@"local notif with callback event");
+        Value val = Value([NSCCConverter valueMapFromNSDictionary:notification.request.content.userInfo]);
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent([[notification.request.content.userInfo objectForKey:@"CallbackEvent"] UTF8String], &val);
     }
-    else if(application.applicationState == UIApplicationStateInactive){
-        NSLog(@"receive local notif in UIApplicationStateInActive : receive local notif");
-        //[[NSUserDefaults standardUserDefaults] removeObjectForKey:@"ExitDate"];
-        if([notif.userInfo objectForKey:@"CallbackEvent"] != nil)
+    else if([notification.request.content.userInfo objectForKey:@"OpenUrl"] != nil)
+    {
+        if(openUrl)
         {
-            NSLog(@"local notif with callback event");
-            Value val = Value([NSCCConverter valueMapFromNSDictionary:notif.userInfo]);
-            Director::getInstance()->getEventDispatcher()->dispatchCustomEvent([[notif.userInfo objectForKey:@"CallbackEvent"] UTF8String], &val);
+            [openUrl autorelease];
         }
+        openUrl = [notification.request.content.userInfo objectForKey:@"OpenUrl"];
+        [openUrl retain];
+        notifyUrlOpened([openUrl UTF8String]);
     }
 }
 
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center
+didReceiveNotificationResponse:(UNNotificationResponse *)response
+         withCompletionHandler:(void (^)())completionHandler {
+    // custom code to handle push while app is in the background or closed
+    [self dealWithNotification:response.notification];
+    completionHandler();
+}
+
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center
+       willPresentNotification:(UNNotification *)notification
+         withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
+    // custom code to handle push while app is in the foreground
+    [self dealWithNotification:notification];
+}
 
 - (void)applicationWillResignActive:(UIApplication *)application {
     /*

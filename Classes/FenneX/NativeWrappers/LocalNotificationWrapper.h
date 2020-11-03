@@ -33,18 +33,19 @@ USING_NS_CC;
 
 //Warning : only sound in bundle are supported
 //include CallbackEvent in the userInfo to have an event if the user do the action
-void scheduleNotification(float timeFromNow, const std::string& alertBody, const std::string& alertAction, const std::string& soundName, ValueMap userInfo);
+//LocalNotificationWrapper is now deprecated, consider using NotificationHandler
+CC_DEPRECATED_ATTRIBUTE void scheduleNotification(float timeFromNow, const std::string& alertBody, const std::string& alertAction, const std::string& soundName, ValueMap userInfo);
 
-void cancelAllNotifications();
+CC_DEPRECATED_ATTRIBUTE void cancelAllNotifications();
 
 //Warning : on Android, notifications will not happen if the app is shut down
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
 
-void stopService();
+CC_DEPRECATED_ATTRIBUTE void stopService();
 
-void notifyNotifClicked(jobjectArray array);
+CC_DEPRECATED_ATTRIBUTE void notifyNotifClicked(jobjectArray array);
 
-void notifyDeletePListFiles();
+CC_DEPRECATED_ATTRIBUTE void notifyDeletePListFiles();
 
 #endif
 
