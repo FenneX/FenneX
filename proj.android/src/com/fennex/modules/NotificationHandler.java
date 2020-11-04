@@ -9,9 +9,9 @@ import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 
-import com.fennex.modules.Notifications.NotificationDatabase;
-import com.fennex.modules.Notifications.NotificationInformation;
-import com.fennex.modules.Notifications.NotificationPublisher;
+import com.fennex.modules.notifications.NotificationDatabase;
+import com.fennex.modules.notifications.NotificationInformation;
+import com.fennex.modules.notifications.NotificationPublisher;
 
 @SuppressWarnings("unused")
 public class NotificationHandler {
