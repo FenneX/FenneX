@@ -32,10 +32,10 @@ NS_FENNEX_BEGIN
 
 
 /**
- * For this notification to work you'll have some sut up to do
+ * For this notification to work you'll have some setup up to do
  * On Android :
  * In your AndroidManifest.xml, add the following lines in your <application> node :
- <receiver android:name = "com.fennex.modules.Notifications.NotificationPublisher" />
+ <receiver android:name="com.fennex.modules.Notifications.NotificationPublisher" />
  <receiver
      android:name="com.fennex.modules.Notifications.NotificationRebootReceiver"
      android:enabled="true"
@@ -46,11 +46,11 @@ NS_FENNEX_BEGIN
      </intent-filter>
  </receiver>
  *
- * In your build.gradle file, add the following line in your dependencies :
+ * In your build.gradle file, add the following lines in your dependencies :
  implementation "androidx.room:room-runtime:2.2.5"
  annotationProcessor "androidx.room:room-compiler:2.2.5"
  *
- * Then, in your main activity, override the getSmallIcon function to help notifications class have access to the icon you want to use
+ * Then, in your main activity, override the getSmallIcon function so that the notification class have access to the icon you want to use
  *
  * On iOS :
  * You can only use openUrl to open your own application
@@ -60,9 +60,9 @@ NS_FENNEX_BEGIN
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
 
 /**
- * A notification channel is created to help Android sort notification between app and help user manage them in their settings
+ * A notification channel is created to help Android sort notifications between apps and help the user manage them in their settings
  *
- * Creating an existing notification channel with its original values performs no operation, so it's safe to call this code when starting an app.
+ * Creating an existing notification channel with its original values performs no operation, so it's safe to call this function during app initialization.
  *
  * name: This should usually be the name of your application, but you can decide to display something else
  * description: specify the description that the user sees in the system settings
@@ -75,9 +75,9 @@ void createNotificationChannel(const std::string& name, const std::string& descr
 /**
  * plan a notification using date as a timestamp for when to show it
  * timestamp : in seconds
- * text: displayed text in the notification body
- * url: url openned when clicking on the notification
- * /!\ in iOS, this will only launch your application and will work as if an url was opened to your application
+ * text: text to display in the notification body
+ * url: url to open when clicking on the notification
+ * /!\ on iOS, this will only launch your application and will work as if an url was opened to your application
  */
 void planNotification(long timestamp, const std::string& text, const std::string& url);
 
