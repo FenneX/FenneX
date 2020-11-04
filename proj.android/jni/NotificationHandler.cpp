@@ -48,16 +48,16 @@ void createNotificationChannel(const std::string& name, const std::string& descr
     minfo.env->DeleteLocalRef(jchannelId);
 }
 
-void planNotification(long timestamp,const std::string& text,const std::string& url)
+void planNotification(long timestamp,const std::string& text,const std::string& url, int notificationId)
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "planNotification", "(JLjava/lang/String;Ljava/lang/String;)V");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "planNotification", "(JLjava/lang/String;Ljava/lang/String;I)V");
     CCAssert(functionExist, "Function doesn't exist");
     jlong jTimestamp = (int64_t) timestamp;
 
     jstring jtext = minfo.env->NewStringUTF(text.c_str());
     jstring jurl = minfo.env->NewStringUTF(url.c_str());
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jTimestamp, jtext, jurl);
+    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jTimestamp, jtext, jurl, (jint)notificationId);
     minfo.env->DeleteLocalRef(minfo.classID);
     minfo.env->DeleteLocalRef(jtext);
     minfo.env->DeleteLocalRef(jurl);

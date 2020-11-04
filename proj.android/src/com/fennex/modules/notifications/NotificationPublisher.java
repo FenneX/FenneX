@@ -11,8 +11,6 @@ import android.os.Build;
 
 public class NotificationPublisher extends BroadcastReceiver {
 
-    private static int mId = 0;
-
     @Override
     public void onReceive(Context context, Intent intent) {
         // If we don't have an intent, there is nothing to do
@@ -20,6 +18,7 @@ public class NotificationPublisher extends BroadcastReceiver {
 
         String text = intent.getExtras().getString("text");
         String url = intent.getExtras().getString("url");
+        int uid = intent.getExtras().getInt("uid");
         String channelId = intent.getExtras().getString("channelId");
         int smallIcon = intent.getExtras().getInt("smallIcon");
 
@@ -28,7 +27,7 @@ public class NotificationPublisher extends BroadcastReceiver {
         i.setData(Uri.parse(url));
 
         // Set up the pending intent from the main intent
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, mId, i, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, uid, i, PendingIntent.FLAG_UPDATE_CURRENT);
         // Create the notification
         Notification.Builder notificationBuilder = new Notification.Builder(context)
                 .setContentText(text)
@@ -43,11 +42,13 @@ public class NotificationPublisher extends BroadcastReceiver {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if(notificationManager != null)
         {
-            notificationManager.notify(mId, notification);
+            notificationManager.notify(uid, notification);
         }
-        mId++;
+        else {
+            throw new AssertionError("couldn't get Notification manager");
+        }
 
         //Erase saved notification
-        NotificationDatabase.removeNotification(context, intent.getExtras().getInt("uid"));
+        NotificationDatabase.removeNotification(context, uid);
     }
 }

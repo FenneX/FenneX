@@ -22,4 +22,7 @@ public interface NotificationDao {
 
     @Delete
     void delete(NotificationInformation user);
+
+    @Query("DELETE FROM NotificationInformation WHERE uid = :id")
+    int deleteById(int id);
 }

@@ -25,9 +25,11 @@ THE SOFTWARE.
 #include "NSStringUtility.h"
 #import "UserNotifications/UserNotifications.h"
 
+#define NOTIFICATION_ID_PREFIX "FenneXNotification"
+
 NS_FENNEX_BEGIN
 
-void planNotification(long timestamp, const std::string& text, const std::string& url)
+void planNotification(long timestamp, const std::string& text, const std::string& url, int notificationId)
 {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     UNAuthorizationOptions options = UNAuthorizationOptionAlert + UNAuthorizationOptionSound;
@@ -36,7 +38,7 @@ void planNotification(long timestamp, const std::string& text, const std::string
     [center requestAuthorizationWithOptions:options
       completionHandler:^(BOOL granted, NSError * _Nullable error) {
         if (!granted) {
-            NSLog(@"Something went wrong");
+            NSLog(@"Notification Authorization was not granted");
             return;
         }
         UNMutableNotificationContent *content = [UNMutableNotificationContent new];
@@ -53,7 +55,7 @@ void planNotification(long timestamp, const std::string& text, const std::string
                                             NSCalendarUnitSecond fromDate:date];
         UNCalendarNotificationTrigger *trigger = [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:triggerDate
                                                                                                           repeats:NO];
-        NSString *identifier = @"UYLLocalNotification";
+        NSString *identifier = [NSString stringWithFormat:@"FenneXNotificationd%d", notificationId];
         UNNotificationRequest* request = [UNNotificationRequest requestWithIdentifier:identifier
                                                                               content:content
                                                                               trigger:trigger];

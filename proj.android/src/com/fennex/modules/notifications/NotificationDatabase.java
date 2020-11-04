@@ -5,6 +5,11 @@ import androidx.room.*;
 
 import java.util.List;
 
+/**
+ * This class is the point of access to the room database for external classes
+ * For more information about room, see :
+ * https://developer.android.com/training/data-storage/room
+ */
 @Database(entities = {NotificationInformation.class}, version = 1)
 public abstract class NotificationDatabase extends RoomDatabase  {
 
@@ -35,10 +40,6 @@ public abstract class NotificationDatabase extends RoomDatabase  {
     }
 
     public static void removeNotification(Context context, int uid) {
-        List<NotificationInformation> notifications = getDatabase(context).notificationDao().loadAllById(uid);
-        for(NotificationInformation notification : notifications)
-        {
-            removeNotification(context, notification);
-        }
+        getDatabase(context).notificationDao().deleteById(uid);
     }
 }

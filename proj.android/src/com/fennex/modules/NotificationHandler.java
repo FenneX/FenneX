@@ -7,7 +7,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.util.Log;
 
 import com.fennex.modules.notifications.NotificationDatabase;
 import com.fennex.modules.notifications.NotificationInformation;
@@ -22,8 +21,13 @@ public class NotificationHandler {
 
     private static String _channelId = "";
 
-    public static void createNotificationChannel(String name, String description, String channelId)
-    {
+    public static void createNotificationChannel(String name, String description, String channelId) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+            && !_channelId.isEmpty()
+            && !_channelId.equals(channelId)) {
+                throw new AssertionError("A notification channel already exist with a different name");
+        }
+
         _channelId = channelId;
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
@@ -38,19 +42,19 @@ public class NotificationHandler {
             NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
             if (notificationManager != null) {
                 notificationManager.createNotificationChannel(channel);
-            }
-            else {
-                Log.e(TAG, "couldn't get Notification manager");
+            } else {
+                throw new AssertionError("couldn't get Notification manager");
             }
         }
     }
 
-    public static void planNotification(long timestamp, String text, String url) {
+    public static void planNotification(long timestamp, String text, String url, int notificationId) {
         Context context = NativeUtility.getMainActivity();
         NotificationInformation notification = new NotificationInformation(
                 timestamp,
                 text,
                 url,
+                notificationId,
                 _channelId,
                 NativeUtility.getMainActivity().getSmallIcon());
 
@@ -70,8 +74,7 @@ public class NotificationHandler {
      */
     public static void planNotification(Context context, AlarmManager alarms, NotificationInformation information) {
         if (alarms == null) {
-            Log.e(TAG, "couldn't get alarm manager");
-            return;
+            throw new AssertionError("couldn't get alarm manager");
         }
         // Set up the intent to start the service
         Intent intent = new Intent(context, NotificationPublisher.class);

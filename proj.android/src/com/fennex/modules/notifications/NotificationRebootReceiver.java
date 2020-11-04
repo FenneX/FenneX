@@ -9,6 +9,12 @@ import com.fennex.modules.NotificationHandler;
 
 import java.util.List;
 
+/**
+ * Android does not keep pending notifications when the device is turned off
+ * This BroadcastReceiver is used to recreate all the pending notifications when the device is turned on again
+ * All notifications are saved using a room database (see NotificationDatabase) when created so that when the device is turned on
+ * NotificationRebootReceiver can access them all and recreate the ones that are in the future
+ */
 public class NotificationRebootReceiver  extends BroadcastReceiver {
 
     private static final String BOOT_ACTION = "android.intent.action.BOOT_COMPLETED";

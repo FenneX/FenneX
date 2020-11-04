@@ -4,7 +4,8 @@ import androidx.room.*;
 
 @Entity
 public class NotificationInformation {
-    @PrimaryKey(autoGenerate = true)
+
+    @PrimaryKey
     public int uid;
 
     @ColumnInfo(name = "timestamp")
@@ -22,11 +23,12 @@ public class NotificationInformation {
     @ColumnInfo(name = "smallIcon")
     public int smallIcon;
 
-    public NotificationInformation(long timestamp, String text, String url, String channelId, int smallIcon)
+    public NotificationInformation(long timestamp, String text, String url, int uid, String channelId, int smallIcon)
     {
         this.timestamp = timestamp;
         this.text = text;
         this.url = url;
+        this.uid = uid;
         this.channelId = channelId;
         this.smallIcon = smallIcon;
     }
