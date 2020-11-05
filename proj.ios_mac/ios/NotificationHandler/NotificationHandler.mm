@@ -56,7 +56,7 @@ void planNotification(long timestamp, const std::string& text, const std::string
                                             NSCalendarUnitSecond fromDate:date];
         UNCalendarNotificationTrigger *trigger = [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:triggerDate
                                                                                                           repeats:NO];
-        NSString *identifier = [NSString stringWithFormat:@"FenneXNotificationd%d", notificationId];
+        NSString *identifier = [NSString stringWithFormat:@"%s-%d", NOTIFICATION_ID_PREFIX, notificationId];
         UNNotificationRequest* request = [UNNotificationRequest requestWithIdentifier:identifier
                                                                               content:content
                                                                               trigger:trigger];
