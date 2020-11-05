@@ -25,6 +25,7 @@
 #include <jni.h>
 #include "FenneX.h"
 #include "NotificationHandler.h"
+#include "CCJniConversion.h"
 #include "platform/android/jni/JniHelper.h"
 
 #define  CLASS_NAME "com/fennex/modules/NotificationHandler"
@@ -63,6 +64,17 @@ void planNotification(long timestamp,const std::string& text, const std::string&
     minfo.env->DeleteLocalRef(jtext);
     minfo.env->DeleteLocalRef(jtitle);
     minfo.env->DeleteLocalRef(jurl);
+}
+
+void cancelNotifications(std::vector<int> notificationIds)
+{
+    if (notificationIds.size() <= 0) return;
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "cancelNotifications", "([I)V");
+    jintArray intArray = jintArrayFromIntVector(minfo.env, notificationIds);
+    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, (jint*)intArray);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(intArray);
 }
 
 NS_FENNEX_END

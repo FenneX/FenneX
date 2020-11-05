@@ -74,4 +74,24 @@ void planNotification(long timestamp, const std::string& text, const std::string
     }];
 }
 
+void cancelNotifications(std::vector<int> notificationIds)
+{
+    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+    UNAuthorizationOptions options = UNAuthorizationOptionAlert + UNAuthorizationOptionSound;
+    NSMutableArray *array = [NSMutableArray new];
+    for(int identifier : notificationIds)
+    {
+        [array addObject:[NSString stringWithFormat:@"%s-%d", NOTIFICATION_ID_PREFIX, identifier]];
+    }
+    
+    [center requestAuthorizationWithOptions:options
+      completionHandler:^(BOOL granted, NSError * _Nullable error) {
+        if (!granted) {
+            NSLog(@"Notification Authorization was not granted");
+            return;
+        }
+        [center removePendingNotificationRequestsWithIdentifiers:array];
+    }];
+}
+
 NS_FENNEX_END
