@@ -13,6 +13,19 @@ public class NotificationPublisher extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        final PendingResult result = goAsync();
+        Thread thread = new Thread() {
+            public void run() {
+                publishNotification(context, intent);
+                result.finish();
+            }
+        };
+        thread.start();
+    }
+
+    // This function should be launched in a background thread as it access the notification database
+    public void publishNotification(Context context, Intent intent)
+    {
         // If we don't have an intent, there is nothing to do
         if(intent.getExtras() == null) return;
 
