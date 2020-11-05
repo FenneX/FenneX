@@ -29,12 +29,13 @@ THE SOFTWARE.
 
 NS_FENNEX_BEGIN
 
-void planNotification(long timestamp, const std::string& text, const std::string& url, int notificationId)
+void planNotification(long timestamp, const std::string& text, const std::string& title, const std::string& url, int notificationId)
 {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     UNAuthorizationOptions options = UNAuthorizationOptionAlert + UNAuthorizationOptionSound;
     NSString* nsText = getNSString(text);
     NSString* nsUrl = getNSString(url);
+    NSString* nsTitle = getNSString(title);
     [center requestAuthorizationWithOptions:options
       completionHandler:^(BOOL granted, NSError * _Nullable error) {
         if (!granted) {
@@ -42,7 +43,7 @@ void planNotification(long timestamp, const std::string& text, const std::string
             return;
         }
         UNMutableNotificationContent *content = [UNMutableNotificationContent new];
-        content.title = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
+        content.title = nsTitle;
         content.body = nsText;
         content.sound = [UNNotificationSound defaultSound];
         content.userInfo = @{@"OpenUrl": nsUrl};

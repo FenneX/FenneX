@@ -30,6 +30,7 @@ public class NotificationPublisher extends BroadcastReceiver {
         if(intent.getExtras() == null) return;
 
         String text = intent.getExtras().getString("text");
+        String title = intent.getExtras().getString("title");
         String url = intent.getExtras().getString("url");
         int uid = intent.getExtras().getInt("uid");
         String channelId = intent.getExtras().getString("channelId");
@@ -44,6 +45,7 @@ public class NotificationPublisher extends BroadcastReceiver {
         // Create the notification
         Notification.Builder notificationBuilder = new Notification.Builder(context)
                 .setContentText(text)
+                .setContentTitle(title)
                 .setContentIntent(pendingIntent)
                 .setSmallIcon(smallIcon)
                 .setWhen(System.currentTimeMillis());

@@ -14,6 +14,9 @@ public class NotificationInformation {
     @ColumnInfo(name = "text")
     public String text;
 
+    @ColumnInfo(name = "title")
+    public String title;
+
     @ColumnInfo(name = "url")
     public String url;
 
@@ -23,10 +26,11 @@ public class NotificationInformation {
     @ColumnInfo(name = "smallIcon")
     public int smallIcon;
 
-    public NotificationInformation(long timestamp, String text, String url, int uid, String channelId, int smallIcon)
+    public NotificationInformation(long timestamp, String text, String title, String url, int uid, String channelId, int smallIcon)
     {
         this.timestamp = timestamp;
         this.text = text;
+        this.title = title;
         this.url = url;
         this.uid = uid;
         this.channelId = channelId;

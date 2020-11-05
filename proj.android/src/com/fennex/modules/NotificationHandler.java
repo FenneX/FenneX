@@ -48,11 +48,12 @@ public class NotificationHandler {
         }
     }
 
-    public static void planNotification(long timestamp, String text, String url, int notificationId) {
+    public static void planNotification(long timestamp, String text, String title, String url, int notificationId) {
         Context context = NativeUtility.getMainActivity();
         NotificationInformation notification = new NotificationInformation(
                 timestamp,
                 text,
+                title,
                 url,
                 notificationId,
                 _channelId,
@@ -79,6 +80,7 @@ public class NotificationHandler {
         // Set up the intent to start the service
         Intent intent = new Intent(context, NotificationPublisher.class);
         intent.putExtra("text", information.text);
+        intent.putExtra("title", information.title);
         intent.putExtra("url", information.url);
         intent.putExtra("channelId", information.channelId);
         intent.putExtra("smallIcon", information.smallIcon);

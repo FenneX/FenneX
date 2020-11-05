@@ -78,11 +78,12 @@ void createNotificationChannel(const std::string& name, const std::string& descr
  * plan a notification using date as a timestamp for when to show it
  * timestamp : in seconds
  * text: text to display in the notification body
+ * title: title to display for the notification
  * url: url to open when clicking on the notification
  * /!\ on iOS, this will only launch your application and will work as if an url was opened to your application
  * notificationId: an identifier for the notification, this id must be unique a method to cancel notification using this Id will later be implemented
  */
-void planNotification(long timestamp, const std::string& text, const std::string& url, const int notificationId);
+void planNotification(long timestamp, const std::string& text, const std::string& title, const std::string& url, const int notificationId);
 
 NS_FENNEX_END
 
