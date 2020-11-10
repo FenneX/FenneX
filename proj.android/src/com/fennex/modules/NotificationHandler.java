@@ -38,11 +38,10 @@ public class NotificationHandler {
             // Register the channel with the system; you can't change the importance
             // or other notification behaviors after this
             NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
-            if (notificationManager != null) {
-                notificationManager.createNotificationChannel(channel);
-            } else {
+            if (notificationManager == null) {
                 throw new AssertionError("couldn't get Notification manager");
             }
+            notificationManager.createNotificationChannel(channel);
         }
     }
 
@@ -99,38 +98,34 @@ public class NotificationHandler {
     {
         Context context = NativeUtility.getMainActivity();
         // First remove the notifications from database
-        for(int notificationId : notificationIds)
-        {
+        for(int notificationId : notificationIds) {
             NotificationDatabase.removeNotification(context, notificationId);
         }
         // Then remove the pending notification if it was launched
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        if(notificationManager != null)
-        {
-            for(int notificationId : notificationIds) {
-                notificationManager.cancel(notificationId);
-            }
-        }
-        else {
+        if(notificationManager == null) {
             throw new AssertionError("couldn't get Notification manager");
         }
+
+        for(int notificationId : notificationIds) {
+            notificationManager.cancel(notificationId);
+        }
+
         // Then we need to delete the pending alarm
         AlarmManager alarms = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        if (alarms != null) {
-            for(int notificationId : notificationIds)
-            {
+        if (alarms == null) {
+            throw new AssertionError("couldn't get alarm manager");
+        }
+
+        for(int notificationId : notificationIds) {
                 /*
                   To delete an alarm, we HAVE to recreate an intent considered equals by the alarm manager
                   if their action, data, type, class, and categories are the same.
                   This does not compare any extra data included in the intents.
                  */
-                Intent intent = new Intent(context, NotificationPublisher.class);
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                alarms.cancel(pendingIntent);
-            }
-        }
-        else {
-            throw new AssertionError("couldn't get alarm manager");
+            Intent intent = new Intent(context, NotificationPublisher.class);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            alarms.cancel(pendingIntent);
         }
     }
 }

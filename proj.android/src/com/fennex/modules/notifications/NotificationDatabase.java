@@ -19,8 +19,7 @@ public abstract class NotificationDatabase extends RoomDatabase  {
     private static NotificationDatabase instance = null;
 
     private static NotificationDatabase getDatabase(Context context) {
-        if(instance == null)
-        {
+        if(instance == null) {
             instance = Room.databaseBuilder(context, NotificationDatabase.class, "notification-database")
                     .enableMultiInstanceInvalidation()
                     .allowMainThreadQueries()

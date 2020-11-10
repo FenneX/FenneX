@@ -33,24 +33,20 @@ public class NotificationRebootReceiver  extends BroadcastReceiver {
         }
     }
 
-    private void refreshNotifications(Context context)
-    {
+    private void refreshNotifications(Context context) {
         // timestamp in seconds
         long now = System.currentTimeMillis() / 1000;
         List<NotificationInformation> notifications = NotificationDatabase.getNotifications(context);
         // Create the AlarmManager to launch notifications when needed
         AlarmManager alarms = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        for(NotificationInformation notification : notifications)
-        {
-            if(notification.timestamp > now)
-            {
+        for(NotificationInformation notification : notifications) {
+            if(notification.timestamp > now) {
                 NotificationHandler.planNotification(
                         context,
                         alarms,
                         notification);
             }
-            else
-            {
+            else {
                 // erase past notification
                 NotificationDatabase.removeNotification(context, notification);
             }

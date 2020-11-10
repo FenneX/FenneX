@@ -55,13 +55,10 @@ public class NotificationPublisher extends BroadcastReceiver {
         Notification notification = notificationBuilder.build();
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        if(notificationManager != null)
-        {
-            notificationManager.notify(uid, notification);
-        }
-        else {
+        if(notificationManager == null) {
             throw new AssertionError("couldn't get Notification manager");
         }
+        notificationManager.notify(uid, notification);
 
         //Erase saved notification
         NotificationDatabase.removeNotification(context, uid);
