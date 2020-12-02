@@ -22,12 +22,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************///
 
-package com.fennex.modules;
+package com.fennex.modules.deprecated;
 
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+
+import com.fennex.modules.NativeUtility;
 
 public class LocalNotification{
 	static int mId = 0;

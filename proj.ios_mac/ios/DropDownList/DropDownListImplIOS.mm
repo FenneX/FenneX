@@ -133,8 +133,10 @@ THE SOFTWARE.
 }
 
 // Title for Row #
-- (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {
-    return [pickerValues objectAtIndex:row];
+- (NSAttributedString *)pickerView:(UIPickerView *)pickerView attributedTitleForRow:(NSInteger)row forComponent:(NSInteger)component
+{
+    return [[NSAttributedString alloc] initWithString:[pickerValues objectAtIndex:row]
+                                           attributes:@{NSForegroundColorAttributeName:[UIColor blackColor]}];;
 }
 
 

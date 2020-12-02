@@ -25,8 +25,9 @@
 @class RootViewController;
 
 #import <MessageUI/MessageUI.h>
+#import <UserNotifications/UserNotifications.h>
 
-@interface AppController : NSObject <UIAccelerometerDelegate, UIAlertViewDelegate, UITextFieldDelegate, UIApplicationDelegate, MFMailComposeViewControllerDelegate> {
+@interface AppController : NSObject <UIAccelerometerDelegate, UIAlertViewDelegate, UITextFieldDelegate, UIApplicationDelegate, MFMailComposeViewControllerDelegate, UNUserNotificationCenterDelegate> {
     UIWindow *window;
     RootViewController    *viewController;
     UIViewController* mailViewController;
@@ -38,6 +39,7 @@
 
 - (void) sendMail:(NSString*)address subject:(NSString*)subject message:(NSString*)message attachment:(NSString*)attachment;
 + (AppController*) sharedController;
+- (void) dealWithNotification:(UNNotification*) notification;
 
 @end
 

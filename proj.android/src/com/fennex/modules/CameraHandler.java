@@ -87,7 +87,8 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 					mOrientationEventListener = new OrientationEventListener(NativeUtility.getMainActivity()) {
 						@Override
 						public void onOrientationChanged(int orientation) {
-							if(camera != null) camera.setDisplayOrientation(getImageRotation());
+							//Changing display orientation during recording is forbidden.
+							if(camera != null && !recording) camera.setDisplayOrientation(getImageRotation());
 						}
 					};
 				}

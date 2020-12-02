@@ -39,6 +39,7 @@ import android.view.KeyEvent;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
+import com.fennex.modules.deprecated.LocalNotification;
 import com.google.android.gms.security.ProviderInstaller;
 
 /* Implements ActivityResult so that the MainActivity doesn't have to redo all this common code

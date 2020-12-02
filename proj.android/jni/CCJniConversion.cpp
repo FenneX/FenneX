@@ -167,6 +167,26 @@ jobjectArray jobjectArrayFromStringVector(JNIEnv *pEnv, std::vector<std::string>
     return result;
 }
 
+jintArray jintArrayFromIntVector(JNIEnv *pEnv, std::vector<int> vector)
+{
+    if (vector.size() <= 0) {
+        return NULL;
+    }
+    jintArray result;
+    result = pEnv->NewIntArray(vector.size());
+    if (result == NULL) {
+        return NULL; /* out of memory error thrown */
+    }
+    // fill a temp structure to use to populate the java int array
+    jint fill[vector.size()];
+    for (int i = 0; i < vector.size(); i++) {
+        fill[i] = vector[i];
+    }
+    // move from the temp structure to the java structure
+    pEnv->SetIntArrayRegion(result, 0, vector.size(), fill);
+    return result;
+}
+
 typedef enum
 {
     IntegerType,

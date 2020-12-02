@@ -32,6 +32,7 @@ THE SOFTWARE.
 //Warning: you must DeleteLocalRef the result jobjectArray once it's used
 jobjectArray jobjectArrayFromMap(JNIEnv *pEnv, ValueMap map);
 jobjectArray jobjectArrayFromStringVector(JNIEnv *pEnv, std::vector<std::string> vector);
+jintArray jintArrayFromIntVector(JNIEnv *pEnv, std::vector<int> vector);
 
 ValueMap MapFromjobjectArray(JNIEnv *pEnv, jobjectArray array);
 std::vector<std::string> StringVectorFromjobjectArray(JNIEnv *pEnv, jobjectArray array);

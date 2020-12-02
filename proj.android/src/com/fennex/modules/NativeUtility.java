@@ -40,6 +40,7 @@ import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.os.Build;
 import android.os.Environment;
+import android.os.LocaleList;
 import android.os.StatFs;
 import android.os.Vibrator;
 import android.provider.Settings;
@@ -212,6 +213,17 @@ public class NativeUtility
     	else
         {
          	Log.i(TAG, "didn't copied" + path + ", already exist");            	
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public static String getCurrentLanguage() {
+        //Do NOT use cocos2d-x version, because it doesn't work on Android >= N
+        //Taken from https://stackoverflow.com/questions/14389349/android-get-current-locale-not-default
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+            return LocaleList.getDefault().get(0).getLanguage();
+        } else{
+            return Locale.getDefault().getLanguage();
         }
     }
 
