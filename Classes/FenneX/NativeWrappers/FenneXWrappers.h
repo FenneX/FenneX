@@ -40,6 +40,5 @@ THE SOFTWARE.
 #include "TTSWrapper.h"
 #include "FileUtility.h"
 #include "DevicePermissions.h"
-#include "NotificationHandler.h"
 
 #endif
