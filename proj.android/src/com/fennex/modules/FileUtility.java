@@ -29,6 +29,7 @@ import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
@@ -325,6 +326,7 @@ public class FileUtility implements ActivityResultResponder {
             Log.e(TAG, "Error creating directory " + destinationFolder + ", cannot lock move file " + path + " to this directory");
             return false;
         }
+        boolean isResource = !(new File(path).exists());
 
         if(!destinationFile.exists())
         {
@@ -332,7 +334,13 @@ public class FileUtility implements ActivityResultResponder {
             OutputStream out;
             try
             {
-                in = new FileInputStream(path);
+                if(isResource) {
+                    final AssetManager assetManager = NativeUtility.getMainActivity().getAssets();
+                    in = assetManager.open(path);
+                }
+                else {
+                    in = new FileInputStream(path);
+                }
                 out = new FileOutputStream(destinationFilename);
                 byte[] buffer = new byte[1024];
                 int read;
