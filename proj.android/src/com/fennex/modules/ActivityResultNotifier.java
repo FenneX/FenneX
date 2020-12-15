@@ -24,14 +24,22 @@ THE SOFTWARE.
 
 package com.fennex.modules;
 
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
+
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
+import javax.net.ssl.TrustManagerFactory;
 
 import org.cocos2dx.lib.Cocos2dxActivity;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
@@ -104,6 +112,19 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 			}
 		}
 		logAvailableSSLProtocols();
+
+		//Android < 7.1.1 needs a custom TrustManager that includes ISRG Root X1
+		//so that Cocos2d-x requests, based on HttpsURLConnection, work with Let's Encrypt without having the certificate on the device TrustStore
+		if (Build.VERSION.SDK_INT <= 25) {
+			try {
+				TrustManagerFactory tmf = NetworkUtility.getTrustManagerFactory();
+				SSLContext context = SSLContext.getInstance("TLS");
+				context.init(null, tmf.getTrustManagers(), null);
+				HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
+			} catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException | IOException | CertificateException e) {
+				e.printStackTrace();
+			}
+		}
 
 		super.onCreate(savedInstanceState);
     	NativeUtility.setMainActivity(this);
