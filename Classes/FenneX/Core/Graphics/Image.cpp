@@ -384,7 +384,7 @@ bool Image::generateScaledImage(std::string fileToScale, std::string fileToSave,
 
     if(fileToSave.find_last_of("/") != std::string::npos)
     {
-        std::string parentDirectory = fileToSave.substr(fileToSave.find_last_of("/") + 1);
+        std::string parentDirectory = fileToSave.substr(0, fileToSave.find_last_of("/") + 1);
         bool result = FileUtils::getInstance()->createDirectory(parentDirectory);
         CCAssert(result, "generateScaledImage: failed creating directory for image");
     }
