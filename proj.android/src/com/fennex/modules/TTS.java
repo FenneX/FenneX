@@ -24,18 +24,18 @@
 
 package com.fennex.modules;
 
+import android.annotation.SuppressLint;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import android.annotation.SuppressLint;
-import android.speech.tts.TextToSpeech;
-import android.speech.tts.UtteranceProgressListener;
-import android.util.Log;
-
-@SuppressWarnings({"deprecation", "unused"})
+@SuppressWarnings({"unused", "FieldMayBeFinal"})
 public class TTS implements TextToSpeech.OnInitListener
 {
 	static private TTS instance = null;
@@ -172,21 +172,29 @@ public class TTS implements TextToSpeech.OnInitListener
 	@SuppressWarnings("unused")
 	public boolean speakText(String[] text, float volume) {
 		if(isInit && available && engine != null) {
-			for(int i = 0; i < text.length; i++){
-				String item = text[i];
-				if(i == text.length-1)
-				{
-					settings.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "messageID");
-					settings.put(TextToSpeech.Engine.KEY_PARAM_VOLUME, "" + volume);
-					engine.speak(item, TextToSpeech.QUEUE_ADD, settings);
+			try {
+				for (int i = 0; i < text.length; i++) {
+					String item = text[i];
+					if (i == text.length - 1) {
+						settings.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "messageID");
+						settings.put(TextToSpeech.Engine.KEY_PARAM_VOLUME, "" + volume);
+						engine.speak(item, TextToSpeech.QUEUE_ADD, settings);
+					} else {
+						engine.speak(item, TextToSpeech.QUEUE_ADD, null);
+						engine.playSilence(1000, TextToSpeech.QUEUE_ADD, null);
+					}
 				}
-				else
-				{
-					engine.speak(item, TextToSpeech.QUEUE_ADD, null);
-					engine.playSilence(1000, TextToSpeech.QUEUE_ADD, null);
+				return true;
+			} catch (IllegalArgumentException e) {
+				//Bug happening in the wild, despite waiting for engine initialization.
+				//For now, assume the service isn't actually registered yet
+				if(e.getMessage() != null && e.getMessage().contains("Service not registered")) {
+					Collections.addAll(preinitQueue, text);
+					return true;
 				}
+				//Something else failed that we didn't think about, re-throw
+				throw e;
 			}
-			return true;
 		}
 		else if(!isInit)
 		{
