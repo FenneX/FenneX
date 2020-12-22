@@ -235,6 +235,19 @@ std::string getLocalLanguage()
     return language;
 }
 
+std::string getLocalCountry()
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "getCurrentCountry", "()Ljava/lang/String;");
+    CCAssert(functionExist, "Function doesn't exist");
+
+    jstring name = (jstring) minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID);
+    std::string country = JniHelper::jstring2string(name);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(name);
+    return country;
+}
+
 void preventIdleTimerSleep(bool prevent)
 {
     JniMethodInfo minfo;
