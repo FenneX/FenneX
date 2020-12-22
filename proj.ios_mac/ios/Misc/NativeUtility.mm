@@ -208,10 +208,23 @@ std::string getLocalLanguage()
     NSArray *languages = [defaults objectForKey:@"AppleLanguages"];
     NSString *currentLanguage = [languages objectAtIndex:0];
     
-    // get the current language code.(such as English is "en", Chinese is "zh" and so on)
+    // get the current language code (for example, English is "en", Chinese is "zh" and so on)
     NSDictionary* temp = [NSLocale componentsFromLocaleIdentifier:currentLanguage];
     NSString * languageCode = [temp objectForKey:NSLocaleLanguageCode];
     return [languageCode UTF8String];
+}
+
+std::string getLocalCountry()
+{
+    // get the current language and country config
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSArray *languages = [defaults objectForKey:@"AppleLanguages"];
+    NSString *currentLanguage = [languages objectAtIndex:0];
+    
+    // get the current country code (for example, France is "FR", Canada is "CA" and so on)
+    NSDictionary* temp = [NSLocale componentsFromLocaleIdentifier:currentLanguage];
+    NSString * countryCode = [temp objectForKey:NSLocaleCountryCode];
+    return [countryCode UTF8String];
 }
 
 void preventIdleTimerSleep(bool prevent)

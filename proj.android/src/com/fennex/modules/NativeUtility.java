@@ -228,6 +228,17 @@ public class NativeUtility
     }
 
     @SuppressWarnings("unused")
+    public static String getCurrentCountry() {
+        //Do NOT use cocos2d-x version, because it doesn't work on Android >= N
+        //Taken from https://stackoverflow.com/questions/14389349/android-get-current-locale-not-default
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+            return LocaleList.getDefault().get(0).getCountry();
+        } else{
+            return Locale.getDefault().getCountry();
+        }
+    }
+
+    @SuppressWarnings("unused")
     public static void preventIdleTimerSleep(boolean prevent)
     {
         //Those operations must be executed on the main thread, otherwise there is an exception
