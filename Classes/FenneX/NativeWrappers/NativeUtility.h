@@ -88,6 +88,7 @@ void copyResourceFileToLocal(const std::string& path);
 //Android version is a copy of getCurrentLanguageJNI defined in main.cpp
 //iOS version is defined in AppController
 std::string getLocalLanguage();
+std::string getLocalCountry();
 
 void preventIdleTimerSleep(bool prevent);
 bool doesPreventIdleTimerSleep();
