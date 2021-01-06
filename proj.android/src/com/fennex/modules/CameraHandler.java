@@ -87,8 +87,14 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 					mOrientationEventListener = new OrientationEventListener(NativeUtility.getMainActivity()) {
 						@Override
 						public void onOrientationChanged(int orientation) {
-							//Changing display orientation during recording is forbidden.
-							if(camera != null && !recording) camera.setDisplayOrientation(getImageRotation());
+							//Changing display orientation during previewing/recording is forbidden.
+							if(camera != null && !previewRunning && !recording) {
+								//Catch the exception just in case something is somehow not properly synchronised
+								try {
+									camera.setDisplayOrientation(getImageRotation());
+								}
+								catch (RuntimeException ignored) {}
+							}
 						}
 					};
 				}
@@ -469,7 +475,11 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 
 	private static void updatePreviewSize() {
 		Camera.Parameters p = camera.getParameters();
-		camera.setDisplayOrientation(getImageRotation());
+		//Catch the exception just in case something is somehow not properly synchronised
+		try {
+			camera.setDisplayOrientation(getImageRotation());
+		}
+		catch (RuntimeException ignored) {}
 		Size previewSize = getPreviewSize(camera);
 
 		Log.i(TAG, "Setting preview size : " + previewSize.width + ", " + previewSize.height);
