@@ -383,11 +383,11 @@ public class InAppManager implements ActivityResultResponder {
         return new String[]{
                 "Title", "[Str]" + details.getTitle(),
                 "Description", "[Str]" + details.getDescription(),
-                "Price", (price != null ? "[Flo]" + price.toString() : "[Flo]0"),
+                "Price", "[Flo]" + (price != null ? price.toString() : "0"),
                 "Identifier", "[Str]" + productId,
                 "Units", "[Int]" + unitsNumber,
                 "PriceString", "[Str]" + details.getPrice(),
-                "PricePerUnitString", (pricePerUnit != null ? "[Str]" + pricePerUnit : "[Str]" + details.getPrice())};
+                "PricePerUnitString", (pricePerUnit != null ? "[Str]" + pricePerUnit : "")};
     }
 
     private static String IABCodeToString(int iabCode) {
