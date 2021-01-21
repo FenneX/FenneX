@@ -116,6 +116,13 @@ THE SOFTWARE.
     titleView.text = title;
 }
 
+- (void) setSelectedValue:(NSString*)value
+{
+    if(self != nil && [pickerValues containsObject:value]) {
+        [pickerView selectRow:[pickerValues indexOfObject:value] inComponent:0 animated:FALSE];
+    }
+}
+
 // Fire when new picker values are selected
 - (void)pickerView:(UIPickerView *)thePickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
     notifySelectionDone(_identifier, [[NSString stringWithFormat:@"%@",

@@ -44,6 +44,7 @@ THE SOFTWARE.
 - (void) setPossibleValues:(NSArray*)values;
 - (void) setIdentifier:(int)identifier;
 - (void) setTitle:(NSString*)title;
+- (void) setSelectedValue:(NSString*)value;
 - (void)pickerView:(UIPickerView *)thePickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component;
 - (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView;
 - (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component;

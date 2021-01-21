@@ -73,3 +73,8 @@ void DropDownListWrapper::show()
 {
     [TYPED_DELEGATE show];
 }
+
+void DropDownListWrapper::setSelectedValue(const std::string& value)
+{
+    [TYPED_DELEGATE setSelectedValue:[NSString stringWithUTF8String:value.c_str()]];
+}
