@@ -31,12 +31,17 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import android.util.SparseIntArray;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class DevicePermissions
 {
     public native static void notifyPermissionRequestEnded(int permission, boolean result);
+    public native static void notifyCustomPermissionRequestEnded(String permission, boolean result);
 
     private static SparseIntArray currentRequest = new SparseIntArray();
+    private static Map<Integer, String> currentCustomRequest = new HashMap<>();
     private static int lastID = 0;
 
     @SuppressWarnings("unused,WeakerAccess")
@@ -45,10 +50,19 @@ public class DevicePermissions
         return hasPermission(NativeUtility.getMainActivity(), permissionValue);
     }
 
-    @SuppressWarnings("WeakerAccess")
-    public static boolean hasPermission(Context context, int permissionValue)
+    @SuppressWarnings("unused")
+    public static boolean hasPermission(String permission)
     {
+        return hasPermission(NativeUtility.getMainActivity(), new String[]{ permission });
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public static boolean hasPermission(Context context, int permissionValue) {
         String[] permissions = getPermissionString(permissionValue);
+        return hasPermission(context, permissions);
+    }
+
+    private static boolean hasPermission(Context context, String[] permissions) {
         boolean allowed = true;
         int i = 0;
         while(allowed && i < permissions.length)
@@ -57,6 +71,21 @@ public class DevicePermissions
             i++;
         }
         return allowed;
+    }
+
+    @SuppressWarnings("unused")
+    public static boolean requestPermission(String permission)
+    {
+        String [] permissions = new String[]{ permission };
+        if(!hasPermission(NativeUtility.getMainActivity(), permissions)) {
+            currentCustomRequest.put(lastID, permission);
+            ActivityCompat.requestPermissions(NativeUtility.getMainActivity(),
+                    permissions,
+                    lastID);
+            lastID++;
+            return false;
+        }
+        return true;
     }
 
     @SuppressWarnings("unused")
@@ -80,11 +109,22 @@ public class DevicePermissions
                                                   int[] grantResults) {
         if(NativeUtility.getMainActivity() != null)
         {
-            NativeUtility.getMainActivity().runOnGLThread(() -> {
-                notifyPermissionRequestEnded(currentRequest.get(requestID),
-                        grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
-                currentRequest.delete(requestID);
-            });
+            int permissionId = currentRequest.get(requestID, -1);
+            if(permissionId != -1) {
+                NativeUtility.getMainActivity().runOnGLThread(() -> {
+                    notifyPermissionRequestEnded(currentRequest.get(requestID),
+                            grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
+                    currentRequest.delete(requestID);
+                });
+                return;
+            }
+            if(currentCustomRequest.containsKey(requestID)) {
+                NativeUtility.getMainActivity().runOnGLThread(() -> {
+                    notifyCustomPermissionRequestEnded(currentCustomRequest.get(requestID),
+                            grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
+                    currentCustomRequest.remove(requestID);
+                });
+            }
         }
 
     }
