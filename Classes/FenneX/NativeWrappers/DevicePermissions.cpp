@@ -26,8 +26,10 @@
 #include "cocos2d.h"
 
 static std::map<Permission, std::vector<std::pair<std::function<void()>, std::function<void()>>>> onGoingRequest;
+static std::map<std::string, std::vector<std::pair<std::function<void()>, std::function<void()>>>> onGoingStringRequest;
 // Don't ask for permission if you already have the information
 static std::vector<Permission> acceptedPermission = {};
+static std::vector<std::string> acceptedStringPermission = {};
 
 bool DevicePermissions::hasPermission(Permission permission)
 {
@@ -38,6 +40,20 @@ bool DevicePermissions::hasPermission(Permission permission)
     if(hasPermissionInternal(permission))
     {
         acceptedPermission.push_back(permission);
+        return true;
+    }
+    return false;
+}
+
+bool DevicePermissions::hasPermission(const std::string& permission)
+{
+    if(std::find(acceptedStringPermission.begin(), acceptedStringPermission.end(), permission) != acceptedStringPermission.end())
+    {
+        return true;
+    }
+    if(hasPermissionInternal(permission))
+    {
+        acceptedStringPermission.push_back(permission);
         return true;
     }
     return false;
@@ -65,6 +81,28 @@ void DevicePermissions::ensurePermission(Permission permission, const std::funct
     }
 }
 
+void DevicePermissions::ensurePermission(const std::string& permission, const std::function<void()> funcOnSuccess, const std::function<void()> funcOnDeny)
+{
+    if(hasPermission(permission))
+    {
+        funcOnSuccess();
+    }
+    else if(onGoingStringRequest.find(permission) != onGoingStringRequest.end())
+    {
+        // We are already requesting this permission, just add the function and launch all of them on respond
+        onGoingStringRequest.at(permission).push_back({std::make_pair(funcOnSuccess, funcOnDeny)});
+    }
+    else if(requestPermission(permission))
+    {
+        funcOnSuccess();
+        acceptedStringPermission.push_back(permission);
+    }
+    else
+    {
+        onGoingStringRequest.insert({permission, {std::make_pair(funcOnSuccess, funcOnDeny)}});
+    }
+}
+
 void DevicePermissions::permissionRequestEnded(Permission permission, bool result)
 {
     Director::getInstance()->getRunningScene()->resume();
@@ -80,5 +118,24 @@ void DevicePermissions::permissionRequestEnded(Permission permission, bool resul
             for(auto func : onGoingRequest.at(permission)) func.second();
         }
         onGoingRequest.erase(permission);
+    }
+}
+
+
+void DevicePermissions::permissionRequestEnded(const std::string& permission, bool result)
+{
+    Director::getInstance()->getRunningScene()->resume();
+    if(onGoingStringRequest.find(permission) != onGoingStringRequest.end())
+    {
+        if(result)
+        {
+            for(auto func : onGoingStringRequest.at(permission)) func.first();
+            acceptedStringPermission.push_back(permission);
+        }
+        else
+        {
+            for(auto func : onGoingStringRequest.at(permission)) func.second();
+        }
+        onGoingStringRequest.erase(permission);
     }
 }

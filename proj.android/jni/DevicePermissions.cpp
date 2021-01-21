@@ -44,6 +44,19 @@ bool DevicePermissions::hasPermissionInternal(Permission permission)
     return result;
 }
 
+bool DevicePermissions::hasPermissionInternal(const std::string& permission)
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "hasPermission", "(Ljava/lang/String;)Z");
+    CCAssert(functionExist, "Function doesn't exist");
+    jstring jPermission = minfo.env->NewStringUTF(permission.c_str());
+
+    bool result = minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID, jPermission);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(jPermission);
+    return result;
+}
+
 bool DevicePermissions::requestPermission(Permission permission)
 {
     JniMethodInfo minfo;
@@ -55,6 +68,19 @@ bool DevicePermissions::requestPermission(Permission permission)
     return result;
 }
 
+bool DevicePermissions::requestPermission(const std::string& permission)
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "requestPermission", "(Ljava/lang/String;)Z");
+    CCAssert(functionExist, "Function doesn't exist");
+    jstring jPermission = minfo.env->NewStringUTF(permission.c_str());
+
+    bool result = minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID, jPermission);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(jPermission);
+    return result;
+}
+
 
 NS_FENNEX_END
 
@@ -63,5 +89,10 @@ extern "C"
     void Java_com_fennex_modules_DevicePermissions_notifyPermissionRequestEnded(JNIEnv* env, jobject thiz, jint permission, jboolean result)
     {
         DevicePermissions::permissionRequestEnded((Permission)(int)permission, (bool)result);
+    }
+
+    void Java_com_fennex_modules_DevicePermissions_notifyCustomPermissionRequestEnded(JNIEnv* env, jobject thiz, jstring permission, jboolean result)
+    {
+        DevicePermissions::permissionRequestEnded(JniHelper::jstring2string(permission), (bool)result);
     }
 }

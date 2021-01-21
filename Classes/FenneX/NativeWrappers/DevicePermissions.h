@@ -45,6 +45,7 @@ class DevicePermissions
 public:
     // Return wether or not the permission is granted. Does not launch any request (return true on iOS)
     static bool hasPermission(Permission permission);
+    static bool hasPermission(const std::string& permission);
     
     /**
      * This function will ensure the permission is granted before launching the functions in parameters
@@ -56,13 +57,21 @@ public:
      * on iOS the function will always be launched synchronously and no request will be launched
      */
     static void ensurePermission(Permission permission, const std::function<void()> funcOnSuccess, const std::function<void()> funcOnDeny);
+    /**
+     * This function works the same way as the function above, it only grant the possibility to use custom permission
+     */
+    static void ensurePermission(const std::string& permission, const std::function<void()> funcOnSuccess, const std::function<void()> funcOnDeny);
     
     // Internal use only, need to be public for Android notify C-function
     static void permissionRequestEnded(Permission permission, bool result);
+    static void permissionRequestEnded(const std::string& permission, bool result);
 private:
     static bool hasPermissionInternal(Permission permission);
+    static bool hasPermissionInternal(const std::string& permission);
     // This will return true if the permission is already granted. I'll return false and launch the asking popup otherwise
     static bool requestPermission(Permission permission);
+    static bool requestPermission(const std::string& permission);
+    
 };
 
 NS_FENNEX_END
