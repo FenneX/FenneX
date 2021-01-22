@@ -40,9 +40,9 @@ public class DevicePermissions
     public native static void notifyPermissionRequestEnded(int permission, boolean result);
     public native static void notifyCustomPermissionRequestEnded(String permission, boolean result);
 
-    private static SparseIntArray currentRequest = new SparseIntArray();
-    private static Map<Integer, String> currentCustomRequest = new HashMap<>();
-    private static int lastID = 0;
+    private static final SparseIntArray currentRequest = new SparseIntArray();
+    private static final Map<Integer, String> currentCustomRequest = new HashMap<>();
+    private static int lastID = 42; // Do not start at 0 since it's a default value for onRequestPermissionsResult
 
     @SuppressWarnings("unused,WeakerAccess")
     public static boolean hasPermission(int permissionValue)
