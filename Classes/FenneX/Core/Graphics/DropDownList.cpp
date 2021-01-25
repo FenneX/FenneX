@@ -93,10 +93,11 @@ int DropDownList::getSelectedId()
 
 void DropDownList::setSelectedId(int selectedId)
 {
-    if(linkTo != nullptr && _possibleValues.find(selectedId) != _possibleValues.end())
+    if(linkTo != nullptr && dropList != nullptr && _possibleValues.find(selectedId) != _possibleValues.end())
     {
         linkTo->setLabelValue(_possibleValues[selectedId]);
         this->selectedId = selectedId;
+        dropList->setSelectedValue(_possibleValues[selectedId]);
     }
 }
 

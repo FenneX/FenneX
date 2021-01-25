@@ -40,7 +40,11 @@ public:
     void setTitle(const std::string& title);
     void setIdentifier(int identifier);
     void show();
-    
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+    void setSelectedValue(const std::string& value) {};
+#else
+    void setSelectedValue(const std::string& value);
+#endif
 
 private:
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)

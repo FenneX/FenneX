@@ -35,141 +35,123 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-@SuppressWarnings({"unused", "FieldMayBeFinal"})
+@SuppressWarnings("unused")
 public class TTS implements TextToSpeech.OnInitListener
 {
 	static private TTS instance = null;
-	private TextToSpeech engine;
+
+	private final TextToSpeech engine;
 	private boolean isInit;
 	private boolean available;
-	private float desiredRate;
-	private String engineName;
-	private ArrayList<String> preinitQueue;
-	private HashMap<String, String> settings;
+	private final String engineName;
+	private float desiredRate = 1.0f;
+	private final ArrayList<String> preInitQueue = new ArrayList<>();
+	private final HashMap<String, String> settings = new HashMap<>();
 
 	public native static void onTTSEnd();
 
 	static TTS getInstance()
 	{
-		if(instance == null)
-		{
-			instance = new TTS();
+		synchronized (TTS.class) {
+			if (instance == null) {
+				instance = new TTS();
+			}
+			return instance;
 		}
-		return instance;
 	}
 
 	static void initInstance(String engineName)
 	{
-		if(instance == null)
-		{
-			instance = new TTS(engineName);
+		synchronized (TTS.class) {
+			if(instance == null)
+			{
+				instance = new TTS(engineName);
+			}
 		}
 	}
 
 	@SuppressLint("NewApi")
 	private TTS()
 	{
-		isInit = false;
-		available = false;
-		engine = new TextToSpeech(NativeUtility.getMainActivity(), this);
-		engine.setLanguage(Locale.FRANCE);
-		engine.setPitch(1.0f);
-		engine.setSpeechRate(0.75f);
-		engineName = getTTSDefaultEngineName();
-		preinitQueue = new ArrayList<>();
-		settings = new HashMap<>();
-		desiredRate = 1.0f;
-		engine.setOnUtteranceProgressListener(new UtteranceProgressListener()
-		{
-			@Override
-			public void onStart(String utteranceId)
-			{
-				//do nothing
-			}
-
-			@Override
-			public void onError(String utteranceId)
-			{
-				onTTSEnd();
-			}
-
-			@Override
-			public void onDone(String utteranceId)
-			{
-				onTTSEnd();
-			}
-		});
+		// Without the synchronized key, onInit could be called anytime (event during constructor) after the new TextToSpeech call
+		synchronized (TTS.class) {
+			isInit = false;
+			available = false;
+			engineName = getTTSDefaultEngineName();
+			engine = new TextToSpeech(NativeUtility.getMainActivity(), this);
+			engine.setLanguage(Locale.FRANCE);
+			engine.setPitch(1.0f);
+			engine.setSpeechRate(0.75f);
+		}
 	}
-	@SuppressLint("NewApi")
+
 	private TTS(String _engineName)
 	{
-		isInit = false;
-		available = false;
-		engineName = _engineName;
-		engine = new TextToSpeech(NativeUtility.getMainActivity(), this, engineName);
-		engine.setLanguage(Locale.FRANCE);
-		engine.setPitch(1.0f);
-		engine.setSpeechRate(0.75f);
-		preinitQueue = new ArrayList<>();
-		settings = new HashMap<>();
-		desiredRate = 1.0f;
-		engine.setOnUtteranceProgressListener(new UtteranceProgressListener()
-		{
-			@Override
-			public void onStart(String utteranceId)
-			{
-				//do nothing
-			}
-
-			@Override
-			public void onError(String utteranceId)
-			{
-				onTTSEnd();
-			}
-
-			@Override
-			public void onDone(String utteranceId)
-			{
-				onTTSEnd();
-			}
-		});
+		// Without the synchronized key, onInit could be called anytime (event during constructor) after the new TextToSpeech call
+		synchronized (TTS.class) {
+			isInit = false;
+			available = false;
+			engineName = _engineName;
+			engine = new TextToSpeech(NativeUtility.getMainActivity(), this, engineName);
+			engine.setLanguage(Locale.FRANCE);
+			engine.setPitch(1.0f);
+			engine.setSpeechRate(0.75f);
+		}
 	}
 
 	@Override
 	public void onInit(int status) {
-		isInit = true;
-		available = status == TextToSpeech.SUCCESS;
-		if(available && preinitQueue != null && engine != null) {
-			for(int i = 0; i < preinitQueue.size(); i++) {
-				String s = preinitQueue.get(i);
-				if(i == preinitQueue.size()-1) {
-					//Only add settings (which contains Utterance ID) in last text
-					engine.speak(s, TextToSpeech.QUEUE_ADD, settings);
+		synchronized (TTS.class) {
+			isInit = true;
+			available = status == TextToSpeech.SUCCESS;
+			if(available && preInitQueue != null && engine != null) {
+				engine.setOnUtteranceProgressListener(new UtteranceProgressListener()
+				{
+					@Override
+					public void onStart(String utteranceId) {}
+
+					@Override
+					public void onError(String utteranceId)
+					{
+						onTTSEnd();
+					}
+
+					@Override
+					public void onDone(String utteranceId)
+					{
+						onTTSEnd();
+					}
+				});
+
+				for(int i = 0; i < preInitQueue.size(); i++) {
+					String s = preInitQueue.get(i);
+					if(i == preInitQueue.size()-1) {
+						//Only add settings (which contains Utterance ID) in last text
+						engine.speak(s, TextToSpeech.QUEUE_ADD, settings);
+					}
+					else if(i == 0) {
+						//First text flush the queue, just in case: TTS is not supposed to be initialized before
+						engine.speak(s, TextToSpeech.QUEUE_FLUSH, null);
+					}
+					else {
+						//Anything in-between is just added normally to the queue
+						engine.speak(s, TextToSpeech.QUEUE_ADD, null);
+					}
 				}
-				else if(i == 0) {
-					//First text flush the queue, just in case: TTS is not supposed to be initialized before
-					engine.speak(s, TextToSpeech.QUEUE_FLUSH, null);
-				}
-				else {
-					//Anything in-between is just added normally to the queue
-					engine.speak(s, TextToSpeech.QUEUE_ADD, null);
-				}
+				preInitQueue.clear();
 			}
-			preinitQueue.clear();
-		}
-		else
-		{
-			Log.i("TTS", "TTS unavailable, init failed");
+			else
+			{
+				Log.i("TTS", "TTS unavailable, init failed");
+			}
 		}
 	}
 
-	@SuppressWarnings("unused")
 	public void notifyTTSEnd()
 	{
 		onTTSEnd();
 	}
 
-	@SuppressWarnings("unused")
 	public boolean speakText(String[] text, float volume) {
 		if(isInit && available && engine != null) {
 			try {
@@ -188,8 +170,9 @@ public class TTS implements TextToSpeech.OnInitListener
 			} catch (IllegalArgumentException e) {
 				//Bug happening in the wild, despite waiting for engine initialization.
 				//For now, assume the service isn't actually registered yet
+				e.printStackTrace();
 				if(e.getMessage() != null && e.getMessage().contains("Service not registered")) {
-					Collections.addAll(preinitQueue, text);
+					Collections.addAll(preInitQueue, text);
 					return true;
 				}
 				//Something else failed that we didn't think about, re-throw
@@ -198,14 +181,13 @@ public class TTS implements TextToSpeech.OnInitListener
 		}
 		else if(!isInit)
 		{
-			Collections.addAll(preinitQueue, text);
+			Collections.addAll(preInitQueue, text);
 			return true;
 		}
 		Log.i("TTS", "TTS unavailable, init failed");
 		return false;
 	}
 
-	@SuppressWarnings("unused")
 	public boolean isSpeaking() {
 		if(isInit && available && engine != null) {
 			return engine.isSpeaking();
@@ -213,14 +195,12 @@ public class TTS implements TextToSpeech.OnInitListener
 		return false;
 	}
 
-	@SuppressWarnings("unused")
 	public void stopSpeakText() {
 		if(isInit && available && engine != null) {
 			engine.stop();
 		}
 	}
 
-	@SuppressWarnings("unused")
 	public String getTTSEngineName()
 	{
 		if(!engineName.isEmpty())
@@ -230,7 +210,6 @@ public class TTS implements TextToSpeech.OnInitListener
 		return "android.tts.engine";
 	}
 
-	@SuppressWarnings("unused")
 	public String[][] getTTSEngines()
 	{
 		if(engine != null)
@@ -247,7 +226,6 @@ public class TTS implements TextToSpeech.OnInitListener
 		return new String[][]{{"android.tts.engine", ""}};
 	}
 
-	@SuppressWarnings("unused")
 	public static void setTTSEngine(String ttsEngine)
 	{
 		if(!getInstance().engineName.equals(ttsEngine))
