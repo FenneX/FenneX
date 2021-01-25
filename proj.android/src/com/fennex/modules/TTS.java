@@ -50,6 +50,8 @@ public class TTS implements TextToSpeech.OnInitListener
 
 	public native static void onTTSEnd();
 
+	public native static void onTTSError(String error);
+
 	static TTS getInstance()
 	{
 		synchronized (TTS.class) {
@@ -142,6 +144,7 @@ public class TTS implements TextToSpeech.OnInitListener
 			}
 			else
 			{
+				notifyTTSError("TTS unavailable, init failed with status : " + status);
 				Log.i("TTS", "TTS unavailable, init failed");
 			}
 		}
@@ -150,6 +153,11 @@ public class TTS implements TextToSpeech.OnInitListener
 	public void notifyTTSEnd()
 	{
 		onTTSEnd();
+	}
+
+	private void notifyTTSError(String error)
+	{
+		if(NativeUtility.getMainActivity() != null) onTTSError(error);
 	}
 
 	public boolean speakText(String[] text, float volume) {
@@ -175,6 +183,7 @@ public class TTS implements TextToSpeech.OnInitListener
 					Collections.addAll(preInitQueue, text);
 					return true;
 				}
+				notifyTTSError("TTS failed for unknown reason : " + e.getMessage());
 				//Something else failed that we didn't think about, re-throw
 				throw e;
 			}
@@ -184,6 +193,7 @@ public class TTS implements TextToSpeech.OnInitListener
 			Collections.addAll(preInitQueue, text);
 			return true;
 		}
+		notifyTTSError("TTS unavailable, init failed");
 		Log.i("TTS", "TTS unavailable, init failed");
 		return false;
 	}
