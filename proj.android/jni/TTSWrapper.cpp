@@ -198,4 +198,9 @@ extern "C"
     {
         notifyTTSDone(speechIDStatic);
     }
+
+    void Java_com_fennex_modules_TTS_onTTSError(JNIEnv* env, jobject thiz, jstring error)
+    {
+        notifyTTSError(JniHelper::jstring2string(error));
+    }
 }

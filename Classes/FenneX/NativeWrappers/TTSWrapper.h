@@ -70,4 +70,9 @@ static inline void notifyTTSDone(int speechID)
     DelayedDispatcher::eventAfterDelay("TTSDone", Value(ValueMap({{"Identifier", Value(speechID)}})), 0.01);
 }
 
+static inline void notifyTTSError(std::string error)
+{
+    DelayedDispatcher::eventAfterDelay("TTSError", Value(ValueMap({{"Error", Value(error)}})), 0.01);
+}
+
 #endif /* defined(__FenneX__TTSWrapper_h) */
