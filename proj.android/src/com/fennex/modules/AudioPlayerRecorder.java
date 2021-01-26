@@ -1,5 +1,4 @@
-/*
-***************************************************************************
+/*****************************************************************************
 Copyright (c) 2013-2014 Auticiel SAS
 
 http://www.fennex.org
@@ -42,6 +41,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 
+@SuppressWarnings("unused")
 public class AudioPlayerRecorder extends Handler {
     private static final String TAG = "AudioPlayerRecorder";
 
@@ -50,7 +50,7 @@ public class AudioPlayerRecorder extends Handler {
     private static FileInputStream input = null;
     private static String currentFile = null;
     private static float volume = 1;
-    private static String[] audioTypes = {"mp3", "3gp", "flac", "ogg", "wav"};
+    private static final String[] audioTypes = {"mp3", "3gp", "flac", "ogg", "wav"};
 
 
     private static LibVLC libVLC = null;
@@ -59,8 +59,10 @@ public class AudioPlayerRecorder extends Handler {
     private static boolean useVLC = false;
     private static float desiredPlaybackRate; //Playback rate must be kept between sessions (when restarting video)
 
-    public static native void notifyPlayingSoundEnded();
     private static AudioPlayerRecorder instance = null;
+
+    public static native void notifyPlayingSoundEnded();
+
     public static AudioPlayerRecorder getInstance()
     {
         if(instance == null)
@@ -70,7 +72,6 @@ public class AudioPlayerRecorder extends Handler {
         return instance;
     }
 
-    @SuppressWarnings("unused")
     public static void setUseVLC(boolean use)
     {
         if(mPlayer != null)
@@ -107,38 +108,40 @@ public class AudioPlayerRecorder extends Handler {
         }
     }
 
-    @SuppressWarnings("unused")
     public static boolean isRecording()
     {
         Log.d(TAG, "returning isRecording");
         return mRecorder != null;
     }
 
-    @SuppressWarnings("unused")
     public static void startPlaying(String fileName, float newVolume)
     {
         if(useVLC) {
             currentFile = startVLCPlayer(libVLC, fileName, true, newVolume);
         }
         else {
-            mPlayer = new MediaPlayer();
-            mPlayer.setOnErrorListener((mp, what, extra) -> {
-                Log.e(TAG, "Error with MediaPlayer, stopping it. What : "
-                        + (what == MediaPlayer.MEDIA_ERROR_UNKNOWN ? "Unknown" : "Server died")
-                        + ", extra : "
-                        + (extra == MediaPlayer.MEDIA_ERROR_IO ? "IO Error" :
-                        extra == MediaPlayer.MEDIA_ERROR_UNSUPPORTED ? "Unsupported" :
-                                extra == MediaPlayer.MEDIA_ERROR_MALFORMED ? "Malformed" :
-                                        "Timed out"));
-                AudioPlayerRecorder.stopPlaying();
-                return true;
-            });
-            mPlayer.setOnPreparedListener(mp -> {
-                mp.start();
-                Log.i(TAG, "MediaPlayer started");
-            });
-            mPlayer.setOnCompletionListener(mp -> NativeUtility.getMainActivity().runOnGLThread(AudioPlayerRecorder::notifyPlayingSoundEnded));
-            currentFile = startMediaPlayer(mPlayer, fileName, true, true, newVolume);
+            synchronized (AudioPlayerRecorder.class) {
+                mPlayer = new MediaPlayer();
+                mPlayer.setOnErrorListener((mp, what, extra) -> {
+                    synchronized (AudioPlayerRecorder.class) {
+                        Log.e(TAG, "Error with MediaPlayer, stopping it. What : "
+                                + (what == MediaPlayer.MEDIA_ERROR_UNKNOWN ? "Unknown" : "Server died")
+                                + ", extra : "
+                                + (extra == MediaPlayer.MEDIA_ERROR_IO ? "IO Error" :
+                                extra == MediaPlayer.MEDIA_ERROR_UNSUPPORTED ? "Unsupported" :
+                                        extra == MediaPlayer.MEDIA_ERROR_MALFORMED ? "Malformed" :
+                                                "Timed out"));
+                        AudioPlayerRecorder.stopPlaying();
+                        return true;
+                    }
+                });
+                mPlayer.setOnPreparedListener(mp -> {
+                    mp.start();
+                    Log.i(TAG, "MediaPlayer started");
+                });
+                mPlayer.setOnCompletionListener(mp -> NativeUtility.getMainActivity().runOnGLThread(AudioPlayerRecorder::notifyPlayingSoundEnded));
+                currentFile = startMediaPlayer(mPlayer, fileName, true, true, newVolume);
+            }
         }
         if(currentFile == null)
         {
@@ -148,110 +151,115 @@ public class AudioPlayerRecorder extends Handler {
         volume = newVolume;
     }
 
-    @SuppressWarnings("unused")
     public static void playIndependent(String fileName, float newVolume)
     {
-        MediaPlayer tmpPlayer = new MediaPlayer();
-        tmpPlayer.setOnErrorListener((mp, what, extra) -> {
-            Log.e(TAG, "Error with MediaPlayer (getSoundDuration), stopping it. What : "
-                    + (what == MediaPlayer.MEDIA_ERROR_UNKNOWN ? "Unknown" : "Server died")
-                    + ", extra : "
-                    + (extra == MediaPlayer.MEDIA_ERROR_IO ? "IO Error" :
-                    extra == MediaPlayer.MEDIA_ERROR_UNSUPPORTED ? "Unsupported" :
-                            extra == MediaPlayer.MEDIA_ERROR_MALFORMED ? "Malformed" :
-                                    "Timed out"));
-            AudioPlayerRecorder.stopPlaying();
-            return true;
-        });
-        tmpPlayer.setOnPreparedListener(mp -> {
-            mp.start();
-            Log.i(TAG, "Independent MediaPlayer started");
-        });
-        tmpPlayer.setOnCompletionListener(mp -> {
-            mp.reset();
-            mp.release();
-            Log.i(TAG, "Independent MediaPlayer finished");
-        });
-        startMediaPlayer(tmpPlayer, fileName, true, false, newVolume);
+        synchronized (AudioPlayerRecorder.class) {
+            MediaPlayer tmpPlayer = new MediaPlayer();
+            tmpPlayer.setOnErrorListener((mp, what, extra) -> {
+                synchronized (AudioPlayerRecorder.class) {
+                    Log.e(TAG, "Error with MediaPlayer (getSoundDuration), stopping it. What : "
+                            + (what == MediaPlayer.MEDIA_ERROR_UNKNOWN ? "Unknown" : "Server died")
+                            + ", extra : "
+                            + (extra == MediaPlayer.MEDIA_ERROR_IO ? "IO Error" :
+                            extra == MediaPlayer.MEDIA_ERROR_UNSUPPORTED ? "Unsupported" :
+                                    extra == MediaPlayer.MEDIA_ERROR_MALFORMED ? "Malformed" :
+                                            "Timed out"));
+                    AudioPlayerRecorder.stopPlaying();
+                    return true;
+                }
+            });
+            tmpPlayer.setOnPreparedListener(mp -> {
+                mp.start();
+                Log.i(TAG, "Independent MediaPlayer started");
+            });
+            tmpPlayer.setOnCompletionListener(mp -> {
+                mp.reset();
+                mp.release();
+                Log.i(TAG, "Independent MediaPlayer finished");
+            });
+            startMediaPlayer(tmpPlayer, fileName, true, false, newVolume);
+        }
     }
 
     //Return the full name of the file
-    private static String startMediaPlayer(MediaPlayer player, String file, boolean asyncPrepare, boolean isMain, float newVolume)
+    private static synchronized String startMediaPlayer(MediaPlayer player, String file, boolean asyncPrepare, boolean isMain, float newVolume)
     {
-        player.setVolume(newVolume, newVolume);
-        //try to load from data
-        String relativeName = file;
-        if(getFileExtension(file) == null) relativeName += ".mp3";
-        String fullName = FileUtility.findFullPath(relativeName);
+        synchronized (AudioPlayerRecorder.class) {
+            player.setVolume(newVolume, newVolume);
+            //try to load from data
+            String relativeName = file;
+            if(getFileExtension(file) == null) relativeName += ".mp3";
+            String fullName = FileUtility.findFullPath(relativeName);
 
-        Log.d(TAG, "start MediaPlayer with path: " + fullName);
-        File target = new File(fullName);
-        //Try to load from full path
-        if(target.exists())
-        {
-            try
+            Log.d(TAG, "start MediaPlayer with path: " + fullName);
+            File target = new File(fullName);
+            //Try to load from full path
+            if(target.exists())
             {
-                FileInputStream stream = new FileInputStream(target);
-                if(isMain)
-                    input = stream;
-                player.setDataSource(stream.getFD());
+                try
+                {
+                    FileInputStream stream = new FileInputStream(target);
+                    if(isMain)
+                        input = stream;
+                    player.setDataSource(stream.getFD());
 
-                if(asyncPrepare)
-                    player.prepareAsync();
-                else
-                    player.prepare();
-            }
-            catch (IOException e)
-            {
-                if(isMain)
-                {
-                    fullName = null;
-                }
-                Log.e(TAG, "prepare() from full path failed, exception : " + e.getLocalizedMessage());
-                notifyPlayingSoundEnded();
-            }
-        }
-        //try to load from package using assets
-        else
-        {
-            AssetManager am = NativeUtility.getMainActivity().getAssets();
-            Log.d(TAG, "start MediaPlayer from resources : " + relativeName);
-            try
-            {
-                AssetFileDescriptor descriptor = am.openFd(relativeName);
-                FileDescriptor fileDesc = descriptor.getFileDescriptor();
-                if(fileDesc.valid())
-                {
-                    player.setDataSource(fileDesc, descriptor.getStartOffset(), descriptor.getLength());
-                    descriptor.close();
                     if(asyncPrepare)
                         player.prepareAsync();
                     else
                         player.prepare();
                 }
-                else
+                catch (IOException e)
                 {
-                    Log.e(TAG, "No sound file matching : " + currentFile);
-                    fullName = null;
+                    if(isMain)
+                    {
+                        fullName = null;
+                    }
+                    Log.e(TAG, "prepare() from full path failed, exception : " + e.getLocalizedMessage());
+                    notifyPlayingSoundEnded();
                 }
             }
-            catch (IOException e)
+            //try to load from package using assets
+            else
             {
-                fullName = null;
-                Log.e(TAG, "prepare() failed from resources, exception : " + e.getLocalizedMessage());
-                NativeUtility.getMainActivity().runOnGLThread(AudioPlayerRecorder::notifyPlayingSoundEnded);
+                AssetManager am = NativeUtility.getMainActivity().getAssets();
+                Log.d(TAG, "start MediaPlayer from resources : " + relativeName);
+                try
+                {
+                    AssetFileDescriptor descriptor = am.openFd(relativeName);
+                    FileDescriptor fileDesc = descriptor.getFileDescriptor();
+                    if(fileDesc.valid())
+                    {
+                        player.setDataSource(fileDesc, descriptor.getStartOffset(), descriptor.getLength());
+                        descriptor.close();
+                        if(asyncPrepare)
+                            player.prepareAsync();
+                        else
+                            player.prepare();
+                    }
+                    else
+                    {
+                        Log.e(TAG, "No sound file matching : " + currentFile);
+                        fullName = null;
+                    }
+                }
+                catch (IOException e)
+                {
+                    fullName = null;
+                    Log.e(TAG, "prepare() failed from resources, exception : " + e.getLocalizedMessage());
+                    NativeUtility.getMainActivity().runOnGLThread(AudioPlayerRecorder::notifyPlayingSoundEnded);
+                }
             }
+            return fullName;
         }
-        return fullName;
     }
 
 
     private static class StartVLCRunnable implements Runnable
     {
-        private LibVLC player;
         private String fullName;
-        private boolean isMain;
-        private float volume;
+        private final LibVLC player;
+        private final boolean isMain;
+        private final float volume;
         private StartVLCRunnable(LibVLC _player, String _fullName, boolean _isMain, float _volume) {
             this.player = _player;
             this.fullName = _fullName;
@@ -282,7 +290,6 @@ public class AudioPlayerRecorder extends Handler {
                 });
                 vlcMediaPlayer.setMedia(m);
                 vlcMediaPlayer.setVolume((int)(volume*100));
-                vlcMediaPlayer.play();
                 setPlaybackRate(desiredPlaybackRate);
                 vlcMediaPlayer.setEventListener(event -> {
                     if(event.type == org.videolan.libvlc.MediaPlayer.Event.EndReached)
@@ -290,6 +297,7 @@ public class AudioPlayerRecorder extends Handler {
                         notifyPlayingSoundEnded();
                     }
                 });
+                vlcMediaPlayer.play();
 
             }
             catch (IOException e)
@@ -303,7 +311,7 @@ public class AudioPlayerRecorder extends Handler {
         }
     }
 
-    private static String startVLCPlayer(LibVLC player, String file, boolean isMain, float newVolume)
+    private static synchronized String startVLCPlayer(LibVLC player, String file, boolean isMain, float newVolume)
     {
         //try to load from data
         String relativeName = file;
@@ -386,7 +394,6 @@ public class AudioPlayerRecorder extends Handler {
         }
     }
 
-    @SuppressWarnings("unused")
     public static void startRecording(String fileName, int location)
     {
         currentFile = fileName;
@@ -413,15 +420,13 @@ public class AudioPlayerRecorder extends Handler {
         {
             Log.e(TAG, "start() failed, recorder wasn't ready");
         }
-
     }
 
-    @SuppressWarnings("unused")
     public static void stopRecording()
     {
         Log.d(TAG, "stop recording");
         if(mRecorder != null) {
-            try{
+            try {
                 mRecorder.stop();
             }catch(RuntimeException stopException){
                 Log.d(TAG, "stop RuntimeException, nothing got recorded");
@@ -431,7 +436,6 @@ public class AudioPlayerRecorder extends Handler {
         }
     }
 
-    @SuppressWarnings("unused")
     public static void fadeVolumeOut()
     {
         final float speed = 0.010f;
@@ -448,6 +452,7 @@ public class AudioPlayerRecorder extends Handler {
                         volume -= speed;
                         vlcMediaPlayer.setVolume((int)(volume * originalVolume));
                         try {
+                            //noinspection BusyWait
                             Thread.sleep(25);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
@@ -472,6 +477,7 @@ public class AudioPlayerRecorder extends Handler {
                         volume -= speed;
                         mPlayer.setVolume(volume, volume);
                         try {
+                            //noinspection BusyWait
                             Thread.sleep(25);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
@@ -491,7 +497,6 @@ public class AudioPlayerRecorder extends Handler {
         }
     }
 
-    @SuppressWarnings("unused")
     public static float getPlaybackRate()
     {
         if(useVLC)
@@ -551,7 +556,6 @@ public class AudioPlayerRecorder extends Handler {
                 mPlayer.pause();
     }
 
-    @SuppressWarnings("unused")
     public static void restart()
     {
         Log.d(TAG, "restart music");
@@ -577,7 +581,6 @@ public class AudioPlayerRecorder extends Handler {
         }
     }
 
-    @SuppressWarnings("unused")
     public static float getSoundDuration(String fileName)
     {
         MediaPlayer tmpPlayer = new MediaPlayer();
@@ -618,8 +621,7 @@ public class AudioPlayerRecorder extends Handler {
     public static boolean isAValidAudioFormat(String extension)
     {
         for (String audioType : audioTypes) {
-            if (extension.endsWith(audioType))
-                return true;
+            if (extension.endsWith(audioType)) return true;
         }
         return false;
     }
@@ -671,13 +673,11 @@ public class AudioPlayerRecorder extends Handler {
         return retriever;
     }
 
-    @SuppressWarnings("unused")
     public static String getAuthor(String file)
     {
         return getMetadata(file).extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
     }
 
-    @SuppressWarnings("unused")
     public static String getTitle(String file)
     {
         return getMetadata(file).extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
