@@ -305,4 +305,19 @@ std::string replaceStrOccurencesInString(std::map<std::string, std::string> strO
     return stringTarget;
 }
 
+std::map<std::string,std::string> queryToMap(std::string query)
+{
+    std::vector<std::string> elems = split(query, '&');
+    std::map<std::string, std::string> params = {};
+    for(std::string elem : elems)
+    {
+       std::vector<std::string> el = split(elem, '=');
+       if(el.size() == 2)
+       {
+           params.insert({el.at(0), el.at(1)});
+       }
+    }
+    return params;
+}
+
 NS_FENNEX_END
