@@ -370,7 +370,7 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 
 		String currentDate = DateFormat.format("dd-MM-yyyy_hh-mm-ss", new Date().getTime()).toString();
 
-		videoPath = NativeUtility.getMainActivity().getFilesDir().getPath() + "/" + NativeUtility.getAppName() + " " + currentDate + ".mp4";
+		videoPath = FileUtility.getLocalPath() + "/" + NativeUtility.getAppName() + " " + currentDate + ".mp4";
 		Log.i(TAG, "Saving video at path : " + videoPath);
 		recorder.setOutputFile(videoPath);
 		recorder.setMaxDuration(MAX_RECORD_DURATION);
