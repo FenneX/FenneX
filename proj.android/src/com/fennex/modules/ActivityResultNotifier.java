@@ -38,6 +38,7 @@ import javax.net.ssl.TrustManagerFactory;
 
 import org.cocos2dx.lib.Cocos2dxActivity;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -71,6 +72,17 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		if(Build.VERSION.SDK_INT >=  30) {
+			AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+			dialog.setTitle(NativeUtility.getCurrentLanguage().equals("fr") ? "Incompatibilité Android 11" : "Android 11 incompatibility");
+			dialog.setMessage(NativeUtility.getCurrentLanguage().equals("fr") ?
+					"Cette application n’est pas encore compatible avec votre version Android. Nous travaillons actuellement à la mise à niveau de notre application pour solutionner ce problème. \nNous nous excusons pour la gêne occasionnée." :
+					"This app is not yet compatible with your Android version. We are currently working on upgrading our app to resolve this issue.\n We apologize for the inconvenience.");
+			dialog.setPositiveButton(NativeUtility.getCurrentLanguage().equals("fr") ? "Sortir" : "Exit",
+					(dialog1, whichButton) -> System.exit(0));
+			dialog.setOnDismissListener((dialog1) -> System.exit(0));
+			dialog.show();
+		}
 		if(launchTime != 0 && this.getIntent().getDataString() != null && !this.getIntent().getBooleanExtra("IsUrlAlreadyOpened", false))
 		{
 			try {
