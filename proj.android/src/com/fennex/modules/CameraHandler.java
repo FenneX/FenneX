@@ -32,6 +32,8 @@ import java.nio.channels.FileChannel;
 import java.util.Date;
 import java.util.List;
 
+import static java.lang.Math.min;
+
 @SuppressLint("Registered")
 public class CameraHandler extends Activity implements SurfaceHolder.Callback, MediaRecorder.OnInfoListener {
 	public static String TAG = "VideoRecorder";
@@ -448,13 +450,13 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 		//Find the best preview size in the supported ones
 		Size previewSize = null;
 		List<Size> list = p.getSupportedPreviewSizes();
-		for(int i = 0; i < list.size(); i++) {
-			if(list.get(i).height <= localHeight
-					&& list.get(i).width <= localWidth) {
+		for(Size size : list) {
+			if(size.height <= localHeight
+					&& size.width <= localWidth) {
 				if(previewSize == null
-						|| (list.get(i).height > previewSize.height
-						&& list.get(i).width > previewSize.width)) {
-					previewSize = list.get(i);
+						|| (size.height > previewSize.height
+						&& size.width > previewSize.width)) {
+					previewSize = size;
 				}
 			}
 		}
@@ -493,6 +495,9 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 		camera.setParameters(p);
 
 		//Use the same previewSize for the layout, and center it around centerX/Y
+		float ratio = min(localWidth / previewSize.width, localHeight / previewSize.height);
+		cameraView.setScaleX(ratio);
+		cameraView.setScaleY(ratio);
 		FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(previewSize.width, previewSize.height);
 		lp.leftMargin = (int)(widthScreen - centerX - (previewSize.width / 2));
 		lp.topMargin = (int)(heightScreen - centerY - (previewSize.height / 2));
