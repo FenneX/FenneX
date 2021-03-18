@@ -67,6 +67,9 @@ std::string replaceWord(const std::string& baseString, const std::string& oldWor
 //ex: replace #insert_here# (map.first) in stringTarget with the corresponding string of the map (map.second)
 std::string  replaceStrOccurencesInString(std::map<std::string,std::string> strOccurences, std::string stringTarget);
 
+// Return a map with query parameters as key and query values as values
+std::map<std::string,std::string> queryToMap(std::string query);
+
 NS_FENNEX_END
 
 #endif /* defined(__FenneX__StringUtility__) */

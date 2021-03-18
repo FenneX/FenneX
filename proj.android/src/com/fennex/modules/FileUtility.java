@@ -55,6 +55,7 @@ public class FileUtility implements ActivityResultResponder {
     private HashMap<String, RandomAccessFile> currentFiles;
     private static volatile FileUtility instance = null;
     private static boolean isPending = false;
+    private static String _localPath = null;
     private FileUtility() {
         currentLocks = new HashMap<>();
         currentFiles = new HashMap<>();
@@ -120,15 +121,25 @@ public class FileUtility implements ActivityResultResponder {
         instance = null;
     }
 
+    public static void setLocalPath(Context context) {
+        assert context != null;
+        _localPath = context.getFilesDir().getPath();
+    }
+
     public static String getLocalPath()
     {
-    	return NativeUtility.getMainActivity().getFilesDir().getPath();
+        if(_localPath != null) return _localPath;
+        assert NativeUtility.getMainActivity() != null;
+        _localPath = NativeUtility.getMainActivity().getFilesDir().getPath();
+        return _localPath;
     }
 
     public static String getLocalPath(Context context)
     {
-        if(context == null) return getLocalPath();
-        return context.getFilesDir().getPath();
+        if(_localPath != null) return _localPath;
+        assert context != null;
+        _localPath = context.getFilesDir().getPath();
+        return _localPath;
     }
 
     public static void deleteFile(String filename)
@@ -163,7 +174,7 @@ public class FileUtility implements ActivityResultResponder {
                     String directoryPath = filename.substring(0, filename.lastIndexOf(File.separator));
                     File directory = new File(directoryPath);
                     if(!directory.exists() && !directory.mkdirs()) {
-                        Log.e(TAG, "Error creating directory " + directoryPath + ", cannot lock it");
+                        Log.e(TAG, "Error creating directory " + directoryPath + " for file " + filename + ", cannot lock it");
                         return false;
                     }
                 }
