@@ -54,6 +54,7 @@ public class TTS implements TextToSpeech.OnInitListener
 
 	static TTS getInstance()
 	{
+		// Without the synchronized key, onInit could be called anytime (even during constructor) after the new TextToSpeech call
 		synchronized (TTS.class) {
 			if (instance == null) {
 				instance = new TTS();
@@ -64,9 +65,9 @@ public class TTS implements TextToSpeech.OnInitListener
 
 	static void initInstance(String engineName)
 	{
+		// Without the synchronized key, onInit could be called anytime (even during constructor) after the new TextToSpeech call
 		synchronized (TTS.class) {
-			if(instance == null)
-			{
+			if (instance == null) {
 				instance = new TTS(engineName);
 			}
 		}
@@ -75,78 +76,66 @@ public class TTS implements TextToSpeech.OnInitListener
 	@SuppressLint("NewApi")
 	private TTS()
 	{
-		// Without the synchronized key, onInit could be called anytime (event during constructor) after the new TextToSpeech call
-		synchronized (TTS.class) {
-			isInit = false;
-			available = false;
-			engineName = getTTSDefaultEngineName();
-			engine = new TextToSpeech(NativeUtility.getMainActivity(), this);
-			engine.setLanguage(Locale.FRANCE);
-			engine.setPitch(1.0f);
-			engine.setSpeechRate(0.75f);
-		}
+		isInit = false;
+		available = false;
+		engineName = getTTSDefaultEngineName();
+		engine = new TextToSpeech(NativeUtility.getMainActivity(), this);
 	}
 
 	private TTS(String _engineName)
 	{
-		// Without the synchronized key, onInit could be called anytime (event during constructor) after the new TextToSpeech call
-		synchronized (TTS.class) {
-			isInit = false;
-			available = false;
-			engineName = _engineName;
-			engine = new TextToSpeech(NativeUtility.getMainActivity(), this, engineName);
-			engine.setLanguage(Locale.FRANCE);
-			engine.setPitch(1.0f);
-			engine.setSpeechRate(0.75f);
-		}
+		isInit = false;
+		available = false;
+		engineName = _engineName;
+		engine = new TextToSpeech(NativeUtility.getMainActivity(), this, engineName);
 	}
 
 	@Override
-	public void onInit(int status) {
-		synchronized (TTS.class) {
-			isInit = true;
-			available = status == TextToSpeech.SUCCESS;
-			if(available && preInitQueue != null && engine != null) {
-				engine.setOnUtteranceProgressListener(new UtteranceProgressListener()
-				{
-					@Override
-					public void onStart(String utteranceId) {}
-
-					@Override
-					public void onError(String utteranceId)
-					{
-						onTTSEnd();
-					}
-
-					@Override
-					public void onDone(String utteranceId)
-					{
-						onTTSEnd();
-					}
-				});
-
-				for(int i = 0; i < preInitQueue.size(); i++) {
-					String s = preInitQueue.get(i);
-					if(i == preInitQueue.size()-1) {
-						//Only add settings (which contains Utterance ID) in last text
-						engine.speak(s, TextToSpeech.QUEUE_ADD, settings);
-					}
-					else if(i == 0) {
-						//First text flush the queue, just in case: TTS is not supposed to be initialized before
-						engine.speak(s, TextToSpeech.QUEUE_FLUSH, null);
-					}
-					else {
-						//Anything in-between is just added normally to the queue
-						engine.speak(s, TextToSpeech.QUEUE_ADD, null);
-					}
-				}
-				preInitQueue.clear();
-			}
-			else
+	public synchronized void onInit(int status) {
+		isInit = true;
+		available = status == TextToSpeech.SUCCESS;
+		if(available && preInitQueue != null && engine != null) {
+			engine.setPitch(1.0f);
+			engine.setSpeechRate(0.75f);
+			engine.setOnUtteranceProgressListener(new UtteranceProgressListener()
 			{
-				notifyTTSError("TTS unavailable, init failed with status : " + status);
-				Log.i("TTS", "TTS unavailable, init failed");
+				@Override
+				public void onStart(String utteranceId) {}
+
+				@Override
+				public void onError(String utteranceId)
+				{
+					onTTSEnd();
+				}
+
+				@Override
+				public void onDone(String utteranceId)
+				{
+					onTTSEnd();
+				}
+			});
+
+			for(int i = 0; i < preInitQueue.size(); i++) {
+				String s = preInitQueue.get(i);
+				if(i == preInitQueue.size()-1) {
+					//Only add settings (which contains Utterance ID) in last text
+					engine.speak(s, TextToSpeech.QUEUE_ADD, settings);
+				}
+				else if(i == 0) {
+					//First text flush the queue, just in case: TTS is not supposed to be initialized before
+					engine.speak(s, TextToSpeech.QUEUE_FLUSH, null);
+				}
+				else {
+					//Anything in-between is just added normally to the queue
+					engine.speak(s, TextToSpeech.QUEUE_ADD, null);
+				}
 			}
+			preInitQueue.clear();
+		}
+		else
+		{
+			notifyTTSError("TTS unavailable, init failed with status : " + status);
+			Log.i("TTS", "TTS unavailable, init failed");
 		}
 	}
 
