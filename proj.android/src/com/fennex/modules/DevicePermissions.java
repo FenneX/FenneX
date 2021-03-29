@@ -29,8 +29,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
-import android.os.Build;
 import android.util.SparseIntArray;
 
 import java.util.HashMap;
@@ -93,9 +91,6 @@ public class DevicePermissions
     @SuppressWarnings("unused")
     public static boolean requestPermission(int permissionValue)
     {
-        if(Build.VERSION.SDK_INT >=  30) {
-            return false;
-        }
         String[] permissions = getPermissionString(permissionValue);
         if (!hasPermission(permissionValue)) {
             // Permission is not granted, ask for it
