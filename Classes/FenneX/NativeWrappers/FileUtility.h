@@ -116,7 +116,7 @@ bool moveFile(std::string path, std::string destinationFolder);
  * Launch a pick file activity on Android. It can be empty
  * This doesn't launch anything on iOS since ios is not capable of that thing. (you will not receive a "FilePicked" event)
  **/
-bool pickFile();
+bool pickFile(std::string mimeType = "");
 
 //File metadata: last modification dates. Returns -1 if the file isn't found or something else fails
 //Creation can't be done easily, and there is no easy way on Android. See https://stackoverflow.com/questions/1408272/get-file-creation-time-with-python-on-linux
@@ -125,9 +125,13 @@ time_t getFileLastModificationDate(const std::string& fullpath);
 //Change last modification date of a file.
 void setFileLastModificationDate(const std::string& fullpath, time_t date);
 
-static inline void notifyFilePicked(std::string fullPath)
+static inline void notifyFilePicked(std::string fullPath, std::string uri, std::string filename)
 {
-    FenneX::DelayedDispatcher::eventAfterDelay("FilePicked", Value(ValueMap({{"Path", Value(fullPath)}})), 0.01);
+    FenneX::DelayedDispatcher::eventAfterDelay("FilePicked", Value(ValueMap({
+        {"Path", Value(fullPath)},
+        {"Uri", Value(uri)},
+        {"Filename", Value(filename)},
+    })), 0.01);
 }
 
 NS_FENNEX_END

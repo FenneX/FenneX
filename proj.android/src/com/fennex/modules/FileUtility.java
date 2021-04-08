@@ -30,8 +30,10 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -394,7 +396,7 @@ public class FileUtility implements ActivityResultResponder {
     }
 
     @SuppressWarnings("unused")
-    public static boolean pickFile()
+    public static boolean pickFile(String mimeType)
     {
         FileUtility.getInstance(); //ensure the instance is created
         boolean error = false;
@@ -402,7 +404,10 @@ public class FileUtility implements ActivityResultResponder {
         {
             Intent intent;
             intent = new Intent(Intent.ACTION_GET_CONTENT);
-            intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "file/*");
+            // We can't set type as file/* anymore as it won't accept any file at all in new file explorer
+            if(!mimeType.isEmpty()) intent.setType(mimeType);
+            intent.setData(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            intent.addCategory(Intent.CATEGORY_OPENABLE); // Only the file we can open with an inputStream
             intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
             isPending = true;
             NativeUtility.getMainActivity().startActivityForResult(intent, FILE_PICK);
@@ -434,12 +439,28 @@ public class FileUtility implements ActivityResultResponder {
         if (requestCode == FILE_PICK && NativeUtility.getMainActivity() != null) {
             Log.d(TAG, "intent data: " + data.getDataString());
             final Uri fileUri = data.getData();
-            NativeUtility.getMainActivity().runOnGLThread(() -> notifyFilePicked(fileUri.getPath()));
+            String filename = "";
+            if(fileUri != null) {
+                Cursor cursor = NativeUtility.getMainActivity().getContentResolver().query(fileUri,null,null,null,null);
+                if (cursor != null) {
+                    cursor.moveToFirst();
+                    int idx = cursor.getColumnIndex(MediaStore.Files.FileColumns.DISPLAY_NAME);
+                    filename = cursor.getString(idx);
+                    cursor.close();
+                }
+                else {
+                    filename= fileUri.getPath();
+                }
+            }
+            String finalFilename = filename;
+            NativeUtility.getMainActivity().runOnGLThread(() -> {
+                notifyFilePicked(fileUri.getPath(), fileUri.toString(), finalFilename);
+            });
             return true;
         }
         return false;
     }
 
     @SuppressWarnings("JniMissingFunction")
-    public native static void notifyFilePicked(String path);
+    public native static void notifyFilePicked(String path, String uri, String filename);
 }

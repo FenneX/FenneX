@@ -86,7 +86,7 @@ bool moveFile(std::string path, std::string destinationFolder)
     return true;
 }
 
-bool pickFile()
+bool pickFile(std::string mimeType)
 {
     return true;
 }
