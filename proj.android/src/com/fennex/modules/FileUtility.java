@@ -449,18 +449,15 @@ public class FileUtility implements ActivityResultResponder {
                     cursor.close();
                 }
                 else {
-                    filename= fileUri.getPath();
+                    filename = fileUri.getPath();
                 }
             }
-            String finalFilename = filename;
-            NativeUtility.getMainActivity().runOnGLThread(() -> {
-                notifyFilePicked(fileUri.getPath(), fileUri.toString(), finalFilename);
-            });
+            final String finalFilename = filename;
+            NativeUtility.getMainActivity().runOnGLThread(() -> notifyFilePicked(fileUri.getPath(), fileUri.toString(), finalFilename));
             return true;
         }
         return false;
     }
 
-    @SuppressWarnings("JniMissingFunction")
     public native static void notifyFilePicked(String path, String uri, String filename);
 }
