@@ -34,11 +34,12 @@ USING_NS_AC;
 
 static std::string currentFileDate = "";
 static std::string logsPath = "";
+static std::string legacyPath = "";
 static int logFilePreservationDelay = FILE_LOGGER_NEVER_DELETE;
 static const std::string logFileExtension = ".log";
 static const std::string logFileDateFormat = "%d_%m_%Y_%H_%M";
 
-void FileLogger::setup(std::string _logsPath, int deleteAfter)
+void FileLogger::setup(std::string _logsPath, int deleteAfter, std::string _legacyPath)
 {
     if(!currentFileDate.empty()) {
         CCASSERT(1, "Trying to setup FileLogger several time. Previous setup date: " + currentFileDate);
@@ -51,6 +52,8 @@ void FileLogger::setup(std::string _logsPath, int deleteAfter)
     
     logsPath = _logsPath;
     if(!stringEndsWith(logsPath, "/")) logsPath += "/";
+    legacyPath = _legacyPath;
+    if(!stringEndsWith(legacyPath, "/")) legacyPath += "/";
     logFilePreservationDelay = deleteAfter;
     
     removeOldLogs();
@@ -81,9 +84,9 @@ void FileLogger::critical(std::string module, std::string message)
     _log(Severity::CRITICAL, module, message);
 }
 
-std::string FileLogger::getLogsPath()
+std::string FileLogger::getLogsPath(bool useLegacy)
 {
-    return logsPath;
+    return useLegacy ? legacyPath : logsPath;
 }
 
 std::string FileLogger::currentFilename()
@@ -93,25 +96,35 @@ std::string FileLogger::currentFilename()
 
 void FileLogger::removeOldLogs()
 {
+    std::string package = getPackageIdentifier();
     if(logFilePreservationDelay == FILE_LOGGER_NEVER_DELETE || !DevicePermissions::hasPermission(Permission::STORAGE)) return;
-    
-    std::vector<std::string> logFiles = getFilesInFolder(logsPath + getPackageIdentifier() + "/");
+    if(!legacyPath.empty()) {
+        removeOldLogs(legacyPath + package + "/");
+        
+    }
+    removeOldLogs(logsPath + package + "/");
+}
+
+void FileLogger::removeOldLogs(std::string path) {
+    std::vector<std::string> logFiles = getFilesInFolder(path);
     time_t now = time(nullptr);
     for(std::string file : logFiles)
     {
-        std::string fileFullPath = logsPath + getPackageIdentifier() + "/" + file;
+        std::string fileFullPath = path + file;
         if(now > getFileLastModificationDate(fileFullPath) + logFilePreservationDelay)
         {
             FileUtils::getInstance()->removeFile(fileFullPath);
         }
     }
 }
-
+    
 std::string FileLogger::getFilePath()
 {
-    FileUtils::getInstance()->createDirectory(logsPath);
-    FileUtils::getInstance()->createDirectory(logsPath + getPackageIdentifier() + "/");
-    return logsPath + getPackageIdentifier() + "/" + currentFilename();
+    std::string path = getLogsPath();
+    FileUtils::getInstance()->createDirectory(path);
+    path += getPackageIdentifier() + "/";
+    FileUtils::getInstance()->createDirectory(path);
+    return path + currentFilename();
 }
 
 std::string FileLogger::severityPrint(Severity severity)

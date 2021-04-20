@@ -41,7 +41,7 @@ class FileLogger
 {
 public:
     //You need to ensure you have Storage permission before calling setup, otherwise old log won't be removed
-    static void setup(std::string logsPath, int deleteAfter = FILE_LOGGER_NEVER_DELETE);
+    static void setup(std::string logsPath, int deleteAfter = FILE_LOGGER_NEVER_DELETE, std::string legacyPath = "");
     enum class Severity
     { // Mirror Django severity levels
         DEBUG, // Low level system information for debugging purposes
@@ -56,10 +56,12 @@ public:
     static void error(std::string module, std::string message);
     static void critical(std::string module, std::string message);
     
-    static std::string getLogsPath();
+    static std::string getLogsPath(bool useLegacy = false);
     static std::string currentFilename();
+    static std::string getPathForPackage(std::string package, bool useLegacy);
 private:
     static void removeOldLogs();
+    static void removeOldLogs(std::string path);
     static std::string getFilePath();
     static std::string severityPrint(Severity severity);
     static std::string currentDatePrint();
