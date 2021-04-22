@@ -96,7 +96,7 @@ public:
     LockFileException(std::string file) : runtime_error(("Lock file " + file + " failed").c_str()) {}
 };
 
-// Return all files from a folder (using absolute path)
+// Return all filenames in the folder (without full path). Folders will have a trailing slash. Not recursive.
 std::vector<std::string> getFilesInFolder(std::string folderPath);
 
 // Move a file from an absolute path to the local Directory (it will remove the original)

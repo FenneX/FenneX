@@ -265,10 +265,16 @@ public class FileUtility implements ActivityResultResponder {
     public static String[] getFilesInFolder(String folderPath)
     {
         File dir = new File(folderPath);
-        String[] files = new String[]{};
-        if(dir.exists() && dir.isDirectory())
-        {
-            files = dir.list();
+        if(!dir.exists() || !dir.isDirectory()) return new String[]{};
+
+        if(!folderPath.endsWith(File.separator)) folderPath += File.separator;
+        String[] folderFiles = dir.list();
+        String[] files = new String[folderFiles.length];
+        for(int i = 0; i < files.length; i++) {
+            String filename = folderFiles[i];
+            File file = new File(folderPath + filename);
+            if(file.isDirectory()) files[i] = filename + File.separator;
+            else files[i] = filename;
         }
         return files;
     }
