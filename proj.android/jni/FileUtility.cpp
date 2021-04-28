@@ -190,13 +190,16 @@ bool moveFile(std::string path, std::string destinationFolder)
     return result;
 }
 
-bool pickFile()
+bool pickFile(std::string mimeType)
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"pickFile", "()Z");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"pickFile", "(Ljava/lang/String;)Z");
     CCAssert(functionExist, "Function doesn't exist");
+    jstring jType = minfo.env->NewStringUTF(mimeType.c_str());
     bool result = minfo.env->CallStaticBooleanMethod(minfo.classID,
-                                                     minfo.methodID);
+                                                     minfo.methodID,
+                                                     jType);
+    minfo.env->DeleteLocalRef(jType);
     minfo.env->DeleteLocalRef(minfo.classID);
     return result;
 }
@@ -234,9 +237,9 @@ NS_FENNEX_END
 extern "C"
 {
     //extension for long name : __Ljava_lang_String_2Ljava_lang_String_2
-    void Java_com_fennex_modules_FileUtility_notifyFilePicked(JNIEnv* env, jobject thiz, jstring path)
+    void Java_com_fennex_modules_FileUtility_notifyFilePicked(JNIEnv* env, jobject thiz, jstring path, jstring uri, jstring filename)
     {
-        notifyFilePicked(JniHelper::jstring2string(path));
+        notifyFilePicked(JniHelper::jstring2string(path), JniHelper::jstring2string(uri), JniHelper::jstring2string(filename));
     }
     jstring Java_com_fennex_modules_FileUtility_findFullPath(JNIEnv* env, jobject thiz, jstring path)
     {

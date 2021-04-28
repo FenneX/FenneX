@@ -29,8 +29,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
-import android.os.Build;
 import android.util.SparseIntArray;
 
 import java.util.HashMap;
@@ -41,6 +39,11 @@ public class DevicePermissions
 {
     public native static void notifyPermissionRequestEnded(int permission, boolean result);
     public native static void notifyCustomPermissionRequestEnded(String permission, boolean result);
+
+    public static final int EXTERNAL_STORAGE_PERMISSION = 0;
+    public static final int AUDIO_PERMISSION = 1;
+    public static final int CAMERA_PERMISSION = 2;
+    public static final int PHONE_STATE_PERMISSION = 3;
 
     private static final SparseIntArray currentRequest = new SparseIntArray();
     private static final Map<Integer, String> currentCustomRequest = new HashMap<>();
@@ -93,9 +96,6 @@ public class DevicePermissions
     @SuppressWarnings("unused")
     public static boolean requestPermission(int permissionValue)
     {
-        if(Build.VERSION.SDK_INT >=  30) {
-            return false;
-        }
         String[] permissions = getPermissionString(permissionValue);
         if (!hasPermission(permissionValue)) {
             // Permission is not granted, ask for it
@@ -110,7 +110,7 @@ public class DevicePermissions
     }
 
     public static void onRequestPermissionsResult(int requestID,
-                                                  @SuppressWarnings("unused") String permissions[],
+                                                  @SuppressWarnings({"unused", "CStyleArrayDeclaration"}) String permissions[],
                                                   int[] grantResults) {
         if(NativeUtility.getMainActivity() != null)
         {
@@ -134,16 +134,16 @@ public class DevicePermissions
 
     }
 
-    //Syncronized with C++ enum class Permission
+    //Synchronized with C++ enum class Permission
     private static String[] getPermissionString(int value){
         switch (value) {
-            case 0:
+            case EXTERNAL_STORAGE_PERMISSION:
                 return new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-            case 1:
+            case AUDIO_PERMISSION:
                 return new String[]{Manifest.permission.RECORD_AUDIO};
-            case 2:
+            case CAMERA_PERMISSION:
                 return new String[]{Manifest.permission.CAMERA};
-            case 3:
+            case PHONE_STATE_PERMISSION:
                 return new String[]{Manifest.permission.READ_PHONE_STATE};
             default:
                 throw new AssertionError("Unknown permission, did you fill the Java part after updating enum class Permission?");

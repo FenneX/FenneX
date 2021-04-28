@@ -499,21 +499,31 @@ public class NativeUtility
     }
 
     @SuppressWarnings("unused")
-    public static int getApplicationVersion(String packageName)
-    {
+    public static int getApplicationVersion(String packageName) {
         Context myContext = NativeUtility.getMainActivity().getBaseContext();
         PackageManager myPackageMgr = myContext.getPackageManager();
         int version = -1;
-        try
-        {
+        try {
             PackageInfo pInfo = myPackageMgr.getPackageInfo(packageName, 0);
             version = pInfo.versionCode;
         }
-        catch (PackageManager.NameNotFoundException ignored) {
-
-        }
+        catch (PackageManager.NameNotFoundException ignored) { }
 
         return version;
+    }
+
+    @SuppressWarnings("unused")
+    public static String getApplicationName(String packageName) {
+        Context myContext = NativeUtility.getMainActivity().getBaseContext();
+        PackageManager myPackageMgr = myContext.getPackageManager();
+        String name = "";
+        try {
+            ApplicationInfo aInfo = myPackageMgr.getApplicationInfo(packageName, 0);
+            name = (String) myPackageMgr.getApplicationLabel(aInfo);
+        }
+        catch (PackageManager.NameNotFoundException ignored) { }
+
+        return name;
     }
 
     public static void showToast(String textKey, int toastLength) {

@@ -68,10 +68,28 @@ void unlockFile(std::string filename)
 std::vector<std::string> getFilesInFolder(std::string folderPath)
 {
     std::vector<std::string> newVector;
-    NSArray *directoryContent = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[NSString stringWithFormat:@"%s", folderPath.c_str()] error:nullptr];
-    for (int count = 0; count < (int)[directoryContent count]; count++)
+    //Since we want to add a "/" to identify directories, we can't use contentsOfDirectoryAtPath, as it doesn't return that info
+    NSDirectoryEnumerator *dirEnumerator = [[NSFileManager defaultManager]  enumeratorAtURL:[NSURL URLWithString:[NSString stringWithFormat:@"%s", folderPath.c_str()]] includingPropertiesForKeys:[NSArray arrayWithObjects:NSURLNameKey, NSURLIsDirectoryKey,nil] options:NSDirectoryEnumerationSkipsSubdirectoryDescendants  errorHandler:nil];
+
+    for (NSURL *theURL in dirEnumerator)
     {
-        newVector.push_back([[directoryContent objectAtIndex:count] UTF8String]);
+        // Retrieve the file name. From NSURLNameKey, cached during the enumeration.
+        NSString *fileName;
+        [theURL getResourceValue:&fileName forKey:NSURLNameKey error:NULL];
+
+        // Retrieve whether a directory. From NSURLIsDirectoryKey, also
+        // cached during the enumeration.
+        NSNumber *isDirectory;
+        [theURL getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:NULL];
+
+        if([isDirectory boolValue])
+        {
+            newVector.push_back([[fileName stringByAppendingString:@"/"] UTF8String]);
+        }
+        else
+        {
+            newVector.push_back([fileName UTF8String]);
+        }
     }
     return newVector;
 }
@@ -86,7 +104,7 @@ bool moveFile(std::string path, std::string destinationFolder)
     return true;
 }
 
-bool pickFile()
+bool pickFile(std::string mimeType)
 {
     return true;
 }
