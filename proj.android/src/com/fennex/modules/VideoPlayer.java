@@ -640,8 +640,8 @@ public class VideoPlayer implements IVLCVout.Callback, Runnable {
             File videoFile = getFile(path, FileUtility.FileLocation.Unknown);
             return org.videolan.libvlc.util.Extensions.VIDEO.contains(fileExt)
                     && videoFile != null
-                    && videoFile.exists()
-                    && videoFile.canRead();
+                    && (NativeUtility.getMainActivity().getUriFromFileName(path) != null // check for assets files
+                        || videoFile.exists() && videoFile.canRead());
         }
         return false;
     }
