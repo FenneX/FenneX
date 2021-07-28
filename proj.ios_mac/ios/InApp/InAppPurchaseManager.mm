@@ -27,6 +27,7 @@
 #import "NativeUtility.h"
 #import "SKProduct+priceAsString.h"
 #include "FenneX.h"
+#include "FileLogger.h"
 #import "NSString+RangeOfCharacters.h"
 
 USING_NS_FENNEX;
@@ -205,26 +206,64 @@ static InAppPurchaseManager* _sharedManager = nil;
 	
 }
 
+const char* getPrintableTransactionState(SKPaymentTransactionState state)
+{
+    if(state == SKPaymentTransactionStatePurchasing) return "Purchasing";
+    if(state == SKPaymentTransactionStatePurchased) return "Purchased";
+    if(state == SKPaymentTransactionStateFailed) return "Failed";
+    if(state == SKPaymentTransactionStateRestored) return "Restored";
+    if(state == SKPaymentTransactionStateDeferred) return "Deferred";
+    return "Unknown";
+}
+
 - (void)paymentQueue:(SKPaymentQueue *)queue updatedTransactions:(NSArray *)transactions
 {
+    bool hasSuccessfulTransactions = false;
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    dateFormatter.dateFormat = @"HH:mm 'on' dd-MM-yyyy";
     for (SKPaymentTransaction *transaction in transactions)
     {
-        switch (transaction.transactionState)
+        if(transaction.transactionState == SKPaymentTransactionStatePurchased || transaction.transactionState == SKPaymentTransactionStateRestored)
         {
-            case SKPaymentTransactionStatePurchased:
+            hasSuccessfulTransactions = true;
+        }
+        const char* identifier = transaction.transactionIdentifier != nil ? [transaction.transactionIdentifier UTF8String] : "NULL";
+        const char* productIdentifier = transaction.originalTransaction != nil ? [transaction.originalTransaction.payment.productIdentifier UTF8String] : "No original transaction";
+        const char* date = transaction.transactionDate != nil ? [[dateFormatter stringFromDate:transaction.transactionDate] UTF8String] : "NULL";
+        FileLogger::info("InAppPurchaseManager", string_format("Got transaction %s for product %s with state %s from %s", identifier, productIdentifier, getPrintableTransactionState(transaction.transactionState), date));
+    }
+    if(hasSuccessfulTransactions)
+    {
+        //Ignore states "failed" and "purchasing", send complete/restore signals
+        for (SKPaymentTransaction *transaction in transactions)
+        {
+            if(transaction.transactionState == SKPaymentTransactionStatePurchased)
+            {
                 [self completeTransaction:transaction];
-                break;
-            case SKPaymentTransactionStateFailed:
-                [self failedTransaction:transaction];
-                break;
-            case SKPaymentTransactionStateRestored:
+            }
+            else if(transaction.transactionState == SKPaymentTransactionStateRestored)
+            {
                 [self restoreTransaction:transaction];
-				break;
-			case SKPaymentTransactionStatePurchasing:
-				NSLog(@"Transaction added to queue, purchasing ...");
-				break;
-            default:
-                break;
+            }
+        }
+    }
+    else
+    {
+        
+        for (SKPaymentTransaction *transaction in transactions)
+        {
+            if(transaction.transactionState == SKPaymentTransactionStateFailed)
+            {
+                [self failedTransaction:transaction];
+            }
+            else if(transaction.transactionState == SKPaymentTransactionStatePurchasing)
+            {
+                NSLog(@"Transaction added to queue, purchasing ...");
+            }
+            else if(transaction.transactionState == SKPaymentTransactionStateDeferred)
+            {
+                NSLog(@"Transaction is deferred, awaiting external action.");
+            }
         }
     }
 }
