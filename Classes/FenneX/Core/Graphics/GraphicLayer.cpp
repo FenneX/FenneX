@@ -671,7 +671,7 @@ RawObject* GraphicLayer::first(int id)
     return nullptr;
 }
 
-RawObject* GraphicLayer::first(std::string name, bool cache)
+RawObject* GraphicLayer::first(std::string name, bool cache, bool forceCacheRefresh)
 {
     static SceneName lastScene = SceneSwitcher::sharedSwitcher()->getCurrentSceneName();
     static std::map<std::string, RawObject*> staticCache;
@@ -680,7 +680,7 @@ RawObject* GraphicLayer::first(std::string name, bool cache)
         staticCache.clear();
         lastScene = SceneSwitcher::sharedSwitcher()->getCurrentSceneName();
     }
-    else if(cache && staticCache.find(name) != staticCache.end())
+    else if(!forceCacheRefresh && cache && staticCache.find(name) != staticCache.end())
     {
         RawObject* cachedObject = staticCache.at(name);
         if(storedObjects.contains(cachedObject))
