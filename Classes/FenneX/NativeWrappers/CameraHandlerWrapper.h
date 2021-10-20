@@ -27,6 +27,7 @@ THE SOFTWARE.
 
 #include "cocos2d.h"
 #include "DelayedDispatcher.h"
+#include "FileUtility.h"
 
 USING_NS_FENNEX;
 
@@ -38,6 +39,7 @@ void stopCameraPreview();
 bool canSwitchCamera();
 //You can start a video recording directly after a Preview. When you stop it, a VideoPicked notify will be thrown
 void startVideoRecording();
+//Save in the Movies folder by default on Android and Camera Roll on iOS. Use stopVideoRecordingSaveTo to save somewhere else (default behavior kept for compatibility)
 void stopVideoRecording();
 
 //Will cancel either preview or recording (depending which mode you are on) without generating a file and a notification if you are recording. Return true if something was cancelled
@@ -58,6 +60,9 @@ void capturePicture();
 //When switching camera, the interface should be locked until the CameraSwitched event is fired.
 //Capturing a picture during the switch causes a crash otherwise
 void switchCamera();
+
+//Same as stopVideoRecording except it saves to a specific path. It must include the .mp4 extension. Other formats are not supported right now.
+void stopVideoRecordingSaveTo(std::string path, FileLocation location);
 #endif
 
 static inline void notifyPictureTaken(std::string path)
