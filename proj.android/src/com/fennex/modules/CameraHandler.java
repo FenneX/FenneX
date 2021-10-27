@@ -374,7 +374,7 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 		recorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
 		//setProfile and setOutputFormat are exclusive. Right now we make a big assumption that the profile can be inside a mp4 file
 		//recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-		recorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH));
+		recorder.setProfile(CamcorderProfile.get(cameraID == 0 ? CamcorderProfile.QUALITY_HIGH : CamcorderProfile.QUALITY_LOW));
 
 		String currentDate = DateFormat.format("dd-MM-yyyy_hh-mm-ss", new Date().getTime()).toString();
 
