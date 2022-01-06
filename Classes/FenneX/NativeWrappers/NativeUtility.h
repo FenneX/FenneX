@@ -79,6 +79,11 @@ uint64_t getAvailableStorageSpace();
 //Return the movie folder name, without any "/", so that it can be displayed to client. Note: please do not use it on iOS, as there is no movie folder
 std::string getMovieFolderName();
 
+//Return the list of raw resources (videos) in an app. Useful to add them in a list of base medias. Only available on Android, since iOS resources can be accessed with normal file operations
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+std::vector<std::string> getAppRawResources();
+#endif
+
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 void copyResourceFileToLocal(const std::string& path);
 #endif

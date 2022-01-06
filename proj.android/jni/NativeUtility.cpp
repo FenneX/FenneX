@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "NativeUtility.h"
+#include "CCJniConversion.h"
 #include "platform/android/jni/JniHelper.h"
 
 #define  CLASS_NAME "com/fennex/modules/NativeUtility"
@@ -210,6 +211,17 @@ std::string getMovieFolderName()
     return folderName;
 }
 
+std::vector<std::string> getAppRawResources()
+{
+    JniMethodInfo minfo, minfo2;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "getAppRawResources", "()[Ljava/lang/String;");
+    CCAssert(functionExist, "Function doesn't exist");
+    jobjectArray rawResourcesNative = (jobjectArray)minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    std::vector<std::string> rawResources = StringVectorFromjobjectArray(minfo.env, rawResourcesNative);
+    minfo.env->DeleteLocalRef(rawResourcesNative);
+    return rawResources;
+}
 
 void copyResourceFileToLocal(const std::string& path)
 {

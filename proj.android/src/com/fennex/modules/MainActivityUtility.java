@@ -35,9 +35,14 @@ public interface MainActivityUtility
 	//Return the public key for InApps
 	String getPublicKey();
 	
-	//return a resource ID in the application's package of the drawble to use, for the NotificationService
+	//return a resource ID in the application's package of the drawable to use, for the NotificationService
 	int getSmallIcon();
+
+	//Used to get an URI from files provided as resources
 	Uri getUriFromFileName(String fileName);
+
+	//Return a list of raw resources files. Useful to list videos of an app
+	String[] getRawResourcesFiles();
 	
 	//Returns true if the in-app product should be consumed before being returned. Usually, it's false, because you want to keep premium state
 	boolean isConsumable(String productID);
