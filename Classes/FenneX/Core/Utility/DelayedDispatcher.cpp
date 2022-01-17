@@ -32,6 +32,13 @@ static DelayedDispatcher* temporaryInstance = nullptr;
 static Scene* temporaryInstanceScene = nullptr;
 static EventListenerCustom* temporaryListener = nullptr;
 
+static std::vector<FuncParamTuple> backgroundFuncsWithParam;
+static std::vector<FuncNoParamTuple> backgroundFuncsWithoutParam;
+
+void DelayedDispatcher::ensureInit()
+{
+    getInstance();
+}
 
 DelayedDispatcher::~DelayedDispatcher()
 {
@@ -57,6 +64,16 @@ void DelayedDispatcher::funcAfterDelay(std::function<void(void)> func, float del
     instance->funcsWithoutParam.push_back(FuncNoParamTuple(delay, func, eventName));
 }
 
+void DelayedDispatcher::funcAfterDelayBackground(std::function<void(EventCustom*)> func, Value userData, float delay, std::string eventName)
+{
+    backgroundFuncsWithParam.push_back(FuncParamTuple(delay, func, userData, eventName));
+}
+
+void DelayedDispatcher::funcAfterDelayBackground(std::function<void()> func, float delay, std::string eventName)
+{
+    backgroundFuncsWithoutParam.push_back(FuncNoParamTuple(delay, func, eventName));
+}
+
 bool DelayedDispatcher::cancelEvents(std::string eventName)
 {
     DelayedDispatcher* instance = getInstance();
@@ -69,11 +86,13 @@ bool DelayedDispatcher::cancelEvents(std::string eventName)
 bool DelayedDispatcher::cancelFuncs(std::string eventName)
 {
     DelayedDispatcher* instance = getInstance();
-    long before = instance->funcsWithParam.size() + instance->funcsWithoutParam.size();
+    long before = instance->funcsWithParam.size() + instance->funcsWithoutParam.size() + backgroundFuncsWithParam.size() + backgroundFuncsWithoutParam.size();
     if(before == 0) return false;
     instance->funcsWithParam.erase(std::remove_if(instance->funcsWithParam.begin(), instance->funcsWithParam.end(), [&](const FuncParamTuple& tuple) { return std::get<3>(tuple) == eventName; }), instance->funcsWithParam.end());
     instance->funcsWithoutParam.erase(std::remove_if(instance->funcsWithoutParam.begin(), instance->funcsWithoutParam.end(), [&](const FuncNoParamTuple& tuple) { return std::get<2>(tuple) == eventName; }), instance->funcsWithoutParam.end());
-    return before != instance->funcsWithParam.size() + instance->funcsWithoutParam.size();
+    backgroundFuncsWithParam.erase(std::remove_if(backgroundFuncsWithParam.begin(), backgroundFuncsWithParam.end(), [&](const FuncParamTuple& tuple) { return std::get<3>(tuple) == eventName; }), backgroundFuncsWithParam.end());
+    backgroundFuncsWithoutParam.erase(std::remove_if(backgroundFuncsWithoutParam.begin(), backgroundFuncsWithoutParam.end(), [&](const FuncNoParamTuple& tuple) { return std::get<2>(tuple) == eventName; }), backgroundFuncsWithoutParam.end());
+    return before != instance->funcsWithParam.size() + instance->funcsWithoutParam.size() + backgroundFuncsWithParam.size() + backgroundFuncsWithoutParam.size();
 }
 
 void DelayedDispatcher::update(float deltaTime)
@@ -112,6 +131,14 @@ void DelayedDispatcher::update(float deltaTime)
             funcsToCall.push_back(tuple);
         }
     }
+    for(FuncParamTuple& tuple : backgroundFuncsWithParam)
+    {
+        std::get<0>(tuple) -= deltaTime;
+        if(std::get<0>(tuple) < 0)
+        {
+            funcsToCall.push_back(tuple);
+        }
+    }
     for(FuncParamTuple& tuple : funcsToCall)
     {
         EventCustom* event = EventCustom::create(std::get<3>(tuple), &std::get<2>(tuple));
@@ -124,10 +151,22 @@ void DelayedDispatcher::update(float deltaTime)
     {
         funcsWithParam.erase(std::remove_if(funcsWithParam.begin(), funcsWithParam.end(), [](const FuncParamTuple& tuple) { return std::get<0>(tuple) < 0; }), funcsWithParam.end());
     }
+    if(backgroundFuncsWithParam.size() > 0)
+    {
+        backgroundFuncsWithParam.erase(std::remove_if(backgroundFuncsWithParam.begin(), backgroundFuncsWithParam.end(), [](const FuncParamTuple& tuple) { return std::get<0>(tuple) < 0; }), backgroundFuncsWithParam.end());
+    }
     
     //Last, call funcs without param
     std::vector<FuncNoParamTuple> funcsToCallNoParam;
     for(FuncNoParamTuple& tuple : funcsWithoutParam)
+    {
+        std::get<0>(tuple) -= deltaTime;
+        if(std::get<0>(tuple) < 0)
+        {
+            funcsToCallNoParam.push_back(tuple);
+        }
+    }
+    for(FuncNoParamTuple& tuple : backgroundFuncsWithoutParam)
     {
         std::get<0>(tuple) -= deltaTime;
         if(std::get<0>(tuple) < 0)
@@ -145,6 +184,10 @@ void DelayedDispatcher::update(float deltaTime)
     if(funcsWithoutParam.size() > 0)
     {
         funcsWithoutParam.erase(std::remove_if(funcsWithoutParam.begin(), funcsWithoutParam.end(), [](const FuncNoParamTuple& tuple) { return std::get<0>(tuple) < 0; }), funcsWithoutParam.end());
+    }
+    if(backgroundFuncsWithoutParam.size() > 0)
+    {
+        backgroundFuncsWithoutParam.erase(std::remove_if(backgroundFuncsWithoutParam.begin(), backgroundFuncsWithoutParam.end(), [](const FuncNoParamTuple& tuple) { return std::get<0>(tuple) < 0; }), backgroundFuncsWithoutParam.end());
     }
 }
 

@@ -55,6 +55,8 @@ void Scene::initScene()
 Scene::Scene(SceneName identifier, ValueMap parameters) :
 sceneName(identifier)
 {
+    //Required so that Background events can be called through the update method.
+    DelayedDispatcher::ensureInit();
     this->initScene();
     this->parameters = parameters;
     numberOfTouches = 0;
