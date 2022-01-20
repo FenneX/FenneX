@@ -297,6 +297,17 @@ void runGarbageCollector()
     minfo.env->DeleteLocalRef(minfo.classID);
 }
 
+time_t getSystemUptime()
+{
+    JniMethodInfo minfo;
+    //Do a direct system call instead of using a custom Java wrapper.
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, "android/os/SystemClock", "elapsedRealtime", "()J");
+    CCAssert(functionExist, "Function doesn't exist");
+    long result = (jlong) minfo.env->CallStaticLongMethod(minfo.classID, minfo.methodID);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    return result / 1000L;
+}
+
 std::string formatDate(time_t date)
 {
     JniMethodInfo minfo;

@@ -105,6 +105,9 @@ void startSceneInitialisation();
 void runGarbageCollector();
 #endif
 
+//Get time elapsed since system boot in seconds. It is guaranteed to not be affected by system clock changes and is useful to measure durations.
+time_t getSystemUptime();
+
 //will format the date in short format (example : 9/8/2010) according user local
 std::string formatDate(time_t date);
 
