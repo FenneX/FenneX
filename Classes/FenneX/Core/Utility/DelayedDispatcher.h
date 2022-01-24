@@ -37,15 +37,19 @@ typedef std::tuple<float, std::function<void(cocos2d::EventCustom*)>, Value, std
 typedef std::tuple<float, std::function<void(void)>, std::string> FuncNoParamTuple;
 
 /* DelayedDispatcher works by attaching itself to current scene and monitoring updates.
- For retro-compatibility, it only works for current scene
+ For retro-compatibility, methods that don't specify anything only work for the current scene
+ Methods that ends with "Background" will work across scenes. Use those for background events like API calls.
  */
 class DelayedDispatcher : public Ref, public Pausable
 {
 public:
+    static void ensureInit();
     ~DelayedDispatcher();
     static void eventAfterDelay(std::string eventName, Value userData, float delay);
     static void funcAfterDelay(std::function<void(cocos2d::EventCustom*)> func, Value userData, float delay, std::string eventName="");
     static void funcAfterDelay(std::function<void()> func, float delay, std::string eventName="");
+    static void funcAfterDelayBackground(std::function<void(cocos2d::EventCustom*)> func, Value userData, float delay, std::string eventName="");
+    static void funcAfterDelayBackground(std::function<void()> func, float delay, std::string eventName="");
     //Return true if at least one was cancelled
     static bool cancelEvents(std::string eventName);
     static bool cancelFuncs(std::string eventName);

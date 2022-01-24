@@ -237,6 +237,12 @@ bool doesPreventIdleTimerSleep()
     return [UIApplication sharedApplication].idleTimerDisabled;
 }
 
+time_t getSystemUptime()
+{
+    //This is a double precision time in seconds, it will be automatically rounded.
+    return [[NSProcessInfo processInfo] systemUptime];
+}
+
 //will format the date in short format (example : 9/8/2010) according user local
 std::string formatDate(time_t date)
 {

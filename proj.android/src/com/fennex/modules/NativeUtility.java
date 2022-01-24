@@ -175,6 +175,11 @@ public class NativeUtility
     }
 
     @SuppressWarnings("unused")
+    public static String[] getAppRawResources() {
+        return getMainActivity().getRawResourcesFiles();
+    }
+
+    @SuppressWarnings("unused")
     public static boolean isPhone()
     {
     	boolean result = ((getMainActivity().getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) < Configuration.SCREENLAYOUT_SIZE_LARGE);

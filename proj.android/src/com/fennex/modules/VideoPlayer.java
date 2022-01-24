@@ -117,7 +117,7 @@ public class VideoPlayer implements IVLCVout.Callback, Runnable {
 
     private static void adjustBaseView() {
         FrameLayout mainFrame = NativeUtility.getMainActivity().getMainLayout();
-        if(mainFrame == null) return;
+        if(mainFrame == null || baseId == null) return;
         FrameLayout base = mainFrame.findViewById(baseId);
         if(base == null) return;
 
@@ -498,7 +498,13 @@ public class VideoPlayer implements IVLCVout.Callback, Runnable {
             }
         }
         else {
-            ((VideoView) Objects.requireNonNull(getVideoView())).seekTo((int)(position * 1000));
+            VideoView targetView = (VideoView) getVideoView();
+            if(targetView != null) {
+                targetView.seekTo((int) (position * 1000));
+            }
+            else {
+                Log.e(TAG, "No VideoView during setPosition call");
+            }
         }
     }
 

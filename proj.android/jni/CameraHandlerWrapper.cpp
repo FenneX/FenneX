@@ -98,6 +98,17 @@ void stopVideoRecording()
     minfo.env->DeleteLocalRef(minfo.classID);
 }
 
+void stopVideoRecordingSaveTo(std::string path, FileLocation location)
+{
+    JniMethodInfo minfo;
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME,"stopRecordingSaveTo", "(Ljava/lang/String;I)V");
+    CCAssert(functionExist, "Function doesn't exist");
+    jstring jPath = minfo.env->NewStringUTF(path.c_str());
+    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jPath, (jint)location);
+    minfo.env->DeleteLocalRef(minfo.classID);
+    minfo.env->DeleteLocalRef(jPath);
+}
+
 bool cancelRecording(bool notify)
 {
     JniMethodInfo minfo;

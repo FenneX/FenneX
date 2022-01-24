@@ -183,6 +183,11 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 	}
 
 	public static void stopRecording() {
+		File videoFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES).getAbsoluteFile();
+		String externalPath = videoFolder.getAbsolutePath() + "/" + videoPath.substring(videoPath.lastIndexOf('/')+1);
+		stopRecordingSaveTo(externalPath, FileUtility.FileLocation.Absolute.getValue());
+	}
+	public static void stopRecordingSaveTo(String saveName, int location) {
 		if(!ImagePicker.isCameraAvailable() || !recording) {
 			return;
 		}
@@ -191,8 +196,7 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 		String externalPath;
 		//On some devices, copying the video in the Movies directory doesn't work. If it fails, show a message to the user
 		try {
-			File videoFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES).getAbsoluteFile();
-			externalPath = videoFolder.getAbsolutePath() + "/" + videoPath.substring(videoPath.lastIndexOf('/')+1);
+			externalPath = FileUtility.getFullPath(saveName, location);
 
 			//Copy the file using streams and channels
 			FileInputStream inStream = new FileInputStream(videoPath);
@@ -368,7 +372,9 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 		recorder.setOnInfoListener(this);
 		recorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
 		recorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-		recorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH));
+		//setProfile and setOutputFormat are exclusive. Right now we make a big assumption that the profile can be inside a mp4 file
+		//recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+		recorder.setProfile(CamcorderProfile.get(cameraID == 0 ? CamcorderProfile.QUALITY_HIGH : CamcorderProfile.QUALITY_LOW));
 
 		String currentDate = DateFormat.format("dd-MM-yyyy_hh-mm-ss", new Date().getTime()).toString();
 
