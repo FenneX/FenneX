@@ -30,39 +30,37 @@ THE SOFTWARE.
 USING_NS_CC;
 
 //When integrating, don't forget to add StoreKit (for InApp) and SystemConfiguration (for Reachability) frameworks on iOS
-//On Android, don't forget to call InAppManager.onActivityResult from the main Activity and replace call to main Activity from InAppManager
-//On Android, for licensing, READ_PHONE_STATE permission is required
+//On Android, don't forget to call .InAppManager.queueQueryPurchases() from the main Activity onResume
 
 //should be done at the launch of the app, so that it can try to continue existing payements
 void initializePayements();
 
 /*
  Will throw notifications for success :
- - ProductPurchased (iOS, Android) with argument ProductID (CCString corresponding to the one passed to purchaseProduct)
- - ProductRestored (iOS, Android) with argument ProductID (CCString corresponding to the one passed to purchaseProduct)
- - ProductRefunded (Android) with argument ProductID (CCString corresponding to the one passed to purchaseProduct) : client code have to remove corresponding in-app
+ - InAppBuySuccess (iOS, Android) with argument ProductID, PurchaseToken, OrderId, NeedAcknowledgment
+ - InAppRestoreSuccess (iOS, Android) with argument ProductID, PurchaseToken, OrderId, NeedAcknowledgment. If fields are empty, the restore was successful, but there is no purchase to be restored
  - LicenseStatusUpdate (Android debug) with argument Authorized (CCBool)
- 
+
    Will throw notifications for failure : 
- - NoConnectionTransactionFailure (iOS) => app should prompt the user to connect and retry (on Android, the Store handles that notification)
- - CantPayTransactionFailure (iOS) => app should prompt the user to activate payement in settigns and retry
+ - NoConnectionTransactionFailure (iOS, Android) => app should prompt the user to connect and retry (on Android, the Store handles that notification, but it's thrown if service is disconnected)
+ - CantPayTransactionFailure (iOS, Android) => app should prompt the user to activate payement in settings and retry
  - PayementCanceledTransactionFailure (iOS, Android) => app should confirm the transaction was cancelled
- - ErrorTransactionFailure (iOS, Android) => app should notify it failed and prompt to retry later
- - AuthenticityErrorTransactionFailure (Android) => cannot be thrown currently because there is no verifyPayload. App should notify the user there is an authenticity problem
- - InAppSystemFailure (Android) => app should prompt user to verify Play Store and retry
+ - NoPurchasesFailure (iOS, Android) => if in a restore flow, app should tell the user there is no purchase to be restored
+ - InAppBuyFailure (iOS, Android) => app should notify it failed and prompt to retry later
+ - InAppRestoreFailure (iOS, Android) => app should notify it failed and prompt to retry later
+ - InAppServiceFailure (Android) => app should prompt user to verify connection and restart the app
  
- All notifications contains:
- - ProductId (when failure, it might not be the actual ProductID)
- - PurchaseToken (when failure, it might be empty)
+ All error notifications contains:
  - Reason (a displayable reason to troubleshoot)
  */
 
-//Big difference between iOS and Android : iOS handle consumable/not consumable, whereas Android do not, you have to manually consume consumable, and never consume not consumables
+//Consumables are not handled, only subscriptions
 void inAppPurchaseProduct(const std::string& productID);
-void restoreTransaction(const std::string& productID);
 
-//should be done when the app exit for proper cleanup. Note : required for Android, not for iOS
-void releasePayements();
+//Note that it's only implemented on Android, as iOS doesn't require acknowledging purchases
+void acknowledgePurchase(const std::string& token);
+
+void restoreTransactions();
 
 /*
  Request the products data, to be available for later use
@@ -71,7 +69,7 @@ void releasePayements();
 void requestProductsData(std::vector<std::string> products);
 
 /*
- Return a CCDictionary with each key being a product ID and values being a ValueMap describing this productID :
+ Return a ValueMap with each key being a product ID and values being a ValueMap describing this productID :
  - Title (String)
  - Description (String)
  - Price (Double) (will return 0 on Android if the formatter can't recognize it. iOS always have the correct price)
@@ -81,11 +79,5 @@ void requestProductsData(std::vector<std::string> products);
  - Unit (Integer) default to 1 if the Unit isn't found
 */
 ValueMap getProductsInfos();
-
-/*
-#if CC_TARGET_PLATFORM == CC_PLATFORM_IOS
-//This will be called once at first launch to check if there was a purchase on V1
-bool checkNativePremium();
-#endif*/
 
 #endif

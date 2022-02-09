@@ -1,4 +1,5 @@
-/****************************************************************************
+/*
+***************************************************************************
  * Copyright (c) 2013-2014 Auticiel SAS
  * <p>
  * http://www.fennex.org
@@ -24,511 +25,456 @@
 
 package com.fennex.modules;
 
-import android.annotation.SuppressLint;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.android.vending.billing.util.IabHelper;
-import com.android.vending.billing.util.IabHelper.OnConsumeFinishedListener;
-import com.android.vending.billing.util.IabResult;
-import com.android.vending.billing.util.Inventory;
-import com.android.vending.billing.util.Purchase;
-import com.android.vending.billing.util.SkuDetails;
+import com.android.billingclient.api.AcknowledgePurchaseParams;
+import com.android.billingclient.api.AcknowledgePurchaseResponseListener;
+import com.android.billingclient.api.BillingClient;
+import com.android.billingclient.api.BillingClientStateListener;
+import com.android.billingclient.api.BillingFlowParams;
+import com.android.billingclient.api.BillingResult;
+import com.android.billingclient.api.Purchase;
+import com.android.billingclient.api.PurchasesResponseListener;
+import com.android.billingclient.api.PurchasesUpdatedListener;
+import com.android.billingclient.api.SkuDetails;
+import com.android.billingclient.api.SkuDetailsParams;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@SuppressWarnings({"WeakerAccess", "unused"})
-public class InAppManager implements ActivityResultResponder {
-    //The code is heavily copied from Trivial Drive Sample. This sample is installed at the same time as the In-app billing library.
-    //TODO : construct public key using some native calls
-    //TODO : handle refund correctly (currently not handled, despite code trying to)
-    //TODO : module to handle consumable/not consumable in buyProductIdentifier ?
-    //TODO : clean code
-    //TODO : developer payload
+import androidx.annotation.NonNull;
 
+//Handle interface with Android BillingClient
+//Doesn't handle consuming in-app purchases (not needed for subscriptions).
+public class InAppManager implements
+        PurchasesUpdatedListener /* onPurchasesUpdated */,
+        PurchasesResponseListener /* onQueryPurchasesResponse */,
+        AcknowledgePurchaseResponseListener /* onAcknowledgePurchaseResponse */ {
     private static final String TAG = "InAppManager";
 
-    // Does the user have the premium upgrade?
-    //static boolean mIsPremium = false;
+    private static final String SERVICE_EVENT_TYPE = "Service";
+    private static final String BUY_EVENT_TYPE = "Buy";
+    private static final String RESTORE_EVENT_TYPE = "Restore";
+    private native void notifyFailure(String eventType, String code, String reason);
+    private native void notifySuccess(String eventType, String sku, String token, String orderId, boolean needAcknowledgment);
+    private native void notifyProductsInfosFetched(boolean success);
 
-    // SKUs for our products: the premium upgrade (non-consumable)
-    //replaced by productID provided by client app
-    //static final String SKU_PREMIUM = "premium";
-
-    // (arbitrary) request code for the purchase flow
-    private static final int RC_REQUEST = 10102;
-
-    private static IabHelper mHelper;
-
-    private static Inventory mInventory = null;
-
-    private native void notifyInAppEvent(String name, String argument, String token, String reason);
-
-    private static String payload = "test";
-
-    private static List<String> skuToQuery;
-    private static boolean queryFinished;
-
+    //An instance is needed for listeners to be called
     private static volatile InAppManager instance = null;
 
+    //The Android billing client that handle everything
+    private static BillingClient billingClient = null;
+
+    //If the purchases need to be queried once the billing client is initialized. Turned on at app creation and on resume
+    private static boolean shouldQueryPurchases = true;
+
+    //Which product SKU (identifiers) should be queried. Set by the app. Until they are set, purchases won't be queried
+    private static List<String> skuListToQuery = new ArrayList<>();
+
+    //The result of the last sku query.
+    private static List<SkuDetails> skuDetailsList = null;
+
+    //In-app queued for purchase
+    private static String skuToBuy = null;
+    private static boolean buyInProgress = false;
+
+    //Bought in-apps to acknowledge
+    private static String tokenToAcknowledge = null;
+
+    public static void initialize() {
+        //Called from C++ to ensure there is an initialization
+        getInstance();
+    }
+
+    public static void queueQueryPurchases() {
+        //Must be called on each resume to refresh purchases, in case the user got a purchase outside the app
+        if(!shouldQueryPurchases) {
+            restoreTransactions();
+        }
+    }
+
+    //Called by native code
+    @SuppressWarnings("unused")
+    public static void buyProductIdentifier(final String productID) {
+        boolean billingStarted = getInstance().isBillingStarted();
+        if(!billingStarted || skuDetailsList == null) {
+            if(skuToBuy != null) {
+                getInstance().notifyFailure(BUY_EVENT_TYPE, "NotInitialized", (!billingStarted ? "BillingClient" : "Products details") + "not initialized during buyProductIdentifier and there is already a waiting purchase");
+            }
+            else {
+                skuToBuy = productID;
+            }
+            return;
+        }
+        SkuDetails skuDetails = null;
+        for(SkuDetails details : skuDetailsList) {
+            if(details.getSku().equals(productID)) {
+                skuDetails = details;
+            }
+        }
+        if(skuDetails == null) {
+            getInstance().notifyFailure(BUY_EVENT_TYPE, "UnknownSku", "Product ID " + productID + " not found during buyProductIdentifier");
+            return;
+        }
+        if(skuToBuy != null) {
+            getInstance().notifyFailure(BUY_EVENT_TYPE, "InProgress", "There is already a queued product " + skuToBuy + " to buy.");
+            return;
+        }
+        BillingFlowParams billingFlowParams = BillingFlowParams.newBuilder()
+                .setSkuDetails(skuDetails)
+                .build();
+        BillingResult result = billingClient.launchBillingFlow(NativeUtility.getMainActivity(), billingFlowParams);
+        int responseCode = result.getResponseCode();
+        if (responseCode ==  BillingClient.BillingResponseCode.OK) {
+            Log.i(TAG, "Launch billing flow successful, awaiting response.");
+            buyInProgress = true;
+        }
+        else {
+            buyInProgress = false;
+            if (responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
+                getInstance().notifyFailure(BUY_EVENT_TYPE, "PayementCanceled", "Purchase cancelled by user during launchBillingFlow");
+            }
+            else if(responseCode == BillingClient.BillingResponseCode.SERVICE_DISCONNECTED) {
+                skuToBuy = productID;
+                getInstance().isBillingStarted(true);
+            }
+            else if(responseCode == BillingClient.BillingResponseCode.BILLING_UNAVAILABLE) {
+                getInstance().notifyFailure(BUY_EVENT_TYPE, "BillingUnavailable", "Play services are not available or no Google account is set up");
+            }
+            else if(responseCode == BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED) {
+                Log.w(TAG, "Product " + productID + " already owned, launching restore flow");
+                restoreTransactions();
+            }
+            else {
+            /* List of possible errors: https://stackoverflow.com/questions/68825055/what-result-codes-can-be-returned-from-billingclient-launchbillingflow
+             * Errors not handled explicitly here:
+                - DEVELOPER_ERROR => no need to handle, should only happen in dev if not properly setup
+                - ERROR => duh, no info
+                - FEATURE_NOT_SUPPORTED => looks like https://developer.android.com/reference/com/android/billingclient/api/BillingClient.FeatureType probably not something to handle
+                - ITEM_NOT_OWNED => not possible here, only in consume flow, which we don't use
+                - ITEM_UNAVAILABLE => no need to handle, should never happen
+             */
+                Log.e(TAG, "Error when launching billing flow, error code: " + responseCode + ", message: " + result.getDebugMessage());
+                getInstance().notifyFailure(BUY_EVENT_TYPE, "BillingFlowError", "Error "+ responseCode + " during launch billing flow: " + result.getDebugMessage());
+            }
+        }
+    }
+
+    //Called by native code
+    @SuppressWarnings("unused")
+    public static void acknowledgePurchase(String token) {
+        if(getInstance().isBillingStarted()) {
+            AcknowledgePurchaseParams acknowledgePurchaseParams =
+                    AcknowledgePurchaseParams.newBuilder()
+                            .setPurchaseToken(token)
+                            .build();
+            billingClient.acknowledgePurchase(acknowledgePurchaseParams, getInstance());
+        }
+        else {
+            tokenToAcknowledge = token;
+        }
+    }
+
+    //Called by native code
+    @SuppressWarnings("unused")
+    public static void restoreTransactions() {
+        if(getInstance().isBillingStarted()) {
+            Log.i(TAG, "Querying subs purchases");
+            billingClient.queryPurchasesAsync(BillingClient.SkuType.SUBS, getInstance());
+        }
+        else {
+            Log.i(TAG, "Queuing query purchases request");
+            shouldQueryPurchases = true;
+        }
+    }
+
+    //Called by native code
+    @SuppressWarnings("unused")
+    public static void requestProductsData(String[] skuList) {
+        getInstance().requestProductsData(new ArrayList<>(Arrays.asList(skuList)));
+    }
+
+    private void requestProductsData(List<String> skuList) {
+        //Actual requesting of product data when both the setup is finished and the app provided the list of SKUs to query
+        if(!isBillingStarted()) {
+            skuListToQuery = skuList;
+            return;
+        }
+        for(String sku : skuList) {
+            Log.i(TAG, "Requesting infos for " + sku);
+        }
+        SkuDetailsParams.Builder params = SkuDetailsParams.newBuilder();
+        params.setSkusList(skuList).setType(BillingClient.SkuType.SUBS);
+        billingClient.querySkuDetailsAsync(params.build(), (result, list) -> {
+            skuDetailsList = list;
+            Log.i(TAG, "Got " + Objects.requireNonNull(list).size() + " sku details, billing response was: " + result.getResponseCode() + ": " + result.getDebugMessage());
+            for(SkuDetails details : skuDetailsList) {
+                Log.i(TAG, "  " + details.getSku() + ": " + details.getTitle() + ", " + details.getPrice());
+            }
+            notifyProductsInfosFetched(result.getResponseCode() == BillingClient.BillingResponseCode.OK);
+        });
+    }
+
+    //Called by native code
+    @SuppressWarnings("unused")
+    public static String[] getProductsIds() {
+        if(skuDetailsList == null) return new String[] {};
+        List<String> skuIDsList = new ArrayList<>();
+        for(SkuDetails sku : skuDetailsList) {
+            skuIDsList.add(sku.getSku());
+        }
+        return skuIDsList.toArray(new String[] {});
+
+    }
+
+    //Called by native code
+    @SuppressWarnings("unused")
+    public static String[] getProductsInfos(String productId) {
+        Log.i(TAG, "Returning product infos for: " + productId);
+        if(skuDetailsList == null) return new String[] {};
+        for(SkuDetails details : skuDetailsList) {
+            if(productId.equals(details.getSku())) {
+                //Note: very old code from 2015 that was taken as-is during upgrade to Billing V3 library, since SkuDetails is unchanged.
+                Log.i("InAppManager", "Price String : " + details.getPrice() + ", type : " + details.getType());
+                NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance();
+                Number price = null;
+                // This is a simple tricks to work around the currency bug. To keep the same format between the price and the price per unit
+                boolean needReplace = false;
+                String priceString = details.getPrice();
+                try {
+                    price = currencyFormatter.parse(details.getPrice());
+                    Log.i("InAppManager", "Price : " + (price != null ? price.toString() : "null") + " for " + productId);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    // There is a bug in Java see here : https://stackoverflow.com/questions/15586099/numberformat-parse-fails-for-some-currency-strings
+                    // So we have to extract the price an other way :
+                    try {
+                        // Regex to extract double
+                        String regex ="(-)?(([^\\\\d])(0)|[1-9][0-9]*)(.)([0-9]+)";
+                        Matcher matcher = Pattern.compile( regex ).matcher(details.getPrice());
+                        if(matcher.find()) {
+                            priceString = matcher.group();
+                            needReplace = true;
+                            price = Double.valueOf(priceString);
+                        }
+                    }
+                    catch (Exception scannerException) {
+                        scannerException.printStackTrace();
+                    }
+                }
+                String pricePerUnit = null;
+                int unitsNumber = 1;
+                if (price != null) {
+                    int lastNumberIndex = productId.length();
+                    while (lastNumberIndex > 0 && productId.charAt(lastNumberIndex - 1) >= '0' && productId.charAt(lastNumberIndex - 1) <= '9') {
+                        lastNumberIndex--;
+                    }
+                    if (lastNumberIndex < productId.length()) {
+                        unitsNumber = Integer.parseInt(productId.substring(lastNumberIndex));
+                        if (unitsNumber > 0) {
+                            if(needReplace) {
+                                //Use US locale to ensure C++ code will be able to read the float regardless of user locale
+                                pricePerUnit = details.getPrice().replace(priceString, String.format(Locale.US, "%.2f", price.doubleValue() / unitsNumber));
+                            }
+                            else {
+                                pricePerUnit = currencyFormatter.format(price.doubleValue() / unitsNumber);
+                            }
+                        }
+                    }
+                }
+
+                return new String[]{
+                        "Title", "[Str]" + details.getTitle(),
+                        "Description", "[Str]" + details.getDescription(),
+                        "Price", "[Flo]" + (price != null ? price.toString() : "0"),
+                        "Identifier", "[Str]" + productId,
+                        "Units", "[Int]" + unitsNumber,
+                        "PriceString", "[Str]" + details.getPrice(),
+                        "PricePerUnitString", (pricePerUnit != null ? "[Str]" + pricePerUnit : "")};
+            }
+        }
+        return new String[] {};
+    }
+
     public static InAppManager getInstance() {
+        //There is an instance to handle Listeners and ensure there is always a single billingClient
         if (instance == null) {
             synchronized (InAppManager.class) {
                 if (instance == null) {
                     instance = new InAppManager();
-                    NativeUtility.getMainActivity().addResponder(instance);
-                    BroadcastReceiver promoReceiver = new BroadcastReceiver() {
-                        @Override
-                        public void onReceive(Context context, Intent intent) {
-                            //Relaunch queryInventory workflow to check for new purchases
-                            mHelper.queryInventoryAsync(mGotInventoryListener);
-                        }
-                    };
-                    NativeUtility.getMainActivity().registerReceiver(promoReceiver, new IntentFilter("com.android.vending.billing.PURCHASES_UPDATED"));
                 }
             }
         }
         return instance;
     }
 
-    public void destroy() {
-        instance = null;
+    //Make the constructor private and only use static variables
+    private InAppManager() {
+        //start the billing client
+        isBillingStarted();
     }
 
-    public static void initialize() {
-        InAppManager.getInstance(); //ensure the instance is created
-        /* base64EncodedPublicKey should be YOUR APPLICATION'S PUBLIC KEY
-         * (that you got from the Google Play developer console). This is not your
-         * developer public key, it's the *app-specific* public key.
-         *
-         * Instead of just storing the entire literal string here embedded in the
-         * program,  construct the key at runtime from pieces or
-         * use bit manipulation (for example, XOR with some other string) to hide
-         * the actual key.  The key itself is not secret information, but we don't
-         * want to make it easy for an attacker to replace the public key with one
-         * of their own and then fake messages from the server.
-         */
+    private boolean isBillingStarted() {
+        return isBillingStarted(false);
+    }
 
-        queryFinished = false;
+    private boolean isBillingStarted(boolean forceRestart) {
+        //Billing client either don't exist or had an issue, start a new one
+        if(billingClient == null || billingClient.getConnectionState() == BillingClient.ConnectionState.CLOSED || billingClient.getConnectionState() == BillingClient.ConnectionState.DISCONNECTED) {
+            billingClient = BillingClient.newBuilder(NativeUtility.getMainActivity()).setListener(this).enablePendingPurchases().build();
+        }
+        if(!forceRestart) {
+            // It's started, manager can use it
+            if (billingClient.getConnectionState() == BillingClient.ConnectionState.CONNECTED)
+                return true;
 
-        String base64EncodedPublicKey = NativeUtility.getMainActivity().getPublicKey();
+            // It's connecting already, nothing to do, but actions should be queue
+            if (billingClient.getConnectionState() == BillingClient.ConnectionState.CONNECTING)
+                return false;
+        }
 
-        // Create the helper, passing it our context and the public key to verify signatures with
-        Log.d(TAG, "Creating IAB helper.");
-        mHelper = new IabHelper(NativeUtility.getMainActivity(), base64EncodedPublicKey);
-
-        // enable debug logging (for a production application, you should set this to false).
-        mHelper.enableDebugLogging(true);
-
-        // Start setup. This is asynchronous and the specified listener
-        // will be called once setup completes.
-        Log.d(TAG, "Starting setup.");
-        mHelper.startSetup(result -> {
-            Log.d(TAG, "Setup finished.");
-
-            if (!result.isSuccess()) {
-                // Oh noes, there was a problem.
-                Log.e(TAG, "Problem setting up in-app billing: " + result);
-                return;
+        billingClient.startConnection(new BillingClientStateListener() {
+            @Override
+            public void onBillingSetupFinished(@NonNull BillingResult result) {
+                int responseCode = result.getResponseCode();
+                if (result.getResponseCode() ==  BillingClient.BillingResponseCode.OK) {
+                    Log.i(TAG, "Billing setup finished, requesting products data...");
+                    // BillingClient is initialized, execute pending queries
+                    requestProductsData(skuListToQuery);
+                    if(shouldQueryPurchases) {
+                        Log.i(TAG, "Querying purchases...");
+                        billingClient.queryPurchasesAsync(BillingClient.SkuType.SUBS, getInstance());
+                    }
+                    if(tokenToAcknowledge != null) {
+                        Log.i(TAG, "Acknowledging token \"" + tokenToAcknowledge + "\"...");
+                        AcknowledgePurchaseParams acknowledgePurchaseParams =
+                                AcknowledgePurchaseParams.newBuilder()
+                                        .setPurchaseToken(tokenToAcknowledge)
+                                        .build();
+                        billingClient.acknowledgePurchase(acknowledgePurchaseParams, getInstance());
+                        tokenToAcknowledge = null;
+                    }
+                }
+                else if(responseCode == BillingClient.BillingResponseCode.SERVICE_DISCONNECTED) {
+                    Log.i(TAG, "Service disconnected, restarting it.");
+                    isBillingStarted(true);
+                }
+                else if(responseCode == BillingClient.BillingResponseCode.BILLING_UNAVAILABLE) {
+                    Log.e(TAG, "Error during billing client setup, billing is unavailable");
+                    getInstance().notifyFailure(SERVICE_EVENT_TYPE, "BillingUnavailable", "Play services are not available or no Google account is set up");
+                }
+                else {
+                    Log.e(TAG, "Error during billing client setup, error code: " + responseCode + ", message: " + result.getDebugMessage());
+                    getInstance().notifyFailure(SERVICE_EVENT_TYPE, "BillingSetupFailure", "Error "+ responseCode + " during onBillingSetupFinished: " + result.getDebugMessage());
+                }
             }
 
-            // Hooray, IAB is fully set up. Now, let's get an inventory of stuff we own.
-            if (skuToQuery != null) {
-                Log.d(TAG, "Setup successful. Querying inventory with " + skuToQuery.size() + " SKUs:");
-                for(String sku : skuToQuery) {
-                    Log.d(TAG, "    SKU: " + sku);
-                }
-                mHelper.queryInventoryAsync(true, skuToQuery, mGotInventoryListener);
-                skuToQuery = null;
-            } else {
-                Log.d(TAG, "Setup successful. Querying inventory with no SKU");
-                mHelper.queryInventoryAsync(mGotInventoryListener);
+            @Override
+            public void onBillingServiceDisconnected() {
+                //Try to restart the service immediately, no need to wait.
+                isBillingStarted();
             }
         });
+        return false;
     }
 
-    // User clicked the "Upgrade to Premium" button.
-    public static void buyProductIdentifier(final String productID) {
-        Log.d(TAG, "buying product identifier : " + productID);
-        
-        /* TODO: for security, generate your payload here for verification. See the comments on 
-         *        verifyDeveloperPayload() for more info. Since this is a SAMPLE, we just use 
-         *        an empty string, but on a production app you should carefully generate this. */
-        final String payload = "test";
-
-        NativeUtility.getMainActivity().runOnGLThread(() -> {
-            if (mHelper == null || mInventory == null) {
-                Log.d(TAG, "Error : not initialized");
-                String event = "InAppSystemFailure";
-                String argument = "NotInitialized";
-                getInstance().notifyInAppEvent(event, argument, "", "InApps system not initialized during buyProductIdentifier");
-                return;
-            } else {
-                Purchase existingPurchase = mInventory.getPurchase(productID);
-                //Purchase state = 0 means purchased. 1 is canceled (allow to re-buy), 2 is refunded (allow to re-buy)
-                if (existingPurchase != null && verifyDeveloperPayload(existingPurchase) && existingPurchase.getPurchaseState() == 0) {
-                    Log.d(TAG, "Restoring product");
-                    getInstance().notifyInAppEvent("ProductRestored", productID, existingPurchase.getToken(), "Restore purchase successful using buyProductIdentifier, skipping purchase flow");
-                    return;
-                }
-            }
-            if (mHelper != null) {
-                mHelper.flagEndAsync();
-            }
-            try {
-                SkuDetails skuDetails = mInventory.getSkuDetails(productID);
-                mHelper.launchPurchaseFlow(NativeUtility.getMainActivity(), productID, skuDetails != null ? skuDetails.getType() : IabHelper.ITEM_TYPE_INAPP, RC_REQUEST,
-                            mPurchaseFinishedListener, payload);
-            } catch (IllegalStateException e) {
-                Log.e("InAppManager", "Illegal state exception : " + e.getMessage());
-
-                NativeUtility.showToast("PleaseRetrySoon", Toast.LENGTH_SHORT);
-            }
-        });
-    }
-
-    public static void restoreTransaction(final String productID) {
-        Log.d(TAG, "Restore transactions");
-        NativeUtility.getMainActivity().runOnGLThread(() -> {
-            synchronized (InAppManager.class) {
-                if (mHelper == null || mInventory == null) {
-                    Log.d(TAG, "Error : not initialized");
-                    String event = "InAppSystemFailure";
-                    String argument = "NotInitialized";
-                    getInstance().notifyInAppEvent(event, argument, "", "InApps system not initialized during restoreTransaction");
-                } else {
-                    Purchase existingPurchase = mInventory.getPurchase(productID);
-                    if (existingPurchase != null && verifyDeveloperPayload(existingPurchase) && existingPurchase.getPurchaseState() == 0) {
-                        Log.d(TAG, "Restoring product");
-                        getInstance().notifyInAppEvent("ProductRestored", productID, existingPurchase.getToken(), "Restore purchase successful using restoreTransaction");
-                    } else {
-                        String purchaseState = (existingPurchase == null ? "doesn't exist" :
-                                existingPurchase.getPurchaseState() == 1 ? "canceled" :
-                                        existingPurchase.getPurchaseState() == 2 ? "refunded" :
-                                                "state " + existingPurchase.getPurchaseState());
-                        getInstance().notifyInAppEvent("ErrorRestoreFailure", productID, existingPurchase == null ? "" : existingPurchase.getToken(), "Restore purchase failed during restoreTransaction, purchase state: " + purchaseState);
-                    }
-                }
-            }
-        });
-    }
-
-    public static void release() {
-        // very important:
-        Log.d(TAG, "Destroying helper.");
-        if (mHelper != null) mHelper.dispose();
-        mHelper = null;
-    }
-
-    //Return true if it uses the activity result is handled by the in-app module
-    public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(TAG, "onActivityResult(" + requestCode + "," + resultCode + "," + data);
-
-        // Pass on the activity result to the helper for handling
-        if (!mHelper.handleActivityResult(requestCode, resultCode, data)) {
-            // not handled
-            return false;
-        } else {
-            Log.d(TAG, "onActivityResult handled by IABUtil.");
-        }
-        return true;
-    }
-
-    // Listener that's called when we finish querying the items and subscriptions we own
-    private static IabHelper.QueryInventoryFinishedListener mGotInventoryListener = new IabHelper.QueryInventoryFinishedListener() {
-        public void onQueryInventoryFinished(IabResult result, Inventory inventory) {
-            Log.d(TAG, "Query inventory finished.");
-            if (result.isFailure()) {
-                Log.e(TAG, "Failed to query inventory: " + result);
-                return;
-            }
-
-            mInventory = inventory;
-            Log.d(TAG, "Query inventory was successful.");
-            for (Purchase purchase : mInventory.getAllPurchases()) {
-                if (NativeUtility.getMainActivity().isConsumable(purchase.getSku())) {
-                    Log.d(TAG, "Consuming purchase " + purchase.getSku());
-                    mHelper.consumeAsync(purchase, mConsumeFinishedListener);
-                }
-            }
-            if (skuToQuery != null) {
-                mHelper.queryInventoryAsync(true, skuToQuery, mGotInventoryListener);
-                skuToQuery = null;
-            } else {
-                queryFinished = true;
+    void handlePurchase(Purchase purchase, boolean buy) {
+        //Note: consuming an in-app purchase is currently not supported
+        if(purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
+            for (String sku : purchase.getSkus()) {
+                //It's up to the native code to call acknowledgePurchase once server verification is done.
+                getInstance().notifySuccess(buy ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, sku, purchase.getPurchaseToken(), purchase.getOrderId(), !purchase.isAcknowledged());
             }
         }
-    };
-
-    /** Verifies the developer payload of a purchase. */
-    private static boolean verifyDeveloperPayload(Purchase p) {
-        /*
-         * TODO: verify that the developer payload of the purchase is correct. It will be
-         * the same one that you sent when initiating the purchase.
-         * 
-         * WARNING: Locally generating a random string when starting a purchase and 
-         * verifying it here might seem like a good approach, but this will fail in the 
-         * case where the user purchases an item on one device and then uses your app on 
-         * a different device, because on the other device you will not have access to the
-         * random string you originally generated.
-         *
-         * So a good developer payload has these characteristics:
-         * 
-         * 1. If two different users purchase an item, the payload is different between them,
-         *    so that one user's purchase can't be replayed to another user.
-         * 
-         * 2. The payload must be such that you can verify it even when the app wasn't the
-         *    one who initiated the purchase flow (so that items purchased by the user on 
-         *    one device work on other devices owned by the user).
-         * 
-         * Using your own server to store and verify developer payloads across app
-         * installations is recommended.
-         */
-        //String payload = p.getDeveloperPayload();
-        return true;
-    }
-
-    static void requestProductsData(String[] ids) {
-        if (ids == null)
-            return ;
-        final List<String> list = new ArrayList<>();
-        Collections.addAll(list, ids);
-        if (queryFinished) {
-            queryFinished = false;
-            NativeUtility.getMainActivity().runOnUiThread(new Thread(() -> mHelper.queryInventoryAsync(true, list, mGotInventoryListener)));
-        } else {
-            if (skuToQuery == null) {
-                skuToQuery = new ArrayList<>();
+        //Right now, UNSPECIFIED_STATE and PENDING purchases are not explicitly handled.
+        //Google documentation states that "Additional forms of payment are not available for subscriptions purchases." which means no pending transactions
+        else {
+            for (String sku : purchase.getSkus()) {
+                Log.i(TAG, "Purchase in " + (purchase.getPurchaseState() == Purchase.PurchaseState.PENDING ? "PENDING" : "UNSPECIFIED_STATE") + "state for sku " + sku + " and order " + purchase.getOrderId() + ", ignoring it");
             }
-            skuToQuery.addAll(list);
+
         }
     }
 
-    static String[] getProductsIds() {
-        if (mInventory == null) {
-            Log.w(TAG, "mInventory is null, can't get products infos");
-            return new String[0];
+    @Override
+    public void onPurchasesUpdated(BillingResult result, List<Purchase> purchases) {
+        Log.i(TAG, "On Purchases updated, purchases is " + (purchases == null ? "null" : String.valueOf(purchases.size())));
+        int responseCode = result.getResponseCode();
+        if (responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
+            for (Purchase purchase : purchases) {
+                handlePurchase(purchase, buyInProgress);
+            }
         }
-        Object[] objectArray = mInventory.getAllSku().keySet().toArray();
-        return Arrays.copyOf(objectArray, objectArray.length, String[].class);
+        else {
+            if (responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
+                getInstance().notifyFailure(buyInProgress ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, "PayementCanceled", "Purchase cancelled by user during onPurchasesUpdated");
+            }
+            else if(responseCode == BillingClient.BillingResponseCode.SERVICE_DISCONNECTED) {
+                getInstance().notifyFailure(buyInProgress ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, "ServiceDisconnected", "Service disconnected during request, please retry");
+            }
+            else if(responseCode == BillingClient.BillingResponseCode.BILLING_UNAVAILABLE) {
+                getInstance().notifyFailure(buyInProgress ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, "BillingUnavailable", "Play services are not available or no Google account is set up");
+            }
+            else {
+            /* List of possible errors: https://stackoverflow.com/questions/68825055/what-result-codes-can-be-returned-from-billingclient-launchbillingflow
+             * Errors not handled explicitly here:
+                - DEVELOPER_ERROR => no need to handle, should only happen in dev if not properly setup
+                - ERROR => duh, no info
+                - FEATURE_NOT_SUPPORTED => looks like https://developer.android.com/reference/com/android/billingclient/api/BillingClient.FeatureType probably not something to handle
+                - ITEM_NOT_OWNED => not possible here, only in consume flow, which we don't use
+                - ITEM_ALREADY_OWNED => not possible here, it should be launched before
+                - ITEM_UNAVAILABLE => no need to handle, should never happen
+             */
+                Log.e(TAG, "Error during onPurchasesUpdated, error code: " + responseCode + ", message: " + result.getDebugMessage());
+                getInstance().notifyFailure(buyInProgress ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, "PurchaseUpdateFailure", "Error "+ responseCode + " during onPurchasesUpdated: " + result.getDebugMessage());
+            }
+        }
+        buyInProgress = false;
     }
 
-    @SuppressLint("DefaultLocale")
-    static String[] getProductsInfos(String productId) {
-        if (mInventory == null) {
-            Log.w(TAG, "mInventory is null, can't get products infos");
-            return new String[0];
+    @Override
+    public void onQueryPurchasesResponse(@NonNull BillingResult result, @NonNull List<Purchase> list) {
+        Log.i(TAG, "Got purchases responses with " + list.size() + " purchases.");
+        int responseCode = result.getResponseCode();
+        shouldQueryPurchases = false;
+        for (Purchase purchase : list) {
+            handlePurchase(purchase, false);
         }
-
-        SkuDetails details = mInventory.getAllSku().get(productId);
-        Log.i("InAppManager", "Price String : " + details.getPrice() + ", type : " + details.getType());
-        NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance();
-        Number price = null;
-        // This is a simple tricks to work around the currency bug. To keep the same format between the price and the price per unit
-        boolean needReplace = false;
-        String priceString = details.getPrice();
-        try {
-            price = currencyFormatter.parse(details.getPrice());
-            Log.i("InAppManager", "Price : " + price.toString() + " for " + productId);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            // There is a bug in Java see here : https://stackoverflow.com/questions/15586099/numberformat-parse-fails-for-some-currency-strings
-            // So we have to extract the price an other way :
-            try {
-                // Regex to extract double
-                String regex ="(-)?(([^\\\\d])(0)|[1-9][0-9]*)(.)([0-9]+)";
-                Matcher matcher = Pattern.compile( regex ).matcher(details.getPrice());
-                if(matcher.find()) {
-                    priceString = matcher.group();
-                    needReplace = true;
-                    price = Double.valueOf(priceString);
-                }
-            }
-            catch (Exception scannerException) {
-                // TODO Auto-generated catch block
-                scannerException.printStackTrace();
+        if (responseCode == BillingClient.BillingResponseCode.OK) {
+            if(list.isEmpty()) {
+                getInstance().notifyFailure(buyInProgress ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, "NoPurchases", "No purchases found during query.");
             }
         }
-        String pricePerUnit = null;
-        int unitsNumber = 1;
-        if (price != null) {
-            int lastNumberIndex = productId.length();
-            while (lastNumberIndex > 0 && productId.charAt(lastNumberIndex - 1) >= '0' && productId.charAt(lastNumberIndex - 1) <= '9') {
-                lastNumberIndex--;
+        else {
+            if(responseCode == BillingClient.BillingResponseCode.SERVICE_DISCONNECTED) {
+                shouldQueryPurchases = true;
+                isBillingStarted(true);
             }
-            if (lastNumberIndex < productId.length()) {
-                unitsNumber = Integer.parseInt(productId.substring(lastNumberIndex));
-                if (unitsNumber > 0) {
-                    if(needReplace) {
-                        pricePerUnit = details.getPrice().replace(priceString, String.format("%.2f", price.doubleValue() / unitsNumber));
-                    }
-                    else {
-                        pricePerUnit = currencyFormatter.format(price.doubleValue() / unitsNumber);
-                    }
+            else {
+                Log.e(TAG, "Could not query purchases, error code "+ responseCode + ", details: " + result.getDebugMessage());
+                if(!buyInProgress) {
+                    //Send a signal so that if the user is waiting for restore, he can be alerted something went wrong
+                    getInstance().notifyFailure(RESTORE_EVENT_TYPE, "BillingFlowError", "Could not query purchases, error code "+ responseCode + ", details: " + result.getDebugMessage());
                 }
             }
         }
-
-        return new String[]{
-                "Title", "[Str]" + details.getTitle(),
-                "Description", "[Str]" + details.getDescription(),
-                "Price", "[Flo]" + (price != null ? price.toString() : "0"),
-                "Identifier", "[Str]" + productId,
-                "Units", "[Int]" + unitsNumber,
-                "PriceString", "[Str]" + details.getPrice(),
-                "PricePerUnitString", (pricePerUnit != null ? "[Str]" + pricePerUnit : "")};
     }
 
-    private static String IABCodeToString(int iabCode) {
-        switch (iabCode) {
-            case IabHelper.BILLING_RESPONSE_RESULT_OK:
-                return "Billing OK";
-            case IabHelper.BILLING_RESPONSE_RESULT_USER_CANCELED:
-                return "Billing user cancelled";
-            case IabHelper.BILLING_RESPONSE_RESULT_BILLING_UNAVAILABLE:
-                return "Billing unavailable";
-            case IabHelper.BILLING_RESPONSE_RESULT_ITEM_UNAVAILABLE:
-                return "Billing item unavailable";
-            case IabHelper.BILLING_RESPONSE_RESULT_DEVELOPER_ERROR:
-                return "Billing developer error";
-            case IabHelper.BILLING_RESPONSE_RESULT_ERROR:
-                return "Billing unkown error";
-            case IabHelper.BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED:
-                return "Billing item already owned";
-            case IabHelper.BILLING_RESPONSE_RESULT_ITEM_NOT_OWNED:
-                return "Billing item not owned";
-
-            case IabHelper.IABHELPER_ERROR_BASE:
-                return "IAB error base";
-            case IabHelper.IABHELPER_REMOTE_EXCEPTION:
-                return "IAB remote exception";
-            case IabHelper.IABHELPER_BAD_RESPONSE:
-                return "IAB bad response";
-            case IabHelper.IABHELPER_VERIFICATION_FAILED:
-                return "IAB verification failed";
-            case IabHelper.IABHELPER_SEND_INTENT_FAILED:
-                return "IAB send intent failed";
-            case IabHelper.IABHELPER_USER_CANCELLED:
-                return "IAB user cancelled";
-            case IabHelper.IABHELPER_UNKNOWN_PURCHASE_RESPONSE:
-                return "IAB unknown purchase response";
-            case IabHelper.IABHELPER_MISSING_TOKEN:
-                return "IAB missing token";
-            case IabHelper.IABHELPER_UNKNOWN_ERROR:
-                return "IAB unkown error";
-            case IabHelper.IABHELPER_SUBSCRIPTIONS_NOT_AVAILABLE:
-                return "IAB subscriptions not available";
-            case IabHelper.IABHELPER_INVALID_CONSUMPTION:
-                return "IAB invalid consumption";
+    @Override
+    public void onAcknowledgePurchaseResponse(@NonNull BillingResult result) {
+        int responseCode = result.getResponseCode();
+        if(responseCode == BillingClient.BillingResponseCode.OK) {
+            Log.i(TAG, "Token acknowledgment successful");
         }
-        return "Unknown response code";
+        else { //There isn't a lot of things to be done: acknowledgement isn't a user-facing feature, and there is little point retrying.
+            Log.e(TAG, "Error acknowledging purchase, error code "+ responseCode + ", details: " + result.getDebugMessage());
+        }
     }
-
-    // Callback for when a purchase is finished
-    static IabHelper.OnIabPurchaseFinishedListener mPurchaseFinishedListener = new IabHelper.OnIabPurchaseFinishedListener() {
-        public void onIabPurchaseFinished(final IabResult result, final Purchase purchase) {
-            Log.d(TAG, "Purchase finished: " + result + ", purchase: " + purchase);
-
-            NativeUtility.getMainActivity().runOnGLThread(() -> {
-                String sku = purchase != null ? purchase.getSku() : "";
-                String token = purchase != null ? purchase.getToken() : "";
-                if (result.isFailure()) {
-                    Log.e(TAG, "Error purchasing: " + result);
-                    /*If the activity is cancelled, we can't get IabHelper.IABHELPER_USER_CANCELLED, because it hides BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED
-                     We changed IabHelper code directly to show the actuall BILLING response code, so we need to handle all of them
-                     Most of them default to ErrorTransactionFailure
-                     */
-                    if (result.getResponse() == IabHelper.BILLING_RESPONSE_RESULT_USER_CANCELED) {
-                        getInstance().notifyInAppEvent("PayementCanceledTransactionFailure", "Failure", token, "Purchase cancelled by user during purchaseFinished");
-                    } else if (result.getResponse() == IabHelper.BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED) {
-                        getInstance().notifyInAppEvent("ProductRestored", sku, token, "Restore purchase successful during purchaseFinished: item already owned");
-                    } else if (result.getResponse() == IabHelper.IABHELPER_VERIFICATION_FAILED) {
-                        getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload", token, "IABHelper verification failed during purchaseFinished");
-                    } else {
-                        getInstance().notifyInAppEvent("ErrorTransactionFailure", "Failure", token, "Unhandled error during purchaseFinished: " + IABCodeToString(result.getResponse()) + ", code:" + result.getResponse());
-                    }
-                    return;
-                }
-                if (!verifyDeveloperPayload(purchase)) {
-                    Log.e(TAG, "Error purchasing. Authenticity verification failed.");
-                    getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload", token, "Verify developer payload failed during purchaseFinished");
-                    return;
-                }
-
-                if (purchase != null && purchase.getPurchaseState() == 1) //CANCELED
-                {
-                    getInstance().notifyInAppEvent("PayementCanceledTransactionFailure", sku, token, "Purchase cancelled by developer during purchaseFinished");
-                    Log.d(TAG, "Purchase cancelled.");
-                } else if (purchase != null && purchase.getPurchaseState() == 2) //REFUNDED
-                {
-
-                    getInstance().notifyInAppEvent("ProductRefunded", sku, token, "Purchase refunded during purchaseFinished");
-                    Log.d(TAG, "Purchase refunded.");
-                } else //PURCHASED, getPurchaseState should be 0
-                {
-                    if (NativeUtility.getMainActivity().isConsumable(sku)) {
-                        Log.d(TAG, "Purchase successful, consuming it, sku : " + sku);
-                        NativeUtility.getMainActivity().runOnUiThread(new Runnable() {
-                            public void run() {
-                                mHelper.consumeAsync(purchase, mConsumeFinishedListener);
-                            }
-                        });
-                    } else {
-                        Log.d(TAG, "Purchase successful, returning it");
-                        getInstance().notifyInAppEvent("ProductPurchased", sku, token, "Non-consumable purchase successful");
-                    }
-                }
-            });
-        }
-    };
-
-    static OnConsumeFinishedListener mConsumeFinishedListener = (purchase, result) -> {
-        Log.d(TAG, "Consume finished: " + result + ", purchase: " + purchase);
-
-        NativeUtility.getMainActivity().runOnGLThread(() -> {
-            String sku = purchase != null ? purchase.getSku() : "";
-            String token = purchase != null ? purchase.getToken() : "";
-            if (result.isFailure()) {
-                Log.e(TAG, "Error consuming: " + result);
-                if (result.getResponse() == IabHelper.IABHELPER_USER_CANCELLED) {
-                    getInstance().notifyInAppEvent("PayementCanceledTransactionFailure", "Failure", token, "Purchase cancelled by user during consumeFinished");
-                } else if (result.getResponse() == IabHelper.IABHELPER_VERIFICATION_FAILED) {
-                    getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload", token, "IABHelper verification failed during consumeFinished");
-                } else {
-                    getInstance().notifyInAppEvent("ErrorTransactionFailure", "Failure", token, "Unhandled error during consumeFinished: " + IABCodeToString(result.getResponse()) + ", code:" + result.getResponse());
-                }
-                return;
-            }
-            if (!verifyDeveloperPayload(purchase)) {
-                Log.e(TAG, "Error consuming. Authenticity verification failed.");
-                getInstance().notifyInAppEvent("AuthenticityErrorTransactionFailure", "InvalidPayload", token, "Verify developer payload failed during consumeFinished");
-                return;
-            }
-
-            if (purchase.getPurchaseState() == 1) //CANCELED
-            {
-                getInstance().notifyInAppEvent("PayementCanceledTransactionFailure", sku, token, "Purchase cancelled by developer during consumeFinished");
-                Log.d(TAG, "Consume canceled.");
-            } else if (purchase.getPurchaseState() == 2) //REFUNDED
-            {
-                getInstance().notifyInAppEvent("ProductRefunded", sku, token, "Purchase refunded during consumeFinished");
-                Log.d(TAG, "Consume refunded.");
-            } else //PURCHASED, getPurchaseState should be 0
-            {
-                getInstance().notifyInAppEvent("ProductPurchased", sku, token, "Consumable purchase successful");
-                Log.d(TAG, "Consume successful.");
-            }
-        });
-    };
 }

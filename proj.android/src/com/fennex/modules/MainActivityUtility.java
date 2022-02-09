@@ -32,9 +32,6 @@ public interface MainActivityUtility
 	void addResponder(ActivityResultResponder responder);
 	void removeResponder(ActivityResultResponder responder);
 	
-	//Return the public key for InApps
-	String getPublicKey();
-	
 	//return a resource ID in the application's package of the drawable to use, for the NotificationService
 	int getSmallIcon();
 
@@ -43,7 +40,4 @@ public interface MainActivityUtility
 
 	//Return a list of raw resources files. Useful to list videos of an app
 	String[] getRawResourcesFiles();
-	
-	//Returns true if the in-app product should be consumed before being returned. Usually, it's false, because you want to keep premium state
-	boolean isConsumable(String productID);
 }
