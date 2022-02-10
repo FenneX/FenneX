@@ -194,6 +194,11 @@ extern "C"
         notifySuccess(JniHelper::jstring2string(eventType), JniHelper::jstring2string(sku), JniHelper::jstring2string(token), JniHelper::jstring2string(orderId), (bool)needAcknowledgment);
     }
 
+    void Java_com_fennex_modules_InAppManager_notifyProductsInfosFetched(JNIEnv* envParam, jobject thiz, jboolean success)
+    {
+        notifyProductsInfosFetched((bool)success);
+    }
+
     void Java_com_fennex_licensing_LicenseInspector_notifyLicenseStatus(JNIEnv* envParam, jobject thiz, jboolean authorized)
     {
         notifyLicenseStatusNative((bool)authorized);
