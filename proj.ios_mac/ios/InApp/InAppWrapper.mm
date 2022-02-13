@@ -42,14 +42,14 @@ void inAppPurchaseProduct(const std::string& productID)
 }
 
 
-void restoreTransaction(const std::string& productID)
+void restoreTransactions()
 {
     [[InAppPurchaseManager sharedManager] restoreTransactions];
 }
 
-void releasePayements()
+void acknowledgePurchase(const std::string& token)
 {
-    
+    //No implementation as it is only required on Android
 }
 
 void requestProductsData(std::vector<std::string> products)

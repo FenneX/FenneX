@@ -71,25 +71,23 @@ void inAppPurchaseProduct(const std::string& productID)
     minfo.env->DeleteLocalRef(jproductID);
 }
 
-void restoreTransaction(const std::string& productID)
+void acknowledgePurchase(const std::string& token)
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"restoreTransaction", "(Ljava/lang/String;)V");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"acknowledgePurchase", "(Ljava/lang/String;)V");
     CCAssert(functionExist, "Function doesn't exist");
-    jstring jproductID = minfo.env->NewStringUTF(productID.c_str());
-    LOGD("calling restore transactions ...");
-    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jproductID);
+    jstring jToken = minfo.env->NewStringUTF(token.c_str());
+    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jToken);
     minfo.env->DeleteLocalRef(minfo.classID);
-    minfo.env->DeleteLocalRef(jproductID);
-    LOGD("done restoring!");
+    minfo.env->DeleteLocalRef(jToken);
 }
 
-void releasePayements()
+void restoreTransactions()
 {
     JniMethodInfo minfo;
-    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"release", "()V");
+    bool functionExist = JniHelper::getStaticMethodInfo(minfo,CLASS_NAME,"restoreTransactions", "()V");
     CCAssert(functionExist, "Function doesn't exist");
-    minfo.env->CallStaticBooleanMethod(minfo.classID, minfo.methodID);
+    minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID);
     minfo.env->DeleteLocalRef(minfo.classID);
 }
 
@@ -144,24 +142,63 @@ ValueMap getProductsInfos()
     return productsInfos;
 }
 
-void notifyInAppEventNative(std::string name, std::string argument, std::string token, std::string reason)
+void notifyFailure(std::string eventType, std::string code, std::string reason)
 {
-    LOGD("Notifying in app event : %s", name.c_str());
-    DelayedDispatcher::eventAfterDelay(name, Value(ValueMap({{"ProductID", Value(argument)}, {"PurchaseToken", Value(token)},{"Reason", Value(reason)}})), 0.01);
+    if(code == "BillingUnavailable")
+    {
+        DelayedDispatcher::eventAfterDelay("CantPayTransactionFailure", Value(ValueMap({{"Reason", Value(reason)}})), 0.01);
+    }
+    else if(code == "PayementCanceled")
+    {
+        DelayedDispatcher::eventAfterDelay("PayementCanceledTransactionFailure", Value(ValueMap({{"Reason", Value(reason)}})), 0.01);
+    }
+    else if(code == "ServiceDisconnected")
+    {
+        DelayedDispatcher::eventAfterDelay("NoConnectionTransactionFailure", Value(ValueMap({{"Reason", Value(reason)}})), 0.01);
+    }
+    else if(code == "NoPurchases")
+    {
+        DelayedDispatcher::eventAfterDelay("NoPurchasesFailure", Value(ValueMap({{"Reason", Value(reason)}})), 0.01);
+    }
+    else
+    {
+        DelayedDispatcher::eventAfterDelay("InApp" + eventType + "Failure", Value(ValueMap({{"Code", Value(code)},{"Reason", Value(reason)}})), 0.01);
+    }
+}
+
+void notifySuccess(std::string eventType, std::string sku, std::string token, std::string orderId, bool needAcknowledgment)
+{
+    DelayedDispatcher::eventAfterDelay("InApp" + eventType + "Success", Value(ValueMap({{"ProductID", Value(sku)},{"PurchaseToken", Value(token)}, {"OrderId", Value(orderId)}, {"NeedAcknowledgment", Value(needAcknowledgment)}})), 0.01);
+}
+
+void notifyProductsInfosFetched(bool success)
+{
+    DelayedDispatcher::eventAfterDelay(success ? "ProductsInfosFetched" : "FailFetchProductsInfos", Value(), 0.01);
 }
 
 void notifyLicenseStatusNative(bool authorized)
 {
-    LOGD("Notifying license status : %s", authorized ? "Authorized" : "Locked");
+    log("Notifying license status : %s", authorized ? "Authorized" : "Locked");
     DelayedDispatcher::eventAfterDelay("LicenseStatusUpdate", Value(ValueMap({{"Authorized", Value(authorized)}})), 0.01);
 }
 
 extern "C"
 {
-    void Java_com_fennex_modules_InAppManager_notifyInAppEvent(JNIEnv* envParam, jobject thiz, jstring event, jstring argument, jstring token, jstring reason)
+    void Java_com_fennex_modules_InAppManager_notifyFailure(JNIEnv* envParam, jobject thiz, jstring eventType, jstring code, jstring reason)
     {
-        notifyInAppEventNative(JniHelper::jstring2string(event), JniHelper::jstring2string(argument), JniHelper::jstring2string(token), JniHelper::jstring2string(reason));
+        notifyFailure(JniHelper::jstring2string(eventType), JniHelper::jstring2string(code), JniHelper::jstring2string(reason));
     }
+
+    void Java_com_fennex_modules_InAppManager_notifySuccess(JNIEnv* envParam, jobject thiz, jstring eventType, jstring sku, jstring token, jstring orderId, jboolean needAcknowledgment)
+    {
+        notifySuccess(JniHelper::jstring2string(eventType), JniHelper::jstring2string(sku), JniHelper::jstring2string(token), JniHelper::jstring2string(orderId), (bool)needAcknowledgment);
+    }
+
+    void Java_com_fennex_modules_InAppManager_notifyProductsInfosFetched(JNIEnv* envParam, jobject thiz, jboolean success)
+    {
+        notifyProductsInfosFetched((bool)success);
+    }
+
     void Java_com_fennex_licensing_LicenseInspector_notifyLicenseStatus(JNIEnv* envParam, jobject thiz, jboolean authorized)
     {
         notifyLicenseStatusNative((bool)authorized);
