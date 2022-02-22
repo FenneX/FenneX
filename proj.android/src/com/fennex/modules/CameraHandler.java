@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
+import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
 import android.media.CamcorderProfile;
@@ -29,6 +30,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -53,12 +55,13 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 	}
 
 	private static Camera camera;
+	private static  final int FOCUS_AREA_SIZE= 300;
 	private static OrientationEventListener mOrientationEventListener = null;
 	private static int cameraID = 0;
 	@SuppressLint("StaticFieldLeak")
 	private static SurfaceView cameraView;
 	private static MediaRecorder recorder;
-	private static boolean recorderStopped; //used because the maximum duration/filesize stop the recorder
+	private static boolean recorderStopped; //used because the maximum duration/file size stop the recorder
 	private static String videoPath;
 	private static boolean previewRunning = false;
 	private static boolean recording = false;
@@ -68,8 +71,8 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 	public static int heightScreen = NativeUtility.getMainActivity().getMainLayout().getHeight();
 
 	//Default values : centered and full screen
-	private static float centerX = widthScreen/2;
-	private static float centerY = heightScreen/2;
+	private static float centerX = widthScreen/2f;
+	private static float centerY = heightScreen/2f;
 	private static float localWidth = widthScreen;
 	private static float localHeight = heightScreen;
 
@@ -80,7 +83,29 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 	protected native static void notifyPictureTaken(String fullPath);
 	private native static void notifyCameraSwitched();
 
+	private static Rect calculateFocusArea(float x, float y) {
+		int left = clamp(Float.valueOf((x / cameraView.getWidth()) * 2000 - 1000).intValue());
+		int top = clamp(Float.valueOf((y / cameraView.getHeight()) * 2000 - 1000).intValue());
+
+		return new Rect(left, top, left + FOCUS_AREA_SIZE, top + FOCUS_AREA_SIZE);
+	}
+
+	private static int clamp(int touchCoordinateInCamera) {
+		int result;
+		if (Math.abs(touchCoordinateInCamera) + FOCUS_AREA_SIZE / 2 > 1000){
+			if (touchCoordinateInCamera > 0){
+				result = 1000 - FOCUS_AREA_SIZE / 2;
+			} else {
+				result = -1000 + FOCUS_AREA_SIZE  /2;
+			}
+		} else{
+			result = touchCoordinateInCamera - FOCUS_AREA_SIZE /2;
+		}
+		return result;
+	}
+
 	//The init goal is to create the cameraView (which will be valid during any preview/recording session)
+	@SuppressLint("ClickableViewAccessibility")
 	@SuppressWarnings("deprecation")
 	private static void init(boolean front) {
 		if(cameraView == null) {
@@ -116,6 +141,44 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 				cameraView.setZOrderMediaOverlay(front);
 				cameraView.invalidate();
 				mainFrame.addView(cameraView);
+				//Focus handling, copied from https://stackoverflow.com/questions/17993751/whats-the-correct-way-to-implement-tap-to-focus-for-camera
+				//The goal is to set focus on a specific area, then switch back to FOCUS_MODE_CONTINUOUS_PICTURE
+				cameraView.setOnTouchListener((v, event) -> {
+					if (camera != null) {
+						try {
+							camera.cancelAutoFocus();
+							Rect focusRect = calculateFocusArea(event.getX(), event.getY());
+
+							Camera.Parameters parameters = camera.getParameters();
+							parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO);
+
+							if (parameters.getMaxNumFocusAreas() > 0) {
+								List<Camera.Area> focusAreas = new ArrayList<>();
+								focusAreas.add(new Camera.Area(focusRect, 1000));
+								parameters.setFocusAreas(focusAreas);
+							}
+
+							camera.setParameters(parameters);
+							camera.autoFocus((success, camera1) -> {
+								try {
+									camera1.cancelAutoFocus();
+									Camera.Parameters params = camera1.getParameters();
+									if (!params.getFocusMode().equals(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+										params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+										camera1.setParameters(params);
+									}
+								}
+								catch(Exception e) {
+									Log.w(TAG, "Failed setting focus back to continuous.");
+								}
+							});
+						}
+						catch(Exception e) {
+							Log.w(TAG, "Failed setting focus to a specific area on touch.");
+						}
+					}
+					return true;
+				});
 			});
 		}
 	}
@@ -359,7 +422,7 @@ public class CameraHandler extends Activity implements SurfaceHolder.Callback, M
 					e.printStackTrace();
 				}
 				camera.startPreview();
-				NativeUtility.getMainActivity().runOnGLThread(() -> notifyCameraSwitched());
+				NativeUtility.getMainActivity().runOnGLThread(CameraHandler::notifyCameraSwitched);
 			});
 		}
 	}

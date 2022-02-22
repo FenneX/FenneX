@@ -108,13 +108,14 @@ public class NotificationService extends IntentService{
 		resultIntent.putExtra("alertAction", "alertAction");
 		resultIntent.putExtra("soundName", soundName);
 		resultIntent.putExtra("array", array);
-		
+
+		int flags = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE : PendingIntent.FLAG_UPDATE_CURRENT;
 		PendingIntent resultPendingIntent =
 				PendingIntent.getActivity(
 						this,
 						0,
 						resultIntent,
-						PendingIntent.FLAG_UPDATE_CURRENT);
+						flags);
 
 		mBuilder.setContentIntent(resultPendingIntent);
 		
