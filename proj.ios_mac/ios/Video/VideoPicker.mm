@@ -98,7 +98,7 @@ void getAllVideos()
                       NSString *fileName = [representation filename];
                       notifyVideoName(path, [fileName UTF8String]);
                       
-                      AVURLAsset *sourceAsset = [AVURLAsset URLAssetWithURL:[representation url] options:nil];
+                      AVURLAsset *sourceAsset = [AVURLAsset URLAssetWithURL:[representation url] options:@{AVURLAssetPreferPreciseDurationAndTimingKey:@YES}];
                       CMTime duration = sourceAsset.duration;
                       notifyVideoDurationAvailable(path, CMTimeGetSeconds(duration));
                   }
