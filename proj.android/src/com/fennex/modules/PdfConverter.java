@@ -54,6 +54,8 @@ public class PdfConverter {
 
     private static void printToPdf(Context context, final File file, String htmlString) {
         WebView mWebView = new WebView(context);
+        //Required to load local images since SDK 30.
+        mWebView.getSettings().setAllowFileAccess(true);
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
