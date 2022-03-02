@@ -675,7 +675,7 @@ RawObject* GraphicLayer::first(std::string name, bool cache, bool forceCacheRefr
 {
     static SceneName lastScene = SceneSwitcher::sharedSwitcher()->getCurrentSceneName();
     static std::map<std::string, RawObject*> staticCache;
-    if(lastScene != SceneSwitcher::sharedSwitcher()->getCurrentSceneName())
+    if(cache && (lastScene != SceneSwitcher::sharedSwitcher()->getCurrentSceneName() || SceneSwitcher::sharedSwitcher()->isSwitching()))
     {
         staticCache.clear();
         lastScene = SceneSwitcher::sharedSwitcher()->getCurrentSceneName();
