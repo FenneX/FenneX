@@ -54,7 +54,7 @@ Cocos2d-x V3.3 Modifications
 * cocos/ui/UIEditBox.cpp => add editBoxEditingWillBegin to UIEditBoxDelegate
 * cocos/ui/UIEditBox.cpp => change openKeyboard to throw editBoxEditingDidBegin after Java Dialog creation
 * cocos/ui/UIEditBox.cpp + cocos/platform/android/jni/Java_org_cocos2dx_lib_Cocos2dxHelper.h/.cpp + cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dx[Helper/Handler/Activity].java => implement closeKeyboard
-* cocos/ui/UIEditBox/UIEditBoxImpl-android.cpp => change editBoxCallbackFunc to test back if it's a cancell key 
+* cocos/ui/UIEditBox/UIEditBoxImpl-android.cpp => change editBoxCallbackFunc to test back if it's a cancell key
 * cocos/base/CCEventCustom.h/cpp => add EventCustom::create
 * cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxHelper.java remove if (!sInited) condition in init procedure
 * external/unzip.h => change include to "platform/CCPlatformConfig.h"
@@ -134,3 +134,4 @@ Cocos2d-x V3.16 Modifications
 * cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxGLSurfaceView => fix a nullpointer exception happening on SM-T510 in onTouchEvent
 * Cocos2dxEditBoxHelper.java && Cocos2dxEditBox.java -> add shouldShowKeyboard to Cocos2dxEditBox and use it in Cocos2dxEditBoxHelper.openKeyboardOnUiThread to avoid launching imm.showSoftInput when not needed
 * cocos/editor-support/spine -> switch from cocos2dx source code to official spine supported code which can be found at https://github.com/EsotericSoftware/spine-runtimes. The directory is the merge of spine-cocos2dx and spine-cpp. See https://github.com/FenneX/FenneX/commit/7d6c2393d7773d343a9422e3ecd306989f84a66f and https://github.com/FenneX/FenneX/commit/946d1ca94e0541861ab550b5c9d20b139496fee1  for more details.
+* cocos2d/cocos/ui/UIEditBox/iOS/CCUIEditBoxIOS.mm => add code so that datePicker display correctly on iOS 14+

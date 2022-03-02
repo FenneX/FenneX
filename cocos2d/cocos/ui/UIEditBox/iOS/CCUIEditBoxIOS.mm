@@ -339,6 +339,11 @@
         self.datePicker = [[UIDatePicker alloc] init];
         self.datePicker.datePickerMode = self.keyboardInputMode == cocos2d::ui::EditBox::InputMode::TIME ? UIDatePickerModeTime :
         self.keyboardInputMode == cocos2d::ui::EditBox::InputMode::DATE ? UIDatePickerModeDate : UIDatePickerModeDateAndTime;
+        //Custom code, see https://stackoverflow.com/questions/62734668/new-uidatepicker-as-inputview
+        if (@available(iOS 14.0, *)) {
+            [self.datePicker setPreferredDatePickerStyle:UIDatePickerStyleWheels];
+            [self.datePicker sizeToFit];
+        }
         [self.datePicker addTarget:self action:@selector(dateChanged:) forControlEvents:UIControlEventValueChanged];
         [((UITextField*)self.textInput) setInputView:self.datePicker];
         [self dateChanged:self.datePicker]; //Force set date so that user can immediatly accept current date

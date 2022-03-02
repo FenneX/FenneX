@@ -99,6 +99,7 @@ void SceneSwitcher::trySceneSwitch(float deltaTime)
             }
             else
             {
+                processingSwitch = true;
                 this->replaceScene();
             }
         }

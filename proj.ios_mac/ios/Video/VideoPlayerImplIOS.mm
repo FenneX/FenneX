@@ -413,7 +413,7 @@ USING_NS_FENNEX;
 
 + (CGSize) getVideoSize:(NSString*)path
 {
-    AVURLAsset *asset = [AVURLAsset URLAssetWithURL:[VideoPlayerImplIOS URLFromPath:path] options:nil];
+    AVURLAsset *asset = [AVURLAsset URLAssetWithURL:[VideoPlayerImplIOS URLFromPath:path] options:@{AVURLAssetPreferPreciseDurationAndTimingKey:@YES}];
     AVAssetTrack *track = [[asset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
     return track.naturalSize;
 }
