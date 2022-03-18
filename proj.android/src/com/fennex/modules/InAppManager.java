@@ -62,9 +62,9 @@ public class InAppManager implements
     private static final String SERVICE_EVENT_TYPE = "Service";
     private static final String BUY_EVENT_TYPE = "Buy";
     private static final String RESTORE_EVENT_TYPE = "Restore";
-    private native void notifyFailure(String eventType, String code, String reason);
-    private native void notifySuccess(String eventType, String sku, String token, String orderId, boolean needAcknowledgment);
-    private native void notifyProductsInfosFetched(boolean success);
+    private static native void notifyFailure(String eventType, String code, String reason);
+    private static native void notifySuccess(String eventType, String sku, String token, String orderId, boolean needAcknowledgment);
+    private static native void notifyProductsInfosFetched(boolean success);
 
     //An instance is needed for listeners to be called
     private static volatile InAppManager instance = null;
@@ -106,7 +106,7 @@ public class InAppManager implements
         boolean billingStarted = getInstance().isBillingStarted();
         if(!billingStarted || skuDetailsList == null) {
             if(skuToBuy != null) {
-                getInstance().notifyFailure(BUY_EVENT_TYPE, "NotInitialized", (!billingStarted ? "BillingClient" : "Products details") + "not initialized during buyProductIdentifier and there is already a waiting purchase");
+                notifyFailure(BUY_EVENT_TYPE, "NotInitialized", (!billingStarted ? "BillingClient" : "Products details") + "not initialized during buyProductIdentifier and there is already a waiting purchase");
             }
             else {
                 skuToBuy = productID;
@@ -120,11 +120,11 @@ public class InAppManager implements
             }
         }
         if(skuDetails == null) {
-            getInstance().notifyFailure(BUY_EVENT_TYPE, "UnknownSku", "Product ID " + productID + " not found during buyProductIdentifier");
+            notifyFailure(BUY_EVENT_TYPE, "UnknownSku", "Product ID " + productID + " not found during buyProductIdentifier");
             return;
         }
         if(skuToBuy != null) {
-            getInstance().notifyFailure(BUY_EVENT_TYPE, "InProgress", "There is already a queued product " + skuToBuy + " to buy.");
+            notifyFailure(BUY_EVENT_TYPE, "InProgress", "There is already a queued product " + skuToBuy + " to buy.");
             return;
         }
         BillingFlowParams billingFlowParams = BillingFlowParams.newBuilder()
@@ -139,14 +139,14 @@ public class InAppManager implements
         else {
             buyInProgress = false;
             if (responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
-                getInstance().notifyFailure(BUY_EVENT_TYPE, "PayementCanceled", "Purchase cancelled by user during launchBillingFlow");
+                notifyFailure(BUY_EVENT_TYPE, "PayementCanceled", "Purchase cancelled by user during launchBillingFlow");
             }
             else if(responseCode == BillingClient.BillingResponseCode.SERVICE_DISCONNECTED) {
                 skuToBuy = productID;
                 getInstance().isBillingStarted(true);
             }
             else if(responseCode == BillingClient.BillingResponseCode.BILLING_UNAVAILABLE) {
-                getInstance().notifyFailure(BUY_EVENT_TYPE, "BillingUnavailable", "Play services are not available or no Google account is set up");
+                notifyFailure(BUY_EVENT_TYPE, "BillingUnavailable", "Play services are not available or no Google account is set up");
             }
             else if(responseCode == BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED) {
                 Log.w(TAG, "Product " + productID + " already owned, launching restore flow");
@@ -162,7 +162,7 @@ public class InAppManager implements
                 - ITEM_UNAVAILABLE => no need to handle, should never happen
              */
                 Log.e(TAG, "Error when launching billing flow, error code: " + responseCode + ", message: " + result.getDebugMessage());
-                getInstance().notifyFailure(BUY_EVENT_TYPE, "BillingFlowError", "Error "+ responseCode + " during launch billing flow: " + result.getDebugMessage());
+                notifyFailure(BUY_EVENT_TYPE, "BillingFlowError", "Error "+ responseCode + " during launch billing flow: " + result.getDebugMessage());
             }
         }
     }
@@ -368,11 +368,11 @@ public class InAppManager implements
                 }
                 else if(responseCode == BillingClient.BillingResponseCode.BILLING_UNAVAILABLE) {
                     Log.e(TAG, "Error during billing client setup, billing is unavailable");
-                    getInstance().notifyFailure(SERVICE_EVENT_TYPE, "BillingUnavailable", "Play services are not available or no Google account is set up");
+                    notifyFailure(SERVICE_EVENT_TYPE, "BillingUnavailable", "Play services are not available or no Google account is set up");
                 }
                 else {
                     Log.e(TAG, "Error during billing client setup, error code: " + responseCode + ", message: " + result.getDebugMessage());
-                    getInstance().notifyFailure(SERVICE_EVENT_TYPE, "BillingSetupFailure", "Error "+ responseCode + " during onBillingSetupFinished: " + result.getDebugMessage());
+                    notifyFailure(SERVICE_EVENT_TYPE, "BillingSetupFailure", "Error "+ responseCode + " during onBillingSetupFinished: " + result.getDebugMessage());
                 }
             }
 
@@ -390,7 +390,7 @@ public class InAppManager implements
         if(purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
             for (String sku : purchase.getSkus()) {
                 //It's up to the native code to call acknowledgePurchase once server verification is done.
-                getInstance().notifySuccess(buy ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, sku, purchase.getPurchaseToken(), purchase.getOrderId(), !purchase.isAcknowledged());
+                notifySuccess(buy ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, sku, purchase.getPurchaseToken(), purchase.getOrderId(), !purchase.isAcknowledged());
             }
         }
         //Right now, UNSPECIFIED_STATE and PENDING purchases are not explicitly handled.
@@ -414,13 +414,13 @@ public class InAppManager implements
         }
         else {
             if (responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
-                getInstance().notifyFailure(buyInProgress ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, "PayementCanceled", "Purchase cancelled by user during onPurchasesUpdated");
+                notifyFailure(buyInProgress ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, "PayementCanceled", "Purchase cancelled by user during onPurchasesUpdated");
             }
             else if(responseCode == BillingClient.BillingResponseCode.SERVICE_DISCONNECTED) {
-                getInstance().notifyFailure(buyInProgress ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, "ServiceDisconnected", "Service disconnected during request, please retry");
+                notifyFailure(buyInProgress ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, "ServiceDisconnected", "Service disconnected during request, please retry");
             }
             else if(responseCode == BillingClient.BillingResponseCode.BILLING_UNAVAILABLE) {
-                getInstance().notifyFailure(buyInProgress ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, "BillingUnavailable", "Play services are not available or no Google account is set up");
+                notifyFailure(buyInProgress ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, "BillingUnavailable", "Play services are not available or no Google account is set up");
             }
             else {
             /* List of possible errors: https://stackoverflow.com/questions/68825055/what-result-codes-can-be-returned-from-billingclient-launchbillingflow
@@ -433,7 +433,7 @@ public class InAppManager implements
                 - ITEM_UNAVAILABLE => no need to handle, should never happen
              */
                 Log.e(TAG, "Error during onPurchasesUpdated, error code: " + responseCode + ", message: " + result.getDebugMessage());
-                getInstance().notifyFailure(buyInProgress ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, "PurchaseUpdateFailure", "Error "+ responseCode + " during onPurchasesUpdated: " + result.getDebugMessage());
+                notifyFailure(buyInProgress ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, "PurchaseUpdateFailure", "Error "+ responseCode + " during onPurchasesUpdated: " + result.getDebugMessage());
             }
         }
         buyInProgress = false;
@@ -449,7 +449,7 @@ public class InAppManager implements
         }
         if (responseCode == BillingClient.BillingResponseCode.OK) {
             if(list.isEmpty()) {
-                getInstance().notifyFailure(buyInProgress ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, "NoPurchases", "No purchases found during query.");
+                notifyFailure(buyInProgress ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, "NoPurchases", "No purchases found during query.");
             }
         }
         else {
@@ -461,7 +461,7 @@ public class InAppManager implements
                 Log.e(TAG, "Could not query purchases, error code "+ responseCode + ", details: " + result.getDebugMessage());
                 if(!buyInProgress) {
                     //Send a signal so that if the user is waiting for restore, he can be alerted something went wrong
-                    getInstance().notifyFailure(RESTORE_EVENT_TYPE, "BillingFlowError", "Could not query purchases, error code "+ responseCode + ", details: " + result.getDebugMessage());
+                    notifyFailure(RESTORE_EVENT_TYPE, "BillingFlowError", "Could not query purchases, error code "+ responseCode + ", details: " + result.getDebugMessage());
                 }
             }
         }
