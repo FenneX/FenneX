@@ -32,6 +32,7 @@ import android.content.Intent;
 import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -154,9 +155,13 @@ public class FileUtility implements ActivityResultResponder {
         }
     }
 
-    public static String getPublicPath()
-    {
-        return Environment.getExternalStorageDirectory().getAbsolutePath();
+    public static String getPublicPath() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
+        }
+        else {
+            return Environment.getExternalStorageDirectory().getAbsolutePath();
+        }
     }
 
     public static String getFullPath(String filename, FileLocation location)
