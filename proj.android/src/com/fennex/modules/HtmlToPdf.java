@@ -79,7 +79,7 @@ public class HtmlToPdf {
 
     @SuppressWarnings("unused")
     private static void openPDFWithApp(String fileName) {
-        // TODO : Change to use a FileProvider, this doesn't work on Android 11+ even with FLAG_GRANT_READ_URI_PERMISSION
+        // TODO : Change to use a FileProvider, so that even a PDF reader that doesn't give itself access to the Documents folder can read the file
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
         Intent target = new Intent(Intent.ACTION_VIEW);
