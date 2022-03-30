@@ -86,7 +86,7 @@ public class HtmlToPdf {
         target.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         String fullpath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + java.io.File.separator + fileName;
         Log.i(TAG, "Starting open pdf intent for file: " + fileName + ", full path: " + fullpath);
-        target.setDataAndType(Uri.parse(fullpath),"application/pdf");
+        target.setDataAndType(Uri.fromFile(new File(fullpath)),"application/pdf");
         Intent intent = Intent.createChooser(target, "Open File");
         try {
             NativeUtility.getMainActivity().startActivity(intent);
