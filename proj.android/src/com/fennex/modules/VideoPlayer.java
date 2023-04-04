@@ -634,7 +634,11 @@ public class VideoPlayer implements IVLCVout.Callback, Runnable {
         } catch (Exception ex) {
             Log.i(TAG, "MediaMetadataRetriever in getVideoSize got exception:" + ex);
         }
-        retriever.release();
+        try {
+            retriever.release();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return size;
     }
 
