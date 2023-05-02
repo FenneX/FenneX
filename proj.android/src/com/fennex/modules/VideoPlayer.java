@@ -281,7 +281,6 @@ public class VideoPlayer implements IVLCVout.Callback, Runnable {
 
     public static void play() {
         Log.i(TAG, "Play.");
-        SurfaceView videoView = getVideoView();
         if(useVLC) {
             if(vlcMediaPlayer != null) {
                 if(videoEnded) {
@@ -296,14 +295,17 @@ public class VideoPlayer implements IVLCVout.Callback, Runnable {
             }
         }
         else if(isPrepared) {
-            assert videoView != null;
-            if(videoEnded) {
-                ((VideoView)videoView).seekTo(0);
+            SurfaceView videoView = getVideoView();
+            if(videoView != null) {
+                if (videoEnded) {
+                    ((VideoView) videoView).seekTo(0);
+                }
+                ((VideoView) videoView).start();
             }
-            ((VideoView)videoView).start();
         }
         if(hideOnPause) {
             NativeUtility.getMainActivity().runOnUiThread(() -> {
+                SurfaceView videoView = getVideoView();
                 if(videoView != null) {
                     videoView.setVisibility(View.VISIBLE);
                     videoView.invalidate();
@@ -363,6 +365,7 @@ public class VideoPlayer implements IVLCVout.Callback, Runnable {
                 mainFrame.removeView(base);
                 baseId = null;
                 videoViewId = null;
+                isPrepared = false;
             }
         });
     }
