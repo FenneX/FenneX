@@ -81,6 +81,11 @@ public class DevicePermissions
     @SuppressWarnings("unused")
     public static boolean requestPermission(String permission)
     {
+        // It's no longer possible to use those permissions on Android 13+
+        // Code requesting that should already be migrated to use app internal storage on Android 11+
+        // and only actually need it for migration purpose from Android 10- or if still running on Android 10-
+        if((permission.equals(Manifest.permission.READ_EXTERNAL_STORAGE) || permission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) && android.os.Build.VERSION.SDK_INT >= 33)
+            return true;
         String [] permissions = new String[]{ permission };
         if(!hasPermission(NativeUtility.getMainActivity(), permissions)) {
             currentCustomRequest.put(lastID, permission);
@@ -96,6 +101,11 @@ public class DevicePermissions
     @SuppressWarnings("unused")
     public static boolean requestPermission(int permissionValue)
     {
+        // It's no longer possible to use those permissions on Android 13+
+        // Code requesting that should already be migrated to use app internal storage on Android 11+
+        // and only actually need it for migration purpose from Android 10- or if still running on Android 10-
+        if(permissionValue == EXTERNAL_STORAGE_PERMISSION && android.os.Build.VERSION.SDK_INT >= 33)
+            return true;
         String[] permissions = getPermissionString(permissionValue);
         if (!hasPermission(permissionValue)) {
             // Permission is not granted, ask for it
