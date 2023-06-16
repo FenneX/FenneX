@@ -88,30 +88,6 @@ public abstract class ActivityResultNotifier extends Cocos2dxActivity implements
             launchTime = SystemClock.elapsedRealtime();
         }
 
-		/* Android 4.4 and earlier do not have built-in TLSv1.2 support.
-		 * We need to force the update of the Provider for the Java Security API
-		 * Note: This section applies only to apps targeting devices that have Google Play services installed.
-		 *
-		 * Code copied from https://stackoverflow.com/a/38962842/1353852
-		 */
-		if (android.os.Build.VERSION.SDK_INT < 21) {
-			try {
-				ProviderInstaller.installIfNeededAsync(this, new ProviderInstaller.ProviderInstallListener() {
-					@Override
-					public void onProviderInstalled() {
-						Log.i("ActivityResultNotifier", "Security Provider installed");
-						logAvailableSSLProtocols();
-					}
-
-					@Override
-					public void onProviderInstallFailed(int i, Intent intent) {
-						Log.i("ActivityResultNotifier", "Security Provider install failed");
-					}
-				});
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
 		logAvailableSSLProtocols();
 
 		//Android < 7.1.1 needs a custom TrustManager that includes ISRG Root X1
