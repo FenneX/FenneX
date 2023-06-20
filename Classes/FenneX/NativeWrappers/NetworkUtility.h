@@ -50,6 +50,9 @@ void openWifiSettings();
  onProgressUpdate: callback with progress update, only called every 2%, with number of bytes downloaded and total size in bytes
  onSizeReceived: callback when we know the total size of the file, in bytes, as indicated by Content-Length header
  authorizationHeader: optional "Authorization" header. You need to pass the value of the header (for example "Bearer XXXX"). Will be omitted if empty
+ sessionCookie: optional "Cookie" header. You need to pass the value of the header. Will be omitted if empty
+ 
+ if both sessionCookie and authorizationHeader are specified, only sessionCookie will be used
  */
 void downloadFile(std::string url,
                   std::string fullPath,
@@ -57,7 +60,8 @@ void downloadFile(std::string url,
                   std::function<void(int, const std::string&)> onDownloadFailure,
                   std::function<void(long, long)>onProgressUpdate,
                   std::function<void(long)> onSizeReceived,
-                  std::string authorizationHeader = "");
+                  std::string authorizationHeader = "",
+                  std::string sessionCookie = "");
 
 NS_FENNEX_END
 
