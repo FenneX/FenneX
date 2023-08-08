@@ -273,19 +273,13 @@ public class NativeUtility
         int flags = getMainActivity().getWindow().getAttributes().flags;
         return (flags & WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) != 0;
     }
-    
-    @TargetApi(19)
+
     @SuppressWarnings("unused")
     public static void startSceneInitialisation()
     {
-    	boolean enableCaching = true;
-		ActivityManager am = (ActivityManager) getMainActivity().getSystemService(Context.ACTIVITY_SERVICE);
-		//Disable Bitmap caching for low ram devices, as it will receive too much low memory notifications
-    	if(android.os.Build.VERSION.SDK_INT >= 19)
-    	{
-    		enableCaching = ! am.isLowRamDevice();
-    	}
-    	//Cocos2dxBitmap.setIsInInitialization(enableCaching);
+        // Disable Bitmap caching for low ram devices, as it will receive too much low memory notifications
+		// ActivityManager am = (ActivityManager) getMainActivity().getSystemService(Context.ACTIVITY_SERVICE);
+    	// Cocos2dxBitmap.setIsInInitialization(!am.isLowRamDevice());
     }
 
     @SuppressWarnings("unused")

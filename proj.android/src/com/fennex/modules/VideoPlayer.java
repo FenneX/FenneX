@@ -80,7 +80,7 @@ public class VideoPlayer implements IVLCVout.Callback, Runnable {
     private static org.videolan.libvlc.MediaPlayer vlcMediaPlayer;
     private static org.videolan.libvlc.LibVLC libVLC;
 
-    private static org.videolan.libvlc.MediaPlayer.EventListener mPlayerListener = new MyPlayerListener(getInstance());
+    private static final org.videolan.libvlc.MediaPlayer.EventListener mPlayerListener = new MyPlayerListener(getInstance());
 
     private static MediaPlayer videoViewMediaPlayer = null;
 
@@ -281,7 +281,6 @@ public class VideoPlayer implements IVLCVout.Callback, Runnable {
 
     public static void play() {
         Log.i(TAG, "Play.");
-        SurfaceView videoView = getVideoView();
         if(useVLC) {
             if(vlcMediaPlayer != null) {
                 if(videoEnded) {
@@ -296,14 +295,17 @@ public class VideoPlayer implements IVLCVout.Callback, Runnable {
             }
         }
         else if(isPrepared) {
-            assert videoView != null;
-            if(videoEnded) {
-                ((VideoView)videoView).seekTo(0);
+            SurfaceView videoView = getVideoView();
+            if(videoView != null) {
+                if (videoEnded) {
+                    ((VideoView) videoView).seekTo(0);
+                }
+                ((VideoView) videoView).start();
             }
-            ((VideoView)videoView).start();
         }
         if(hideOnPause) {
             NativeUtility.getMainActivity().runOnUiThread(() -> {
+                SurfaceView videoView = getVideoView();
                 if(videoView != null) {
                     videoView.setVisibility(View.VISIBLE);
                     videoView.invalidate();
@@ -363,6 +365,7 @@ public class VideoPlayer implements IVLCVout.Callback, Runnable {
                 mainFrame.removeView(base);
                 baseId = null;
                 videoViewId = null;
+                isPrepared = false;
             }
         });
     }
@@ -629,14 +632,14 @@ public class VideoPlayer implements IVLCVout.Callback, Runnable {
                 assert videoFile != null;
                 retriever.setDataSource(videoFile.getAbsolutePath());
             }
-            size[0] = Integer.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
-            size[1] = Integer.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+            size[0] = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+            size[1] = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
         } catch (Exception ex) {
             Log.i(TAG, "MediaMetadataRetriever in getVideoSize got exception:" + ex);
         }
         try {
             retriever.release();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return size;
@@ -828,7 +831,7 @@ public class VideoPlayer implements IVLCVout.Callback, Runnable {
     }
 
     private static class MyPlayerListener implements org.videolan.libvlc.MediaPlayer.EventListener {
-        private WeakReference<VideoPlayer> mOwner;
+        private final WeakReference<VideoPlayer> mOwner;
 
         MyPlayerListener(VideoPlayer owner) {
             mOwner = new WeakReference<>(owner);

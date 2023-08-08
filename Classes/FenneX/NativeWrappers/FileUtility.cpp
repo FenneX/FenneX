@@ -81,6 +81,7 @@ std::string getFullPath(std::string filename, FileLocation location)
         case FileLocation::Unknown:
             return "";
     }
+    return "";
 }
 
 std::string findFullPath(std::string filename)

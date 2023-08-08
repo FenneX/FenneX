@@ -31,11 +31,14 @@ import android.net.Uri;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.print.PdfConverter;
+import android.util.Log;
+
 import java.io.File;
 
 public class HtmlToPdf {
     public native static void notifyPdfCreationFailure(String pdfName, String failureCause);
     public native static void notifyPdfCreationSuccess(String pdfName);
+    private final static String TAG = "HtmlToPdf";
 
 
     //Checking if a file with the same name already exists, if it does, adding "(n).pdf" to avoid replacing the existing file
@@ -75,21 +78,20 @@ public class HtmlToPdf {
         }
 
     @SuppressWarnings("unused")
-    private static void openPDFWithApp(String fileName)
-        {
-            // TODO : Change to use a FileProvider
-            StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-            StrictMode.setVmPolicy(builder.build());
-            Intent target = new Intent(Intent.ACTION_VIEW);
-            target.setDataAndType(Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/" + fileName)),"application/pdf");
-
-            Intent intent = Intent.createChooser(target, "Open File");
-            try {
-                NativeUtility.getMainActivity().startActivity(intent);
-            } catch (ActivityNotFoundException e) {
-                NativeUtility.getMainActivity().runOnGLThread(() -> {
-                    notifyPdfCreationFailure(fileName, "OpenPreviewFailed");
-                });
-            }
+    private static void openPDFWithApp(String fileName) {
+        // TODO : Change to use a FileProvider, so that even a PDF reader that doesn't give itself access to the Documents folder can read the file
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
+        Intent target = new Intent(Intent.ACTION_VIEW);
+        target.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        String fullpath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + java.io.File.separator + fileName;
+        Log.i(TAG, "Starting open pdf intent for file: " + fileName + ", full path: " + fullpath);
+        target.setDataAndType(Uri.fromFile(new File(fullpath)),"application/pdf");
+        Intent intent = Intent.createChooser(target, "Open File");
+        try {
+            NativeUtility.getMainActivity().startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            NativeUtility.getMainActivity().runOnGLThread(() -> notifyPdfCreationFailure(fileName, "OpenPreviewFailed"));
         }
+    }
 }

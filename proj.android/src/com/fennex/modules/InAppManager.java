@@ -218,7 +218,7 @@ public class InAppManager implements
             for(SkuDetails details : skuDetailsList) {
                 Log.i(TAG, "  " + details.getSku() + ": " + details.getTitle() + ", " + details.getPrice());
             }
-            notifyProductsInfosFetched(result.getResponseCode() == BillingClient.BillingResponseCode.OK);
+            NativeUtility.getMainActivity().runOnGLThread(() -> notifyProductsInfosFetched(result.getResponseCode() == BillingClient.BillingResponseCode.OK));
         });
     }
 
@@ -257,7 +257,7 @@ public class InAppManager implements
                     // So we have to extract the price an other way :
                     try {
                         // Regex to extract double
-                        String regex ="(-)?(([^\\\\d])(0)|[1-9][0-9]*)(.)([0-9]+)";
+                        String regex ="(-)?(([^\\\\d])(0)|[1-9]\\d*)(.)(\\d+)";
                         Matcher matcher = Pattern.compile( regex ).matcher(details.getPrice());
                         if(matcher.find()) {
                             priceString = matcher.group();
@@ -344,7 +344,7 @@ public class InAppManager implements
             @Override
             public void onBillingSetupFinished(@NonNull BillingResult result) {
                 int responseCode = result.getResponseCode();
-                if (result.getResponseCode() ==  BillingClient.BillingResponseCode.OK) {
+                if (responseCode == BillingClient.BillingResponseCode.OK) {
                     Log.i(TAG, "Billing setup finished, requesting products data...");
                     // BillingClient is initialized, execute pending queries
                     requestProductsData(skuListToQuery);
@@ -368,11 +368,11 @@ public class InAppManager implements
                 }
                 else if(responseCode == BillingClient.BillingResponseCode.BILLING_UNAVAILABLE) {
                     Log.e(TAG, "Error during billing client setup, billing is unavailable");
-                    notifyFailure(SERVICE_EVENT_TYPE, "BillingUnavailable", "Play services are not available or no Google account is set up");
+                    NativeUtility.getMainActivity().runOnGLThread(() -> notifyFailure(SERVICE_EVENT_TYPE, "BillingUnavailable", "Play services are not available or no Google account is set up"));
                 }
                 else {
                     Log.e(TAG, "Error during billing client setup, error code: " + responseCode + ", message: " + result.getDebugMessage());
-                    notifyFailure(SERVICE_EVENT_TYPE, "BillingSetupFailure", "Error "+ responseCode + " during onBillingSetupFinished: " + result.getDebugMessage());
+                    NativeUtility.getMainActivity().runOnGLThread(() -> notifyFailure(SERVICE_EVENT_TYPE, "BillingSetupFailure", "Error " + responseCode + " during onBillingSetupFinished: " + result.getDebugMessage()));
                 }
             }
 
@@ -388,10 +388,12 @@ public class InAppManager implements
     void handlePurchase(Purchase purchase, boolean buy) {
         //Note: consuming an in-app purchase is currently not supported
         if(purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
-            for (String sku : purchase.getSkus()) {
-                //It's up to the native code to call acknowledgePurchase once server verification is done.
-                notifySuccess(buy ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, sku, purchase.getPurchaseToken(), purchase.getOrderId(), !purchase.isAcknowledged());
-            }
+            NativeUtility.getMainActivity().runOnGLThread(() -> {
+                for (String sku : purchase.getSkus()) {
+                    //It's up to the native code to call acknowledgePurchase once server verification is done.
+                    notifySuccess(buy ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, sku, purchase.getPurchaseToken(), purchase.getOrderId(), !purchase.isAcknowledged());
+                }
+            });
         }
         //Right now, UNSPECIFIED_STATE and PENDING purchases are not explicitly handled.
         //Google documentation states that "Additional forms of payment are not available for subscriptions purchases." which means no pending transactions
@@ -399,7 +401,6 @@ public class InAppManager implements
             for (String sku : purchase.getSkus()) {
                 Log.i(TAG, "Purchase in " + (purchase.getPurchaseState() == Purchase.PurchaseState.PENDING ? "PENDING" : "UNSPECIFIED_STATE") + "state for sku " + sku + " and order " + purchase.getOrderId() + ", ignoring it");
             }
-
         }
     }
 
@@ -413,16 +414,14 @@ public class InAppManager implements
             }
         }
         else {
-            if (responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
-                notifyFailure(buyInProgress ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, "PayementCanceled", "Purchase cancelled by user during onPurchasesUpdated");
-            }
-            else if(responseCode == BillingClient.BillingResponseCode.SERVICE_DISCONNECTED) {
-                notifyFailure(buyInProgress ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, "ServiceDisconnected", "Service disconnected during request, please retry");
-            }
-            else if(responseCode == BillingClient.BillingResponseCode.BILLING_UNAVAILABLE) {
-                notifyFailure(buyInProgress ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, "BillingUnavailable", "Play services are not available or no Google account is set up");
-            }
-            else {
+            NativeUtility.getMainActivity().runOnGLThread(() -> {
+                if (responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
+                    notifyFailure(buyInProgress ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, "PayementCanceled", "Purchase cancelled by user during onPurchasesUpdated");
+                } else if (responseCode == BillingClient.BillingResponseCode.SERVICE_DISCONNECTED) {
+                    notifyFailure(buyInProgress ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, "ServiceDisconnected", "Service disconnected during request, please retry");
+                } else if (responseCode == BillingClient.BillingResponseCode.BILLING_UNAVAILABLE) {
+                    notifyFailure(buyInProgress ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, "BillingUnavailable", "Play services are not available or no Google account is set up");
+                } else {
             /* List of possible errors: https://stackoverflow.com/questions/68825055/what-result-codes-can-be-returned-from-billingclient-launchbillingflow
              * Errors not handled explicitly here:
                 - DEVELOPER_ERROR => no need to handle, should only happen in dev if not properly setup
@@ -432,9 +431,10 @@ public class InAppManager implements
                 - ITEM_ALREADY_OWNED => not possible here, it should be launched before
                 - ITEM_UNAVAILABLE => no need to handle, should never happen
              */
-                Log.e(TAG, "Error during onPurchasesUpdated, error code: " + responseCode + ", message: " + result.getDebugMessage());
-                notifyFailure(buyInProgress ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, "PurchaseUpdateFailure", "Error "+ responseCode + " during onPurchasesUpdated: " + result.getDebugMessage());
-            }
+                    Log.e(TAG, "Error during onPurchasesUpdated, error code: " + responseCode + ", message: " + result.getDebugMessage());
+                    notifyFailure(buyInProgress ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, "PurchaseUpdateFailure", "Error " + responseCode + " during onPurchasesUpdated: " + result.getDebugMessage());
+                }
+            });
         }
         buyInProgress = false;
     }
@@ -449,7 +449,7 @@ public class InAppManager implements
         }
         if (responseCode == BillingClient.BillingResponseCode.OK) {
             if(list.isEmpty()) {
-                notifyFailure(buyInProgress ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, "NoPurchases", "No purchases found during query.");
+                NativeUtility.getMainActivity().runOnGLThread(() -> notifyFailure(buyInProgress ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, "NoPurchases", "No purchases found during query."));
             }
         }
         else {
@@ -460,8 +460,10 @@ public class InAppManager implements
             else {
                 Log.e(TAG, "Could not query purchases, error code "+ responseCode + ", details: " + result.getDebugMessage());
                 if(!buyInProgress) {
-                    //Send a signal so that if the user is waiting for restore, he can be alerted something went wrong
-                    notifyFailure(RESTORE_EVENT_TYPE, "BillingFlowError", "Could not query purchases, error code "+ responseCode + ", details: " + result.getDebugMessage());
+                    NativeUtility.getMainActivity().runOnGLThread(() -> {
+                        //Send a signal so that if the user is waiting for restore, he can be alerted something went wrong
+                        notifyFailure(RESTORE_EVENT_TYPE, "BillingFlowError", "Could not query purchases, error code " + responseCode + ", details: " + result.getDebugMessage());
+                    });
                 }
             }
         }

@@ -276,7 +276,7 @@ public class VideoPicker implements ActivityResultResponder {
 
             // Copy file into the app
             String path = getFullPathFromURI(videoUri);
-            _fileName += path.substring(path.lastIndexOf("."));
+            _fileName += path.substring(path.lastIndexOf(".")).toLowerCase();
             String destinationPath = FileUtility.getFullPath(_fileName, _location);
             File destinationFile = new File(destinationPath);
             //noinspection ResultOfMethodCallIgnored,ConstantConditions

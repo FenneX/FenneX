@@ -43,6 +43,12 @@ NS_FENNEX_BEGIN
 
 #define IFEXIST(obj) if(obj != nullptr) (obj)
 
+// Use this security when there is a chance the object doesn't exist
+static inline void addIfExist(Vector<RawObject*>& array, RawObject* object)
+{
+    if(object) array.pushBack(object);
+}
+
 /* creation shorteners : since those are widly used, shortening the name makes sense (much like ccp), as well as uniformizing the format
  * format *create where * is the type
  I = Integer
