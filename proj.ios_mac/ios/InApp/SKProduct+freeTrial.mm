@@ -22,30 +22,51 @@
  THE SOFTWARE.
  ****************************************************************************///
 
-#import "StoreKit/StoreKit.h"
-#include "InAppWrapper.h"
+#import "SKProduct+freeTrial.h"
+#import "InAppPurchaseManager.h"
 
-@interface InAppPurchaseManager : NSObject <SKPaymentTransactionObserver, SKProductsRequestDelegate>
+@implementation SKProduct (freeTrial)
+
+- (FreeTrialStatus) freeTrialStatus
 {
-    NSMutableArray* productsInfos;
-    SKProductsRequest* productsRequest;
-    FreeTrialStatus receiptStatus;
-    NSString* initAppleReceipt;
+    if(self.introductoryPrice == nil)
+    {
+        return NoOffer;
+    }
+    if([self.introductoryPrice.price compare:NSDecimalNumber.zero] != NSOrderedSame)
+    {
+        //The introductory price is not a free trial
+        return NoOffer;
+    }
+    // Will return either Eligible, AlreadyUsed or UnknownStatus
+    return [InAppPurchaseManager sharedManager].receiptStatus;
+}
+- (FreeTrialPeriod) freeTrialPeriod
+{
+    if(self.freeTrialStatus == Eligible)
+    {
+        switch(self.introductoryPrice.subscriptionPeriod.unit)
+        {
+            case SKProductPeriodUnitDay:
+                return Day;
+            case SKProductPeriodUnitWeek:
+                return Week;
+            case SKProductPeriodUnitMonth:
+                return Month;
+            case SKProductPeriodUnitYear:
+                return Year;
+        }
+    }
+    return UnknownPeriod;
 }
 
-@property (nonatomic, readonly) NSArray* productsInfos;
-// Note: doesn't check for offer status. It's only meant to be used by SKProduct+freeTrial after checking if there is an offer on the product
-@property (nonatomic, readonly) FreeTrialStatus receiptStatus;
-
-+ (InAppPurchaseManager*) sharedManager;
-
-- (void)queryReceiptData;
-
-- (void)requestProductsData:(NSSet*)productIdentifiers;
-- (void)productsRequest:(SKProductsRequest *)request didReceiveResponse:(SKProductsResponse *)response;
-
-- (void)buyProductIdentifier:(NSString *)productIdentifier;
-- (void)restoreTransactions;
-- (NSString*)getAppleReceipt;
+- (int) freeTrialPeriodNumber
+{
+    if(self.freeTrialStatus == Eligible)
+    {
+        return self.introductoryPrice.numberOfPeriods;
+    }
+    return 0;
+}
 
 @end

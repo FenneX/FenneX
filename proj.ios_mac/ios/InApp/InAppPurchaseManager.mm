@@ -76,8 +76,87 @@ static InAppPurchaseManager* _sharedManager = nil;
         [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
         productsRequest = nil;
         productsInfos = nil;
+        receiptStatus = UnknownStatus;
+        initAppleReceipt = [[NSString stringWithString:[self getAppleReceipt]] retain];
+        NSLog(@"InAppPurchaseManager init, got apple receipt: %@", initAppleReceipt);
+        [self queryReceiptData];
 	}
 	return self;
+}
+
+- (void)queryReceiptData
+{
+    //Note: it's not possible to know if a trial was used using SKPaymentTransaction. Thanks Apple...
+    //Instead, use the deprecated (thanks Apple again) endpoint verifyReceipt to check if a receipt has a trial marker
+    //This endpoint is supposed to be called server-side, but frankly for that info we do not care about a M2M
+    //since in the end, Apple is checking if the user is eligible for free trial or not. We're just displaying info based on it.
+    if([[self getAppleReceipt] length] == 0) {
+        //There is no receipt, the user is eligible to free trial
+        receiptStatus = Eligible;
+        return;
+    }
+    NSString* appSecret = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"FenneXInAppManagerSecret"];
+    if(appSecret == nil || [appSecret length] == 0)
+    {
+        NSLog(@"Cannot check for free trial eligibility since FenneXInAppManagerSecret is not configured in Info.plist");
+        return;
+    }
+    //Bypass checks if it was already marked as already used.
+    NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString* receiptStatusPath = [[paths objectAtIndex:0] stringByAppendingPathComponent:@"receiptStatus.plist"];
+    NSDictionary* receiptStatusFile = [NSDictionary dictionaryWithContentsOfFile:receiptStatusPath];
+    if(receiptStatusFile != nil && [[receiptStatusFile objectForKey:@"receiptStatus"] isEqualToString:@"AlreadyUsed"]) {
+        receiptStatus = AlreadyUsed;
+        return;
+    }
+
+    //Code from https://gitshah.medium.com/how-to-do-ios-receipt-validation-in-objective-c-edfcbcdb79b2
+    NSString* payload = [NSString stringWithFormat:@"{\"receipt-data\" : \"%@\", \"password\" : \"%@\"}",
+                    [self getAppleReceipt], appSecret];
+
+    NSData* payloadData = [payload dataUsingEncoding:NSUTF8StringEncoding];
+    
+#if DEBUG_ONLY
+    NSURL* storeURL = [[[NSURL alloc] initWithString:@"https://sandbox.itunes.apple.com/verifyReceipt"] autorelease];
+#else
+    NSURL* storeURL = [[[NSURL alloc] initWithString:@"https://buy.itunes.apple.com/verifyReceipt"] autorelease];
+#endif
+
+    NSMutableURLRequest* storeRequest = [[[NSMutableURLRequest alloc] initWithURL:storeURL] autorelease];
+    [storeRequest setHTTPMethod:@"POST"];
+    [storeRequest setHTTPBody:payloadData];
+    NSURLSession* session = [NSURLSession sessionWithConfiguration: [NSURLSessionConfiguration defaultSessionConfiguration]];
+    auto task = [session dataTaskWithRequest:storeRequest completionHandler:^(NSData* _Nullable data, NSURLResponse* _Nullable response, NSError * _Nullable error) {
+        if(error) {
+            NSLog(@"We got the error while validating the receipt: %s", [[error description] UTF8String]);
+            return;
+        }
+        NSError* localError = nil;
+        //Parsing the response as JSON.
+        NSDictionary* jsonResponse = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&localError];
+
+        //Getting the latest_receipt_info field value.
+        NSArray* receiptInfo = jsonResponse[@"latest_receipt_info"];
+        receiptStatus = Eligible;
+        if(!receiptInfo || [receiptInfo count] == 0) {
+            NSLog(@"%s", "Looks like this customer has no purchases!");
+            return;
+        }
+
+        //Only check if a free trial has been used. All the other checks should be done server-side to avoid spoofing
+        for (NSDictionary *lastReceipt in receiptInfo) {
+            NSString* isTrialPeriod = lastReceipt[@"is_trial_period"];
+            NSString* isInIntroOfferPeriod = lastReceipt[@"is_in_intro_offer_period"];
+            if([isTrialPeriod isEqualToString:@"true"] || [isInIntroOfferPeriod isEqualToString:@"true"]) {
+                receiptStatus = AlreadyUsed;
+                //save that locally to avoid redoing the query each time when we already know the result
+                [[NSDictionary dictionaryWithObjectsAndKeys:@"AlreadyUsed", @"receiptStatus", nil] writeToFile:receiptStatusPath atomically:YES];
+            }
+        }
+        return;
+    }];
+
+    [task resume];
 }
 
 - (void)requestProductsData:(NSSet*)productIdentifiers;
@@ -114,6 +193,7 @@ static InAppPurchaseManager* _sharedManager = nil;
         NSLog(@"Product price as string: %@" , product.priceAsString);
         NSString* number = [product.productIdentifier substringFromSet:[NSCharacterSet decimalDigitCharacterSet]
                                                                options:NSBackwardsSearch|NSAnchoredSearch];
+        NSLog(@"Product introductory price: %@" , product.introductoryPrice);
         if(number != nil)
         {
             NSLog(@"Product price per unit as string: %@", [product pricePerUnit:[number intValue]]);
@@ -126,6 +206,7 @@ static InAppPurchaseManager* _sharedManager = nil;
         NSLog(@"Invalid product id: %@" , invalidProductId);
         invalid = true;
     }
+    NSLog(@"Receipt: %@" , [self getAppleReceipt]);
     
     // finally release the reqest we alloc/init’ed in requestProUpgradeProductData
     [productsRequest release];
@@ -143,6 +224,14 @@ static InAppPurchaseManager* _sharedManager = nil;
 
 - (void)recordTransaction:(SKPaymentTransaction *)transaction {   
 	NSLog(@"Recording transaction ...");
+    //There should be a receipt now, query receipt data
+    if([initAppleReceipt length] == 0 && [[self getAppleReceipt] length] != 0) {
+        receiptStatus = UnknownStatus;
+        [self queryReceiptData];
+        [initAppleReceipt autorelease];
+        initAppleReceipt = [[NSString stringWithString:[self getAppleReceipt]] retain];
+        NSLog(@"InAppPurchaseManager re-querying receipt data with apple receipt: %@", initAppleReceipt);
+    }
     // Optional: Record the transaction on the server side...    
 }
 
@@ -250,7 +339,6 @@ const char* getPrintableTransactionState(SKPaymentTransactionState state)
     }
     else
     {
-        
         for (SKPaymentTransaction *transaction in transactions)
         {
             if(transaction.transactionState == SKPaymentTransactionStateFailed)

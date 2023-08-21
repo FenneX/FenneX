@@ -77,7 +77,25 @@ void requestProductsData(std::vector<std::string> products);
  - PriceString (String) (localized price)
  - PricePerUnitString (String) (localized price per unit, it will be equal to Price if the Unit isn't found. The unit should be at the end of the productId)
  - Unit (Integer) default to 1 if the Unit isn't found
+ - FreeTrialStatus (FreeTrialStatus as Integer): see below
+ - FreeTrialPeriod (FreeTrialPeriod as Integer): see below
+ - FreeTrialPeriodNumber (Integer): number of periods
 */
 ValueMap getProductsInfos();
+
+typedef enum {
+  UnknownStatus = 0,
+  Eligible = 1, // The Store account is eligible for a free trial
+  AlreadyUsed = 2, // The Store account already used the free trial
+  NoOffer = 3, // There is no introductory offer configured on AppStore/Play Store
+} FreeTrialStatus;
+
+typedef enum {
+    UnknownPeriod = 0,
+    Day = 1,
+    Week = 2,
+    Month = 3,
+    Year = 4,
+} FreeTrialPeriod;
 
 #endif
