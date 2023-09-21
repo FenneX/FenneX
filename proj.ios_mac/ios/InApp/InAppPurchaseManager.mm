@@ -40,6 +40,7 @@ static inline NSNumber* NSint(const int v)
 @implementation InAppPurchaseManager
 
 @synthesize productsInfos;
+@synthesize receiptStatus;
 
 static InAppPurchaseManager* _sharedManager = nil;
 
