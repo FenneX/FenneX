@@ -41,6 +41,7 @@ import com.android.billingclient.api.SkuDetailsParams;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -87,6 +88,8 @@ public class InAppManager implements
 
     //Bought in-apps to acknowledge
     private static String tokenToAcknowledge = null;
+
+    private static List<Purchase> purchasesList = null;
 
     public static void initialize() {
         //Called from C++ to ensure there is an initialization
@@ -216,7 +219,7 @@ public class InAppManager implements
             skuDetailsList = list;
             Log.i(TAG, "Got " + Objects.requireNonNull(list).size() + " sku details, billing response was: " + result.getResponseCode() + ": " + result.getDebugMessage());
             for(SkuDetails details : skuDetailsList) {
-                Log.i(TAG, "  " + details.getSku() + ": " + details.getTitle() + ", " + details.getPrice());
+                Log.i(TAG, "  " + details.getSku() + ": " + details.getTitle() + ", " + details.getPrice() + ", free trial duration: " + details.getFreeTrialPeriod());
             }
             NativeUtility.getMainActivity().runOnGLThread(() -> notifyProductsInfosFetched(result.getResponseCode() == BillingClient.BillingResponseCode.OK));
         });
@@ -289,6 +292,35 @@ public class InAppManager implements
                         }
                     }
                 }
+                String freeTrialStatus = "[Int]0"; //Unknown status
+                String freeTrialPeriod = "[Int]0";
+                String freeTrialPeriodNumber = "[Int]0";
+
+                //If we don't have purchases list yet, we cannot determine if it's been used or not yet
+                if(purchasesList != null) {
+                    if(purchasesList.size() == 0) {
+                        //Only support a single period of either day, week, month or year
+                        String REGEX = "^^P(\\d*)([DWMY])$";
+                        Pattern pattern = Pattern.compile(REGEX);
+                        Matcher matcher = pattern.matcher(details.getFreeTrialPeriod());
+                        if (matcher.find()) {
+                            String period = matcher.group(2);
+                            // Match int values of C++ enum
+                            if (Objects.equals(period, "D")) freeTrialPeriod = "[Int]1";
+                            if (Objects.equals(period, "W")) freeTrialPeriod = "[Int]2";
+                            if (Objects.equals(period, "M")) freeTrialPeriod = "[Int]3";
+                            if (Objects.equals(period, "Y")) freeTrialPeriod = "[Int]4";
+                            freeTrialPeriodNumber = "[Int]" + matcher.group(1);
+                            freeTrialStatus = "[Int]1"; //Eligible
+                        } else {
+                            freeTrialStatus = "[Int]3"; //No offer
+                        }
+                    }
+                    else {
+                        freeTrialStatus = "[Int]2"; //Already used
+                    }
+                }
+                Log.e(TAG, "Got free trial period: " + freeTrialPeriod + ", number: " + freeTrialPeriodNumber);
 
                 return new String[]{
                         "Title", "[Str]" + details.getTitle(),
@@ -297,7 +329,11 @@ public class InAppManager implements
                         "Identifier", "[Str]" + productId,
                         "Units", "[Int]" + unitsNumber,
                         "PriceString", "[Str]" + details.getPrice(),
-                        "PricePerUnitString", (pricePerUnit != null ? "[Str]" + pricePerUnit : "")};
+                        "PricePerUnitString", (pricePerUnit != null ? "[Str]" + pricePerUnit : ""),
+                        "FreeTrialStatus", freeTrialStatus,
+                        "FreeTrialPeriod", freeTrialPeriod,
+                        "FreeTrialPeriodNumber", freeTrialPeriodNumber,
+                };
             }
         }
         return new String[] {};
@@ -390,6 +426,7 @@ public class InAppManager implements
         if(purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
             NativeUtility.getMainActivity().runOnGLThread(() -> {
                 for (String sku : purchase.getSkus()) {
+                    Log.e(TAG, "Purchase token: " + purchase.getPurchaseToken());
                     //It's up to the native code to call acknowledgePurchase once server verification is done.
                     notifySuccess(buy ? BUY_EVENT_TYPE : RESTORE_EVENT_TYPE, sku, purchase.getPurchaseToken(), purchase.getOrderId(), !purchase.isAcknowledged());
                 }
@@ -443,6 +480,7 @@ public class InAppManager implements
     public void onQueryPurchasesResponse(@NonNull BillingResult result, @NonNull List<Purchase> list) {
         Log.i(TAG, "Got purchases responses with " + list.size() + " purchases.");
         int responseCode = result.getResponseCode();
+        purchasesList = list;
         shouldQueryPurchases = false;
         for (Purchase purchase : list) {
             handlePurchase(purchase, false);

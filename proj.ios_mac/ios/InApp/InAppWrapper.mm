@@ -26,6 +26,7 @@
 #include "Shorteners.h"
 #import "InAppPurchaseManager.h"
 #import "SKProduct+priceAsString.h"
+#import "SKProduct+freeTrial.h"
 #import "NSString+RangeOfCharacters.h"
 
 USING_NS_FENNEX;
@@ -75,13 +76,16 @@ ValueMap getProductsInfos()
         NSString* number = [product.productIdentifier substringFromSet:[NSCharacterSet decimalDigitCharacterSet]
                                                                options:NSBackwardsSearch|NSAnchoredSearch];
         infos.insert({[product.productIdentifier UTF8String], Value(ValueMap({
-                {"Title", Value([product.localizedTitle UTF8String])},
-                {"Description", Value([product.localizedDescription UTF8String])},
-                {"Price", Value([product.price doubleValue])},
-                {"Identifier", Value([product.productIdentifier UTF8String])},
-                {"PriceString", Value([product.priceAsString UTF8String])},
-                {"Number", Value(number != nil ? [number intValue] : 1)},
-                {"PricePerUnitString", Value([[product pricePerUnit:number != nil ? [number intValue] : 1] UTF8String])},
+            {"Title", Value([product.localizedTitle UTF8String])},
+            {"Description", Value([product.localizedDescription UTF8String])},
+            {"Price", Value([product.price doubleValue])},
+            {"Identifier", Value([product.productIdentifier UTF8String])},
+            {"PriceString", Value([product.priceAsString UTF8String])},
+            {"Number", Value(number != nil ? [number intValue] : 1)},
+            {"PricePerUnitString", Value([[product pricePerUnit:number != nil ? [number intValue] : 1] UTF8String])},
+            {"FreeTrialStatus", Value(product.freeTrialStatus)},
+            {"FreeTrialPeriod", Value(product.freeTrialPeriod)},
+            {"FreeTrialPeriodNumber", Value(product.freeTrialPeriodNumber)},
         }))});
     }
     return infos;

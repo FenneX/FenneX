@@ -22,30 +22,17 @@
  THE SOFTWARE.
  ****************************************************************************///
 
-#import "StoreKit/StoreKit.h"
+#import <StoreKit/StoreKit.h>
 #include "InAppWrapper.h"
 
-@interface InAppPurchaseManager : NSObject <SKPaymentTransactionObserver, SKProductsRequestDelegate>
-{
-    NSMutableArray* productsInfos;
-    SKProductsRequest* productsRequest;
-    FreeTrialStatus receiptStatus;
-    NSString* initAppleReceipt;
-}
+NS_ASSUME_NONNULL_BEGIN
 
-@property (nonatomic, readonly) NSArray* productsInfos;
-// Note: doesn't check for offer status. It's only meant to be used by SKProduct+freeTrial after checking if there is an offer on the product
-@property (nonatomic, readonly) FreeTrialStatus receiptStatus;
+@interface SKProduct (freeTrial)
 
-+ (InAppPurchaseManager*) sharedManager;
-
-- (void)queryReceiptData;
-
-- (void)requestProductsData:(NSSet*)productIdentifiers;
-- (void)productsRequest:(SKProductsRequest *)request didReceiveResponse:(SKProductsResponse *)response;
-
-- (void)buyProductIdentifier:(NSString *)productIdentifier;
-- (void)restoreTransactions;
-- (NSString*)getAppleReceipt;
+@property (nonatomic, readonly) FreeTrialStatus freeTrialStatus;
+@property (nonatomic, readonly) FreeTrialPeriod freeTrialPeriod;
+@property (nonatomic, readonly) int freeTrialPeriodNumber;
 
 @end
+
+NS_ASSUME_NONNULL_END
