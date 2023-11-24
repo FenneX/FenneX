@@ -181,8 +181,12 @@ public class Cocos2dxHttpURLConnection
             BufferedOutputStream bos = new BufferedOutputStream(http.getOutputStream());
             BufferedInputStream bis = new BufferedInputStream(new FileInputStream(uploadFile));
             int i;
-            // read byte by byte until end of stream (which is indicated by -1)
-            while ((i = bis.read()) >= 0) {
+            // read byte by byte until end of stream (which is indicated by -1).
+            // A byte is supposed to be between 0 and 255 and should never be negative
+            // But somehow we have a healthy number of partially transferred files (condition used to be >= 0)
+            // Note to future self: this likely ISN'T the reason, when cutting Wifi while it's writing, we properly
+            // have an IOException and getResponseCode properly returns 0
+            while ((i = bis.read()) != -1) {
                 bos.write(i);
             }
             bis.close();
