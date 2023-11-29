@@ -307,7 +307,7 @@ std::string replaceStrOccurencesInString(std::map<std::string, std::string> strO
 
 std::map<std::string,std::string> queryToMap(std::string query)
 {
-    if(query.at(0) == '?')
+    if(!query.empty() && query.at(0) == '?')
     { // Ignore any leading interrogation part
         query = query.substr(1);
     }
