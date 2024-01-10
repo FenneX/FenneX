@@ -66,4 +66,9 @@ static inline void notifyVideoPickCancelled()
     DelayedDispatcher::eventAfterDelay("VideoPickerCancelled", Value(), 0.01);
 }
 
+static inline void notifyBatchVideoFound(ValueVector videos)
+{
+    DelayedDispatcher::eventAfterDelay("BatchVideoFound", Value(videos), 0.01);
+}
+
 #endif

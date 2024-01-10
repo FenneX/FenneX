@@ -26,6 +26,7 @@
 #include "platform/android/jni/JniHelper.h"
 #include "VideoPickerWrapper.h"
 #include "DevicePermissions.h"
+#include <vector>
 
 #define CLASS_NAME "com/fennex/modules/VideoPicker"
 
@@ -84,6 +85,35 @@ extern "C"
     void Java_com_fennex_modules_VideoPicker_notifyVideoName(JNIEnv* env, jobject thiz, jstring path, jstring name)
     {
         notifyVideoName(JniHelper::jstring2string(path), JniHelper::jstring2string(name));
+    }
+
+    void Java_com_fennex_modules_VideoPicker_notifyBatchVideoFound(JNIEnv* env, jobject thiz, jobjectArray jstringArrArr)
+    {
+        ValueVector videosVector;
+        int len = env->GetArrayLength(jstringArrArr);
+        for (int i=0; i<len; i++) {
+            jobjectArray jstrArr = (jobjectArray) (env->GetObjectArrayElement(jstringArrArr, i));
+            int len2 = env->GetArrayLength(jstrArr);
+            ValueVector video;
+            for (int j=0; j<len2; j++) {
+                // Cast array element to string
+                jstring jstr = (jstring)(env->GetObjectArrayElement(jstrArr, j));
+
+                // Convert Java string to std::string
+                const jsize strLen = env->GetStringUTFLength(jstr);
+                const char *charBuffer = env->GetStringUTFChars(jstr, (jboolean *) 0);
+                std::string str(charBuffer, strLen);
+
+                // Push back string to vector
+                video.push_back(Value(str));
+
+                // Release memory
+                env->ReleaseStringUTFChars(jstr, charBuffer ) ;
+                env->DeleteLocalRef(jstr);
+            }
+            videosVector.push_back(Value(video));
+        }
+        notifyBatchVideoFound(videosVector);
     }
     
     void Java_com_fennex_modules_VideoPicker_notifyGetAllVideosFinished(JNIEnv* env, jobject thiz)

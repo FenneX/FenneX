@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -77,6 +78,8 @@ public class VideoPicker implements ActivityResultResponder {
     public native static void notifyGetAllVideosFinished();
     public native static void notifyVideoPickCancelled();
 
+    public native static void notifyBatchVideoFound(String[][] videos);
+
     
     @SuppressWarnings("unused")
     public static void pickVideoFromLibrary(String saveName, int location)
@@ -116,14 +119,65 @@ public class VideoPicker implements ActivityResultResponder {
     }
     
     @SuppressWarnings("unused")
-    public static void getAllVideos()
-    {
-    	//This code is heavily copied from VLC org.videolan.vlc.MediaLibrary
-    	Thread thread = new Thread()
-        {
+    public static void getAllVideos() {
+        if (Build.VERSION.SDK_INT >= 33) {
+            getAllVideosNew();
+        } else {
+            getAllVideosOld();
+        }
+    }
+
+    public static void getAllVideosNew() {
+        Thread thread = new Thread() {
             @Override
             public void run() {
+                String[] projection = {
+                        MediaStore.Files.FileColumns._ID,
+                        MediaStore.Files.FileColumns.TITLE,
+                        MediaStore.Files.FileColumns.DURATION,
+                        MediaStore.Files.FileColumns.DATA,
+                };
 
+                String selection = MediaStore.Files.FileColumns.MEDIA_TYPE + "="
+                        + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
+
+                Uri queryUri = MediaStore.Files.getContentUri("external");
+
+                Cursor cursor = NativeUtility.getMainActivity().getContentResolver().query(
+                        queryUri,
+                        projection,
+                        selection,
+                        null,
+                        MediaStore.Files.FileColumns.DATE_ADDED + " DESC"
+                );
+                ArrayList<String[]> videos = new ArrayList<>();
+                while (cursor.moveToNext()) {
+                    String path = cursor.getString(3);
+                    String title = cursor.getString(1);
+                    String duration = String.valueOf(cursor.getFloat(2) / 1000);
+                    String[] video = new String[]{
+                            path, title, duration
+                    };
+                    videos.add(video);
+                }
+                NativeUtility.getMainActivity().runOnGLThread(() -> {
+                    String[][] videosArray = new String[videos.size()][3];
+                    videosArray = videos.toArray(videosArray);
+                    notifyBatchVideoFound(videosArray);
+                });
+                NativeUtility.getMainActivity().runOnGLThread(VideoPicker::notifyGetAllVideosFinished);
+            }
+        };
+        thread.start();
+    }
+
+// This function is kept to avoid old devices from changing behavior but it does not work on android > 13
+    private static void getAllVideosOld()
+    {
+        //This code is heavily copied from VLC org.videolan.vlc.MediaLibrary
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
             	final Stack<File> directories = new Stack<>();
             	final HashSet<String> directoriesScanned = new HashSet<>();
 
