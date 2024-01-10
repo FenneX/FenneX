@@ -35,6 +35,7 @@ enum class Permission {
     MICROPHONE = 1, // Use the device microphone
     CAMERA = 2, // Use the device Camera
     PHONE_STATE = 3, // get the phone state information
+    READ_MEDIA = 4, // Use the permission to read media files and information (on iOS and android < 13, it use STORAGE)
 };
 
 /**
