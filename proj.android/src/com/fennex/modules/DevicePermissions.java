@@ -29,6 +29,8 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import android.os.Build;
 import android.util.SparseIntArray;
 
 import java.util.HashMap;
@@ -44,6 +46,7 @@ public class DevicePermissions
     public static final int AUDIO_PERMISSION = 1;
     public static final int CAMERA_PERMISSION = 2;
     public static final int PHONE_STATE_PERMISSION = 3;
+    public static final int READ_MEDIA_PERMISSION = 4;
 
     private static final SparseIntArray currentRequest = new SparseIntArray();
     private static final Map<Integer, String> currentCustomRequest = new HashMap<>();
@@ -148,6 +151,11 @@ public class DevicePermissions
     private static String[] getPermissionString(int value){
         switch (value) {
             case EXTERNAL_STORAGE_PERMISSION:
+                return new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            case READ_MEDIA_PERMISSION:
+                if (Build.VERSION.SDK_INT == 33) {
+                    return new String[]{Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO};
+                }
                 return new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
             case AUDIO_PERMISSION:
                 return new String[]{Manifest.permission.RECORD_AUDIO};
