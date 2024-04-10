@@ -153,6 +153,12 @@ public class DevicePermissions
             case EXTERNAL_STORAGE_PERMISSION:
                 return new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
             case READ_MEDIA_PERMISSION:
+                if (Build.VERSION.SDK_INT >= 34) {
+                    return new String[]{
+                            Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,
+                            Manifest.permission.READ_MEDIA_IMAGES,
+                            Manifest.permission.READ_MEDIA_VIDEO};
+                }
                 if (Build.VERSION.SDK_INT == 33) {
                     return new String[]{Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO};
                 }
