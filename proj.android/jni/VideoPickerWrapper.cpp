@@ -34,7 +34,14 @@ void pickVideoFromLibrary(const std::string& saveName, FileLocation location)
 {
     DevicePermissions::ensurePermission(Permission::STORAGE, [=](){
         JniMethodInfo minfo;
-        bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "pickVideoFromLibrary", "(Ljava/lang/String;I)V");
+        //Previous method to pick videos.
+        //In some cases, the calling app is killed while the video is being picked using that method
+        //bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "pickVideoFromLibrary", "(Ljava/lang/String;I)V");
+
+        //"New" method to pick videos, that mirror pick image method (using Intent.ACTION_GET_CONTENT)
+        //Hopefully this method will work correctly and the calling app won't be killed while the video is being picked
+        bool functionExist = JniHelper::getStaticMethodInfo(minfo, CLASS_NAME, "pickVideoWithWidget", "(Ljava/lang/String;I)V");
+
         CCAssert(functionExist, "Function doesn't exist");
         jstring jSaveName = minfo.env->NewStringUTF(saveName.c_str());
         minfo.env->CallStaticVoidMethod(minfo.classID, minfo.methodID, jSaveName, (jint)location);
