@@ -4,8 +4,6 @@ import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
@@ -347,19 +345,22 @@ public class VideoPicker implements ActivityResultResponder {
         }
         else if (requestCode == VIDEO_GALLERY || requestCode == CAMERA_CAPTURE || requestCode == VIDEO_GALLERY_WIDGET)
 		{
-            Log.d(TAG, "onActivityResult(" + requestCode + "," + resultCode + "," + data.getExtras());
+            Log.d(TAG, "onActivityResult(" + requestCode + "," + resultCode + "," + data.getExtras() + ")");
 			Log.d(TAG, "intent data: " + data.getDataString());
+            Log.d(TAG, "filename: " + _fileName);
 	        Uri videoUri = data.getData();
+            Log.d(TAG, "video URI: " + videoUri.toString());
 
-            // Copy file into the app
+            // Copy file into the app. If it's not an actual file path, assume it's a mp4.
             String path = getFullPathFromURI(videoUri);
-            _fileName += path.substring(path.lastIndexOf(".")).toLowerCase();
+            if(path != null) _fileName += path.substring(path.lastIndexOf(".")).toLowerCase();
+            else _fileName += ".mp4";
             String destinationPath = FileUtility.getFullPath(_fileName, _location);
             File destinationFile = new File(destinationPath);
             //noinspection ResultOfMethodCallIgnored,ConstantConditions
             destinationFile.getParentFile().mkdirs();
 
-            Log.d(TAG, "video path : " + path + ", new filename : " + _fileName);
+            Log.d(TAG, "video Uri : " + videoUri + ", new filename : " + _fileName);
             if(!destinationFile.exists())
             {
                 InputStream in;
