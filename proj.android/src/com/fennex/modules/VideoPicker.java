@@ -37,6 +37,7 @@ public class VideoPicker implements ActivityResultResponder {
     private static final String TAG = "VideoPicker";
     private static final int VIDEO_GALLERY = 40;
     private static final int CAMERA_CAPTURE = 41;
+    private static final int VIDEO_GALLERY_WIDGET = 42;
     private static volatile VideoPicker instance = null;
 
     private static boolean isPending = false;
@@ -98,6 +99,26 @@ public class VideoPicker implements ActivityResultResponder {
 		{
 	    	Log.d(TAG, "intent for image pick from library not found : " + e.getMessage());
 		}
+    }
+
+    @SuppressWarnings("unused")
+    public static void pickVideoWithWidget(String saveName, int location)
+    {
+        VideoPicker.getInstance(); //ensure the instance is created
+        _fileName = saveName;
+        _location = FileUtility.FileLocation.valueOf(location);
+        try
+        {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT );
+            intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+            intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "video/*");
+            isPending = true;
+            NativeUtility.getMainActivity().startActivityForResult(intent, VIDEO_GALLERY_WIDGET);
+        }
+        catch(ActivityNotFoundException e)
+        {
+            Log.d(TAG, "intent for image pick from File library not found : " + e.getMessage());
+        }
     }
 
     @SuppressWarnings("unused")
@@ -322,28 +343,31 @@ public class VideoPicker implements ActivityResultResponder {
         {
             NativeUtility.getMainActivity().runOnGLThread(VideoPicker::notifyVideoPickCancelled);
         }
-        else if (requestCode == VIDEO_GALLERY || requestCode == CAMERA_CAPTURE)
+        else if (requestCode == VIDEO_GALLERY || requestCode == CAMERA_CAPTURE || requestCode == VIDEO_GALLERY_WIDGET)
 		{
-            Log.d(TAG, "onActivityResult(" + requestCode + "," + resultCode + "," + data.getExtras());
+            Log.d(TAG, "onActivityResult(" + requestCode + "," + resultCode + "," + data.getExtras() + ")");
 			Log.d(TAG, "intent data: " + data.getDataString());
+            Log.d(TAG, "filename: " + _fileName);
 	        Uri videoUri = data.getData();
+            Log.d(TAG, "video URI: " + videoUri.toString());
 
-            // Copy file into the app
+            // Copy file into the app. If it's not an actual file path, assume it's a mp4.
             String path = getFullPathFromURI(videoUri);
-            _fileName += path.substring(path.lastIndexOf(".")).toLowerCase();
+            if(path != null) _fileName += path.substring(path.lastIndexOf(".")).toLowerCase();
+            else _fileName += ".mp4";
             String destinationPath = FileUtility.getFullPath(_fileName, _location);
             File destinationFile = new File(destinationPath);
             //noinspection ResultOfMethodCallIgnored,ConstantConditions
             destinationFile.getParentFile().mkdirs();
 
-            Log.d(TAG, "video path : " + path + ", new filename : " + _fileName);
+            Log.d(TAG, "video Uri : " + videoUri + ", new filename : " + _fileName);
             if(!destinationFile.exists())
             {
                 InputStream in;
                 OutputStream out;
                 try
                 {
-                    in = new FileInputStream(path);
+                    in = requestCode == VIDEO_GALLERY || requestCode == CAMERA_CAPTURE ? new FileInputStream(path) : NativeUtility.getMainActivity().getContentResolver().openInputStream(videoUri);
                     out = new FileOutputStream(destinationPath);
                     byte[] buffer = new byte[1024];
                     int read;
