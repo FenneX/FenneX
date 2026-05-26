@@ -1360,7 +1360,7 @@ Vector<RawObject*> GraphicLayer::sortObjects(Vector<RawObject*> array)
 {
     std::sort(array.begin(),
               array.end(),
-              [](const void* a, const void* b) { return *((RawObject*)a) < *((RawObject*)b); });
+              [](const void* a, const void* b) { return ((RawObject*)a)->getID() < ((RawObject*)b)->getID(); });
     return array;
 }
 
@@ -1368,7 +1368,7 @@ Vector<Panel*> GraphicLayer::sortObjects(Vector<Panel*> array)
 {
     std::sort(array.begin(),
               array.end(),
-              [](const void* a, const void* b) { return *((Panel*)a) < *((Panel*)b); });
+              [](const void* a, const void* b) { return ((Panel*)a)->getID() < ((Panel*)b)->getID(); });
     return array;
 }
 

@@ -192,7 +192,7 @@ void SceneSwitcher::cancelSceneSwitch()
 
 bool SceneSwitcher::isSwitching()
 {
-    return processingSwitch || isEventFired;
+    return processingSwitch || isEventFired || nextScene != None;
 }
 
 void SceneSwitcher::allowReload()

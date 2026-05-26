@@ -28,14 +28,16 @@
 
 void openUrl(const std::string& url)
 {
-    [[UIApplication sharedApplication] openURL:
-     [NSURL URLWithString:[[NSString stringWithFormat:@"%s", url.c_str()] stringByAddingPercentEscapesUsingEncoding:
-                           NSUTF8StringEncoding]]];
+    NSString* urlstring = [[NSString stringWithFormat:@"%s", url.c_str()] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLFragmentAllowedCharacterSet]];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:urlstring] options:@{} completionHandler:^(BOOL success) {
+        if(success) NSLog(@"Opened URL %@", urlstring);
+        else NSLog(@"Could not open URL %@", urlstring);
+    }];
 }
 
 bool canOpenUrl(const std::string& url)
 {
-    return [[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:[[NSString stringWithFormat:@"%s", url.c_str()] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]];
+    return [[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:[[NSString stringWithFormat:@"%s", url.c_str()] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLFragmentAllowedCharacterSet]]]];
 }
 
 void sendMail(const std::string& address, const std::string& subject, const std::string& message, const std::string& attachmentPlist)

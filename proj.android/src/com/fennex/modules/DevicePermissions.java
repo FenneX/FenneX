@@ -71,6 +71,12 @@ public class DevicePermissions
     }
 
     private static boolean hasPermission(Context context, String[] permissions) {
+
+        // It's no longer possible to use those permissions on Android 13+
+        // Code requesting that should already be migrated to use app internal storage on Android 11+
+        // and only actually need it for migration purpose from Android 10- or if still running on Android 10-
+        if(permissions.length == 2 && permissions[0].equals(Manifest.permission.READ_EXTERNAL_STORAGE) && permissions[1].equals(Manifest.permission.WRITE_EXTERNAL_STORAGE) && android.os.Build.VERSION.SDK_INT >= 33)
+            return true;
         boolean allowed = true;
         int i = 0;
         while(allowed && i < permissions.length)
