@@ -70,6 +70,7 @@ proj.android/build/
 proj.android/gen/*
 proj.android/bin/*
 proj.android/assets/*
+proj.android/release/*
 
 .gradle/*
 proj.android/.gradle/*
