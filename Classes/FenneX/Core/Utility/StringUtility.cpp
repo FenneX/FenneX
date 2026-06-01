@@ -43,26 +43,29 @@ std::vector<std::pair<std::string, std::string>>* getConversions()
         return result;
     }
     result = new std::vector<std::pair<std::string, std::string>>();
-    char* upperCase = new char[20];
-    char* separator = new char[20];
-    char* lowerCase = new char[20];
+    // below sscanf reads up to 20 characters PLUS the terminating \0, so we need 21 characters
+    char* upperCase = new char[21];
+    char* separator = new char[21];
+    char* lowerCase = new char[21];
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     ssize_t bufferSize = 0;
     //Load file from apk
     const char* charbuffer = reinterpret_cast<const char*>(FileUtils::getInstance()->getFileData("letters_conversion.txt", "r", &bufferSize));
     if (charbuffer) {
         int index = 0;
-        while (sscanf(&charbuffer[index], "%20s %20s %20s", upperCase, separator, lowerCase) !=EOF)
+        int scanResult = sscanf(&charbuffer[index], "%20s %20s %20s", upperCase, separator, lowerCase);
+        while (scanResult == 3 && index < bufferSize - 10)
         {
             result->push_back(std::pair<std::string, std::string>(upperCase, lowerCase));
             //3 => 2 spaces + backspace
             index += strlen(upperCase) + strlen(lowerCase) + strlen(separator) + 3;
+            scanResult = sscanf(&charbuffer[index], "%20s %20s %20s", upperCase, separator, lowerCase);
         }
     }
 #else
     FILE* file = fopen(getResourcesPath("letters_conversion.txt").c_str(), "r");
     if (file) {
-        while (fscanf(file, "%s %s %s", upperCase, separator, lowerCase)!=EOF)
+        while (fscanf(file, "%20s %20s %20s", upperCase, separator, lowerCase)!=EOF)
         {
             result->push_back(std::pair<std::string, std::string>(upperCase, lowerCase));
         }
