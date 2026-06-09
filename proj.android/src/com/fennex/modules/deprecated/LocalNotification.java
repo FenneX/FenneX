@@ -51,7 +51,15 @@ public class LocalNotification{
 
 	public static void cancelAllNotifications(){
 		Log.i("LocalNotification", "cancelNotification");
+		if (NativeUtility.getMainActivity() == null) {
+			Log.i("LocalNotification", "Cannot cancelNotification: main activity is null");
+			return;
+		}
 		NotificationManager mNotificationManager = (NotificationManager) NativeUtility.getMainActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+		if (mNotificationManager == null) {
+			Log.i("LocalNotification", "Cannot cancelNotification: notification manager is null");
+			return;
+		}
 		mNotificationManager.cancelAll();
 	}
 	
