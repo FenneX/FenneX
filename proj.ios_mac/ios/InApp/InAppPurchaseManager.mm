@@ -440,7 +440,15 @@ const char* getPrintableTransactionState(SKPaymentTransactionState state)
 
 - (void)restoreTransactions
 {
-    [[SKPaymentQueue defaultQueue] restoreCompletedTransactions];
+    if([SKPaymentQueue canMakePayments])
+    {
+        NSLog(@"Requesting SKPaymentQueue.restoreCompletedTransactions");
+        [[SKPaymentQueue defaultQueue] restoreCompletedTransactions];
+    }
+    else
+    {
+        NSLog(@"Ignoring restoreTransactions as device does not allow making payments");
+    }
 }
 
 - (void) dealloc
