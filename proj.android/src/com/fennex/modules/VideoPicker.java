@@ -2,6 +2,7 @@ package com.fennex.modules;
 
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
@@ -31,6 +32,7 @@ import java.util.Stack;
 import java.util.StringTokenizer;
 
 import static android.app.Activity.RESULT_CANCELED;
+import static com.fennex.modules.VideoPlayer.getFile;
 
 public class VideoPicker implements ActivityResultResponder {
 
@@ -163,8 +165,8 @@ public class VideoPicker implements ActivityResultResponder {
                         + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
 
                 Uri queryUri = MediaStore.Files.getContentUri("external");
-
-                Cursor cursor = NativeUtility.getMainActivity().getContentResolver().query(
+                Context context = NativeUtility.getMainActivity();
+                Cursor cursor = context.getContentResolver().query(
                         queryUri,
                         projection,
                         selection,
@@ -175,7 +177,22 @@ public class VideoPicker implements ActivityResultResponder {
                 while (cursor.moveToNext()) {
                     String path = cursor.getString(3);
                     String title = cursor.getString(1);
-                    String duration = String.valueOf(cursor.getFloat(2) / 1000);
+                    float durationFloat = cursor.getFloat(2) / 1000;
+                    if(durationFloat == 0) {
+                        // Somehow, ContentResolver sometime returns 0, use MediaMetadataRetriever as a backup (slower)
+                        try (MediaMetadataRetriever retriever = new MediaMetadataRetriever()) {
+                            final File videoFile = getFile(path, FileUtility.FileLocation.Unknown);
+                            retriever.setDataSource(context, Uri.fromFile(videoFile));
+                            String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+                            if(time != null) {
+                                long timeInMillisec = Long.parseLong(time);
+                                durationFloat = timeInMillisec / 1000.0f;
+                            }
+                            retriever.release();
+                        } catch (IOException ignored) {
+                        }
+                    }
+                    String duration = String.valueOf(durationFloat);
                     String[] video = new String[]{
                             path, title, duration
                     };

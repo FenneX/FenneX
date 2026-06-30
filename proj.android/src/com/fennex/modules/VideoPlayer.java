@@ -661,7 +661,7 @@ public class VideoPlayer implements IVLCVout.Callback, Runnable {
 
     // location support Unknown which trigger legacy case
     @SuppressLint("SetWorldReadable")
-    private static File getFile(String path, FileUtility.FileLocation location) {
+    protected static File getFile(String path, FileUtility.FileLocation location) {
         File foundFile = null;
         if(location != FileUtility.FileLocation.Unknown) {
             if (location == FileUtility.FileLocation.Resources) {// Search first in expansion
